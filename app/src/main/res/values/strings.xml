@@ -267,6 +267,19 @@
     <string name="restore_failed">Restore failed: %1$s</string>
     <string name="title_five_finger_menu">Five-finger tap opens menu</string>
     <string name="summary_five_finger_menu">Tap the stream with five fingers to open the in-stream menu, independent of the Back Menu setting</string>
+    <string name="title_game_menu_style">In-stream menu style</string>
+    <string name="game_menu_style_list">List</string>
+    <string name="game_menu_style_grid">Grid with icons</string>
+    <string name="game_menu_style_compact">Compact</string>
+    <string name="title_customize_game_menu">Customize in-stream menu</string>
+    <string name="summary_customize_game_menu">Choose which actions appear in the Quick Menu and in what order</string>
+    <string name="game_menu_customize">Customize menu</string>
+    <string name="game_menu_editor_hint">Checked actions appear in the Quick Menu in this order. Drag the handle or long press a row to reorder. Unchecked actions stay under Advanced Menu.</string>
+    <string name="game_menu_editor_save">Save</string>
+    <string name="game_menu_editor_reset">Reset</string>
+    <string name="game_menu_editor_drag">Drag to reorder</string>
+    <string name="game_menu_item_zoom">Pan/Zoom</string>
+    <string name="game_menu_item_microphone">Mute or unmute microphone</string>
 
     <string name="category_gamepad_settings">Gamepad Settings</string>
     <string name="title_checkbox_multi_controller">Automatic gamepad presence detection</string>

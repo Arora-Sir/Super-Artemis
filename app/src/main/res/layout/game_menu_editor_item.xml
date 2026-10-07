@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Editor row: drag handle, action icon and label, and the "show in Quick Menu" checkbox -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:minHeight="52dp"
+    android:orientation="horizontal"
+    android:paddingLeft="8dp"
+    android:paddingRight="12dp">
+
+    <ImageView
+        android:id="@+id/game_menu_editor_handle"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:contentDescription="@string/game_menu_editor_drag"
+        android:scaleType="center"
+        android:src="@drawable/ic_gm_drag_handle" />
+
+    <ImageView
+        android:id="@+id/game_menu_item_icon"
+        android:layout_width="22dp"
+        android:layout_height="22dp"
+        android:layout_marginRight="14dp"
+        android:importantForAccessibility="no" />
+
+    <TextView
+        android:id="@+id/game_menu_item_label"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:textColor="?android:attr/textColorPrimary"
+        android:textSize="15sp" />
+
+    <CheckBox
+        android:id="@+id/game_menu_editor_check"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp" />
+</LinearLayout>

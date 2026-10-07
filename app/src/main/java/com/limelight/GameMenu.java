@@ -8,11 +8,19 @@ import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
 import android.view.ContextThemeWrapper;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.widget.ArrayAdapter;
+import android.widget.GridView;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.preference.PreferenceManager;
 
 import com.limelight.binding.input.GameInputDevice;
 import com.limelight.binding.input.KeyboardTranslator;
@@ -22,7 +30,9 @@ import com.limelight.utils.KeyMapper;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -41,17 +51,62 @@ public class GameMenu implements Game.GameMenuCallbacks {
 
     public static class MenuOption {
         private final String label;
+        // Icon for compact and grid styles, 0 for dynamic items such as server commands
+        private final int iconRes;
         private final boolean withGameFocus;
         private final Runnable runnable;
 
-        public MenuOption(String label, boolean withGameFocus, Runnable runnable) {
+        public MenuOption(String label, int iconRes, boolean withGameFocus, Runnable runnable) {
             this.label = label;
+            this.iconRes = iconRes;
             this.withGameFocus = withGameFocus;
             this.runnable = runnable;
         }
 
+        public MenuOption(String label, boolean withGameFocus, Runnable runnable) {
+            this(label, 0, withGameFocus, runnable);
+        }
+
         public MenuOption(String label, Runnable runnable) {
             this(label, false, runnable);
+        }
+    }
+
+    // Renders menu options as plain rows (list), rows with small icons (compact) or icon tiles (grid)
+    private static final class MenuOptionAdapter extends ArrayAdapter<MenuOption> {
+        private final String style;
+        private final LayoutInflater inflater;
+
+        MenuOptionAdapter(Context context, String style) {
+            super(context, 0);
+            this.style = style;
+            this.inflater = LayoutInflater.from(context);
+        }
+
+        @NonNull
+        @Override
+        public View getView(int position, View convertView, @NonNull ViewGroup parent) {
+            MenuOption option = getItem(position);
+            String label = option != null ? option.label : "";
+
+            if (GameMenuLayout.STYLE_LIST.equals(style)) {
+                View view = convertView != null ? convertView : inflater.inflate(android.R.layout.simple_list_item_1, parent, false);
+                ((TextView) view.findViewById(android.R.id.text1)).setText(label);
+                return view;
+            }
+
+            int layout = GameMenuLayout.STYLE_GRID.equals(style) ? R.layout.game_menu_grid_item : R.layout.game_menu_compact_item;
+            View view = convertView != null ? convertView : inflater.inflate(layout, parent, false);
+            ImageView icon = view.findViewById(R.id.game_menu_item_icon);
+            if (option != null && option.iconRes != 0) {
+                icon.setImageResource(option.iconRes);
+                icon.setVisibility(View.VISIBLE);
+            }
+            else {
+                icon.setVisibility(View.GONE);
+            }
+            ((TextView) view.findViewById(R.id.game_menu_item_label)).setText(label);
+            return view;
         }
     }
 
@@ -112,17 +167,38 @@ public class GameMenu implements Game.GameMenuCallbacks {
         AlertDialog.Builder builder = new AlertDialog.Builder(themedContext);
         builder.setTitle(title);
 
-        final ArrayAdapter<String> actions = new ArrayAdapter<>(themedContext, android.R.layout.simple_list_item_1);
+        String style = GameMenuLayout.getStyle(prefs());
+        final MenuOptionAdapter actions = new MenuOptionAdapter(themedContext, style);
 
-        builder.setAdapter(actions, (dialog, which) -> {
-            String label = actions.getItem(which);
-            for (MenuOption option : options) {
-                if (label != null && label.equals(option.label)) {
-                    run(option);
-                    break;
+        // Items run by position, so two options with the same label can no longer trigger each other
+        if (GameMenuLayout.STYLE_GRID.equals(style)) {
+            float density = themedContext.getResources().getDisplayMetrics().density;
+            GridView grid = new GridView(themedContext);
+            grid.setNumColumns(GridView.AUTO_FIT);
+            grid.setColumnWidth((int) (96 * density));
+            grid.setStretchMode(GridView.STRETCH_COLUMN_WIDTH);
+            int padding = (int) (8 * density);
+            grid.setPadding(padding, padding, padding, padding);
+            grid.setAdapter(actions);
+            grid.setOnItemClickListener((parent, view, position, id) -> {
+                MenuOption option = actions.getItem(position);
+                if (currentDialog != null) {
+                    currentDialog.dismiss();
                 }
-            }
-        });
+                if (option != null) {
+                    run(option);
+                }
+            });
+            builder.setView(grid);
+        }
+        else {
+            builder.setAdapter(actions, (dialog, which) -> {
+                MenuOption option = actions.getItem(which);
+                if (option != null) {
+                    run(option);
+                }
+            });
+        }
 
         builder.setOnCancelListener(dialog -> hideMenu());
 
@@ -143,7 +219,7 @@ public class GameMenu implements Game.GameMenuCallbacks {
 
                     new Handler(Looper.getMainLooper()).post(() -> {
                         for (MenuOption option : options) {
-                            actions.add(option.label);
+                            actions.add(option);
                         }
                         actions.notifyDataSetChanged();
                     });
@@ -242,43 +318,115 @@ public class GameMenu implements Game.GameMenuCallbacks {
         showMenuDialog(getString(R.string.game_menu_send_keys), options.toArray(new MenuOption[options.size()]));
     }
 
-    private void showAdvancedMenu(GameInputDevice device) {
-        List<MenuOption> options = new ArrayList<>();
+    private SharedPreferences prefs() {
+        return PreferenceManager.getDefaultSharedPreferences(game);
+    }
+
+    private MenuOption action(String id, String label, boolean withGameFocus, Runnable runnable) {
+        GameMenuLayout.Action info = GameMenuLayout.find(id);
+        return new MenuOption(label, info != null ? info.iconRes : 0, withGameFocus, runnable);
+    }
+
+    private MenuOption cancelOption() {
+        return new MenuOption(getString(R.string.game_menu_cancel), R.drawable.ic_gm_cancel, false, null);
+    }
+
+    // Configurable actions that apply right now, keyed by ID in GameMenuLayout.ACTIONS order
+    private Map<String, MenuOption> buildActions() {
+        Map<String, MenuOption> actions = new LinkedHashMap<>();
+
+        actions.put(GameMenuLayout.ID_DISCONNECT, action(GameMenuLayout.ID_DISCONNECT,
+                getString(R.string.game_menu_disconnect), false, game::disconnect));
+        actions.put(GameMenuLayout.ID_QUIT, action(GameMenuLayout.ID_QUIT,
+                getString(R.string.game_menu_quit_session), false, game::quit));
+        actions.put(GameMenuLayout.ID_UPLOAD_CLIPBOARD, action(GameMenuLayout.ID_UPLOAD_CLIPBOARD,
+                getString(R.string.game_menu_upload_clipboard), true, () -> game.sendClipboard(true)));
+        actions.put(GameMenuLayout.ID_FETCH_CLIPBOARD, action(GameMenuLayout.ID_FETCH_CLIPBOARD,
+                getString(R.string.game_menu_fetch_clipboard), true, () -> game.getClipboard(0)));
+        actions.put(GameMenuLayout.ID_SERVER_CMD, action(GameMenuLayout.ID_SERVER_CMD,
+                getString(R.string.game_menu_server_cmd), true, () -> {
+                    ArrayList<String> serverCmds = game.getServerCmds();
+                    if (serverCmds.isEmpty()) {
+                        int themeResId = game.getApplicationInfo().theme;
+                        Context themedContext = new ContextThemeWrapper(dialogScreenContext, themeResId);
+                        new AlertDialog.Builder(themedContext)
+                                .setTitle(R.string.game_dialog_title_server_cmd_empty)
+                                .setMessage(R.string.game_dialog_message_server_cmd_empty)
+                                .show();
+                    } else {
+                        hideMenu();
+                        this.showServerCmd(serverCmds);
+                    }
+                }));
+        actions.put(GameMenuLayout.ID_TOGGLE_KEYBOARD, action(GameMenuLayout.ID_TOGGLE_KEYBOARD,
+                getString(R.string.game_menu_toggle_keyboard), true, game::toggleKeyboard));
+        actions.put(GameMenuLayout.ID_ZOOM, action(GameMenuLayout.ID_ZOOM,
+                getString(game.isZoomModeEnabled() ? R.string.game_menu_disable_zoom_mode : R.string.game_menu_enable_zoom_mode),
+                true, game::toggleZoomMode));
+        if (dialogScreenContext == game) {
+            actions.put(GameMenuLayout.ID_ROTATE_SCREEN, action(GameMenuLayout.ID_ROTATE_SCREEN,
+                    getString(R.string.game_menu_rotate_screen), true, game::rotateScreen));
+        }
+        // Only offered when the host negotiated the mic stream, so toggling just pauses or resumes local capture
+        if (game.isMicrophoneAvailable()) {
+            actions.put(GameMenuLayout.ID_MICROPHONE, action(GameMenuLayout.ID_MICROPHONE,
+                    getString(game.isMicrophoneStreaming() ? R.string.game_menu_mute_microphone : R.string.game_menu_unmute_microphone),
+                    true, game::toggleMicrophoneCapture));
+        }
         if (game.allowChangeMouseMode) {
-            options.add(new MenuOption(getString(R.string.game_menu_select_mouse_mode), true, () -> game.selectMouseMode(dialogScreenContext)));
+            actions.put(GameMenuLayout.ID_MOUSE_MODE, action(GameMenuLayout.ID_MOUSE_MODE,
+                    getString(R.string.game_menu_select_mouse_mode), true, () -> game.selectMouseMode(dialogScreenContext)));
         }
-        
-        options.add(new MenuOption(getString(R.string.game_menu_toggle_hud), true, game::toggleHUD));
-        options.add(new MenuOption(getString(R.string.game_menu_toggle_floating_button), true, game::toggleFloatingButtonVisibility));
-        options.add(new MenuOption(getString(R.string.game_menu_toggle_keyboard_model), true, game::toggleKeyboardController));
+        actions.put(GameMenuLayout.ID_TOGGLE_HUD, action(GameMenuLayout.ID_TOGGLE_HUD,
+                getString(R.string.game_menu_toggle_hud), true, game::toggleHUD));
+        actions.put(GameMenuLayout.ID_TOGGLE_FLOATING_BUTTON, action(GameMenuLayout.ID_TOGGLE_FLOATING_BUTTON,
+                getString(R.string.game_menu_toggle_floating_button), true, game::toggleFloatingButtonVisibility));
+        actions.put(GameMenuLayout.ID_TOGGLE_KEYBOARD_MODEL, action(GameMenuLayout.ID_TOGGLE_KEYBOARD_MODEL,
+                getString(R.string.game_menu_toggle_keyboard_model), true, game::toggleKeyboardController));
         if (!game.isOnExternalDisplay()) {
-            options.add(new MenuOption(getString(R.string.game_menu_toggle_virtual_model), true, game::toggleVirtualController));
+            actions.put(GameMenuLayout.ID_TOGGLE_VIRTUAL_CONTROLLER, action(GameMenuLayout.ID_TOGGLE_VIRTUAL_CONTROLLER,
+                    getString(R.string.game_menu_toggle_virtual_model), true, game::toggleVirtualController));
         }
-        options.add(new MenuOption(getString(R.string.game_menu_toggle_virtual_keyboard_model), true, game::toggleFullKeyboard));
-        options.add(new MenuOption(getString(R.string.game_menu_task_manager), true, () -> sendKeys(new short[]{KeyboardTranslator.VK_LCONTROL, KeyboardTranslator.VK_LSHIFT, KeyboardTranslator.VK_ESCAPE})));
+        actions.put(GameMenuLayout.ID_TOGGLE_FULL_KEYBOARD, action(GameMenuLayout.ID_TOGGLE_FULL_KEYBOARD,
+                getString(R.string.game_menu_toggle_virtual_keyboard_model), true, game::toggleFullKeyboard));
+        actions.put(GameMenuLayout.ID_TASK_MANAGER, action(GameMenuLayout.ID_TASK_MANAGER,
+                getString(R.string.game_menu_task_manager), true,
+                () -> sendKeys(new short[]{KeyboardTranslator.VK_LCONTROL, KeyboardTranslator.VK_LSHIFT, KeyboardTranslator.VK_ESCAPE})));
+        // UI navigation action, so it does not wait for game focus
+        actions.put(GameMenuLayout.ID_SEND_KEYS, action(GameMenuLayout.ID_SEND_KEYS,
+                getString(R.string.game_menu_send_keys), false, () -> {
+                    hideMenu();
+                    showSpecialKeysMenu();
+                }));
+        actions.put(GameMenuLayout.ID_TOUCH_SENSITIVITY, action(GameMenuLayout.ID_TOUCH_SENSITIVITY,
+                getString(R.string.game_menu_switch_touch_sensitivity_model), true, game::switchTouchSensitivity));
 
-        // **FIXED:** This is a UI navigation action, so it should not use withGameFocus.
-        options.add(new MenuOption(getString(R.string.game_menu_send_keys), () -> {
-            hideMenu();
-            showSpecialKeysMenu();
-        }));
+        return actions;
+    }
 
-        options.add(new MenuOption(getString(R.string.game_menu_switch_touch_sensitivity_model), true, game::switchTouchSensitivity));
-        addMicrophoneOption(options);
+    // Everything not pinned to the Quick Menu lives here, so no action can become unreachable
+    private void showAdvancedMenu(GameInputDevice device) {
+        List<String> quickItems = GameMenuLayout.getQuickItems(prefs());
+        List<MenuOption> options = new ArrayList<>();
+        for (Map.Entry<String, MenuOption> entry : buildActions().entrySet()) {
+            if (!quickItems.contains(entry.getKey())) {
+                options.add(entry.getValue());
+            }
+        }
+        options.add(new MenuOption(getString(R.string.game_menu_customize), R.drawable.ic_gm_customize_menu, false,
+                () -> showMenuEditor(device)));
         if (device != null) {
             options.addAll(device.getGameMenuOptions());
         }
-        options.add(new MenuOption(getString(R.string.game_menu_cancel), null));
-        showMenuDialog(getString(R.string.game_menu_advanced), options.toArray(new MenuOption[options.size()]));
+        options.add(cancelOption());
+        showMenuDialog(getString(R.string.game_menu_advanced), options.toArray(new MenuOption[0]));
     }
 
-    // Only shown when the host negotiated the mic stream, so toggling just pauses or resumes local capture
-    private void addMicrophoneOption(List<MenuOption> options) {
-        if (!game.isMicrophoneAvailable()) {
-            return;
-        }
-        int label = game.isMicrophoneStreaming() ? R.string.game_menu_mute_microphone : R.string.game_menu_unmute_microphone;
-        options.add(new MenuOption(getString(label), true, game::toggleMicrophoneCapture));
+    // The editor is an in-stream dialog, so customizing never leaves the Game activity or ends the stream
+    private void showMenuEditor(GameInputDevice device) {
+        hideMenu();
+        Context themedContext = new ContextThemeWrapper(dialogScreenContext, game.getApplicationInfo().theme);
+        GameMenuEditor.show(themedContext, prefs(), () -> showMenu(device));
     }
 
     private void showServerCmd(ArrayList<String> serverCmds) {
@@ -296,53 +444,20 @@ public class GameMenu implements Game.GameMenuCallbacks {
     }
 
     public void showMenu(GameInputDevice device) {
+        Map<String, MenuOption> actions = buildActions();
         List<MenuOption> options = new ArrayList<>();
-
-        options.add(new MenuOption(getString(R.string.game_menu_disconnect), game::disconnect));
-
-        options.add(new MenuOption(getString(R.string.game_menu_quit_session), game::quit));
-
-        options.add(new MenuOption(getString(R.string.game_menu_upload_clipboard), true,
-                () -> game.sendClipboard(true)));
-
-        options.add(new MenuOption(getString(R.string.game_menu_fetch_clipboard), true,
-                () -> game.getClipboard(0)));
-
-        options.add(new MenuOption(getString(R.string.game_menu_server_cmd), true,
-                () -> {
-                    ArrayList<String> serverCmds = game.getServerCmds();
-                    if (serverCmds.isEmpty()) {
-                        int themeResId = game.getApplicationInfo().theme;
-                        Context themedContext = new ContextThemeWrapper(dialogScreenContext, themeResId);
-                        new AlertDialog.Builder(themedContext)
-                                .setTitle(R.string.game_dialog_title_server_cmd_empty)
-                                .setMessage(R.string.game_dialog_message_server_cmd_empty)
-                                .show();
-                    } else {
-                        hideMenu();
-                        this.showServerCmd(serverCmds);
-                    }
-                }));
-
-        options.add(new MenuOption(getString(R.string.game_menu_toggle_keyboard), true,
-                game::toggleKeyboard));
-
-        options.add(new MenuOption(getString(game.isZoomModeEnabled() ? R.string.game_menu_disable_zoom_mode : R.string.game_menu_enable_zoom_mode), true,
-                game::toggleZoomMode));
-
-        if (dialogScreenContext == game) {
-            options.add(new MenuOption(getString(R.string.game_menu_rotate_screen), true,
-                    game::rotateScreen));
+        for (String id : GameMenuLayout.getQuickItems(prefs())) {
+            MenuOption option = actions.get(id);
+            if (option != null) {
+                options.add(option);
+            }
         }
 
-        addMicrophoneOption(options);
-
-        options.add(new MenuOption(getString(R.string.game_menu_advanced), true,
+        options.add(new MenuOption(getString(R.string.game_menu_advanced), R.drawable.ic_gm_more, true,
                 () -> showAdvancedMenu(device)));
+        options.add(cancelOption());
 
-        options.add(new MenuOption(getString(R.string.game_menu_cancel), null));
-
-        showMenuDialog(getString(R.string.quick_menu_title), options.toArray(new MenuOption[options.size()]));
+        showMenuDialog(getString(R.string.quick_menu_title), options.toArray(new MenuOption[0]));
     }
 
     @Override

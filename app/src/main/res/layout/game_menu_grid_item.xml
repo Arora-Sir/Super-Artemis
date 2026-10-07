@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Grid style tile for the in-stream menu, sized well above the 48dp touch target minimum -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:minHeight="88dp"
+    android:orientation="vertical"
+    android:paddingLeft="4dp"
+    android:paddingTop="10dp"
+    android:paddingRight="4dp"
+    android:paddingBottom="8dp">
+
+    <ImageView
+        android:id="@+id/game_menu_item_icon"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+        android:importantForAccessibility="no" />
+
+    <TextView
+        android:id="@+id/game_menu_item_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:ellipsize="end"
+        android:gravity="center"
+        android:maxLines="2"
+        android:textColor="?android:attr/textColorPrimary"
+        android:textSize="12sp" />
+</LinearLayout>

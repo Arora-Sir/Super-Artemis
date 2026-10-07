@@ -54,6 +54,17 @@
         <item>71</item>
     </string-array>
 
+    <string-array name="game_menu_style_names">
+        <item>@string/game_menu_style_list</item>
+        <item>@string/game_menu_style_grid</item>
+        <item>@string/game_menu_style_compact</item>
+    </string-array>
+    <string-array name="game_menu_style_values" translatable="false">
+        <item>list</item>
+        <item>grid</item>
+        <item>compact</item>
+    </string-array>
+
     <string-array name="microphone_initial_state_names">
         <item>@string/microphone_initial_state_off</item>
         <item>@string/microphone_initial_state_on</item>

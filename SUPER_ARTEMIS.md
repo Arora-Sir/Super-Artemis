@@ -15,8 +15,12 @@ Super Artemis is a personal build of [Artemis](https://github.com/ClassicOldSong
 | Settings search | `ByteHamster/SearchPreference` | Results inside collapsed categories expand before they are highlighted. |
 | Backup and restore of settings, paired hosts and pairing keys | New, modeled on DarQ-Reborn | Single JSON file through the Storage Access Framework. Pairing keys are optional at export. |
 | Remember mouse mode by default | Artemis setting with a new default | |
+| Customizable in-stream menu | New | Pick and reorder Quick Menu actions (Settings or Advanced Menu > Customize menu), choose List, Grid with icons or Compact. Actions left out stay under Advanced Menu. |
+| Five-finger tap has its own setting | New | Turning off Back Menu no longer disables the five-finger menu gesture. |
 
 The native core lives in [`Arora-Sir/moonlight-common-c`](https://github.com/Arora-Sir/moonlight-common-c) on branch `super-artemis`, which is the Artemis core (`c999436`) plus logabell's three microphone commits and KAST's peer timeout commit.
+
+Menu icons are [Material Symbols](https://github.com/google/material-design-icons) (Apache License 2.0).
 
 ## Host setup
 

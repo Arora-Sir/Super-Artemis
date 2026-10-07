@@ -591,6 +591,19 @@
             android:summary="@string/summary_five_finger_menu"
             android:title="@string/title_five_finger_menu"
             app:iconSpaceReserved="false" />
+        <ListPreference
+            android:defaultValue="list"
+            android:entries="@array/game_menu_style_names"
+            android:entryValues="@array/game_menu_style_values"
+            android:key="list_game_menu_style"
+            android:title="@string/title_game_menu_style"
+            app:iconSpaceReserved="false"
+            app:useSimpleSummaryProvider="true" />
+        <Preference
+            android:key="pref_customize_game_menu"
+            android:summary="@string/summary_customize_game_menu"
+            android:title="@string/title_customize_game_menu"
+            app:iconSpaceReserved="false" />
         <CheckBoxPreference
             android:key="checkbox_full_screen"
             android:title="@string/title_checkbox_full_screen"

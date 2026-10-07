@@ -58,6 +58,7 @@ import com.google.gson.Gson;
 import com.limelight.DebugInfoActivity;
 import com.limelight.BuildConfig;
 import com.limelight.GameMenu;
+import com.limelight.GameMenuEditor;
 import com.limelight.LimeLog;
 import com.limelight.PcView;
 import com.limelight.R;
@@ -386,6 +387,7 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
 
             setupSearch(activity);
             setupBackupRestore();
+            setupGameMenuEditor();
             PackageManager pm = activity.getPackageManager();
 
             // hide on-screen controls category on non touch screen devices
@@ -1221,6 +1223,16 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
                 if (target != null) {
                     expandParents(target);
                 }
+            }
+        }
+
+        private void setupGameMenuEditor() {
+            Preference customize = findPreference("pref_customize_game_menu");
+            if (customize != null) {
+                customize.setOnPreferenceClickListener(preference -> {
+                    GameMenuEditor.show(requireContext(), PreferenceManager.getDefaultSharedPreferences(requireContext()), null);
+                    return true;
+                });
             }
         }
 
