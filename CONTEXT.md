@@ -14,7 +14,7 @@ This is the handoff file for anyone (human or AI) resuming work on Super Artemis
 - Settings search, including items inside collapsed categories.
 - Menu editor: drag to reorder, save, reset, and the three menu styles in settings.
 - Five-finger tap setting stays independent of Back Menu.
-- Backup through the system file picker (settings-only by default) and restore that brings back frame rate, Back Menu and menu style, then restarts the app.
+- Backup through the system file picker (settings-only by default, pairing keys as one opt-in card with a red caution) and restore with a preview that keeps existing PCs, brings back settings such as the five-finger tap, then restarts the app.
 
 ## Not yet verified in a live stream
 
@@ -27,9 +27,9 @@ The debug build needs pairing with Apollo first. Then check the mic off by defau
 | W0 | Credits system and attribution in commit history | Done |
 | W18 | Project docs (this file, ARCHITECTURE, SETUP, BUGS, CHANGELOG) and the dash check hook | Done, kept current at every step |
 | W13 | Package ID `com.mohitarora.superartemis`, APK naming, release signing | Done |
-| W1 | Restore keeps paired PCs when the backup has no keys, plus a restore preview | Next |
-| W2 | Backup and restore dialog visual polish | Planned |
-| W3 | Shared action registry, Quick Menu sections (Session in red), Customize in the Quick Menu, Back to Quick Menu in Advanced, style picker and live preview in the editor, one RecyclerView renderer | Planned |
+| W1 | Restore keeps paired PCs when the backup has no keys, plus a restore preview | Done |
+| W2 | Backup and restore dialog visual polish | Done |
+| W3 | Shared action registry, Quick Menu sections (Session in red), Customize in the Quick Menu, Back to Quick Menu in Advanced, style picker and live preview in the editor, one RecyclerView renderer | Next |
 | W5 | In-app custom keys with a keyboard recorder and icons | Planned |
 | W4 | Floating quick-action bar next to the menu button | Planned |
 | W6 | Configurable 3, 4 and 5-finger tap and double tap gestures | Planned |
@@ -46,7 +46,6 @@ The debug build needs pairing with Apollo first. Then check the mic off by defau
 
 ## Open problems
 
-- Restore deletes local PCs even without pairing keys (BUGS.md, BUG-004). Fixed in W1.
 - README.md and fastlane metadata still describe upstream Artemis and Moonlight. Rewritten in W10 and W11.
 - `SUPER_ARTEMIS.md` duplicates what will move into README.md and this file. Merged in W11.
 
@@ -60,5 +59,5 @@ The debug build needs pairing with Apollo first. Then check the mic off by defau
 1. ARCHITECTURE.md for layers, modules and design decisions.
 2. `app/src/main/java/com/limelight/Game.java` for the stream activity (search for `applyMicrophoneInitialState` and `handleMultiTouchGesture`).
 3. `GameMenu.java`, `GameMenuLayout.java` and `GameMenuEditor.java` for the in-stream menu.
-4. `preferences/StreamSettings.java` and `preferences/BackupRestoreManager.java` for settings, search and backup.
+4. `preferences/StreamSettings.java` for settings and search, and the `backup/` package (start at `BackupRestoreController` and `RestoreStrategy`) for backup and restore.
 5. `app/src/main/res/raw/credits.json` and CONTRIBUTING.md before porting anything from another project.

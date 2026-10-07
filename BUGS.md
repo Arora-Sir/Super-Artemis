@@ -22,17 +22,17 @@ Each entry records a problem that was fixed in a way a future change could silen
 
 - **Symptom:** A backup included `android.app.ActivityThread.IDS`, `_has_set_default_values` and `preferenceSearch` (search history).
 - **Root Cause:** The backup enumerated every file in `shared_prefs/` and only excluded crash and GPU state.
-- **Fix Applied:** `BackupRestoreManager.isExcludedPreferenceFile` skips names starting with `android.` or `_`, plus `DecoderTombstone`, `GlPreferences` and `preferenceSearch`. Restore skips those names when an older backup contains them.
-- **Verification:** `BackupRestoreManagerTest` (7 tests) and an on-device backup that lists only app settings files.
+- **Fix Applied:** `PrefsSnapshot.isExcluded` skips names starting with `android.` or `_`, plus `DecoderTombstone`, `GlPreferences` and `preferenceSearch`. Restore skips those names when an older backup contains them.
+- **Verification:** `BackupRestoreTest` and an on-device backup that lists only app settings files.
 - **Status:** Fixed.
 
 ## BUG-004: Restore deletes every saved PC
 
 - **Symptom:** Restoring a backup without pairing keys removes PCs that are paired on this device, even though the device's pairing identity is untouched.
-- **Root Cause:** `applyBackup` deletes all rows from `computers4.db` before inserting the backup's PCs.
-- **Fix Applied:** Not yet. A merge strategy that keeps local PCs when the backup has no keys is planned (see CONTEXT.md, W1).
-- **Verification:** Pending.
-- **Status:** Open.
+- **Root Cause:** `applyBackup` deleted all rows from `computers4.db` before inserting the backup's PCs, whether or not the backup carried pairing keys.
+- **Fix Applied:** `RestoreStrategy.forBackup` picks `MergeHostsStrategy` for backups without keys. It keeps every local PC row, the identity and local entries in `HiddenApps` and `MicrophoneState`, and only adds backup PCs whose UUID is new. Backups with keys use `ReplaceAllStrategy`, which still mirrors the backup because the identity changes too. Do not route keyless backups through the replace path.
+- **Verification:** `BackupRestoreTest` merge cases, and on the Tab a settings-only restore kept the existing PC and brought back the five-finger setting.
+- **Status:** Fixed.
 
 ## BUG-005: Line breaks in string resources collapsed into one paragraph
 
@@ -46,7 +46,7 @@ Each entry records a problem that was fixed in a way a future change could silen
 
 - **Symptom:** `PreferenceManager.getDefaultSharedPreferencesName(Context)` does not compile against androidx.
 - **Root Cause:** The method is private in androidx.preference (it is public only in the deprecated framework class).
-- **Fix Applied:** `BackupRestoreManager.defaultPreferencesName` uses `context.getPackageName() + "_preferences"`, which is the same name androidx uses.
+- **Fix Applied:** `PrefsSnapshot.defaultPreferencesName` uses `context.getPackageName() + "_preferences"`, which is the same name androidx uses.
 - **Verification:** Backup and restore round trip test, and the on-device restore of frame rate, Back Menu and menu style.
 - **Status:** Fixed.
 
@@ -73,3 +73,11 @@ Each entry records a problem that was fixed in a way a future change could silen
 - **Fix Applied:** None. The gate for every change is "no failures beyond these five".
 - **Verification:** Running the same test classes on an upstream worktree gives the same 5 failures.
 - **Status:** Known.
+
+## BUG-010: Restore preview called unpaired PCs paired
+
+- **Symptom:** On a fresh install, the restore preview said "Your 1 paired PC stays paired" although the PC list showed that PC locked (never paired).
+- **Root Cause:** `computers4.db` also stores PCs found by LAN discovery. Pair state is not stored there, it is only known after the app asks each host.
+- **Fix Applied:** The preview counts saved PCs ("Your 1 PC is kept as it is") and only mentions pairing for PCs added from a backup from another identity, which it detects with the certificate fingerprint.
+- **Verification:** `BackupRestoreTest.previewWithoutKeysCountsKeptAndNewPcs` and the Tab screenshot of the preview.
+- **Status:** Fixed.

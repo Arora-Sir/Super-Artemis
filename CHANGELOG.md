@@ -12,6 +12,7 @@ All notable changes to Super Artemis are listed here. The format follows [Keep a
 - "Network drop grace period" setting (10 to 60 seconds, default 30) so short Wi-Fi drops do not end the session, from @MikalaiKryvusha's KAST.
 - Settings search with results inside collapsed categories.
 - Backup and restore of all settings, profiles and the PC list to a single JSON file through the system file picker. Pairing keys are an explicit opt-in with a clear caution.
+- Restore shows a preview first (date, app version, settings and PC counts, what happens to your PCs). A backup without pairing keys keeps the PCs already on the device and only adds new ones.
 - Customizable in-stream Quick Menu: choose and reorder actions in an editor, with List, Grid with icons and Compact styles.
 - Separate "Five-finger tap opens menu" setting.
 - Credits for everyone whose code, design or request shaped the fork, in the README and release notes.

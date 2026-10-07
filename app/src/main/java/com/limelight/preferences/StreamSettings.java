@@ -16,10 +16,7 @@ import android.app.Activity;
 import android.os.Handler;
 import android.os.Vibrator;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.DialogFragment;
@@ -45,7 +42,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowInsets;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -61,6 +57,7 @@ import com.limelight.GameMenuEditor;
 import com.limelight.LimeLog;
 import com.limelight.PcView;
 import com.limelight.R;
+import com.limelight.backup.BackupRestoreController;
 import com.limelight.binding.audio.MicrophoneCaptureManager;
 import com.limelight.binding.input.virtual_controller.keyboard.KeyBoardControllerConfigurationLoader;
 import com.limelight.binding.video.MediaCodecHelper;
@@ -76,8 +73,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class StreamSettings extends AppCompatActivity implements SearchPreferenceResultListener {
     private PreferenceConfiguration previousPrefs;
@@ -200,13 +195,8 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
         private PreferenceConfiguration prevPrefConfig;
         SearchPreferenceResult pendingSearchResult;
 
-        // Storage Access Framework launchers for the single-file backup (must be registered before the fragment starts)
-        private final ExecutorService backupExecutor = Executors.newSingleThreadExecutor();
-        private boolean pendingBackupIncludesIdentity = false;
-        private final ActivityResultLauncher<String> backupLauncher = registerForActivityResult(
-                new ActivityResultContracts.CreateDocument(BackupRestoreManager.MIME_TYPE), this::onBackupDestinationChosen);
-        private final ActivityResultLauncher<String[]> restoreLauncher = registerForActivityResult(
-                new ActivityResultContracts.OpenDocument(), this::onRestoreFileChosen);
+        // Registers its file picker launchers here, because they must exist before the fragment starts
+        private final BackupRestoreController backupRestore = new BackupRestoreController(this);
         private MicrophoneCaptureManager microphoneCaptureManager;
         private CheckBoxPreference microphoneEnablePreference;
         private ListPreference microphoneDevicePreference;
@@ -1241,90 +1231,17 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
             Preference backupPref = findPreference("pref_backup_settings");
             if (backupPref != null) {
                 backupPref.setOnPreferenceClickListener(preference -> {
-                    showBackupDialog();
+                    backupRestore.showBackupOptions();
                     return true;
                 });
             }
             Preference restorePref = findPreference("pref_restore_settings");
             if (restorePref != null) {
                 restorePref.setOnPreferenceClickListener(preference -> {
-                    new AlertDialog.Builder(requireContext())
-                            .setTitle(R.string.title_restore_settings)
-                            .setMessage(R.string.restore_confirm_message)
-                            .setPositiveButton(R.string.restore_choose_file, (dialog, which) -> restoreLauncher.launch(
-                                    new String[] {BackupRestoreManager.MIME_TYPE, "text/plain", "application/octet-stream"}))
-                            .setNegativeButton(android.R.string.cancel, null)
-                            .show();
+                    backupRestore.chooseRestoreFile();
                     return true;
                 });
             }
-        }
-
-        private void showBackupDialog() {
-            Context context = requireContext();
-            View body = LayoutInflater.from(context).inflate(R.layout.dialog_backup_options, null);
-            // Settings-only is the safe default, pairing keys are an explicit opt-in
-            CheckBox includeKeys = body.findViewById(R.id.backup_include_keys);
-            includeKeys.setChecked(false);
-
-            new AlertDialog.Builder(context)
-                    .setTitle(R.string.title_backup_settings)
-                    .setView(body)
-                    .setPositiveButton(R.string.backup_choose_location, (dialog, which) -> {
-                        pendingBackupIncludesIdentity = includeKeys.isChecked();
-                        backupLauncher.launch(BackupRestoreManager.defaultFileName());
-                    })
-                    .setNegativeButton(android.R.string.cancel, null)
-                    .show();
-        }
-
-        private void onBackupDestinationChosen(Uri uri) {
-            if (uri == null) {
-                return;
-            }
-            final Context appContext = requireContext().getApplicationContext();
-            final boolean includeIdentity = pendingBackupIncludesIdentity;
-            final Handler mainHandler = new Handler(android.os.Looper.getMainLooper());
-            backupExecutor.execute(() -> {
-                String error = null;
-                try {
-                    BackupRestoreManager.writeBackup(appContext, uri, includeIdentity);
-                } catch (Exception e) {
-                    LimeLog.warning("Backup failed: " + e);
-                    error = e.getMessage() != null ? e.getMessage() : e.toString();
-                }
-                final String finalError = error;
-                mainHandler.post(() -> Toast.makeText(appContext,
-                        finalError == null ? appContext.getString(R.string.backup_success)
-                                : appContext.getString(R.string.backup_failed, finalError),
-                        Toast.LENGTH_LONG).show());
-            });
-        }
-
-        private void onRestoreFileChosen(Uri uri) {
-            if (uri == null) {
-                return;
-            }
-            final Activity activity = requireActivity();
-            final Context appContext = activity.getApplicationContext();
-            final Handler mainHandler = new Handler(android.os.Looper.getMainLooper());
-            backupExecutor.execute(() -> {
-                try {
-                    JSONObject backup = BackupRestoreManager.readBackup(appContext, uri);
-                    BackupRestoreManager.applyBackup(appContext, backup);
-                    final boolean hasIdentity = BackupRestoreManager.hasIdentity(backup);
-                    mainHandler.post(() -> {
-                        Toast.makeText(appContext, hasIdentity ? R.string.restore_success : R.string.restore_success_repair_needed,
-                                Toast.LENGTH_LONG).show();
-                        mainHandler.postDelayed(() -> BackupRestoreManager.restartApp(activity), 800);
-                    });
-                } catch (Exception e) {
-                    LimeLog.warning("Restore failed: " + e);
-                    final String message = e.getMessage() != null ? e.getMessage() : e.toString();
-                    mainHandler.post(() -> Toast.makeText(appContext,
-                            appContext.getString(R.string.restore_failed, message), Toast.LENGTH_LONG).show());
-                }
-            });
         }
 
         private static void expandParents(Preference preference) {
@@ -1360,7 +1277,7 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
         public void onDestroy() {
             stopMicrophonePreview();
             microphoneCaptureManager = null;
-            backupExecutor.shutdown();
+            backupRestore.shutdown();
             super.onDestroy();
         }
 

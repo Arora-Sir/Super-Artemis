@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="profileAccent">#FF4081</color>
-    <!-- Readable red for warnings on the dark dialog background -->
-    <color name="backup_caution">#FF8A80</color>
+    <!-- Warning red that keeps 4.5:1 contrast on the red callout over the dark dialog background -->
+    <color name="backup_caution">#FFA4A2</color>
+    <color name="caution_callout_fill">#1FFF5252</color>
+    <!-- Green for outcomes that keep the user's PCs safe -->
+    <color name="restore_safe">#A5D6A7</color>
+    <color name="safe_callout_fill">#1F66BB6A</color>
+    <color name="option_card_stroke">#52FFFFFF</color>
 </resources>

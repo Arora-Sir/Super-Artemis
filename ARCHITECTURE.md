@@ -7,7 +7,8 @@ Super Artemis is a fork of [Artemis](https://github.com/ClassicOldSong/moonlight
 ```
 Android UI (Java, androidx)
   PcView / AppView ............ host and app lists
-  StreamSettings .............. settings screen (PreferenceFragmentCompat, search, backup/restore)
+  StreamSettings .............. settings screen (PreferenceFragmentCompat, search)
+  backup/ ..................... backup and restore dialogs, file format, merge and replace strategies
   Game ........................ the stream activity (input, overlays, in-stream menu, mic lifecycle)
         |
 Java stream layer
@@ -33,7 +34,7 @@ Host: Apollo (RTSP, video, audio, control stream over ENet, mic stream over UDP)
 | Control stream timeout | `StreamConfiguration`, `MoonBridge.startConnection`, `callbacks.c`, submodule `ControlStream.c` | Passes the "Network drop grace period" to the ENet peer timeout |
 | In-stream menu | `GameMenu.java`, `GameMenuLayout.java`, `GameMenuEditor.java`, `res/layout/game_menu_*.xml` | Catalog of menu actions with stable IDs, the user-ordered Quick Menu, list/compact/grid rendering and the drag-to-reorder editor |
 | Settings search | `preferences/StreamSettings.java` (`setupSearch`, `onSearchResultClicked`), `res/xml/preferences.xml` | Indexes `preferences.xml` with SearchPreference and expands collapsed categories before highlighting a result |
-| Backup and restore | `preferences/BackupRestoreManager.java`, `StreamSettings.java` (SAF launchers), `res/layout/dialog_backup_options.xml` | Exports and imports one JSON file with typed SharedPreferences, profiles, the PC list and optional pairing keys |
+| Backup and restore | `backup/` package, `res/layout/dialog_backup_options.xml`, `res/layout/dialog_restore_preview.xml` | Exports and imports one JSON file with typed SharedPreferences, profiles, the PC list and optional pairing keys. `BackupRestoreController` runs the dialogs and file pickers, `BackupRestoreManager` moves bytes, `BackupCodec` owns the format and validation, the `*Snapshot` classes capture and restore one kind of data each, `RestoreStrategy` decides merge or replace, and `RestorePreview` describes the outcome before anything is written |
 | Decoder | `binding/video/MediaCodecHelper.java` (`applyFrameworkLowLatencyPostStart`), `MediaCodecDecoderRenderer.java` | Requests framework low latency again after the codec starts (Android 11+) |
 | Stylus | `ui/StreamView.java` (`init`) | Disables automatic handwriting on Android 13+ so stylus strokes reach the host |
 | Gestures | `Game.java` (`handleMultiTouchGesture` and the trackpad up handler) | 3-finger tap keyboard, 4-finger tap full keyboard, 5-finger tap menu (now behind its own setting) |
@@ -90,10 +91,15 @@ Back key / five-finger tap / floating button -> GameMenu.showMenu
 ### Backup and restore
 
 ```
-Backup: dialog (pairing keys opt-in) -> SAF CreateDocument -> BackupRestoreManager.writeBackup
-  -> typed prefs of every non-excluded file + profiles.json + PC rows (+ identity if opted in)
-Restore: confirm -> SAF OpenDocument -> readBackup + validate (whole file, nothing written yet)
-  -> applyBackup: prefs mirrored, allowlisted files written atomically, PC rows replaced, identity if present
+Backup: BackupRestoreController dialog (pairing keys card, off by default) -> SAF CreateDocument
+  -> BackupCodec.create: typed prefs of every non-excluded file + profiles.json + PC rows
+     + SHA-256 of the public client certificate (+ identity only if opted in)
+Restore: SAF OpenDocument -> BackupCodec.parse validates the whole file (nothing written yet)
+  -> RestorePreview: date, app version, counts, PCs kept and added, whether pairing keys are replaced
+  -> user confirms -> RestoreStrategy.forBackup
+     no keys:   MergeHostsStrategy  prefs replaced, HiddenApps and MicrophoneState merged (local wins),
+                                    local PCs and identity kept, backup PCs with new UUIDs added
+     with keys: ReplaceAllStrategy  prefs mirrored, PC list replaced, identity replaced
   -> process restart so ComputerManagerService, IdentityManager and ProfilesManager reload
 ```
 
@@ -126,7 +132,11 @@ Restore: confirm -> SAF OpenDocument -> readBackup + validate (whole file, nothi
 | Five-finger tap has its own setting | Back Menu only describes the physical back key |
 | Settings search uses exact matching and expands collapsed categories first | Fuzzy matching ranked loosely related settings first, and the library cannot scroll to items hidden in a collapsed group |
 | Backups are settings-only by default, pairing keys are opt-in | A file with keys can connect to the user's PCs as this device, so including them must be a deliberate choice |
-| Restore validates the whole file before writing and restarts the process | A half-applied restore is worse than none, and long-lived services cache hosts and identity |
+| Restore validates the whole file and shows a preview before writing, then restarts the process | A half-applied or surprising restore is worse than none, and long-lived services cache hosts and identity |
 | Restore only writes allowlisted files | A crafted backup cannot write outside the expected paths |
+| A backup without pairing keys merges PCs, a backup with keys replaces them | Without keys this device keeps its own identity, so its PCs stay valid and must survive. With keys the device becomes the backed-up client, so its PC list must match that identity |
+| Per-PC files keep local values on a merge | Hidden apps and the last mic state belong to PCs this device keeps, so local choices win and only missing entries come from the backup |
+| Backups record a fingerprint of the public client certificate | The preview can tell whether added PCs work as is or need pairing again, without storing any secret |
+| The restore preview counts saved PCs and never calls them paired | `computers4.db` also holds PCs found by LAN discovery, and pair state is only known after asking each host |
 | Credits live in one JSON file | README, release notes and the app always agree, and CI catches drift |
 | Upstream contributions are small bug fixes only | The upstream maintainer declined menu reordering and Material 3 pending a UI rewrite |

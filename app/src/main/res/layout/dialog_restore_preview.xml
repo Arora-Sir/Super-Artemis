@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Restore preview body: what the backup holds, what happens to this device's PCs, and that the app restarts -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingLeft="24dp"
+    android:paddingTop="4dp"
+    android:paddingRight="24dp"
+    android:paddingBottom="4dp">
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:shrinkColumns="1">
+
+        <TableRow android:paddingBottom="6dp">
+
+            <TextView
+                android:paddingRight="16dp"
+                android:text="@string/restore_detail_created"
+                android:textColor="?android:attr/textColorSecondary"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/restore_created"
+                android:textColor="?android:attr/textColorPrimary"
+                android:textSize="14sp" />
+        </TableRow>
+
+        <TableRow android:paddingBottom="6dp">
+
+            <TextView
+                android:paddingRight="16dp"
+                android:text="@string/restore_detail_version"
+                android:textColor="?android:attr/textColorSecondary"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/restore_version"
+                android:textColor="?android:attr/textColorPrimary"
+                android:textSize="14sp" />
+        </TableRow>
+
+        <TableRow>
+
+            <TextView
+                android:paddingRight="16dp"
+                android:text="@string/restore_detail_contents"
+                android:textColor="?android:attr/textColorSecondary"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/restore_contents"
+                android:textColor="?android:attr/textColorPrimary"
+                android:textSize="14sp" />
+        </TableRow>
+    </TableLayout>
+
+    <LinearLayout
+        android:id="@+id/restore_outcome"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/bg_safe_callout"
+        android:orientation="horizontal"
+        android:padding="10dp">
+
+        <ImageView
+            android:id="@+id/restore_outcome_icon"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:layout_marginTop="1dp"
+            android:layout_marginRight="8dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_gm_check_circle" />
+
+        <TextView
+            android:id="@+id/restore_outcome_text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:lineSpacingExtra="2dp"
+            android:textColor="?android:attr/textColorPrimary"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="@string/restore_preview_note"
+        android:textColor="?android:attr/textColorSecondary"
+        android:textSize="14sp" />
+</LinearLayout>

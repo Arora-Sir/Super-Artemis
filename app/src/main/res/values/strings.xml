@@ -252,20 +252,47 @@
     <string name="suffix_seekbar_seconds">s</string>
     <string name="category_backup_restore">Backup and restore</string>
     <string name="title_backup_settings">Backup settings</string>
-    <string name="summary_backup_settings">Export all configurations and paired hosts to a single JSON file</string>
+    <string name="summary_backup_settings">Save every setting and your PC list to one file</string>
     <string name="title_restore_settings">Restore settings</string>
-    <string name="summary_restore_settings">Import configurations from a previously exported JSON backup file</string>
-    <string name="backup_include_pairing_keys">Also include pairing keys</string>
+    <string name="summary_restore_settings">Apply a backup file after a preview of what changes</string>
+    <string name="backup_include_pairing_keys">Include pairing keys</string>
     <string name="backup_dialog_summary">Saves every setting, your menu and control layouts, profiles and PC list.</string>
     <string name="backup_keys_benefit">A restored copy connects to your PCs without pairing again.</string>
     <string name="backup_keys_caution">Anyone with this file can connect to your PCs as this device. Keep it private and never share it.</string>
     <string name="backup_choose_location">Choose location</string>
-    <string name="restore_confirm_message">This replaces all current settings and paired hosts with the backup. The app restarts when it finishes.</string>
-    <string name="restore_choose_file">Choose file</string>
     <string name="backup_success">Backup saved</string>
     <string name="backup_failed">Backup failed: %1$s</string>
+    <string name="restore_preview_title">Restore this backup?</string>
+    <string name="restore_detail_created">Created</string>
+    <string name="restore_detail_version">App version</string>
+    <string name="restore_detail_contents">Contains</string>
+    <string name="restore_contents_value">%1$s, %2$s</string>
+    <string name="restore_unknown">Unknown</string>
+    <plurals name="restore_settings_count">
+        <item quantity="one">%d setting</item>
+        <item quantity="other">%d settings</item>
+    </plurals>
+    <plurals name="restore_pcs_count">
+        <item quantity="one">%d PC</item>
+        <item quantity="other">%d PCs</item>
+    </plurals>
+    <plurals name="restore_outcome_keep_pcs">
+        <item quantity="one">Your %d PC is kept as it is.</item>
+        <item quantity="other">Your %d PCs are kept as they are.</item>
+    </plurals>
+    <plurals name="restore_outcome_new_pcs">
+        <item quantity="one">%d PC from the backup is added.</item>
+        <item quantity="other">%d PCs from the backup are added.</item>
+    </plurals>
+    <plurals name="restore_outcome_new_pcs_pair">
+        <item quantity="one">%d PC from the backup is added. Pair it again to stream, because this backup has no pairing keys.</item>
+        <item quantity="other">%d PCs from the backup are added. Pair them again to stream, because this backup has no pairing keys.</item>
+    </plurals>
+    <string name="restore_outcome_no_pcs">No PCs are added or removed.</string>
+    <string name="restore_outcome_replace_keys">This backup includes pairing keys. Your PC list and this device\'s pairing keys are replaced with the ones in the backup.</string>
+    <string name="restore_preview_note">Settings, menu layouts and profiles are replaced with the backup. The app restarts when it finishes.</string>
+    <string name="restore_apply">Restore</string>
     <string name="restore_success">Settings restored, restarting</string>
-    <string name="restore_success_repair_needed">Settings restored, restarting. This backup has no pairing keys, so paired PCs need to be paired again.</string>
     <string name="restore_failed">Restore failed: %1$s</string>
     <string name="title_five_finger_menu">Five-finger tap opens menu</string>
     <string name="summary_five_finger_menu">Tap the stream with five fingers to open the in-stream menu, independent of the Back Menu setting</string>
