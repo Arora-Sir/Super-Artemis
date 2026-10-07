@@ -55,9 +55,10 @@ android {
 
             resValue "string",
                     "obtainium_app_url",
-                    "https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22com.limelight.superartemis%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2FArora-Sir%2FSuper-Artemis%22%2C%22author%22%3A%22Arora-Sir%22%2C%22name%22%3A%22Super%20Artemis%22%2C%22additionalSettings%22%3A%22%7B%5C%22apkFilterRegEx%5C%22%3A%5C%22arm64-v8a%5C%22%2C%5C%22versionExtractionRegEx%5C%22%3A%5C%22v%28.%2B%29%5C%22%2C%5C%22matchGroupToUse%5C%22%3A%5C%22%241%5C%22%7D%22%7D"
+                    "https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22com.mohitarora.superartemis%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2FArora-Sir%2FSuper-Artemis%22%2C%22author%22%3A%22Arora-Sir%22%2C%22name%22%3A%22Super%20Artemis%22%2C%22additionalSettings%22%3A%22%7B%5C%22apkFilterRegEx%5C%22%3A%5C%22arm64-v8a%5C%22%2C%5C%22versionExtractionRegEx%5C%22%3A%5C%22v%28.%2B%29%5C%22%2C%5C%22matchGroupToUse%5C%22%3A%5C%22%241%5C%22%7D%22%7D"
 
-            applicationId "com.limelight"
+            // Super Artemis installs under its own ID (release com.mohitarora.superartemis), as Moonlight asks of every fork
+            applicationId "com.mohitarora"
             dimension "root"
             buildConfigField "boolean", "ROOT_BUILD", "false"
         }
@@ -109,8 +110,8 @@ android {
 
     buildTypes {
         debug {
-            // Distinct suffix so debug builds never replace an installed Artemis debug build (com.limelight.noirdebug)
-            applicationIdSuffix ".superartemisdebug"
+            // Debug installs next to the release build as com.mohitarora.superartemis.debug
+            applicationIdSuffix ".superartemis.debug"
             resValue "string", "app_label", "Super Artemis Debug"
             resValue "string", "app_label_root", "Super Artemis Debug (Root)"
             resValue "string", "app_label_game", "Super Artemis Debug (Game)"
@@ -174,6 +175,14 @@ android {
             enable true
             reset()
             include "x86", "x86_64", "armeabi-v7a", "arm64-v8a"
+        }
+    }
+
+    // APK names carry the app, version, ABI and build type, for example SuperArtemis-1.0.0-arm64-v8a-release.apk
+    applicationVariants.configureEach { variant ->
+        variant.outputs.configureEach { output ->
+            def abi = output.getFilter("ABI") ?: "universal"
+            outputFileName = "SuperArtemis-${variant.versionName}-${abi}-${variant.buildType.name}.apk"
         }
     }
 

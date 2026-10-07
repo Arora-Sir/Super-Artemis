@@ -16,13 +16,13 @@ This guide covers building Super Artemis, installing it on a device, pairing it 
 2. If you cloned without submodules, run `git submodule update --init --recursive`. The core lives in `app/src/main/jni/moonlight-core/moonlight-common-c` on branch `super-artemis` of `Arora-Sir/moonlight-common-c`.
 3. Create `local.properties` in the repository root with `sdk.dir=<path to your Android SDK>`.
 4. Build the debug APKs: `./gradlew assembleNonRoot_gameDebug` (on Windows `gradlew.bat assembleNonRoot_gameDebug`).
-5. The arm64 APK is `app/build/outputs/apk/nonRoot_game/debug/app-nonRoot_game-arm64-v8a-debug.apk`.
+5. The arm64 APK is `app/build/outputs/apk/nonRoot_game/debug/SuperArtemis-<version>-arm64-v8a-debug.apk`.
 
-Debug and release builds use different package IDs, so both install next to Artemis, Artemis-mic and stock Moonlight.
+Release builds install as `com.mohitarora.superartemis` and debug builds as `com.mohitarora.superartemis.debug`, so both install next to Artemis, Artemis-mic and stock Moonlight.
 
 ## Install on a device
 
-- USB: `adb install -r app/build/outputs/apk/nonRoot_game/debug/app-nonRoot_game-arm64-v8a-debug.apk`
+- USB: `adb install -r app/build/outputs/apk/nonRoot_game/debug/SuperArtemis-<version>-arm64-v8a-debug.apk`
 - Wireless: `adb connect <device-ip>:5555`, then the same install command with `-s <device-ip>:5555`.
 - Debug builds are debuggable, so settings can be inspected with `adb shell run-as <applicationId> cat shared_prefs/<applicationId>_preferences.xml`.
 
@@ -48,7 +48,7 @@ Debug and release builds use different package IDs, so both install next to Arte
 - Release builds are signed only when `KEYSTORE_FILE`, `KEYSTORE_PASSWORD`, `KEY_ALIAS` and `KEY_PASSWORD` are set. Without them the release APK stays unsigned.
 - Run `scripts/setup-release-signing.ps1` once (PowerShell 7). It creates the keystore outside the repository and stores the four GitHub Actions secrets. The password is read as a secure string and never echoed.
 - Keep the keystore and its password backed up. Losing either blocks updates of the installed app.
-- Pushing a `v*` tag runs `.github/workflows/build-unified.yml`, which builds, verifies the signature and package, and creates a draft release with the arm64 APK.
+- Pushing a `v*` tag runs `.github/workflows/build-unified.yml`, which builds, verifies the signature, the package and that the tag equals `v<versionName>`, and creates a draft release with `SuperArtemis-v<version>-arm64-v8a.apk`.
 
 ## Documentation checks
 

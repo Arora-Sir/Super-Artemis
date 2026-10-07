@@ -38,7 +38,7 @@ Host: Apollo (RTSP, video, audio, control stream over ENet, mic stream over UDP)
 | Stylus | `ui/StreamView.java` (`init`) | Disables automatic handwriting on Android 13+ so stylus strokes reach the host |
 | Gestures | `Game.java` (`handleMultiTouchGesture` and the trackpad up handler) | 3-finger tap keyboard, 4-finger tap full keyboard, 5-finger tap menu (now behind its own setting) |
 | Credits | `res/raw/credits.json`, `scripts/render_credits.py` | One credits source rendered into the README and release notes, and later into the app |
-| Packaging and CI | `app/build.gradle`, `.github/workflows/build-unified.yml`, `.github/workflows/docs-check.yml`, `scripts/setup-release-signing.ps1` | Fork package IDs, environment-driven release signing, signed arm64 release builds and the credits check |
+| Packaging and CI | `app/build.gradle`, `.github/workflows/build-unified.yml`, `.github/workflows/docs-check.yml`, `scripts/setup-release-signing.ps1` | Package IDs `com.mohitarora.superartemis` (debug `.debug`), `SuperArtemis-<version>-<abi>-<buildType>.apk` names, environment-driven release signing, signed arm64 release builds and the credits check |
 
 ## Data and state
 

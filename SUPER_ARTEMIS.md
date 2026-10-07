@@ -1,6 +1,6 @@
 # Super Artemis
 
-Super Artemis is a personal build of [Artemis](https://github.com/ClassicOldSong/moonlight-android) (ClassicOldSong's Moonlight fork) that adds upstream microphone streaming with a low-power toggle and a few community improvements. It installs as `com.limelight.superartemis` (debug builds as `com.limelight.superartemisdebug`), so it runs side by side with Artemis and Artemis-mic.
+Super Artemis is a personal build of [Artemis](https://github.com/ClassicOldSong/moonlight-android) (ClassicOldSong's Moonlight fork) that adds upstream microphone streaming with a low-power toggle and a few community improvements. It installs as `com.mohitarora.superartemis` (debug builds as `com.mohitarora.superartemis.debug`), so it runs side by side with Artemis and Artemis-mic.
 
 ## What is added on top of Artemis
 

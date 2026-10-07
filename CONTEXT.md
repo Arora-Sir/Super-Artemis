@@ -5,7 +5,7 @@ This is the handoff file for anyone (human or AI) resuming work on Super Artemis
 ## Current state
 
 - Branch `unified-main` is based on Artemis `moonlight-noir` (commit `c5cf27f`). Nothing in this repository is published yet. The native core branch `super-artemis` is pushed to `Arora-Sir/moonlight-common-c`.
-- Version `1.0.0` (versionCode 1) is set but not released. The current package IDs are `com.limelight.superartemis` (release) and `com.limelight.superartemisdebug` (debug). They change to `com.mohitarora.superartemis` and `com.mohitarora.superartemis.debug` before release (W13).
+- Version `1.0.0` (versionCode 1) is set but not released. The package IDs are `com.mohitarora.superartemis` (release) and `com.mohitarora.superartemis.debug` (debug). Earlier test installs used `com.limelight.superartemisdebug`, which can be uninstalled.
 - Debug builds and the unit tests pass, apart from the five known upstream failures (BUGS.md, BUG-009).
 
 ## What works (verified on a Galaxy Tab S10 Ultra, Android 16)
@@ -25,9 +25,9 @@ The debug build needs pairing with Apollo first. Then check the mic off by defau
 | ID | Work | Status |
 | :--- | :--- | :--- |
 | W0 | Credits system and attribution in commit history | Done |
-| W18 | Project docs (this file, ARCHITECTURE, SETUP, BUGS, CHANGELOG) and the dash check hook | In progress |
-| W13 | Package ID `com.mohitarora.superartemis`, APK naming, release signing | Next |
-| W1 | Restore keeps paired PCs when the backup has no keys, plus a restore preview | Planned |
+| W18 | Project docs (this file, ARCHITECTURE, SETUP, BUGS, CHANGELOG) and the dash check hook | Done, kept current at every step |
+| W13 | Package ID `com.mohitarora.superartemis`, APK naming, release signing | Done |
+| W1 | Restore keeps paired PCs when the backup has no keys, plus a restore preview | Next |
 | W2 | Backup and restore dialog visual polish | Planned |
 | W3 | Shared action registry, Quick Menu sections (Session in red), Customize in the Quick Menu, Back to Quick Menu in Advanced, style picker and live preview in the editor, one RecyclerView renderer | Planned |
 | W5 | In-app custom keys with a keyboard recorder and icons | Planned |

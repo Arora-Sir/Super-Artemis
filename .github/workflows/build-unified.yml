@@ -14,7 +14,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       NDK_VERSION: 27.0.12077973
-      APK_PATH: app/build/outputs/apk/nonRoot_game/release/app-nonRoot_game-arm64-v8a-release.apk
 
     steps:
       - name: Check signing secrets
@@ -64,11 +63,21 @@ jobs:
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: ./gradlew --no-daemon assembleNonRoot_gameRelease
 
-      - name: Verify signature and package name
+      - name: Verify signature, package name and version
         run: |
+          APK_PATH=$(ls app/build/outputs/apk/nonRoot_game/release/SuperArtemis-*-arm64-v8a-release.apk)
+          echo "APK_PATH=$APK_PATH" >> "$GITHUB_ENV"
           BUILD_TOOLS=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)
           "$BUILD_TOOLS/apksigner" verify -v "$APK_PATH"
-          "$BUILD_TOOLS/aapt2" dump badging "$APK_PATH" | grep "package: name='com.limelight.superartemis'"
+          BADGING=$("$BUILD_TOOLS/aapt2" dump badging "$APK_PATH")
+          echo "$BADGING" | grep "package: name='com.mohitarora.superartemis'"
+          if [ "$GITHUB_REF_TYPE" = "tag" ]; then
+            VERSION_NAME=$(echo "$BADGING" | sed -n "s/.*versionName='\([^']*\)'.*/\1/p")
+            if [ "v$VERSION_NAME" != "$GITHUB_REF_NAME" ]; then
+              echo "::error::Tag $GITHUB_REF_NAME does not match versionName $VERSION_NAME in app/build.gradle"
+              exit 1
+            fi
+          fi
 
       - name: Name APK after the release tag
         id: rename
