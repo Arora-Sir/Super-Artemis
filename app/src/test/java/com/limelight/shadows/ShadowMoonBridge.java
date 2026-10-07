@@ -75,7 +75,8 @@ public class ShadowMoonBridge {
                                          byte[] riAesKey, byte[] riAesIv,
                                          int videoCapabilities,
                                          int colorSpace, int colorRange,
-                                         boolean enableMicrophone) {
+                                         boolean enableMicrophone,
+                                         int controlPeerTimeoutMs) {
         lastStartConnectionEnableMicrophone = enableMicrophone;
         return 0;
     }

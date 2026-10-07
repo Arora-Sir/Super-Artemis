@@ -802,6 +802,7 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
                 .setClientRefreshRateX100((int)(displayRefreshRate * 100))
                 .setAudioConfiguration(prefConfig.audioConfiguration)
                 .setEnableMicrophone(prefConfig.enableMicrophone)
+                .setControlPeerTimeoutMs(prefConfig.networkGraceSeconds * 1000)
                 .setColorSpace(decoderRenderer.getPreferredColorSpace())
                 .setColorRange(decoderRenderer.getPreferredColorRange())
                 .setPersistGamepadsAfterDisconnect(!prefConfig.multiController)

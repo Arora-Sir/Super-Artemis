@@ -3,6 +3,7 @@ package com.limelight.ui;
 import android.annotation.TargetApi;
 import android.content.ClipData;
 import android.content.Context;
+import android.os.Build;
 import android.text.ClipboardManager;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
@@ -44,18 +45,29 @@ public class StreamView extends SurfaceView {
 
     public StreamView(Context context) {
         super(context);
+        init();
     }
 
     public StreamView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        init();
     }
 
     public StreamView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        init();
     }
 
     public StreamView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
+        init();
+    }
+
+    private void init() {
+        // Keep stylus strokes (S Pen) on the stream instead of letting the handwriting IME claim them (Moonlight V+ PR #634)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            setAutoHandwritingEnabled(false);
+        }
     }
 
     @Override

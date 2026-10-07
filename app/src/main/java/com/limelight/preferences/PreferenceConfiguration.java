@@ -63,6 +63,8 @@ public class PreferenceConfiguration {
     static final String ENABLE_MICROPHONE_PREF_STRING = "checkbox_enable_microphone";
     static final String MICROPHONE_DEVICE_PREF_STRING = "list_microphone_device";
     static final String MICROPHONE_INITIAL_STATE_PREF_STRING = "list_microphone_initial_state";
+    private static final String NETWORK_GRACE_PREF_STRING = "seekbar_network_grace_seconds";
+    public static final int DEFAULT_NETWORK_GRACE_SECONDS = 30;
     private static final String USB_DRIVER_PREF_SRING = "checkbox_usb_driver";
     private static final String VIDEO_FORMAT_PREF_STRING = "video_format";
     private static final String ONSCREEN_CONTROLLER_PREF_STRING = "checkbox_show_onscreen_controls";
@@ -172,7 +174,8 @@ public class PreferenceConfiguration {
     private static final boolean DEFAULT_ENABLE_PERF_LOGGING = false;
     private static final boolean DEFAULT_BIND_ALL_USB = false;
     private static final boolean DEFAULT_MOUSE_EMULATION = true;
-    private static final boolean DEFAULT_REMEMBER_MOUSE_MODE = false;
+    // Super Artemis keeps the in-stream mouse mode choice across sessions by default
+    private static final boolean DEFAULT_REMEMBER_MOUSE_MODE = true;
     private static final String DEFAULT_ANALOG_STICK_FOR_SCROLLING = "right";
     private static final boolean DEFAULT_MOUSE_NAV_BUTTONS = false;
     private static final boolean DEFAULT_UNLOCK_FPS = false;
@@ -381,6 +384,7 @@ public class PreferenceConfiguration {
     public boolean enableMicrophone;
     public int microphoneDeviceId;
     public String microphoneInitialState;
+    public int networkGraceSeconds;
     public int framePacing;
     public boolean absoluteMouseMode;
     public boolean enableAudioFx;
@@ -886,6 +890,7 @@ private static int getFramePacingValue(Context context) {
         }
         config.microphoneInitialState = parseMicrophoneInitialState(
                 prefs.getString(MICROPHONE_INITIAL_STATE_PREF_STRING, MICROPHONE_INITIAL_STATE_OFF));
+        config.networkGraceSeconds = prefs.getInt(NETWORK_GRACE_PREF_STRING, DEFAULT_NETWORK_GRACE_SECONDS);
 
         config.videoScaleMode = getVideoScaleMode(context);
 

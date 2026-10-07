@@ -32,6 +32,8 @@ public class StreamConfiguration {
     private boolean persistGamepadsAfterDisconnect;
     private boolean enableUltraLowLatency;
     private boolean enableMicrophone;
+    // Control stream silence tolerated before the core ends the session, 0 keeps the core default of 10 seconds (KAST)
+    private int controlPeerTimeoutMs;
 
     public static class Builder {
         private StreamConfiguration config = new StreamConfiguration();
@@ -152,6 +154,11 @@ public class StreamConfiguration {
             return this;
         }
 
+        public StreamConfiguration.Builder setControlPeerTimeoutMs(int controlPeerTimeoutMs) {
+            config.controlPeerTimeoutMs = controlPeerTimeoutMs;
+            return this;
+        }
+
         public StreamConfiguration build() {
             return config;
         }
@@ -267,5 +274,9 @@ public class StreamConfiguration {
 
     public boolean getEnableMicrophone() {
         return enableMicrophone;
+    }
+
+    public int getControlPeerTimeoutMs() {
+        return controlPeerTimeoutMs;
     }
 }

@@ -349,7 +349,8 @@ public class MoonBridge {
                                               byte[] riAesKey, byte[] riAesIv,
                                               int videoCapabilities,
                                               int colorSpace, int colorRange,
-                                              boolean enableMicrophone);
+                                              boolean enableMicrophone,
+                                              int controlPeerTimeoutMs);
 
     public static native void stopConnection();
 

@@ -402,7 +402,7 @@
             app:iconSpaceReserved="false" />
         
         <CheckBoxPreference
-            android:defaultValue="false"
+            android:defaultValue="true"
             android:key="checkbox_remember_mouse_mode"
             android:summary="@string/summary_checkbox_remember_mouse_mode"
             android:title="@string/title_checkbox_remember_mouse_mode"
@@ -982,6 +982,17 @@
             android:summary="@string/summary_video_format"
             android:title="@string/title_video_format"
             app:iconSpaceReserved="false" />
+        <com.limelight.preferences.SeekBarPreference
+            android:defaultValue="30"
+            android:dialogMessage="@string/summary_seekbar_network_grace"
+            android:key="seekbar_network_grace_seconds"
+            android:max="60"
+            android:summary="@string/summary_seekbar_network_grace"
+            android:text="@string/suffix_seekbar_seconds"
+            android:title="@string/title_seekbar_network_grace"
+            app:iconSpaceReserved="false"
+            seekbar:min="10"
+            seekbar:step="5" />
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="checkbox_unlock_fps"

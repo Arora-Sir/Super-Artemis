@@ -486,7 +486,8 @@ public class NvConnection {
                     context.videoCapabilities,
                     context.streamConfig.getColorSpace(),
                     context.streamConfig.getColorRange(),
-                    context.streamConfig.getEnableMicrophone());
+                    context.streamConfig.getEnableMicrophone(),
+                    context.streamConfig.getControlPeerTimeoutMs());
         }
     }
 

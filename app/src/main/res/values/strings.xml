@@ -247,6 +247,9 @@
     <string name="game_menu_unmute_microphone">Unmute microphone</string>
     <string name="microphone_active">Microphone on</string>
     <string name="microphone_muted">Microphone muted</string>
+    <string name="title_seekbar_network_grace">Network drop grace period</string>
+    <string name="summary_seekbar_network_grace">How long the stream survives a lost network before the session ends. The host also needs a ping timeout at least this long.</string>
+    <string name="suffix_seekbar_seconds">s</string>
 
     <string name="category_gamepad_settings">Gamepad Settings</string>
     <string name="title_checkbox_multi_controller">Automatic gamepad presence detection</string>
