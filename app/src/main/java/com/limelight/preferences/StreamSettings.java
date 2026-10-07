@@ -25,6 +25,7 @@ import androidx.preference.EditTextPreference;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceCategory;
+import androidx.preference.PreferenceGroup;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 import androidx.preference.PreferenceScreen;
@@ -44,6 +45,10 @@ import android.view.WindowInsets;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.bytehamster.lib.preferencesearch.SearchConfiguration;
+import com.bytehamster.lib.preferencesearch.SearchPreference;
+import com.bytehamster.lib.preferencesearch.SearchPreferenceResult;
+import com.bytehamster.lib.preferencesearch.SearchPreferenceResultListener;
 import com.google.gson.Gson;
 import com.limelight.DebugInfoActivity;
 import com.limelight.BuildConfig;
@@ -67,7 +72,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 
-public class StreamSettings extends AppCompatActivity {
+public class StreamSettings extends AppCompatActivity implements SearchPreferenceResultListener {
     private PreferenceConfiguration previousPrefs;
     private int previousDisplayPixelCount;
 
@@ -85,6 +90,20 @@ public class StreamSettings extends AppCompatActivity {
                 this,
                 PreferenceManager.getDefaultSharedPreferences(this)
         ));
+        getSupportFragmentManager().beginTransaction().replace(
+                R.id.stream_settings, prefsFragment
+        ).commitAllowingStateLoss();
+    }
+
+    // Rebuilds the settings list with the result's categories expanded, because highlight() cannot reach collapsed items
+    @Override
+    public void onSearchResultClicked(@NonNull SearchPreferenceResult result) {
+        result.closeSearchPage(this);
+        prefsFragment = new SettingsFragment(PreferenceConfiguration.readPreferences(
+                this,
+                PreferenceManager.getDefaultSharedPreferences(this)
+        ));
+        prefsFragment.pendingSearchResult = result;
         getSupportFragmentManager().beginTransaction().replace(
                 R.id.stream_settings, prefsFragment
         ).commitAllowingStateLoss();
@@ -172,6 +191,7 @@ public class StreamSettings extends AppCompatActivity {
         private boolean nativeFramerateShown = false;
 
         private PreferenceConfiguration prevPrefConfig;
+        SearchPreferenceResult pendingSearchResult;
         private MicrophoneCaptureManager microphoneCaptureManager;
         private CheckBoxPreference microphoneEnablePreference;
         private ListPreference microphoneDevicePreference;
@@ -348,6 +368,8 @@ public class StreamSettings extends AppCompatActivity {
             PreferenceScreen screen = getPreferenceScreen();
 
             AppCompatActivity activity = (AppCompatActivity) requireActivity();
+
+            setupSearch(activity);
             PackageManager pm = activity.getPackageManager();
 
             // hide on-screen controls category on non touch screen devices
@@ -1160,6 +1182,47 @@ public class StreamSettings extends AppCompatActivity {
                     }
                 }
             }, 500);
+        }
+
+        private void setupSearch(AppCompatActivity activity) {
+            SearchPreference searchPreference = findPreference("searchPreference");
+            if (searchPreference == null) {
+                return;
+            }
+            // Only StreamSettings handles result clicks, so other hosts (like the profile editor) hide the search bar
+            if (!(activity instanceof StreamSettings)) {
+                searchPreference.setVisible(false);
+                return;
+            }
+            SearchConfiguration config = searchPreference.getSearchConfiguration();
+            config.setActivity(activity);
+            config.setFragmentContainerViewId(R.id.stream_settings);
+            config.setBreadcrumbsEnabled(true);
+            config.index(R.xml.preferences);
+
+            if (pendingSearchResult != null) {
+                Preference target = findPreference(pendingSearchResult.getKey());
+                if (target != null) {
+                    expandParents(target);
+                }
+            }
+        }
+
+        private static void expandParents(Preference preference) {
+            PreferenceGroup parent = preference.getParent();
+            while (parent != null) {
+                parent.setInitialExpandedChildrenCount(Integer.MAX_VALUE);
+                parent = parent.getParent();
+            }
+        }
+
+        @Override
+        public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+            super.onViewCreated(view, savedInstanceState);
+            if (pendingSearchResult != null) {
+                pendingSearchResult.highlight(this);
+                pendingSearchResult = null;
+            }
         }
 
         @Override

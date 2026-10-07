@@ -281,6 +281,15 @@ public class EditProfileActivity extends AppCompatActivity {
             if (_pref != null) {
                 _pref.setVisible(false);
             }
+            // Search and backup act on the whole app, not on a single profile
+            _pref = findPreference("searchPreference");
+            if (_pref != null) {
+                _pref.setVisible(false);
+            }
+            _pref = findPreference("category_backup_restore");
+            if (_pref != null) {
+                _pref.setVisible(false);
+            }
             _pref = findPreference("import_keyboard_file");
             if (_pref != null) {
                 _pref.setVisible(false);
