@@ -220,6 +220,7 @@
     </PreferenceCategory>
 
     <PreferenceCategory
+        android:key="category_audio_settings"
         android:title="@string/category_audio_settings"
         app:iconSpaceReserved="false">
         <ListPreference
@@ -235,6 +236,32 @@
             android:key="checkbox_enable_audiofx"
             android:summary="@string/summary_checkbox_enable_audiofx"
             android:title="@string/title_checkbox_enable_audiofx"
+            app:iconSpaceReserved="false" />
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="checkbox_enable_microphone"
+            android:summary="@string/summary_checkbox_enable_microphone"
+            android:title="@string/title_checkbox_enable_microphone"
+            app:iconSpaceReserved="false" />
+        <ListPreference
+            android:defaultValue="0"
+            android:dependency="checkbox_enable_microphone"
+            android:key="list_microphone_device"
+            android:summary="@string/summary_microphone_device_list"
+            android:title="@string/title_microphone_device_list"
+            app:iconSpaceReserved="false" />
+        <ListPreference
+            android:defaultValue="off"
+            android:dependency="checkbox_enable_microphone"
+            android:entries="@array/microphone_initial_state_names"
+            android:entryValues="@array/microphone_initial_state_values"
+            android:key="list_microphone_initial_state"
+            android:summary="@string/summary_microphone_initial_state"
+            android:title="@string/title_microphone_initial_state"
+            app:iconSpaceReserved="false" />
+        <com.limelight.preferences.MicrophonePreviewPreference
+            android:key="microphone_preview"
+            android:title="@string/title_microphone_preview"
             app:iconSpaceReserved="false" />
     </PreferenceCategory>
 

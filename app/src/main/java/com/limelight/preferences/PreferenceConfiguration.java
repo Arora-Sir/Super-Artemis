@@ -60,6 +60,9 @@ public class PreferenceConfiguration {
     private static final String SMALL_ICONS_PREF_STRING = "checkbox_small_icon_mode";
     private static final String MULTI_CONTROLLER_PREF_STRING = "checkbox_multi_controller";
     static final String AUDIO_CONFIG_PREF_STRING = "list_audio_config";
+    static final String ENABLE_MICROPHONE_PREF_STRING = "checkbox_enable_microphone";
+    static final String MICROPHONE_DEVICE_PREF_STRING = "list_microphone_device";
+    static final String MICROPHONE_INITIAL_STATE_PREF_STRING = "list_microphone_initial_state";
     private static final String USB_DRIVER_PREF_SRING = "checkbox_usb_driver";
     private static final String VIDEO_FORMAT_PREF_STRING = "video_format";
     private static final String ONSCREEN_CONTROLLER_PREF_STRING = "checkbox_show_onscreen_controls";
@@ -179,6 +182,13 @@ public class PreferenceConfiguration {
     private static final boolean DEFAULT_FLIP_FACE_BUTTONS = false;
     private static final boolean DEFAULT_TOUCHSCREEN_TRACKPAD = true;
     private static final String DEFAULT_AUDIO_CONFIG = "2"; // Stereo
+    private static final boolean DEFAULT_ENABLE_MICROPHONE = false;
+    private static final String DEFAULT_MICROPHONE_DEVICE = "0";
+
+    // Microphone state applied when a stream starts. The mic is still negotiated with the host so it can be unmuted mid-stream.
+    public static final String MICROPHONE_INITIAL_STATE_OFF = "off";
+    public static final String MICROPHONE_INITIAL_STATE_ON = "on";
+    public static final String MICROPHONE_INITIAL_STATE_FOLLOW_LAST = "follow_last";
     private static final boolean DEFAULT_LATENCY_TOAST = false;
     private static final String DEFAULT_FRAME_PACING = "latency";
     private static final boolean DEFAULT_ABSOLUTE_MOUSE_MODE = false;
@@ -368,6 +378,9 @@ public class PreferenceConfiguration {
     public int vibrateFallbackToDeviceStrength;
     public boolean touchscreenTrackpad;
     public MoonBridge.AudioConfiguration audioConfiguration;
+    public boolean enableMicrophone;
+    public int microphoneDeviceId;
+    public String microphoneInitialState;
     public int framePacing;
     public boolean absoluteMouseMode;
     public boolean enableAudioFx;
@@ -631,7 +644,14 @@ public class PreferenceConfiguration {
         return prefs.getString(FRAME_PACING_PREF_STRING, DEFAULT_FRAME_PACING);
     }
 
-    
+    // Unknown or missing values fall back to off so the microphone never powers up unexpectedly
+    static String parseMicrophoneInitialState(String value) {
+        if (MICROPHONE_INITIAL_STATE_ON.equals(value) || MICROPHONE_INITIAL_STATE_FOLLOW_LAST.equals(value)) {
+            return value;
+        }
+        return MICROPHONE_INITIAL_STATE_OFF;
+    }
+
     public static boolean getPreferLowerDelays(Context context) {
         SharedPreferences prefs = ProfilesManager.getInstance().getOverlayingSharedPreferences(context);
         // default true: favor lower delay unless user opts out
@@ -855,6 +875,17 @@ private static int getFramePacingValue(Context context) {
         else /* if (audioConfig.equals("2")) */ {
             config.audioConfiguration = MoonBridge.AUDIO_CONFIGURATION_STEREO;
         }
+
+        config.enableMicrophone = prefs.getBoolean(ENABLE_MICROPHONE_PREF_STRING, DEFAULT_ENABLE_MICROPHONE);
+        try {
+            config.microphoneDeviceId = Integer.parseInt(prefs.getString(MICROPHONE_DEVICE_PREF_STRING, DEFAULT_MICROPHONE_DEVICE));
+        }
+        catch (NumberFormatException e) {
+            config.microphoneDeviceId = 0;
+            prefs.edit().putString(MICROPHONE_DEVICE_PREF_STRING, DEFAULT_MICROPHONE_DEVICE).apply();
+        }
+        config.microphoneInitialState = parseMicrophoneInitialState(
+                prefs.getString(MICROPHONE_INITIAL_STATE_PREF_STRING, MICROPHONE_INITIAL_STATE_OFF));
 
         config.videoScaleMode = getVideoScaleMode(context);
 

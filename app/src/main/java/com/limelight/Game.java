@@ -10,6 +10,8 @@ import static com.limelight.utils.ServerHelper.getSecondaryDisplay;
 
 import com.limelight.binding.PlatformBinding;
 import com.limelight.binding.audio.AndroidAudioRenderer;
+import com.limelight.binding.audio.MicrophoneCaptureManager;
+import com.limelight.binding.audio.MicrophoneStateStore;
 import com.limelight.binding.input.ControllerHandler;
 import com.limelight.binding.input.GameInputDevice;
 import com.limelight.binding.input.KeyboardTranslator;
@@ -232,6 +234,9 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
 
     private MediaCodecDecoderRenderer decoderRenderer;
     private boolean reportedCrash;
+    private MicrophoneCaptureManager microphoneCaptureManager;
+    private MicrophoneStateStore microphoneStateStore;
+    private static final int RECORD_AUDIO_PERMISSION_REQUEST = 4201;
 
     private WifiManager.WifiLock highPerfWifiLock;
     private WifiManager.WifiLock lowLatencyWifiLock;
@@ -796,6 +801,7 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
                 .setAttachedGamepadMask(gamepadMask)
                 .setClientRefreshRateX100((int)(displayRefreshRate * 100))
                 .setAudioConfiguration(prefConfig.audioConfiguration)
+                .setEnableMicrophone(prefConfig.enableMicrophone)
                 .setColorSpace(decoderRenderer.getPreferredColorSpace())
                 .setColorRange(decoderRenderer.getPreferredColorRange())
                 .setPersistGamepadsAfterDisconnect(!prefConfig.multiController)
@@ -1700,6 +1706,7 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
 
     @Override
     protected void onDestroy() {
+        stopMicrophoneCapture();
         super.onDestroy();
 
         instance = null;
@@ -3452,6 +3459,8 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
     }
 
     private void stopConnection() {
+        stopMicrophoneCapture();
+
         if (connecting || connected) {
             connecting = connected = false;
             updatePipAutoEnter();
@@ -3480,6 +3489,138 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
                     }
                 }
             }.start();
+        }
+    }
+
+    private void stopMicrophoneCapture() {
+        if (microphoneCaptureManager != null) {
+            microphoneCaptureManager.stop();
+        }
+    }
+
+    private boolean startMicrophoneCapture() {
+        if (!prefConfig.enableMicrophone) {
+            return false;
+        }
+
+        if (!MicrophoneCaptureManager.hasRecordAudioPermission(this)) {
+            LimeLog.info("Skipping microphone capture because RECORD_AUDIO permission is missing");
+            displayTransientMessage(getString(R.string.microphone_stream_permission_revoked));
+            return false;
+        }
+
+        if (!MoonBridge.isMicrophoneStreamActive()) {
+            LimeLog.info("Host did not negotiate microphone streaming");
+            displayTransientMessage(getString(R.string.microphone_host_not_negotiated));
+            return false;
+        }
+
+        if (microphoneCaptureManager == null) {
+            microphoneCaptureManager = new MicrophoneCaptureManager(this);
+        }
+
+        LimeLog.info("Starting microphone streaming on device id " + prefConfig.microphoneDeviceId +
+                " (encrypted=" + MoonBridge.isMicrophoneEncryptionEnabled() + ")");
+
+        if (!microphoneCaptureManager.startStreaming(prefConfig.microphoneDeviceId, null)) {
+            LimeLog.warning("Unable to start local microphone capture for the current stream");
+            displayTransientMessage(getString(R.string.microphone_stream_start_failed));
+            return false;
+        }
+        return true;
+    }
+
+    private MicrophoneStateStore getMicrophoneStateStore() {
+        if (microphoneStateStore == null) {
+            microphoneStateStore = new MicrophoneStateStore(this);
+        }
+        return microphoneStateStore;
+    }
+
+    private String getHostUuid() {
+        return getIntent().getStringExtra(EXTRA_PC_UUID);
+    }
+
+    // NOTE: The mic stream is negotiated at connect whenever it is enabled, so the host keeps a mic channel open.
+    // NOTE: AudioRecord only starts here when the initial state asks for it, so muted streams keep the mic hardware and Opus encoder off.
+    private void applyMicrophoneInitialState() {
+        if (!prefConfig.enableMicrophone) {
+            return;
+        }
+
+        if (!MoonBridge.isMicrophoneStreamActive()) {
+            LimeLog.info("Host did not negotiate microphone streaming");
+            displayTransientMessage(getString(R.string.microphone_host_not_negotiated));
+            return;
+        }
+
+        boolean lastState = getMicrophoneStateStore().getLastState(getHostUuid());
+        if (MicrophoneStateStore.resolveInitialState(prefConfig.microphoneInitialState, lastState)) {
+            startMicrophoneCapture();
+        }
+        else {
+            LimeLog.info("Microphone negotiated but left muted (initial state: " + prefConfig.microphoneInitialState + ")");
+        }
+    }
+
+    public boolean isMicrophoneAvailable() {
+        return prefConfig.enableMicrophone && connected && MoonBridge.isMicrophoneStreamActive();
+    }
+
+    public boolean isMicrophoneStreaming() {
+        return microphoneCaptureManager != null && microphoneCaptureManager.isStreaming();
+    }
+
+    public void toggleMicrophoneCapture() {
+        if (!isMicrophoneAvailable()) {
+            displayTransientMessage(getString(R.string.microphone_host_not_negotiated));
+            return;
+        }
+
+        if (isMicrophoneStreaming()) {
+            stopMicrophoneCapture();
+            getMicrophoneStateStore().setLastState(getHostUuid(), false);
+            Toast.makeText(this, R.string.microphone_muted, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (!MicrophoneCaptureManager.hasRecordAudioPermission(this)) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                // Capture resumes in onRequestPermissionsResult once granted
+                requestPermissions(new String[] {android.Manifest.permission.RECORD_AUDIO},
+                        RECORD_AUDIO_PERMISSION_REQUEST);
+            }
+            else {
+                displayTransientMessage(getString(R.string.microphone_stream_permission_revoked));
+            }
+            return;
+        }
+
+        unmuteMicrophone();
+    }
+
+    private void unmuteMicrophone() {
+        if (startMicrophoneCapture()) {
+            getMicrophoneStateStore().setLastState(getHostUuid(), true);
+            Toast.makeText(this, R.string.microphone_active, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode != RECORD_AUDIO_PERMISSION_REQUEST) {
+            return;
+        }
+
+        if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            if (isMicrophoneAvailable()) {
+                unmuteMicrophone();
+            }
+        }
+        else {
+            Toast.makeText(this, R.string.microphone_permission_denied, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -3712,6 +3853,7 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
                 setupOverlayToggleButton();
 
                 hideSystemUi(1000);
+                applyMicrophoneInitialState();
 
                 if (prefConfig.preventPacketLoss) {
                     timerHandler.postDelayed(backgroundPing, 1000);

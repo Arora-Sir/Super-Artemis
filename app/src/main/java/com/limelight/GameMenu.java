@@ -264,11 +264,21 @@ public class GameMenu implements Game.GameMenuCallbacks {
         }));
 
         options.add(new MenuOption(getString(R.string.game_menu_switch_touch_sensitivity_model), true, game::switchTouchSensitivity));
+        addMicrophoneOption(options);
         if (device != null) {
             options.addAll(device.getGameMenuOptions());
         }
         options.add(new MenuOption(getString(R.string.game_menu_cancel), null));
         showMenuDialog(getString(R.string.game_menu_advanced), options.toArray(new MenuOption[options.size()]));
+    }
+
+    // Only shown when the host negotiated the mic stream, so toggling just pauses or resumes local capture
+    private void addMicrophoneOption(List<MenuOption> options) {
+        if (!game.isMicrophoneAvailable()) {
+            return;
+        }
+        int label = game.isMicrophoneStreaming() ? R.string.game_menu_mute_microphone : R.string.game_menu_unmute_microphone;
+        options.add(new MenuOption(getString(label), true, game::toggleMicrophoneCapture));
     }
 
     private void showServerCmd(ArrayList<String> serverCmds) {
@@ -324,6 +334,8 @@ public class GameMenu implements Game.GameMenuCallbacks {
             options.add(new MenuOption(getString(R.string.game_menu_rotate_screen), true,
                     game::rotateScreen));
         }
+
+        addMicrophoneOption(options);
 
         options.add(new MenuOption(getString(R.string.game_menu_advanced), true,
                 () -> showAdvancedMenu(device)));
