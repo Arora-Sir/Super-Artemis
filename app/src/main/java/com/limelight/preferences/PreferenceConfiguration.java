@@ -121,6 +121,8 @@ public class PreferenceConfiguration {
 
     private static final String CHECKBOX_ENABLE_FLOATING_BUTTON = "checkbox_enable_floating_button";
 
+    private static final String CHECKBOX_FIVE_FINGER_MENU = "checkbox_five_finger_menu";
+
     private static final String CHECKBOX_SHOW_OVERLAY_ZOOM_TOGGLE_BUTTON = "checkbox_show_overlay_zoom_toggle_button";
 
     //竖屏模式
@@ -296,6 +298,7 @@ public class PreferenceConfiguration {
 
     public boolean enableLatencyToast;
     public boolean enableBackMenu;
+    public boolean enableFiveFingerMenu;
     public boolean enableFloatingButton;
     public boolean showOverlayZoomToggleButton;
 
@@ -975,6 +978,7 @@ private static int getFramePacingValue(Context context) {
 //        config.touchscreenTrackpad = prefs.getBoolean(TOUCHSCREEN_TRACKPAD_PREF_STRING, DEFAULT_TOUCHSCREEN_TRACKPAD);
         config.enableLatencyToast = prefs.getBoolean(LATENCY_TOAST_PREF_STRING, DEFAULT_LATENCY_TOAST);
         config.enableBackMenu = prefs.getBoolean(CHECKBOX_ENABLE_QUIT_DIALOG,true);
+        config.enableFiveFingerMenu = prefs.getBoolean(CHECKBOX_FIVE_FINGER_MENU, true);
         config.enableFloatingButton = prefs.getBoolean(CHECKBOX_ENABLE_FLOATING_BUTTON,DEFAULT_ENABLE_FLOATING_BUTTON);
         config.showOverlayZoomToggleButton = prefs.getBoolean(CHECKBOX_SHOW_OVERLAY_ZOOM_TOGGLE_BUTTON, DEFAULT_SHOW_OVERLAY_TOGGLE_BUTTON);
         config.autoOrientation = prefs.getBoolean(CHECKBOX_AUTO_ORIENTATION,false);

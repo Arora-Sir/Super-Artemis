@@ -265,6 +265,8 @@
     <string name="restore_success">Settings restored, restarting</string>
     <string name="restore_success_repair_needed">Settings restored, restarting. This backup has no pairing keys, so paired PCs need to be paired again.</string>
     <string name="restore_failed">Restore failed: %1$s</string>
+    <string name="title_five_finger_menu">Five-finger tap opens menu</string>
+    <string name="summary_five_finger_menu">Tap the stream with five fingers to open the in-stream menu, independent of the Back Menu setting</string>
 
     <string name="category_gamepad_settings">Gamepad Settings</string>
     <string name="title_checkbox_multi_controller">Automatic gamepad presence detection</string>

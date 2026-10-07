@@ -3263,7 +3263,7 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
                             toggleFullKeyboard();
                             return true;
                         } else if (currentEventTime - fiveFingerDownTime < FIVE_FINGER_TAP_THRESHOLD) {
-                            if(prefConfig.enableBackMenu) {
+                            if(prefConfig.enableFiveFingerMenu) {
                                 showGameMenu(null);
                             }
                             return true;
@@ -3328,7 +3328,7 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
             case MotionEvent.ACTION_UP:
                 long currentEventTime = event.getEventTime();
                 if (pointerCount >= 5 && fiveFingerDownTime > 0 && currentEventTime - fiveFingerDownTime < FIVE_FINGER_TAP_THRESHOLD) {
-                    if(prefConfig.enableBackMenu) {
+                    if(prefConfig.enableFiveFingerMenu) {
                         showGameMenu(null);
                     }
                     fiveFingerDownTime = 0;
