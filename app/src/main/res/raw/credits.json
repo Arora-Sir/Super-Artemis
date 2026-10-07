@@ -1,0 +1,142 @@
+{
+  "schemaVersion": 1,
+  "roles": {
+    "base": "Base project",
+    "code": "Code ported",
+    "design": "Design adapted",
+    "prior-art": "Prior art",
+    "library": "Library",
+    "assets": "Assets",
+    "idea": "Idea",
+    "request": "Requested",
+    "report": "Reported"
+  },
+  "entries": [
+    {
+      "feature": "Artemis, the app Super Artemis is built on, and the Apollo host",
+      "role": "base",
+      "people": [{ "handle": "ClassicOldSong", "name": "Yukino Song" }],
+      "links": [
+        { "label": "ClassicOldSong/moonlight-android", "url": "https://github.com/ClassicOldSong/moonlight-android" },
+        { "label": "ClassicOldSong/Apollo", "url": "https://github.com/ClassicOldSong/Apollo" }
+      ]
+    },
+    {
+      "feature": "Moonlight, the GameStream client and core library Artemis is built on",
+      "role": "base",
+      "people": [{ "handle": "cgutman", "name": "Cameron Gutman" }],
+      "links": [
+        { "label": "moonlight-stream/moonlight-android", "url": "https://github.com/moonlight-stream/moonlight-android" },
+        { "label": "moonlight-stream/moonlight-common-c", "url": "https://github.com/moonlight-stream/moonlight-common-c" }
+      ]
+    },
+    {
+      "feature": "Microphone streaming to the host (client, native core and Apollo host side)",
+      "role": "code",
+      "people": [{ "handle": "logabell", "name": "Logan Abell" }],
+      "links": [
+        { "label": "ClassicOldSong/moonlight-android#537", "url": "https://github.com/ClassicOldSong/moonlight-android/pull/537" },
+        { "label": "ClassicOldSong/moonlight-common-c#1", "url": "https://github.com/ClassicOldSong/moonlight-common-c/pull/1" },
+        { "label": "ClassicOldSong/Apollo#1428", "url": "https://github.com/ClassicOldSong/Apollo/pull/1428" }
+      ]
+    },
+    {
+      "feature": "Microphone state at stream start (off, on, follow last state)",
+      "role": "design",
+      "people": [{ "handle": "Yundi339" }],
+      "links": [
+        { "label": "qiin2333/moonlight-vplus#639", "url": "https://github.com/qiin2333/moonlight-vplus/pull/639" }
+      ]
+    },
+    {
+      "feature": "In-stream microphone toggle action",
+      "role": "design",
+      "people": [{ "handle": "ShadowLemoon" }],
+      "links": [
+        { "label": "qiin2333/moonlight-vplus#314", "url": "https://github.com/qiin2333/moonlight-vplus/pull/314" }
+      ]
+    },
+    {
+      "feature": "Microphone redirection in Moonlight V+",
+      "role": "prior-art",
+      "people": [{ "handle": "qiin2333" }],
+      "links": [
+        { "label": "qiin2333/moonlight-vplus#20", "url": "https://github.com/qiin2333/moonlight-vplus/pull/20" }
+      ]
+    },
+    {
+      "feature": "Stylus (S Pen) isolation from the handwriting keyboard",
+      "role": "code",
+      "people": [{ "handle": "Yundi339" }],
+      "links": [
+        { "label": "qiin2333/moonlight-vplus#634", "url": "https://github.com/qiin2333/moonlight-vplus/pull/634" }
+      ]
+    },
+    {
+      "feature": "Low-latency decoder parameter after decoder start",
+      "role": "code",
+      "people": [{ "handle": "derflacco" }],
+      "links": [
+        { "label": "derflacco/moonlight-android@d8f6f62", "url": "https://github.com/derflacco/moonlight-android/commit/d8f6f620b1f7569ff1f80b2514eafda1e28d6858" }
+      ]
+    },
+    {
+      "feature": "Network drop grace period (configurable control stream timeout)",
+      "role": "code",
+      "people": [{ "handle": "MikalaiKryvusha", "name": "Mikalai Kryvusha" }],
+      "links": [
+        { "label": "MikalaiKryvusha/moonlight-common-c@25ffe75", "url": "https://github.com/MikalaiKryvusha/moonlight-common-c/commit/25ffe75ad655d6404bf326ab9e30009161aa1fa1" },
+        { "label": "MikalaiKryvusha/KAST@b277878", "url": "https://github.com/MikalaiKryvusha/KAST/commit/b277878cd1ae6cfb48bd96538951dfa194c3314f" }
+      ]
+    },
+    {
+      "feature": "Settings search",
+      "role": "library",
+      "people": [{ "handle": "ByteHamster", "name": "Hans-Peter Lehmann" }],
+      "links": [
+        { "label": "ByteHamster/SearchPreference", "url": "https://github.com/ByteHamster/SearchPreference" }
+      ]
+    },
+    {
+      "feature": "Large touch targets for menu tiles",
+      "role": "idea",
+      "people": [{ "handle": "Rafael-CN", "name": "Rafael" }],
+      "links": [
+        { "label": "Rafael-CN/VibeArtemis@600a068", "url": "https://github.com/Rafael-CN/VibeArtemis/commit/600a068a6cfff40ea6dcf3e50737df3bd652b105" }
+      ]
+    },
+    {
+      "feature": "Menu and action icons (Material Symbols, Apache License 2.0)",
+      "role": "assets",
+      "people": [],
+      "links": [
+        { "label": "google/material-design-icons", "url": "https://github.com/google/material-design-icons" }
+      ]
+    },
+    {
+      "feature": "Reorderable Quick Menu and floating buttons",
+      "role": "request",
+      "people": [{ "handle": "Sx1Fl0NdqlkM6N4s2pswXKUI0k9FKTaOckLbNXu" }],
+      "links": [
+        { "label": "ClassicOldSong/moonlight-android#241", "url": "https://github.com/ClassicOldSong/moonlight-android/issues/241" }
+      ]
+    },
+    {
+      "feature": "Quick Menu modes",
+      "role": "request",
+      "people": [{ "handle": "r0l1ka" }],
+      "links": [
+        { "label": "ClassicOldSong/moonlight-android#146", "url": "https://github.com/ClassicOldSong/moonlight-android/issues/146" }
+      ]
+    },
+    {
+      "feature": "Microphone support",
+      "role": "request",
+      "people": [{ "handle": "jackson00w" }, { "handle": "Moby812" }],
+      "links": [
+        { "label": "ClassicOldSong/moonlight-android#582", "url": "https://github.com/ClassicOldSong/moonlight-android/issues/582" },
+        { "label": "ClassicOldSong/moonlight-android#403", "url": "https://github.com/ClassicOldSong/moonlight-android/issues/403" }
+      ]
+    }
+  ]
+}

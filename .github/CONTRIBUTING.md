@@ -37,6 +37,23 @@ Thank you for your interest in contributing to this project! We welcome contribu
 - Include screenshots or examples if your changes affect the UI
 - Be responsive to feedback and suggestions during code review
 
+## Credit and attribution
+
+Super Artemis is built from the work of many people. Every change that ports code, adapts a design, or answers a community request gives credit the same way.
+
+### In commit messages
+
+- When code is ported from another project, add a `Co-authored-by:` trailer with the author's GitHub noreply address (`<id>+<login>@users.noreply.github.com`, find the id with `gh api users/<login> --jq .id`).
+- Reference every PR, commit or issue the change uses or answers on a `Refs:` line with the full `owner/repo#123` form, so GitHub links back to it from that thread.
+- When the idea or design was adapted but no code was copied, say so in the body (for example: "Based on the design of qiin2333/moonlight-vplus#639 by @Yundi339.").
+- Reference each source once in the commit that uses it. Do not repeat references in unrelated commits.
+
+### In the credits file
+
+- Add an entry to `app/src/main/res/raw/credits.json` when a feature ships, never before.
+- Run `python scripts/render_credits.py --write` to refresh the README table. CI fails if the table is stale.
+- Release notes take their Thanks section from `python scripts/render_credits.py --release-notes`.
+
 ## Important Rules
 
 ### AI-Generated Code Policy
@@ -61,7 +78,7 @@ When using AI tools to generate code:
 
 ## Development Setup
 
-Please refer to the README.md file for instructions on setting up your development environment.
+Please refer to SETUP.md for the development environment and README.md for an overview.
 
 ## Questions?
 
