@@ -637,6 +637,7 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
 
         // Start the decoder
         videoDecoder.start();
+        MediaCodecHelper.applyFrameworkLowLatencyPostStart(videoDecoder);
 
 // Diagnostics: dump negotiated input/output formats and check vendor keys acceptance
         try {

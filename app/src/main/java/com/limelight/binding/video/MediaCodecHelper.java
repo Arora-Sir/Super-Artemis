@@ -21,6 +21,7 @@ import android.media.MediaCodecInfo.CodecCapabilities;
 import android.media.MediaCodecInfo.CodecProfileLevel;
 import android.media.MediaFormat;
 import android.os.Build;
+import android.os.Bundle;
 
 import com.limelight.LimeLog;
 import com.limelight.preferences.PreferenceConfiguration;
@@ -1189,6 +1190,21 @@ public class MediaCodecHelper {
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
                 try { videoFormat.setInteger(android.media.MediaFormat.KEY_PRIORITY, 0); } catch (Throwable ignored) {}
             }
+        }
+    }
+
+    // Repeats the low-latency hint as a runtime parameter after start on Android 11 and newer (ported from derflacco d8f6f620)
+    public static void applyFrameworkLowLatencyPostStart(MediaCodec codec) {
+        if (codec == null || Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            return;
+        }
+        try {
+            Bundle params = new Bundle();
+            params.putInt(MediaCodec.PARAMETER_KEY_LOW_LATENCY, 1);
+            codec.setParameters(params);
+            LimeLog.info("Applied post-start low-latency parameter");
+        } catch (Throwable t) {
+            LimeLog.info("Post-start low-latency parameter rejected: " + t.getMessage());
         }
     }
 
