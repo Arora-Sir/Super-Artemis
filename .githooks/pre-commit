@@ -1,0 +1,58 @@
+#!/bin/sh
+# Pre-commit hook for Super Artemis. Enable once per clone with: git config core.hooksPath .githooks
+# This repository is a fork, so only lines added by the commit are checked and upstream text is never forced to change.
+
+export LC_ALL=C.UTF-8
+export LANG=C.UTF-8
+
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM)
+if [ -z "$STAGED_FILES" ]; then
+    exit 0
+fi
+
+FAILED=0
+
+# 1. Block personal Windows user paths and this machine's name in added lines.
+# The machine name is read from the environment at commit time, so it is never written into this tracked file.
+ADDED_ALL=$(git diff --cached -U0 --diff-filter=ACM | grep -E '^\+' | grep -vE '^\+\+\+ ')
+if echo "$ADDED_ALL" | grep -qE 'C:\\\\?Users\\\\?[^\\/"<$%]+\\'; then
+    echo "BLOCKED: an added line contains a personal C:\\Users\\<name>\\ path. Use a placeholder or \$HOME instead." >&2
+    FAILED=1
+fi
+if [ -n "${COMPUTERNAME:-}" ] && [ "${#COMPUTERNAME}" -ge 3 ] && echo "$ADDED_ALL" | grep -qF "$COMPUTERNAME"; then
+    echo "BLOCKED: an added line contains this machine's name." >&2
+    FAILED=1
+fi
+
+# 2. Block em dashes, en dashes and double hyphens in added lines of code comments and documentation.
+DASH_PATTERN='—|–|[[:space:]]--[[:space:]]|[[:alnum:]]--[[:alnum:]]|[[:space:]]--$'
+for f in $STAGED_FILES; do
+    case "$f" in
+        *.java|*.kt|*.c|*.h|*.cpp|*.py|*.ps1|*.md|*.txt|*.xml|*.yml|*.yaml|*.json)
+            MATCHES=$(git diff --cached -U0 -- "$f" | grep -E '^\+' | grep -vE '^\+\+\+ ' | grep -v 'no-dash-lint' | grep -nE "$DASH_PATTERN")
+            if [ -n "$MATCHES" ]; then
+                echo "BLOCKED: added lines in '$f' contain em dashes, en dashes or double hyphens:" >&2
+                echo "$MATCHES" | head -n 5 | sed 's/^/  /' >&2
+                FAILED=1
+            fi
+            ;;
+    esac
+done
+
+# 3. Keep the README credits table in sync with credits.json.
+if echo "$STAGED_FILES" | grep -qE '^(README\.md|app/src/main/res/raw/credits\.json)$'; then
+    PYTHON=$(command -v python3 || command -v python)
+    if [ -n "$PYTHON" ] && ! "$PYTHON" scripts/render_credits.py --check >/dev/null 2>&1; then
+        echo "BLOCKED: README credits are stale. Run: python scripts/render_credits.py --write" >&2
+        FAILED=1
+    fi
+fi
+
+if [ "$FAILED" -eq 1 ]; then
+    echo "" >&2
+    echo "Fix dashes in a file with: python scripts/clean_dashes.py <file>" >&2
+    echo "Append 'no-dash-lint' to a line only when a dash is required, for example in a CLI example." >&2
+    exit 1
+fi
+
+exit 0
