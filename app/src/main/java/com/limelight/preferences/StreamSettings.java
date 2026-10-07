@@ -1215,6 +1215,8 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
             config.setActivity(activity);
             config.setFragmentContainerViewId(R.id.stream_settings);
             config.setBreadcrumbsEnabled(true);
+            // Exact matching keeps short queries like "menu style" from ranking loosely related settings first
+            config.setFuzzySearchEnabled(false);
             config.index(R.xml.preferences);
 
             if (pendingSearchResult != null) {
