@@ -13,7 +13,7 @@ Super Artemis is a personal build of [Artemis](https://github.com/ClassicOldSong
 | Stylus isolation on the stream view | Moonlight V+ PR #634 | Stops the handwriting IME from taking S Pen strokes (Android 13 and newer). |
 | Network drop grace period (10 to 60 seconds) | KAST `25ffe75` (common-c) and `b277878` (wiring) | The host must also allow the same silence, see Host setup. |
 | Settings search | `ByteHamster/SearchPreference` | Results inside collapsed categories expand before they are highlighted. |
-| Backup and restore of settings, paired hosts and pairing keys | New, modeled on DarQ-Reborn | Single JSON file through the Storage Access Framework. Pairing keys are optional at export. |
+| Backup and restore of settings, paired hosts and pairing keys | New, modeled on DarQ-Reborn | Single JSON file through the Storage Access Framework. Settings only by default, pairing keys are an explicit opt-in at export. |
 | Remember mouse mode by default | Artemis setting with a new default | |
 | Customizable in-stream menu | New | Pick and reorder Quick Menu actions (Settings or Advanced Menu > Customize menu), choose List, Grid with icons or Compact. Actions left out stay under Advanced Menu. |
 | Five-finger tap has its own setting | New | Turning off Back Menu no longer disables the five-finger menu gesture. |
@@ -38,4 +38,4 @@ Release builds run on GitHub Actions (`.github/workflows/build-unified.yml`) whe
 
 ## Backup file contents
 
-A backup contains every app SharedPreferences file except device-specific crash and GPU state, the profiles file, and the paired host list with server certificates. When "Include pairing keys" is checked it also contains the client certificate, private key and unique ID, and anyone holding that file can connect to your paired PCs as this device. Restoring replaces all settings and hosts and then restarts the app.
+A backup contains every app SharedPreferences file except device-specific crash and GPU state, framework internals and settings search history, the profiles file, and the paired host list with server certificates. Only when "Also include pairing keys" is checked (it is off by default) does it also contain the client certificate, private key and unique ID, and anyone holding that file can connect to your paired PCs as this device. Restoring replaces all settings and hosts and then restarts the app.

@@ -47,7 +47,6 @@ import android.view.ViewGroup;
 import android.view.WindowInsets;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.bytehamster.lib.preferencesearch.SearchConfiguration;
@@ -203,7 +202,7 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
 
         // Storage Access Framework launchers for the single-file backup (must be registered before the fragment starts)
         private final ExecutorService backupExecutor = Executors.newSingleThreadExecutor();
-        private boolean pendingBackupIncludesIdentity = true;
+        private boolean pendingBackupIncludesIdentity = false;
         private final ActivityResultLauncher<String> backupLauncher = registerForActivityResult(
                 new ActivityResultContracts.CreateDocument(BackupRestoreManager.MIME_TYPE), this::onBackupDestinationChosen);
         private final ActivityResultLauncher<String[]> restoreLauncher = registerForActivityResult(
@@ -1261,20 +1260,14 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
 
         private void showBackupDialog() {
             Context context = requireContext();
-            CheckBox includeKeys = new CheckBox(context);
-            includeKeys.setText(R.string.backup_include_pairing_keys);
-            includeKeys.setChecked(true);
-            includeKeys.setMinHeight((int) (48 * getResources().getDisplayMetrics().density));
-
-            FrameLayout container = new FrameLayout(context);
-            int padding = (int) (20 * getResources().getDisplayMetrics().density);
-            container.setPadding(padding, padding / 2, padding, 0);
-            container.addView(includeKeys);
+            View body = LayoutInflater.from(context).inflate(R.layout.dialog_backup_options, null);
+            // Settings-only is the safe default, pairing keys are an explicit opt-in
+            CheckBox includeKeys = body.findViewById(R.id.backup_include_keys);
+            includeKeys.setChecked(false);
 
             new AlertDialog.Builder(context)
                     .setTitle(R.string.title_backup_settings)
-                    .setMessage(R.string.backup_pairing_keys_warning)
-                    .setView(container)
+                    .setView(body)
                     .setPositiveButton(R.string.backup_choose_location, (dialog, which) -> {
                         pendingBackupIncludesIdentity = includeKeys.isChecked();
                         backupLauncher.launch(BackupRestoreManager.defaultFileName());

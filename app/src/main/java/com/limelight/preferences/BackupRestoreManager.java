@@ -47,8 +47,9 @@ public final class BackupRestoreManager {
     // Logical name for the default SharedPreferences file so backups move between debug and release builds
     static final String DEFAULT_PREFS_KEY = "_default";
 
-    // Device-specific state that must not travel to another install
-    private static final Set<String> EXCLUDED_PREFS = new HashSet<>(Arrays.asList("DecoderTombstone", "GlPreferences"));
+    // Device-specific state, framework internals and search history that must not travel to another install
+    private static final Set<String> EXCLUDED_PREFS = new HashSet<>(Arrays.asList(
+            "DecoderTombstone", "GlPreferences", "preferenceSearch"));
 
     // Only these files may be written by a restore, which blocks path traversal from a crafted backup
     private static final List<String> RESTORABLE_FILES = Arrays.asList("profiles/profiles.json");
@@ -230,6 +231,10 @@ public final class BackupRestoreManager {
         Iterator<String> files = prefsJson.keys();
         while (files.hasNext()) {
             String key = files.next();
+            if (!DEFAULT_PREFS_KEY.equals(key) && isExcludedPreferenceFile(key)) {
+                // Written by an older build that did not filter this file yet
+                continue;
+            }
             String name = DEFAULT_PREFS_KEY.equals(key) ? defaultName : key;
             restoredFiles.add(name);
             writePreferences(context.getSharedPreferences(name, Context.MODE_PRIVATE), prefsJson.getJSONObject(key));
@@ -398,7 +403,7 @@ public final class BackupRestoreManager {
             for (String fileName : fileNames) {
                 if (fileName.endsWith(".xml")) {
                     String name = fileName.substring(0, fileName.length() - 4);
-                    if (!EXCLUDED_PREFS.contains(name)) {
+                    if (!isExcludedPreferenceFile(name)) {
                         names.add(name);
                     }
                 }
@@ -408,8 +413,12 @@ public final class BackupRestoreManager {
     }
 
     private static boolean isValidPreferenceFileName(String name) {
-        return !name.isEmpty() && !name.contains("/") && !name.contains("\\") && !name.contains("..")
-                && !EXCLUDED_PREFS.contains(name);
+        return !name.isEmpty() && !name.contains("/") && !name.contains("\\") && !name.contains("..");
+    }
+
+    // Framework files (android.*), androidx markers (_has_set_default_values) and the exclusion list stay out of backups
+    static boolean isExcludedPreferenceFile(String name) {
+        return EXCLUDED_PREFS.contains(name) || name.startsWith("android.") || name.startsWith("_");
     }
 
     // Hosts

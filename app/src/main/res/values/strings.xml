@@ -255,8 +255,10 @@
     <string name="summary_backup_settings">Export all configurations and paired hosts to a single JSON file</string>
     <string name="title_restore_settings">Restore settings</string>
     <string name="summary_restore_settings">Import configurations from a previously exported JSON backup file</string>
-    <string name="backup_include_pairing_keys">Include pairing keys</string>
-    <string name="backup_pairing_keys_warning">With pairing keys included, anyone who has this file can connect to your paired PCs as this device. Keep it somewhere private.</string>
+    <string name="backup_include_pairing_keys">Also include pairing keys</string>
+    <string name="backup_dialog_summary">Saves every setting, your menu and control layouts, profiles and PC list.</string>
+    <string name="backup_keys_benefit">A restored copy connects to your PCs without pairing again.</string>
+    <string name="backup_keys_caution">Anyone with this file can connect to your PCs as this device. Keep it private and never share it.</string>
     <string name="backup_choose_location">Choose location</string>
     <string name="restore_confirm_message">This replaces all current settings and paired hosts with the backup. The app restarts when it finishes.</string>
     <string name="restore_choose_file">Choose file</string>

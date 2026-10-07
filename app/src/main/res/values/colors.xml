@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="profileAccent">#FF4081</color>
+    <!-- Readable red for warnings on the dark dialog background -->
+    <color name="backup_caution">#FF8A80</color>
 </resources>

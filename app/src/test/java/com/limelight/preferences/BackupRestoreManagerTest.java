@@ -71,6 +71,10 @@ public class BackupRestoreManagerTest {
                 .putString("special_key", "{\"data\":[]}").commit();
         context.getSharedPreferences("DecoderTombstone", Context.MODE_PRIVATE).edit()
                 .putInt("CrashCount", 3).commit();
+        context.getSharedPreferences("android.app.ActivityThread.IDS", Context.MODE_PRIVATE).edit()
+                .putString("id", "framework").commit();
+        context.getSharedPreferences("preferenceSearch", Context.MODE_PRIVATE).edit()
+                .putString("history_0", "bitrate").commit();
         writeFile(new File(context.getFilesDir(), "profiles/profiles.json"), "{\"profiles\":[]}");
         writeFile(new File(context.getFilesDir(), "uniqueid"), "0123456789abcdef");
         writeBytes(new File(context.getFilesDir(), "client.crt"), Base64.decode(TEST_CERT_BASE64, Base64.NO_WRAP));
@@ -79,6 +83,8 @@ public class BackupRestoreManagerTest {
 
         JSONObject backup = new JSONObject(BackupRestoreManager.createBackup(context, true).toString());
         assertFalse(backup.getJSONObject("sharedPreferences").has("DecoderTombstone"));
+        assertFalse(backup.getJSONObject("sharedPreferences").has("android.app.ActivityThread.IDS"));
+        assertFalse(backup.getJSONObject("sharedPreferences").has("preferenceSearch"));
 
         // Wipe the local state, then restore from the backup
         defaultPrefs.edit().clear().putString("leftover", "x").commit();
@@ -147,6 +153,16 @@ public class BackupRestoreManagerTest {
         JSONObject backup = BackupRestoreManager.createBackup(context, false);
         backup.getJSONObject("files").put("../shared_prefs/evil.xml", Base64.encodeToString(new byte[] {1}, Base64.NO_WRAP));
         assertInvalid(backup);
+    }
+
+    @Test
+    public void restoreSkipsExcludedFilesFromOlderBackups() throws Exception {
+        JSONObject backup = BackupRestoreManager.createBackup(context, false);
+        JSONObject typed = new JSONObject().put("type", "string").put("value", "stale");
+        backup.getJSONObject("sharedPreferences").put("android.app.ActivityThread.IDS", new JSONObject().put("id", typed));
+        BackupRestoreManager.validate(backup);
+        BackupRestoreManager.applyBackup(context, backup);
+        assertFalse(context.getSharedPreferences("android.app.ActivityThread.IDS", Context.MODE_PRIVATE).contains("id"));
     }
 
     @Test
