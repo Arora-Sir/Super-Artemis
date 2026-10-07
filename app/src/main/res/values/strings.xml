@@ -250,6 +250,21 @@
     <string name="title_seekbar_network_grace">Network drop grace period</string>
     <string name="summary_seekbar_network_grace">How long the stream survives a lost network before the session ends. The host also needs a ping timeout at least this long.</string>
     <string name="suffix_seekbar_seconds">s</string>
+    <string name="category_backup_restore">Backup and restore</string>
+    <string name="title_backup_settings">Backup settings</string>
+    <string name="summary_backup_settings">Export all configurations and paired hosts to a single JSON file</string>
+    <string name="title_restore_settings">Restore settings</string>
+    <string name="summary_restore_settings">Import configurations from a previously exported JSON backup file</string>
+    <string name="backup_include_pairing_keys">Include pairing keys</string>
+    <string name="backup_pairing_keys_warning">With pairing keys included, anyone who has this file can connect to your paired PCs as this device. Keep it somewhere private.</string>
+    <string name="backup_choose_location">Choose location</string>
+    <string name="restore_confirm_message">This replaces all current settings and paired hosts with the backup. The app restarts when it finishes.</string>
+    <string name="restore_choose_file">Choose file</string>
+    <string name="backup_success">Backup saved</string>
+    <string name="backup_failed">Backup failed: %1$s</string>
+    <string name="restore_success">Settings restored, restarting</string>
+    <string name="restore_success_repair_needed">Settings restored, restarting. This backup has no pairing keys, so paired PCs need to be paired again.</string>
+    <string name="restore_failed">Restore failed: %1$s</string>
 
     <string name="category_gamepad_settings">Gamepad Settings</string>
     <string name="title_checkbox_multi_controller">Automatic gamepad presence detection</string>
