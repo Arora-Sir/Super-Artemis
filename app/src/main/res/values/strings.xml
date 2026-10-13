@@ -465,7 +465,7 @@
     <string name="title_customize_game_menu">In-stream menu</string>
     <string name="summary_customize_game_menu">Pick the menu style and which actions the Quick Menu shows, with a live preview</string>
     <string name="game_menu_customize">Customize menu</string>
-    <string name="game_menu_editor_hint">Switched on actions appear in the Quick Menu in this order. Drag the handle or long press a row to reorder. Switched off actions stay under Advanced Menu. Disconnect and Quit always stay in the Session section.</string>
+    <string name="game_menu_editor_hint">Switched on actions appear in the Quick Menu in this order. Drag the handle or long press a row to reorder. Switched off actions stay under Advanced Menu, and the eye hides one from there too. Disconnect and Quit always stay in the Session section.</string>
     <string name="game_menu_editor_style">Menu style</string>
     <string name="game_menu_editor_preview">Preview</string>
     <string name="game_menu_section_actions">Actions</string>
@@ -1104,6 +1104,8 @@
     <!-- More keys: everyday Windows shortcuts -->
     <string name="special_keys_more">More keys</string>
     <string name="key_picker_add">Add key or flow</string>
+    <string name="game_menu_editor_hide_from_advanced">Hide from Advanced Menu</string>
+    <string name="game_menu_editor_show_in_advanced">Show in Advanced Menu</string>
     <string name="more_key_ctrl_a">Ctrl + A (Select all)</string>
     <string name="more_key_ctrl_c">Ctrl + C (Copy)</string>
     <string name="more_key_ctrl_x">Ctrl + X (Cut)</string>

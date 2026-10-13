@@ -74,6 +74,14 @@ public class GameMenuLayoutTest {
     }
 
     @Test
+    public void hiddenItemsKeepActionsOnly() {
+        GameMenuLayout.setHiddenItems(prefs, Arrays.asList(StreamActionRegistry.ID_ROTATE_SCREEN, "key:k1", StreamActionRegistry.ID_DISCONNECT, "removed_action"));
+        assertEquals(Collections.singleton(StreamActionRegistry.ID_ROTATE_SCREEN), GameMenuLayout.getHiddenItems(prefs));
+        GameMenuLayout.reset(prefs);
+        assertTrue(GameMenuLayout.getHiddenItems(prefs).isEmpty());
+    }
+
+    @Test
     public void resetRestoresDefaults() {
         GameMenuLayout.setQuickItems(prefs, Collections.singletonList(StreamActionRegistry.ID_ZOOM));
         GameMenuLayout.reset(prefs);

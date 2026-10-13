@@ -8,6 +8,7 @@ import com.limelight.actions.StreamActionRegistry;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -19,6 +20,8 @@ import java.util.Set;
 public final class GameMenuLayout {
     public static final String PREF_QUICK_ITEMS = "game_menu_quick_items";
     public static final String PREF_STYLE = "list_game_menu_style";
+    // Actions left out of the Advanced Menu. Gestures and quick-action bars can still run them.
+    public static final String PREF_HIDDEN_ITEMS = "game_menu_hidden_items";
 
     public static final String STYLE_LIST = "list";
     public static final String STYLE_GRID = "grid";
@@ -72,7 +75,15 @@ public final class GameMenuLayout {
     }
 
     public static void reset(SharedPreferences prefs) {
-        prefs.edit().remove(PREF_QUICK_ITEMS).apply();
+        prefs.edit().remove(PREF_QUICK_ITEMS).remove(PREF_HIDDEN_ITEMS).apply();
+    }
+
+    public static Set<String> getHiddenItems(SharedPreferences prefs) {
+        return new LinkedHashSet<>(parse(prefs.getString(PREF_HIDDEN_ITEMS, ""), false));
+    }
+
+    public static void setHiddenItems(SharedPreferences prefs, Collection<String> ids) {
+        prefs.edit().putString(PREF_HIDDEN_ITEMS, TextUtils.join(",", parse(TextUtils.join(",", ids), false))).apply();
     }
 
     public static String getStyle(SharedPreferences prefs) {
@@ -93,10 +104,15 @@ public final class GameMenuLayout {
     // NOTE: Unknown IDs (from older or newer builds), duplicates and session actions are dropped, order is preserved.
     // NOTE: Layouts saved before 1.0.0 listed Disconnect and Quit, which now live in the Session section instead.
     static List<String> parse(String raw) {
+        return parse(raw, true);
+    }
+
+    // Hidden items are actions only, because special keys never appear in the Advanced Menu
+    private static List<String> parse(String raw, boolean allowKeys) {
         Set<String> ids = new LinkedHashSet<>();
         for (String part : raw.split(",")) {
             String id = part.trim();
-            String keyId = keyId(id);
+            String keyId = allowKeys ? keyId(id) : null;
             // A key deleted later simply does not show, so its ID is kept like the bars keep theirs
             if (isConfigurable(id) || (keyId != null && !keyId.isEmpty())) {
                 ids.add(id);

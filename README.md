@@ -55,7 +55,7 @@ Everything else from Artemis stays: custom virtual buttons, custom resolutions a
 
 | Feature | What it does |
 | :--- | :--- |
-| Quick Menu editor | Choose the actions, drag to reorder, and pick list, grid or compact with a live preview. |
+| Quick Menu editor | Choose the actions and special keys, drag to reorder, hide actions you never use from the Advanced Menu, and pick list, grid or compact with a live preview. |
 | Sections | Actions and session controls are separate, and Disconnect and Quit sit in their own red section. |
 | Quick-action bars | Small bars in any corner, each with its own items, as a row or a column. Toggles show when they are on and the bars fade when idle. Edit them from the Quick Menu during a stream. |
 | Floating menu button | Opens the Quick Menu even with the Back menu turned off. |

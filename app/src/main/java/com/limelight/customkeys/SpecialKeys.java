@@ -44,7 +44,7 @@ public final class SpecialKeys {
         }
         Set<String> hidden = new HashSet<>();
         for (BuiltInKeys.Def def : BuiltInKeys.ALL) {
-            // The switch only ever covered the keys Artemis had, so More keys stay visible
+            // The switch covered the keys Artemis had, so More keys stay visible
             if (!def.more) {
                 hidden.add(def.id);
             }

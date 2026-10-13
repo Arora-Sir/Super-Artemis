@@ -256,13 +256,15 @@ public class GameMenu implements Game.GameMenuCallbacks {
         }
     }
 
-    // NOTE: Everything not pinned to the Quick Menu lives here, so no action can become unreachable.
+    // NOTE: Every action not pinned to the Quick Menu lives here, except the ones hidden in the menu editor.
+    // NOTE: Hidden actions stay reachable from gestures and quick-action bars, and the editor brings them back with one tap.
     // NOTE: Session actions are left out because the Quick Menu always shows them, and "Back to Quick Menu" leads there.
     private void showAdvancedMenu(GameInputDevice device) {
         List<String> quickItems = GameMenuLayout.getQuickItems(prefs());
+        java.util.Set<String> hidden = GameMenuLayout.getHiddenItems(prefs());
         List<MenuEntry> actions = new ArrayList<>();
         for (StreamAction action : GameMenuLayout.configurableActions()) {
-            if (!quickItems.contains(action.id) && action.isAvailable(actionHost)) {
+            if (!quickItems.contains(action.id) && !hidden.contains(action.id) && action.isAvailable(actionHost)) {
                 actions.add(entryFor(action));
             }
         }

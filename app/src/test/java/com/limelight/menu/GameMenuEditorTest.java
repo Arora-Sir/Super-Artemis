@@ -31,6 +31,19 @@ public class GameMenuEditorTest {
     private final Resources res = context.getResources();
 
     @Test
+    public void hiddenActionsAreMarkedOnlyOutsideTheQuickMenu() {
+        java.util.Set<String> hidden = new java.util.HashSet<>(Arrays.asList(StreamActionRegistry.ID_ZOOM, StreamActionRegistry.ID_ROTATE_SCREEN));
+        List<GameMenuEditor.Row> rows = GameMenuEditor.buildRows(context, Arrays.asList(StreamActionRegistry.ID_ZOOM), hidden, NO_KEYS);
+
+        assertFalse(rows.get(0).hidden);
+        for (GameMenuEditor.Row row : rows) {
+            if (StreamActionRegistry.ID_ROTATE_SCREEN.equals(row.item)) {
+                assertTrue(row.hidden);
+            }
+        }
+    }
+
+    @Test
     public void specialKeysCanBePinnedNextToActions() {
         CustomKey copy = new CustomKey("k1", "Copy", false, "content_copy", Arrays.asList(0xA2, 0x43));
         CustomKey paste = new CustomKey("k2", "Paste", false, null, Arrays.asList(0xA2, 0x56));

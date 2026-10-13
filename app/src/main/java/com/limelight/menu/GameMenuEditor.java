@@ -52,6 +52,8 @@ public final class GameMenuEditor {
         final int iconRes;
         final String label;
         boolean inQuickMenu;
+        // Left out of the Advanced Menu. Only matters for an action that is not in the Quick Menu.
+        boolean hidden;
 
         Row(StreamAction action, String label, boolean inQuickMenu) {
             this(action.id, action, action.iconRes, label, inQuickMenu);
@@ -76,6 +78,10 @@ public final class GameMenuEditor {
 
     // Checked rows come first in their saved order, then the other actions in catalog order, then the other special keys
     static List<Row> buildRows(Context context, List<String> quickItems, List<CustomKey> keys) {
+        return buildRows(context, quickItems, java.util.Collections.emptySet(), keys);
+    }
+
+    static List<Row> buildRows(Context context, List<String> quickItems, java.util.Set<String> hiddenItems, List<CustomKey> keys) {
         Resources res = context.getResources();
         Map<String, CustomKey> keysById = new LinkedHashMap<>();
         for (CustomKey key : keys) {
@@ -98,7 +104,9 @@ public final class GameMenuEditor {
         }
         for (StreamAction action : GameMenuLayout.configurableActions()) {
             if (!quickItems.contains(action.id)) {
-                rows.add(new Row(action, res.getString(action.nameRes), false));
+                Row row = new Row(action, res.getString(action.nameRes), false);
+                row.hidden = hiddenItems.contains(action.id);
+                rows.add(row);
             }
         }
         for (CustomKey key : keys) {
@@ -155,7 +163,7 @@ public final class GameMenuEditor {
     }
 
     public static void show(Context context, SharedPreferences prefs, Runnable onChanged) {
-        final List<Row> rows = buildRows(context, GameMenuLayout.getQuickItems(prefs), SpecialKeys.visible(context));
+        final List<Row> rows = buildRows(context, GameMenuLayout.getQuickItems(prefs), GameMenuLayout.getHiddenItems(prefs), SpecialKeys.visible(context));
         final Resources res = context.getResources();
         final DisplayMetrics metrics = res.getDisplayMetrics();
         final boolean twoPane = metrics.widthPixels / metrics.density >= TWO_PANE_MIN_WIDTH_DP;
@@ -259,12 +267,17 @@ public final class GameMenuEditor {
                 .setView(body)
                 .setPositiveButton(R.string.game_menu_editor_save, (dialog, which) -> {
                     List<String> ids = new ArrayList<>();
+                    List<String> hiddenIds = new ArrayList<>();
                     for (Row row : rows) {
                         if (row.inQuickMenu) {
                             ids.add(row.item);
                         }
+                        else if (row.hidden && row.action != null) {
+                            hiddenIds.add(row.item);
+                        }
                     }
                     GameMenuLayout.setQuickItems(prefs, ids);
+                    GameMenuLayout.setHiddenItems(prefs, hiddenIds);
                     GameMenuLayout.setStyle(prefs, style[0]);
                     if (onChanged != null) {
                         onChanged.run();
@@ -300,6 +313,7 @@ public final class GameMenuEditor {
             final ImageView icon;
             final TextView label;
             final CompoundButton check;
+            final ImageView visibility;
 
             Holder(View itemView) {
                 super(itemView);
@@ -307,6 +321,7 @@ public final class GameMenuEditor {
                 icon = itemView.findViewById(R.id.game_menu_item_icon);
                 label = itemView.findViewById(R.id.game_menu_item_label);
                 check = itemView.findViewById(R.id.game_menu_editor_check);
+                visibility = itemView.findViewById(R.id.game_menu_editor_visibility);
             }
         }
 
@@ -324,9 +339,19 @@ public final class GameMenuEditor {
             holder.label.setText(row.label);
             holder.check.setOnCheckedChangeListener(null);
             holder.check.setChecked(row.inQuickMenu);
+            bindVisibility(holder, row);
             holder.check.setOnCheckedChangeListener((button, checked) -> {
                 row.inQuickMenu = checked;
+                // Pinning an action shows it again, so unpinning it later puts it back in the Advanced Menu
+                if (checked) {
+                    row.hidden = false;
+                }
+                bindVisibility(holder, row);
                 onRowsChanged.run();
+            });
+            holder.visibility.setOnClickListener(v -> {
+                row.hidden = !row.hidden;
+                bindVisibility(holder, row);
             });
             holder.itemView.setOnClickListener(v -> holder.check.toggle());
             holder.handle.setOnTouchListener((v, event) -> {
@@ -335,6 +360,18 @@ public final class GameMenuEditor {
                 }
                 return false;
             });
+        }
+
+        // The eye only shows for an action outside the Quick Menu, because that is the only place hiding changes anything
+        private static void bindVisibility(Holder holder, Row row) {
+            boolean applies = row.action != null && !row.inQuickMenu;
+            holder.visibility.setVisibility(applies ? View.VISIBLE : View.GONE);
+            holder.visibility.setImageResource(row.hidden ? R.drawable.ic_sa_visibility_off : R.drawable.ic_sa_visibility);
+            holder.visibility.setContentDescription(holder.itemView.getContext().getString(
+                    row.hidden ? R.string.game_menu_editor_show_in_advanced : R.string.game_menu_editor_hide_from_advanced));
+            float alpha = applies && row.hidden ? 0.45f : 1f;
+            holder.icon.setAlpha(alpha);
+            holder.label.setAlpha(alpha);
         }
 
         @Override
