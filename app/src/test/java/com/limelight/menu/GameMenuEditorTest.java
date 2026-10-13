@@ -59,6 +59,7 @@ public class GameMenuEditorTest {
                 "#" + res.getString(R.string.game_menu_section_menu),
                 res.getString(R.string.game_menu_advanced),
                 res.getString(R.string.game_menu_customize),
+                res.getString(R.string.game_menu_customize_quick_bar),
                 res.getString(R.string.game_menu_cancel)), labels);
     }
 

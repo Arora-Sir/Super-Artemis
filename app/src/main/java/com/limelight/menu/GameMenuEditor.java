@@ -83,6 +83,7 @@ public final class GameMenuEditor {
         List<MenuEntry> navigation = new ArrayList<>();
         navigation.add(new MenuEntry(res.getString(R.string.game_menu_advanced), R.drawable.ic_gm_more, false, false, null));
         navigation.add(new MenuEntry(res.getString(R.string.game_menu_customize), R.drawable.ic_gm_customize_menu, false, false, null));
+        navigation.add(new MenuEntry(res.getString(R.string.game_menu_customize_quick_bar), R.drawable.ic_gm_toggle_floating_button, false, false, null));
         navigation.add(new MenuEntry(res.getString(R.string.game_menu_cancel), R.drawable.ic_gm_cancel, false, false, null));
 
         return new MenuSections(res)

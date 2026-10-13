@@ -37,6 +37,9 @@ public final class QuickActionBar {
 
         // The top left bar starts beside or below the menu button when that button is shown
         boolean isFloatingMenuButtonVisible();
+
+        // Long press on a button: a menu to add keys to this corner or edit its bar, titled with the button's name
+        void showBarMenu(String corner, String buttonLabel);
     }
 
     private static final long FADE_DELAY_MS = 3000;
@@ -145,6 +148,10 @@ public final class QuickActionBar {
                     params.leftMargin = gap;
                 }
             }
+            button.setOnLongClickListener(v -> {
+                host.showBarMenu(corner, String.valueOf(v.getContentDescription()));
+                return true;
+            });
             bar.addView(button, params);
         }
         parent.addView(bar, layoutParams(corner, column, density));
@@ -191,15 +198,9 @@ public final class QuickActionBar {
         button.setPadding(padding, padding, padding, padding);
         button.setScaleType(ImageButton.ScaleType.FIT_CENTER);
         button.setContentDescription(label);
-        // Long press names the button, since the bar shows icons only
+        // A mouse hover names the button. A long press opens the bar menu, which is titled with the same name.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             button.setTooltipText(label);
-        }
-        else {
-            button.setOnLongClickListener(v -> {
-                Toast.makeText(context, label, Toast.LENGTH_SHORT).show();
-                return true;
-            });
         }
         button.setOnClickListener(v -> {
             wake();

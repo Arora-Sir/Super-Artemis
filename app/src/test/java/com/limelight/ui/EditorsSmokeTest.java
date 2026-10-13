@@ -112,6 +112,11 @@ public class EditorsSmokeTest {
     }
 
     @Test
+    public void quickBarEditorOpensOnAGivenCorner() {
+        openInBothStyles((activity, prefs) -> QuickBarEditor.show(activity, prefs, () -> { }, com.limelight.menu.QuickBarLayout.POSITION_BOTTOM_RIGHT));
+    }
+
+    @Test
     public void logSendOptionsOpen() {
         openInBothStyles((activity, prefs) -> com.limelight.diagnostics.CrashReporter.showSendOptions(activity, "Super Artemis Java crash"));
     }

@@ -108,7 +108,7 @@ public final class QuickBarEditor {
         }
     }
 
-    static int cornerNameFor(String corner) {
+    public static int cornerNameFor(String corner) {
         switch (corner) {
             case QuickBarLayout.POSITION_TOP_RIGHT:
                 return R.string.quick_bar_corner_top_right;
@@ -122,6 +122,11 @@ public final class QuickBarEditor {
     }
 
     public static void show(Context context, SharedPreferences prefs, Runnable onChanged) {
+        show(context, prefs, onChanged, null);
+    }
+
+    // Opens with this corner selected, as when the editor starts from a long press on that corner's bar
+    public static void show(Context context, SharedPreferences prefs, Runnable onChanged, String startCorner) {
         final List<CustomKey> keys = SpecialKeys.visible(context);
         final Map<String, List<Row>> rowsByCorner = new HashMap<>();
         final Map<String, String> directions = new HashMap<>();
@@ -134,7 +139,7 @@ public final class QuickBarEditor {
                 firstUsed = corner;
             }
         }
-        final String[] selected = {firstUsed != null ? firstUsed : QuickBarLayout.POSITION_TOP_LEFT};
+        final String[] selected = {startCorner != null ? startCorner : firstUsed != null ? firstUsed : QuickBarLayout.POSITION_TOP_LEFT};
 
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         Context dialogContext = builder.getContext();

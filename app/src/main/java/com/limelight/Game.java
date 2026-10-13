@@ -4459,6 +4459,11 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
             public boolean isFloatingMenuButtonVisible() {
                 return floatingMenuButton.getVisibility() == View.VISIBLE;
             }
+
+            @Override
+            public void showBarMenu(String corner, String buttonLabel) {
+                menu.showQuickBarMenu(corner, buttonLabel);
+            }
         });
     }
 

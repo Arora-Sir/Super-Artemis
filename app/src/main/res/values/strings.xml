@@ -506,6 +506,10 @@
     <string name="quick_bar_direction_row">Row</string>
     <string name="quick_bar_direction_column">Column</string>
     <string name="quick_bar_corner_items">Buttons in the %1$s corner</string>
+    <string name="quick_bar_menu_title">%1$s (%2$s bar)</string>
+    <string name="quick_bar_menu_add_key">Add custom key here</string>
+    <string name="quick_bar_menu_pin_key">Pin a special key here</string>
+    <string name="quick_bar_menu_edit_bar">Edit this bar</string>
     <string name="quick_bar_preview_label">Tap a corner to edit its bar</string>
     <string name="quick_bar_corner_top_left">top left</string>
     <string name="quick_bar_corner_top_right">top right</string>
