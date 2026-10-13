@@ -697,11 +697,17 @@
             android:summary="@string/summary_checkbox_small_icon_mode"
             android:title="@string/title_checkbox_small_icon_mode"
             app:iconSpaceReserved="false" />
+        <ListPreference
+            android:entries="@array/background_policy_names"
+            android:entryValues="@array/background_policy_values"
+            android:key="list_background_policy"
+            android:title="@string/title_background_policy"
+            app:iconSpaceReserved="false" />
         <CheckBoxPreference
             android:defaultValue="false"
-            android:key="checkbox_enable_pip"
-            android:summary="@string/summary_checkbox_enable_pip"
-            android:title="@string/title_checkbox_enable_pip"
+            android:key="checkbox_auto_connect_last"
+            android:summary="@string/summary_auto_connect_last"
+            android:title="@string/title_auto_connect_last"
             app:iconSpaceReserved="false" />
     </PreferenceCategory>
 

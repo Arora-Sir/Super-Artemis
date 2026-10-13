@@ -295,6 +295,15 @@ public class EditProfileActivity extends AppCompatActivity {
                 _pref.setVisible(false);
             }
             // Custom keys are shared by every profile, so they are managed from the main settings only
+            // Leaving and reconnecting behaviour applies to the whole app
+            _pref = findPreference("list_background_policy");
+            if (_pref != null) {
+                _pref.setVisible(false);
+            }
+            _pref = findPreference("checkbox_auto_connect_last");
+            if (_pref != null) {
+                _pref.setVisible(false);
+            }
             _pref = findPreference("pref_gestures");
             if (_pref != null) {
                 _pref.setVisible(false);

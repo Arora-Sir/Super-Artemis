@@ -13,6 +13,8 @@ import com.limelight.actions.StreamActionHost;
 import com.limelight.binding.PlatformBinding;
 import com.limelight.gestures.GestureDispatcher;
 import com.limelight.menu.QuickActionBar;
+import com.limelight.session.BackgroundPolicy;
+import com.limelight.session.ResumeStore;
 import com.limelight.binding.audio.AndroidAudioRenderer;
 import com.limelight.binding.audio.MicrophoneCaptureManager;
 import com.limelight.binding.audio.MicrophoneStateStore;
@@ -309,6 +311,8 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
     private ImageButton floatingMenuButton;
     private QuickActionBar quickActionBar;
     private GestureDispatcher gestureDispatcher;
+    // Set when the user leaves with Home, Recents or a quick switch, as opposed to Disconnect, Quit or Back
+    private boolean leftByUser;
     private ImageButton overlayToggleButton;
     private float floatingButtonDX, floatingButtonDY;
     private boolean isButtonMoving = false;
@@ -1394,6 +1398,21 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
     @Override
     public void onUserLeaveHint() {
         super.onUserLeaveHint();
+        leftByUser = true;
+
+        // NOTE: Android 12+ auto-enters picture-in-picture on Home and Recents, but some launchers skip it for a quick switch to the previous app.
+        // NOTE: Entering by hand right after the hint covers that case, and does nothing when auto-enter already started.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && prefConfig.enablePip && connected && !isOnExternalDisplay()) {
+            getWindow().getDecorView().post(() -> {
+                if (!isInPictureInPictureMode() && !isFinishing() && connected) {
+                    try {
+                        enterPictureInPictureMode(getPictureInPictureParams(false));
+                    } catch (Exception e) {
+                        LimeLog.warning("Picture-in-picture fallback failed: " + e);
+                    }
+                }
+            });
+        }
 
         // PiP is only supported on Oreo and later, and we don't need to manually enter PiP on
         // Android S and later. On Android R, we will use onPictureInPictureRequested() instead.
@@ -1766,6 +1785,13 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        // Coming back to the stream cancels a Home or Recents gesture that did not end up leaving it
+        leftByUser = false;
+    }
+
+    @Override
     protected void onPause() {
         if (isFinishing()) {
             // Stop any further input device notifications before we lose focus (and pointer capture)
@@ -1799,6 +1825,11 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
         }
 
         if (conn != null) {
+            // Under "Resume when reopened", leaving with Home, Recents or a quick switch lets the app list reconnect later
+            if (connected && leftByUser && BackgroundPolicy.isResume(PreferenceManager.getDefaultSharedPreferences(this))) {
+                ResumeStore.markLeft(this, System.currentTimeMillis());
+            }
+
             int videoFormat = decoderRenderer.getActiveVideoFormat();
 
             displayedFailureDialog = true;
@@ -3870,6 +3901,7 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
 
                 hideSystemUi(1000);
                 applyMicrophoneInitialState();
+                rememberSession();
                 if (quickActionBar != null) {
                     quickActionBar.setConnected(true);
                 }
@@ -4497,6 +4529,18 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
                 return floatingMenuButton.getVisibility() == View.VISIBLE;
             }
         });
+    }
+
+    // The last stream is what "Resume when reopened" and "Connect to the last PC on app start" launch again
+    private void rememberSession() {
+        Intent intent = getIntent();
+        ResumeStore.remember(this, new ResumeStore.Session(
+                intent.getStringExtra(EXTRA_PC_UUID),
+                intent.getStringExtra(EXTRA_PC_NAME),
+                intent.getStringExtra(EXTRA_APP_NAME),
+                intent.getStringExtra(EXTRA_APP_UUID),
+                intent.getIntExtra(EXTRA_APP_ID, -1),
+                intent.getBooleanExtra(EXTRA_APP_HDR, false)));
     }
 
     public void reloadQuickActionBar() {

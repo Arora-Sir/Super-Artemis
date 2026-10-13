@@ -3,6 +3,8 @@ package com.limelight.backup;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.limelight.session.ResumeStore;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -23,7 +25,7 @@ final class PrefsSnapshot {
 
     // Device-specific state, framework internals and search history that must not travel to another install
     private static final Set<String> EXCLUDED_PREFS = new HashSet<>(Arrays.asList(
-            "DecoderTombstone", "GlPreferences", "preferenceSearch"));
+            "DecoderTombstone", "GlPreferences", "preferenceSearch", ResumeStore.PREF_NAME));
 
     private PrefsSnapshot() {
     }

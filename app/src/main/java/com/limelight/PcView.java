@@ -28,6 +28,7 @@ import com.limelight.utils.Dialog;
 import com.limelight.utils.HelpLauncher;
 import com.limelight.utils.ServerHelper;
 import com.limelight.utils.ShortcutHelper;
+import com.limelight.session.SessionResumer;
 import com.limelight.utils.UiHelper;
 
 import android.app.ActivityManager;
@@ -265,6 +266,11 @@ public class PcView extends AppCompatActivity implements AdapterFragmentCallback
             pendingPairingPin = null;
             pendingPairingPassphrase = null;
         }
+
+        // Optional: opening the app from the launcher goes straight into the last stream
+        if (savedInstanceState == null && pendingPairingAddress == null && Intent.ACTION_MAIN.equals(intent.getAction())) {
+            SessionResumer.maybeAutoConnect(this);
+        }
     }
 
     private void completeOnCreate() {
@@ -378,6 +384,9 @@ public class PcView extends AppCompatActivity implements AdapterFragmentCallback
 
         inForeground = true;
         startComputerUpdates();
+
+        // Returning from Recents or the launcher after leaving a stream under "Resume when reopened"
+        SessionResumer.maybeResume(this);
     }
 
     @Override

@@ -63,6 +63,7 @@ import com.limelight.backup.BackupRestoreController;
 import com.limelight.binding.audio.MicrophoneCaptureManager;
 import com.limelight.customkeys.CustomKeysManager;
 import com.limelight.gestures.GestureEditor;
+import com.limelight.session.BackgroundPolicy;
 import com.limelight.binding.input.virtual_controller.keyboard.KeyBoardControllerConfigurationLoader;
 import com.limelight.binding.video.MediaCodecHelper;
 import com.limelight.utils.Dialog;
@@ -384,6 +385,7 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
             setupCustomKeys();
             setupQuickBar();
             setupGestures();
+            setupBackgroundPolicy();
             PackageManager pm = activity.getPackageManager();
 
             // hide on-screen controls category on non touch screen devices
@@ -437,9 +439,12 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O ||
                     !pm.hasSystemFeature("android.software.picture_in_picture") ||
                     pm.hasSystemFeature("com.amazon.software.fireos")) {
-                PreferenceCategory category =
-                        (PreferenceCategory) findPreference("category_ui_settings");
-                category.removePreference(findPreference("checkbox_enable_pip"));
+                ListPreference policy = findPreference(BackgroundPolicy.PREF_KEY);
+                if (policy != null) {
+                    // Without picture-in-picture only Disconnect and Resume remain
+                    policy.setEntries(Arrays.copyOf(policy.getEntries(), 2));
+                    policy.setEntryValues(Arrays.copyOf(policy.getEntryValues(), 2));
+                }
             }
 
             initializeMicrophonePreferences(screen);
@@ -1239,6 +1244,32 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
                     return true;
                 });
             }
+        }
+
+        // The summary spells out what each choice costs, since the trade-off is battery against convenience
+        private void setupBackgroundPolicy() {
+            ListPreference policy = findPreference(BackgroundPolicy.PREF_KEY);
+            if (policy == null) {
+                return;
+            }
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(requireContext());
+            String current = BackgroundPolicy.get(prefs);
+            if (!BackgroundPolicy.PIP.equals(current) || Arrays.asList(policy.getEntryValues()).contains(BackgroundPolicy.PIP)) {
+                policy.setValue(current);
+            }
+            else {
+                policy.setValue(BackgroundPolicy.DISCONNECT);
+            }
+            policy.setSummaryProvider(preference -> {
+                String value = ((ListPreference) preference).getValue();
+                if (BackgroundPolicy.RESUME.equals(value)) {
+                    return getString(R.string.summary_background_resume);
+                }
+                if (BackgroundPolicy.PIP.equals(value)) {
+                    return getString(R.string.summary_background_pip);
+                }
+                return getString(R.string.summary_background_disconnect);
+            });
         }
 
         private void setupGestures() {

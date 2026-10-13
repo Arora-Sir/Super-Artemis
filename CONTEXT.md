@@ -33,7 +33,7 @@ The debug build needs pairing with Apollo first. Then check the mic off by defau
 | W5 | In-app custom keys with a keyboard recorder and icons | Code and unit tests done, device check pending |
 | W4 | Floating quick-action bar in a chosen screen corner | Code and unit tests done, device check pending |
 | W6 | Configurable 3, 4 and 5-finger tap and double tap gestures | Code and unit tests done, device check pending |
-| W7 | When you leave the stream: Disconnect, Resume when reopened, or Picture-in-picture, plus auto-connect on start | Planned |
+| W7 | When you leave the stream: Disconnect, Resume when reopened, or Picture-in-picture, plus auto-connect on start | Code and unit tests done, device matrix pending |
 | W9 | Opt-in Material You style on Android 12+ | Planned |
 | W10 | Branding and link fixes, fastlane, issue templates, FUNDING.yml | Planned |
 | W12 | About: Support development (UPI, UPI QR, PayPal), developer profiles, credits, star on GitHub | Planned |

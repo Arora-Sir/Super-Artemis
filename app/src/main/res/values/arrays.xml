@@ -54,6 +54,16 @@
         <item>71</item>
     </string-array>
 
+    <string-array name="background_policy_names">
+        <item>@string/background_policy_disconnect</item>
+        <item>@string/background_policy_resume</item>
+        <item>@string/background_policy_pip</item>
+    </string-array>
+    <string-array name="background_policy_values" translatable="false">
+        <item>disconnect</item>
+        <item>resume</item>
+        <item>pip</item>
+    </string-array>
     <string-array name="game_menu_style_names">
         <item>@string/game_menu_style_list</item>
         <item>@string/game_menu_style_grid</item>

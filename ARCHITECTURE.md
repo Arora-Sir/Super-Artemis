@@ -40,6 +40,7 @@ Host: Apollo (RTSP, video, audio, control stream over ENet, mic stream over UDP)
 | Backup and restore | `backup/` package, `res/layout/dialog_backup_options.xml`, `res/layout/dialog_restore_preview.xml` | Exports and imports one JSON file with typed SharedPreferences, profiles, the PC list and optional pairing keys. `BackupRestoreController` runs the dialogs and file pickers, `BackupRestoreManager` moves bytes, `BackupCodec` owns the format and validation, the `*Snapshot` classes capture and restore one kind of data each, `RestoreStrategy` decides merge or replace, and `RestorePreview` describes the outcome before anything is written |
 | Decoder | `binding/video/MediaCodecHelper.java` (`applyFrameworkLowLatencyPostStart`), `MediaCodecDecoderRenderer.java` | Requests framework low latency again after the codec starts (Android 11+) |
 | Stylus | `ui/StreamView.java` (`init`) | Disables automatic handwriting on Android 13+ so stylus strokes reach the host |
+| Leaving the stream | `session/BackgroundPolicy.java`, `session/ResumeStore.java`, `session/SessionResumer.java`, hooks in `Game.java` (`onUserLeaveHint`, `onStop`, `rememberSession`), `PcView.java` and `AppView.java` (`onResume`) | Disconnect, resume when reopened (pending resume for 30 minutes, relaunched through `ShortcutTrampoline`) or picture-in-picture, plus connecting to the last PC on app start |
 | Gestures | `gestures/` package (`GestureBindingStore`, `MultiFingerTapDetector`, `GestureDispatcher`, `GestureEditor`), hooks in `Game.java` (`handleMultiTouchGesture` and the trackpad up handler) | Maps 3, 4 and 5-finger taps and double taps to an action, a custom key, the Quick Menu, a middle click or Nothing. Unbound finger counts are not consumed, so they reach the PC |
 | Credits | `res/raw/credits.json`, `scripts/render_credits.py` | One credits source rendered into the README and release notes, and later into the app |
 | Packaging and CI | `app/build.gradle`, `.github/workflows/build-unified.yml`, `.github/workflows/docs-check.yml`, `scripts/setup-release-signing.ps1` | Package IDs `com.mohitarora.superartemis` (debug `.debug`), `SuperArtemis-<version>-<abi>-<buildType>.apk` names, environment-driven release signing, signed arm64 release builds and the credits check |
@@ -50,7 +51,7 @@ Host: Apollo (RTSP, video, audio, control stream over ENet, mic stream over UDP)
 | :--- | :--- | :--- |
 | Default SharedPreferences | `shared_prefs/<applicationId>_preferences.xml` | Every setting on the settings screen, the Quick Menu layout and style |
 | Named SharedPreferences | `HiddenApps`, `specialPrefs`, `OSC`, keyboard layout files, `MicrophoneState` | Hidden apps per host, custom keys JSON (`{data:[{id, name, sticky, icon, keys}]}` with keys as Windows VK hex), on-screen control layouts, per-host last mic state |
-| Device-only SharedPreferences | `DecoderTombstone`, `GlPreferences` | Crash counters and GPU fingerprint, never backed up |
+| Device-only SharedPreferences | `DecoderTombstone`, `GlPreferences`, `SessionResume` | Crash counters, GPU fingerprint and the last stream with its pending resume time, never backed up |
 | Profiles | `files/profiles/profiles.json` | Settings profiles, overlaid on the default prefs by `ProfilesManager` |
 | Paired PCs | `databases/computers4.db` via `ComputerDatabaseManager` | UUID, name, addresses, MAC and server certificate per PC |
 | Client identity | `files/uniqueid`, `files/client.crt`, `files/client.key` | The pairing identity the host trusts |
@@ -140,6 +141,9 @@ Restore: SAF OpenDocument -> BackupCodec.parse validates the whole file (nothing
 | Disconnect and Quit sit in a fixed, red Session section of the Quick Menu | They end the stream, so they must always be one tap away and never be mistaken for ordinary actions |
 | One action registry behind the menu, the quick-action bar and gestures | An action is defined once, so labels, icons, availability and behaviour cannot drift between the places that trigger it |
 | `GameActionHost` adapts `Game` instead of `Game` implementing the interface | Keeps the upstream `Game.java` untouched, which keeps future upstream merges small |
+| Resume relaunches through `ShortcutTrampoline` instead of storing the stream intent | The intent holds a certificate byte array and a list that cannot be persisted, and the trampoline already binds the PC service, waits for the PC and resolves the app |
+| Only Home, Recents and quick switches mark a stream for resume | `onUserLeaveHint` is not called for Disconnect, Quit, Back or the app's own dialogs, so those never reconnect by surprise |
+| The picture-in-picture fallback runs only when auto-enter did not start | Android 12+ auto-enter gives the smoother animation, and the fallback covers launchers that skip it on a quick switch |
 | A single tap waits for the double tap window only when that finger count has a double tap bound | Users without double taps keep instant single taps |
 | Gestures bound to Nothing are passed to the PC instead of being swallowed | Games that use three-finger touches keep working, which is what ClassicOldSong/moonlight-android#540 asks for |
 | The quick-action bar never offers Disconnect or Quit | A stray tap on an always-visible button must not end the stream |

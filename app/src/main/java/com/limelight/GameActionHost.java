@@ -3,6 +3,7 @@ package com.limelight;
 import android.content.Context;
 
 import com.limelight.actions.StreamActionHost;
+import com.limelight.session.ResumeStore;
 
 // Adapts the running Game activity to StreamActionHost, so menus, the quick-action bar and gestures share one way to run actions
 final class GameActionHost implements StreamActionHost {
@@ -17,13 +18,16 @@ final class GameActionHost implements StreamActionHost {
         this.screenContext = screenContext;
     }
 
+    // An explicit Disconnect or Quit never resumes later
     @Override
     public void disconnect() {
+        ResumeStore.clearPending(game);
         game.disconnect();
     }
 
     @Override
     public void quit() {
+        ResumeStore.clearPending(game);
         game.quit();
     }
 
