@@ -29,6 +29,8 @@ import androidx.preference.PreferenceGroup;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 import androidx.preference.PreferenceScreen;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.text.InputFilter;
 import android.text.InputType;
@@ -46,7 +48,6 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.bytehamster.lib.preferencesearch.SearchConfiguration;
-import com.bytehamster.lib.preferencesearch.SearchPreference;
 import com.bytehamster.lib.preferencesearch.SearchPreferenceResult;
 import com.bytehamster.lib.preferencesearch.SearchPreferenceResultListener;
 import com.google.gson.Gson;
@@ -82,11 +83,16 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class StreamSettings extends AppCompatActivity implements SearchPreferenceResultListener {
+    // Settings this fork hides are left out of search results too
+    private static final String[] HIDDEN_FROM_SEARCH = {"share_performance_logs", "option_view_shared_pref_logs"};
+
     private String appliedStyle;
     private PreferenceConfiguration previousPrefs;
     private int previousDisplayPixelCount;
 
     private SettingsFragment prefsFragment;
+    private SearchConfiguration searchConfiguration;
+    private SettingsSections sections;
 
     // HACK for Android 9
     static DisplayCutout displayCutoutP;
@@ -133,6 +139,7 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
 //        setTheme(R.style.AppTheme);
         // Classic or Material You, applied before any view is inflated
         appliedStyle = ThemeManager.apply(this);
+        getTheme().applyStyle(R.style.ThemeOverlay_SuperArtemis_SearchPage, true);
         super.onCreate(savedInstanceState);
 
         previousPrefs = PreferenceConfiguration.readPreferences(this);
@@ -140,8 +147,36 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
         UiHelper.setLocale(this);
 
         setContentView(R.layout.activity_stream_settings);
+        setupSearchBar();
+        sections = new SettingsSections(this, findViewById(R.id.settings_sections));
 
 //        UiHelper.notifyNewRootView(this);
+    }
+
+    // NOTE: The search bar stays above the list instead of scrolling away with it, so search is one tap from anywhere in settings.
+    // NOTE: The search page opens in its own full-screen container on top of the bar and the list.
+    private void setupSearchBar() {
+        searchConfiguration = new SearchConfiguration(this);
+        searchConfiguration.setFragmentContainerViewId(R.id.settings_search_container);
+        searchConfiguration.setBreadcrumbsEnabled(true);
+        // Exact matching keeps short queries like "menu style" from ranking loosely related settings first
+        searchConfiguration.setFuzzySearchEnabled(false);
+        searchConfiguration.setTextHint(getString(R.string.search_settings_hint));
+        for (String key : HIDDEN_FROM_SEARCH) {
+            searchConfiguration.ignorePreference(key);
+        }
+        if (!ThemeManager.isSupported()) {
+            searchConfiguration.ignorePreference(ThemeManager.PREF_KEY);
+        }
+        searchConfiguration.index(R.xml.preferences);
+        findViewById(R.id.settings_search_bar).setOnClickListener(v -> searchConfiguration.showSearchFragment());
+    }
+
+    // Called once the settings list exists, so the section list can follow its scrolling
+    void onSettingsListReady(SettingsFragment fragment) {
+        if (sections != null) {
+            sections.attach(fragment);
+        }
     }
 
     @Override
@@ -393,7 +428,7 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
 
             AppCompatActivity activity = (AppCompatActivity) requireActivity();
 
-            setupSearch(activity);
+            expandPendingSearchTarget();
             setupBackupRestore();
             setupGameMenuEditor();
             setupCustomKeys();
@@ -412,6 +447,10 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
                     screen.removePreference(category);
                 }
                 category = findPreference("category_special_key_layout");
+                if (category != null) {
+                    screen.removePreference(category);
+                }
+                category = findPreference("category_full_keyboard");
                 if (category != null) {
                     screen.removePreference(category);
                 }
@@ -1220,24 +1259,8 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
             }, 500);
         }
 
-        private void setupSearch(AppCompatActivity activity) {
-            SearchPreference searchPreference = findPreference("searchPreference");
-            if (searchPreference == null) {
-                return;
-            }
-            // Only StreamSettings handles result clicks, so other hosts (like the profile editor) hide the search bar
-            if (!(activity instanceof StreamSettings)) {
-                searchPreference.setVisible(false);
-                return;
-            }
-            SearchConfiguration config = searchPreference.getSearchConfiguration();
-            config.setActivity(activity);
-            config.setFragmentContainerViewId(R.id.stream_settings);
-            config.setBreadcrumbsEnabled(true);
-            // Exact matching keeps short queries like "menu style" from ranking loosely related settings first
-            config.setFuzzySearchEnabled(false);
-            config.index(R.xml.preferences);
-
+        // A clicked search result can sit in a collapsed section, so its sections open before the list is drawn
+        private void expandPendingSearchTarget() {
             if (pendingSearchResult != null) {
                 Preference target = findPreference(pendingSearchResult.getKey());
                 if (target != null) {
@@ -1246,18 +1269,13 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
             }
         }
 
+        // The editor holds the menu style picker with its live preview, so there is no separate style setting
         private void setupGameMenuEditor() {
             Preference customize = findPreference("pref_customize_game_menu");
             if (customize != null) {
                 customize.setOnPreferenceClickListener(preference -> {
                     SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(requireContext());
-                    // The editor can change the menu style, so the style setting is refreshed to show the saved value
-                    GameMenuEditor.show(requireContext(), prefs, () -> {
-                        ListPreference style = findPreference(GameMenuLayout.PREF_STYLE);
-                        if (style != null) {
-                            style.setValue(GameMenuLayout.getStyle(prefs));
-                        }
-                    });
+                    GameMenuEditor.show(ThemeManager.dialogContext(requireContext()), prefs, null);
                     return true;
                 });
             }
@@ -1284,6 +1302,7 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
                 style.setVisible(false);
                 return;
             }
+            // AppStylePreference opens the picker with both styles, and the screen rebuilds right away so the change is visible
             style.setOnPreferenceChangeListener((preference, newValue) -> {
                 requireActivity().getWindow().getDecorView().post(() -> requireActivity().recreate());
                 return true;
@@ -1320,7 +1339,7 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
             Preference gestures = findPreference("pref_gestures");
             if (gestures != null) {
                 gestures.setOnPreferenceClickListener(preference -> {
-                    GestureEditor.show(requireContext(), PreferenceManager.getDefaultSharedPreferences(requireContext()));
+                    GestureEditor.show(ThemeManager.dialogContext(requireContext()), PreferenceManager.getDefaultSharedPreferences(requireContext()));
                     return true;
                 });
             }
@@ -1330,7 +1349,7 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
             Preference quickBar = findPreference("pref_quick_bar");
             if (quickBar != null) {
                 quickBar.setOnPreferenceClickListener(preference -> {
-                    QuickBarEditor.show(requireContext(), PreferenceManager.getDefaultSharedPreferences(requireContext()), null);
+                    QuickBarEditor.show(ThemeManager.dialogContext(requireContext()), PreferenceManager.getDefaultSharedPreferences(requireContext()), null);
                     return true;
                 });
             }
@@ -1340,7 +1359,7 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
             Preference customKeys = findPreference("pref_custom_keys");
             if (customKeys != null) {
                 customKeys.setOnPreferenceClickListener(preference -> {
-                    CustomKeysManager.show(requireContext(), null);
+                    CustomKeysManager.show(ThemeManager.dialogContext(requireContext()), null);
                     return true;
                 });
             }
@@ -1363,6 +1382,19 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
             }
         }
 
+        private void scrollToTop(String key) {
+            Preference target = findPreference(key);
+            RecyclerView list = getListView();
+            if (target == null || list == null || !(list.getAdapter() instanceof PreferenceGroup.PreferencePositionCallback)
+                    || !(list.getLayoutManager() instanceof LinearLayoutManager)) {
+                return;
+            }
+            int position = ((PreferenceGroup.PreferencePositionCallback) list.getAdapter()).getPreferenceAdapterPosition(target);
+            if (position >= 0) {
+                ((LinearLayoutManager) list.getLayoutManager()).scrollToPositionWithOffset(position, (int) (16 * getResources().getDisplayMetrics().density));
+            }
+        }
+
         private static void expandParents(Preference preference) {
             PreferenceGroup parent = preference.getParent();
             while (parent != null) {
@@ -1374,9 +1406,19 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
         @Override
         public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
             super.onViewCreated(view, savedInstanceState);
+            // Material You draws each section as one rounded container, Classic keeps the flat list with dividers
+            if (SettingsListStyle.apply(getListView())) {
+                setDivider(null);
+            }
             if (pendingSearchResult != null) {
+                String targetKey = pendingSearchResult.getKey();
                 pendingSearchResult.highlight(this);
                 pendingSearchResult = null;
+                // The library only scrolls the result into view somewhere, so it is brought to the top once the list has settled
+                getListView().postDelayed(() -> scrollToTop(targetKey), 350);
+            }
+            if (getActivity() instanceof StreamSettings) {
+                ((StreamSettings) getActivity()).onSettingsListReady(this);
             }
         }
 

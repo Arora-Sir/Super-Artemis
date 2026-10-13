@@ -996,8 +996,5 @@
 
     <string name="title_checkbox_full_screen">Enable Full Screen</string>
     <string name="summary_checkbox_full_screen">Hide system bars with immersive mode</string>
-    <string name="title_star_github">Star on GitHub</string>
-    <string name="summary_star_github">A star helps more people find Super Artemis</string>
-    <string name="title_game_menu_style">In-stream menu style</string>
     <string name="support_star">Star on GitHub</string>
 </resources>

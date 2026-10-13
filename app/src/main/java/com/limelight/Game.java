@@ -898,7 +898,8 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
         gameMenuCallbacks = new GameMenu(this);
 
         floatingMenuButton = findViewById(R.id.floatingMenuButton);
-        updateFloatingButtonVisibility(prefConfig.enableBackMenu && prefConfig.enableFloatingButton);
+        // The floating button opens the Quick Menu on its own, so it no longer needs Back Menu to be on
+        updateFloatingButtonVisibility(prefConfig.enableFloatingButton);
         initFloatingButton();
         initQuickActionBar();
 
