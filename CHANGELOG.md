@@ -35,7 +35,8 @@ The first Super Artemis release, not published yet. The date is set when the `v1
 - "Add key or flow" in every place that picks a key: the quick-action bar editor and its long-press menu, the gesture editor, the menu editor and Send special keys. The new key is pinned or bound right there and shows up everywhere else too.
 - Special keys and flows can be pinned to the Quick Menu next to actions, from the menu editor.
 - Hide actions you never use from the Advanced Menu with the eye in the menu editor. Gestures and quick-action bars can still run them, and Disconnect and Quit always stay.
-- Opt-in "Material You" app style on Android 12+, chosen from two live preview cards: wallpaper-based colors, switches instead of checkboxes and each settings section in one rounded container, including the in-stream menus. Classic stays the default.
+- "Material You" app style, the default on Android 12+, chosen from two live preview cards: switches instead of checkboxes and each settings section in one rounded container, including the in-stream menus. Classic stays available and is kept for anyone who picks it, and Android 11 and older use Classic.
+- Color schemes for Material You: Wallpaper or a fixed Blue, Teal, Green, Purple, Orange, Rose or Mono palette, picked from swatches drawn in each scheme's real color. A change applies right away.
 - "When you leave the stream" setting: Disconnect (default), Disconnect and resume when reopened (Recents or the app icon reconnects to the same app within 30 minutes, with no battery use while away), or Keep streaming in picture-in-picture (replaces the old PiP switch, which carries over). Picture-in-picture now also starts when quick switching to the previous app.
 - "Connect to the last PC on app start" setting (off by default).
 - "Release held keys when the keyboard closes" (on by default): hiding the built-in keyboard lets go of every key still held, including Ctrl, Alt, Shift or Win latched with a long press, so no key stays pressed out of sight.
@@ -62,6 +63,7 @@ The first Super Artemis release, not published yet. The date is set when the `v1
 - SETUP.md shows how Apollo's Do and Undo commands make Steam Streaming Microphone the default PC microphone only while a stream runs.
 
 ### Fixed
+- The mouse mode picker, the quit confirmation, connection errors and the connecting spinner now follow the app style (Material You or Classic) like every other dialog. The mouse mode picker also has a Cancel button.
 - A 3, 4 or 5-finger tap no longer also sends a right click to the PC in the mouse and trackpad modes. The touch modes track two fingers, so the gesture now takes the touch at the first lift, before they can read it as a two-finger tap.
 - Opening the quick-action bar editor no longer closes the app, and it can be opened from the Quick Menu during a stream.
 - Toggles run from a gesture (Pan/Zoom, microphone) now also update their quick-action bar button.

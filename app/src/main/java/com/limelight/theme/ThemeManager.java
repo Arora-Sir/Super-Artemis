@@ -2,32 +2,57 @@ package com.limelight.theme;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.view.ContextThemeWrapper;
 
 import androidx.preference.PreferenceManager;
 
 import com.google.android.material.color.DynamicColors;
+import com.google.android.material.color.DynamicColorsOptions;
 import com.limelight.R;
 
-// NOTE: Applies the app style. Classic (the default) adds neutral color roles and the rounded Super Artemis dialog to each activity's own theme.
-// NOTE: The opt-in "Material You" style on Android 12+ swaps in wallpaper colors, switches instead of checkboxes and rounded settings sections.
-// NOTE: Activities call apply() before super.onCreate() and recreate when the style changed while they were in the background.
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+// NOTE: Applies the app style. Material You (the default on Android 12+) uses Material 3 with switches, rounded settings sections and a color scheme.
+// NOTE: The color scheme is the wallpaper colors or one of the fixed seeds below, turned into a full Material 3 palette by the same dynamic color engine.
+// NOTE: Classic adds neutral color roles and the rounded Super Artemis dialog to each activity's own theme, and stays for anyone who picks it.
+// NOTE: Activities call apply() before super.onCreate() and recreate when the style or scheme changed while they were in the background.
 public final class ThemeManager {
     public static final String PREF_KEY = "list_app_style";
+    public static final String PREF_SCHEME = "list_color_scheme";
+    // Set when the user picks a style, so a stored "classic" written by the old default is told apart from a real choice
+    static final String PREF_CHOSEN = "app_style_chosen";
     public static final String CLASSIC = "classic";
     public static final String MATERIAL_YOU = "material_you";
+
+    public static final String SCHEME_WALLPAPER = "wallpaper";
+    public static final List<String> SCHEMES = Collections.unmodifiableList(Arrays.asList(
+            SCHEME_WALLPAPER, "blue", "teal", "green", "purple", "orange", "rose", "mono"));
+    // Seed colors for the fixed schemes, in the order of SCHEMES after Wallpaper. Mono is a neutral grey, which gives an almost colorless palette.
+    private static final int[] SEEDS = {0xFF3D6FD8, 0xFF00897B, 0xFF388E3C, 0xFF7E57C2, 0xFFEF6C00, 0xFFD81B60, 0xFF808080};
 
     private ThemeManager() {
     }
 
-    // Dynamic color needs Android 12
+    // Dynamic color, which also builds the fixed schemes, needs Android 12
     public static boolean isSupported() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.S;
     }
 
+    // NOTE: Settings once wrote "classic" as the default value, so a stored "classic" without a recorded choice moves to Material You once.
+    // NOTE: Picking a style in the picker records the choice, so Classic picked on purpose always stays.
     public static String currentStyle(Context context) {
-        String style = PreferenceManager.getDefaultSharedPreferences(context).getString(PREF_KEY, CLASSIC);
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        String style = prefs.getString(PREF_KEY, null);
+        if (style == null || (CLASSIC.equals(style) && !prefs.getBoolean(PREF_CHOSEN, false))) {
+            style = MATERIAL_YOU;
+            if (isSupported()) {
+                prefs.edit().putString(PREF_KEY, MATERIAL_YOU).apply();
+            }
+        }
         return isSupported() && MATERIAL_YOU.equals(style) ? MATERIAL_YOU : CLASSIC;
     }
 
@@ -35,29 +60,63 @@ public final class ThemeManager {
         return MATERIAL_YOU.equals(currentStyle(context));
     }
 
-    // Returns the style that was applied, which the activity keeps to notice a later change
+    public static String currentScheme(Context context) {
+        String scheme = PreferenceManager.getDefaultSharedPreferences(context).getString(PREF_SCHEME, SCHEME_WALLPAPER);
+        return SCHEMES.contains(scheme) ? scheme : SCHEME_WALLPAPER;
+    }
+
+    // Stores a choice made in the style picker, which also marks the style as chosen
+    public static void choose(Context context, String style, String scheme) {
+        PreferenceManager.getDefaultSharedPreferences(context).edit()
+                .putString(PREF_KEY, style)
+                .putString(PREF_SCHEME, SCHEMES.contains(scheme) ? scheme : SCHEME_WALLPAPER)
+                .putBoolean(PREF_CHOSEN, true)
+                .apply();
+    }
+
+    // Wallpaper colors, or the palette grown from the scheme's seed color
+    public static DynamicColorsOptions colorOptions(String scheme) {
+        DynamicColorsOptions.Builder builder = new DynamicColorsOptions.Builder();
+        int index = SCHEMES.indexOf(scheme);
+        if (index > 0) {
+            builder.setContentBasedSource(SEEDS[index - 1]);
+        }
+        return builder.build();
+    }
+
+    // A Material You context in the given scheme, used by the picker to draw each swatch in its real primary color
+    public static Context materialYouContext(Context base, String scheme) {
+        return DynamicColors.wrapContextIfAvailable(new ContextThemeWrapper(base, R.style.AppTheme_MaterialYou), colorOptions(scheme));
+    }
+
+    // Returns what was applied (style and scheme), which the activity keeps to notice a later change
     public static String apply(Activity activity) {
         String style = currentStyle(activity);
         if (MATERIAL_YOU.equals(style)) {
             activity.setTheme(R.style.AppTheme_MaterialYou);
-            DynamicColors.applyToActivityIfAvailable(activity);
+            DynamicColors.applyToActivityIfAvailable(activity, colorOptions(currentScheme(activity)));
         }
         else {
             // Classic keeps each activity's own theme and adds the color roles and the rounded dialog on top
             activity.getTheme().applyStyle(R.style.ThemeOverlay_SuperArtemis_Classic, true);
         }
-        return style;
+        return applied(activity);
     }
 
-    // True when the user switched style while this activity was in the background, so it must be rebuilt
+    private static String applied(Context context) {
+        String style = currentStyle(context);
+        return MATERIAL_YOU.equals(style) ? style + ":" + currentScheme(context) : style;
+    }
+
+    // True when the user switched style or scheme while this activity was in the background, so it must be rebuilt
     public static boolean needsRecreate(Context context, String appliedStyle) {
-        return !currentStyle(context).equals(appliedStyle);
+        return !applied(context).equals(appliedStyle);
     }
 
     // Theme for dialogs shown over the stream, which follow the app style instead of the stream activity's theme
     public static Context dialogContext(Context base, int classicTheme) {
         if (isMaterialYou(base)) {
-            return DynamicColors.wrapContextIfAvailable(new ContextThemeWrapper(base, R.style.AppTheme_MaterialYou));
+            return materialYouContext(base, currentScheme(base));
         }
         return new ContextThemeWrapper(new ContextThemeWrapper(base, classicTheme), R.style.ThemeOverlay_SuperArtemis_Classic);
     }
@@ -65,7 +124,7 @@ public final class ThemeManager {
     // Context for Super Artemis dialogs opened from any screen, so they always have the color roles of the current style
     public static Context dialogContext(Context base) {
         if (isMaterialYou(base)) {
-            return DynamicColors.wrapContextIfAvailable(new ContextThemeWrapper(base, R.style.AppTheme_MaterialYou));
+            return materialYouContext(base, currentScheme(base));
         }
         return new ContextThemeWrapper(base, R.style.ThemeOverlay_SuperArtemis_Classic);
     }

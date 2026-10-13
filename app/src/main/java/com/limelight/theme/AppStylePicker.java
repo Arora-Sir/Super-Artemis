@@ -15,17 +15,21 @@ import android.widget.TextView;
 
 import androidx.core.widget.TextViewCompat;
 
-import com.google.android.material.color.DynamicColors;
 import com.google.android.material.materialswitch.MaterialSwitch;
 import com.limelight.R;
 import com.limelight.ui.Dialogs;
 
 // NOTE: Picks the app style from two preview cards, each drawn with that style's real colors and controls, so the choice is visible before it is made.
-// NOTE: Classic shows the neutral greys and checkboxes, Material You shows the wallpaper colors, switches and rounded sections.
+// NOTE: Classic shows the neutral greys and checkboxes, Material You shows the chosen color scheme, switches and rounded sections.
+// NOTE: Below the cards each color scheme is a swatch in its real primary color. Tapping one picks Material You with that scheme.
 public final class AppStylePicker {
     public interface OnPicked {
-        void onPicked(String style);
+        void onPicked(String style, String scheme);
     }
+
+    private static final int[] SCHEME_NAMES = {
+            R.string.color_scheme_wallpaper, R.string.color_scheme_blue, R.string.color_scheme_teal, R.string.color_scheme_green,
+            R.string.color_scheme_purple, R.string.color_scheme_orange, R.string.color_scheme_rose, R.string.color_scheme_mono};
 
     private AppStylePicker() {
     }
@@ -40,17 +44,28 @@ public final class AppStylePicker {
                 / context.getResources().getDisplayMetrics().density >= 600;
         cards.setOrientation(sideBySide ? LinearLayout.HORIZONTAL : LinearLayout.VERTICAL);
 
+        String scheme = ThemeManager.currentScheme(context);
         AlertDialog[] dialog = new AlertDialog[1];
-        View classic = card(context, dialogContext, cards, ThemeManager.CLASSIC, current, sideBySide, () -> {
-            onPicked.onPicked(ThemeManager.CLASSIC);
+        View classic = card(context, dialogContext, cards, ThemeManager.CLASSIC, current, scheme, sideBySide, () -> {
+            onPicked.onPicked(ThemeManager.CLASSIC, scheme);
             dialog[0].dismiss();
         });
-        View materialYou = card(context, dialogContext, cards, ThemeManager.MATERIAL_YOU, current, sideBySide, () -> {
-            onPicked.onPicked(ThemeManager.MATERIAL_YOU);
+        View materialYou = card(context, dialogContext, cards, ThemeManager.MATERIAL_YOU, current, scheme, sideBySide, () -> {
+            onPicked.onPicked(ThemeManager.MATERIAL_YOU, scheme);
             dialog[0].dismiss();
         });
         cards.addView(classic);
         cards.addView(materialYou);
+
+        com.limelight.ui.FlowRow swatches = body.findViewById(R.id.app_style_schemes);
+        for (int i = 0; i < ThemeManager.SCHEMES.size(); i++) {
+            String option = ThemeManager.SCHEMES.get(i);
+            boolean selected = ThemeManager.MATERIAL_YOU.equals(current) && option.equals(scheme);
+            swatches.addView(swatch(context, dialogContext, option, SCHEME_NAMES[i], selected, () -> {
+                onPicked.onPicked(ThemeManager.MATERIAL_YOU, option);
+                dialog[0].dismiss();
+            }));
+        }
 
         builder.setCustomTitle(Dialogs.header(dialogContext, R.drawable.ic_sa_palette,
                         context.getString(R.string.title_app_style), context.getString(R.string.app_style_picker_hint)))
@@ -59,7 +74,39 @@ public final class AppStylePicker {
         dialog[0] = Dialogs.show(builder, Dialogs.WIDTH_STANDARD_DP + 120);
     }
 
-    private static View card(Context context, Context dialogContext, ViewGroup parent, String style, String current,
+    // A round swatch in the scheme's primary color with its name below, ringed when it is the scheme in use
+    private static View swatch(Context context, Context dialogContext, String scheme, int nameRes, boolean selected, Runnable onTap) {
+        float density = context.getResources().getDisplayMetrics().density;
+        LinearLayout item = new LinearLayout(dialogContext);
+        item.setOrientation(LinearLayout.VERTICAL);
+        item.setGravity(Gravity.CENTER_HORIZONTAL);
+        int pad = (int) (4 * density);
+        item.setPadding(pad, pad, pad, pad);
+        item.setMinimumWidth((int) (64 * density));
+        item.setBackgroundResource(R.drawable.bg_button_text);
+        View dot = new View(dialogContext);
+        GradientDrawable circle = new GradientDrawable();
+        circle.setShape(GradientDrawable.OVAL);
+        circle.setColor(Dialogs.color(ThemeManager.materialYouContext(context, scheme), R.attr.saPrimary));
+        if (selected) {
+            circle.setStroke((int) (3 * density), Dialogs.color(dialogContext, R.attr.saOnSurface));
+        }
+        dot.setBackground(circle);
+        int size = (int) (36 * density);
+        item.addView(dot, new LinearLayout.LayoutParams(size, size));
+        TextView name = new TextView(dialogContext);
+        name.setText(nameRes);
+        TextViewCompat.setTextAppearance(name, R.style.TextAppearance_SuperArtemis_BodySmall);
+        name.setGravity(Gravity.CENTER);
+        LinearLayout.LayoutParams nameParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        nameParams.topMargin = (int) (4 * density);
+        item.addView(name, nameParams);
+        item.setContentDescription(context.getString(nameRes) + (selected ? ", " + context.getString(R.string.color_scheme_in_use) : ""));
+        item.setOnClickListener(v -> onTap.run());
+        return item;
+    }
+
+    private static View card(Context context, Context dialogContext, ViewGroup parent, String style, String current, String scheme,
                              boolean sideBySide, Runnable onTap) {
         boolean materialYou = ThemeManager.MATERIAL_YOU.equals(style);
         View card = LayoutInflater.from(dialogContext).inflate(R.layout.app_style_card, parent, false);
@@ -75,15 +122,15 @@ public final class AppStylePicker {
         ((TextView) card.findViewById(R.id.app_style_description)).setText(
                 materialYou ? R.string.app_style_material_you_description : R.string.app_style_classic_description);
         ((ImageView) card.findViewById(R.id.app_style_check)).setVisibility(style.equals(current) ? View.VISIBLE : View.INVISIBLE);
-        ((LinearLayout) card.findViewById(R.id.app_style_preview)).addView(preview(context, materialYou));
+        ((LinearLayout) card.findViewById(R.id.app_style_preview)).addView(preview(context, materialYou, scheme));
         card.setOnClickListener(v -> onTap.run());
         return card;
     }
 
     // A miniature settings section in the style's own theme: the real checkbox or switch on its real colors
-    private static View preview(Context base, boolean materialYou) {
+    private static View preview(Context base, boolean materialYou, String scheme) {
         Context themed = materialYou
-                ? DynamicColors.wrapContextIfAvailable(new android.view.ContextThemeWrapper(base, R.style.AppTheme_MaterialYou))
+                ? ThemeManager.materialYouContext(base, scheme)
                 : new android.view.ContextThemeWrapper(new android.view.ContextThemeWrapper(base, R.style.AppTheme), R.style.ThemeOverlay_SuperArtemis_Classic);
         float density = base.getResources().getDisplayMetrics().density;
         LinearLayout screen = new LinearLayout(themed);

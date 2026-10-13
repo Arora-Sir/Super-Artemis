@@ -37,8 +37,8 @@ public class ThemeManagerTest {
     }
 
     @Test
-    public void classicIsTheDefaultAndUnknownValuesFallBackToIt() {
-        assertEquals(ThemeManager.CLASSIC, ThemeManager.currentStyle(context));
+    public void materialYouIsTheDefaultAndUnknownValuesFallBackToClassic() {
+        assertEquals(ThemeManager.MATERIAL_YOU, ThemeManager.currentStyle(context));
         prefs.edit().putString(ThemeManager.PREF_KEY, "neon").commit();
         assertEquals(ThemeManager.CLASSIC, ThemeManager.currentStyle(context));
     }
@@ -48,7 +48,8 @@ public class ThemeManagerTest {
         prefs.edit().putString(ThemeManager.PREF_KEY, ThemeManager.MATERIAL_YOU).commit();
         assertTrue(ThemeManager.isMaterialYou(context));
         assertTrue(ThemeManager.needsRecreate(context, ThemeManager.CLASSIC));
-        assertFalse(ThemeManager.needsRecreate(context, ThemeManager.MATERIAL_YOU));
+        // What an activity applied includes the color scheme, so a scheme change also rebuilds it
+        assertFalse(ThemeManager.needsRecreate(context, ThemeManager.MATERIAL_YOU + ":" + ThemeManager.SCHEME_WALLPAPER));
     }
 
     @Test

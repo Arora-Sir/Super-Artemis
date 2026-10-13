@@ -125,7 +125,11 @@ public class EditorsSmokeTest {
 
     @Test
     public void appStylePickerOpens() {
-        openInBothStyles((activity, prefs) -> AppStylePicker.show(activity, "classic", style -> { }));
+        openInBothStyles((activity, prefs) -> {
+            AppStylePicker.show(activity, "classic", (style, scheme) -> { });
+            com.limelight.ui.FlowRow swatches = ShadowDialog.getLatestDialog().findViewById(R.id.app_style_schemes);
+            org.junit.Assert.assertEquals(com.limelight.theme.ThemeManager.SCHEMES.size(), swatches.getChildCount());
+        });
     }
 
     @Test

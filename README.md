@@ -35,7 +35,7 @@ Artemis already improves a lot on Moonlight. These are the things you lose if yo
 | Restore on another device with warnings for what it cannot use | No | No | Yes |
 | Crash report and diagnostic log you can share without root, Shizuku or a PC | No | No | Yes |
 | Settings search that stays on top and understands everyday words | No | No | Yes |
-| Rounded centered dialogs and an optional Material You style | No | No | Yes |
+| Rounded centered dialogs and Material You with color schemes | No | No | Yes |
 | Installs next to Artemis and Moonlight | Yes | Yes | Yes |
 
 Everything else from Artemis stays: custom virtual buttons, custom resolutions and bitrates, mouse modes, gamepad skins, external display mode, Apollo virtual display, server commands and clipboard sync.
@@ -109,7 +109,7 @@ Everything else from Artemis stays: custom virtual buttons, custom resolutions a
 | Settings search | A search bar that stays on top, finds settings by everyday words and jumps straight to the result. |
 | Clear sections | Settings grouped by what you want to do, with a section list on tablets. |
 | Modern dialogs | Rounded, centered dialogs with switches, rounded text fields and layouts that fit phones and tablets. |
-| Material You | An optional style with your wallpaper colors on Android 12 and later, chosen from live previews. |
+| Material You | The default style on Android 12 and later, in your wallpaper colors or a color scheme (Blue, Teal, Green, Purple, Orange, Rose, Mono), chosen from live previews. Classic stays one tap away. Older Android versions use Classic. |
 | About | Support development (UPI QR and PayPal), developer links and in-app credits for every contributor. |
 
 ## Get started
@@ -200,7 +200,7 @@ Super Artemis stands on the work of these people and projects. The table is gene
 | Duplicate keys as separate custom keys | [@voguelike](https://github.com/voguelike) | Requested | [ClassicOldSong/moonlight-android#521](https://github.com/ClassicOldSong/moonlight-android/issues/521) |
 | On-screen control layouts carried in the backup file and restored on any device | [@bonelag](https://github.com/bonelag) | Requested | [ClassicOldSong/moonlight-android#238](https://github.com/ClassicOldSong/moonlight-android/issues/238) |
 | Resume when reopened and connect to the last PC on app start | [@webibi](https://github.com/webibi) | Requested | [ClassicOldSong/moonlight-android#159](https://github.com/ClassicOldSong/moonlight-android/issues/159) |
-| Opt-in Material You app style | [@xDoge26](https://github.com/xDoge26) | Requested | [ClassicOldSong/moonlight-android#358](https://github.com/ClassicOldSong/moonlight-android/issues/358), [ClassicOldSong/moonlight-android#394](https://github.com/ClassicOldSong/moonlight-android/issues/394) |
+| Material You app style with color schemes | [@xDoge26](https://github.com/xDoge26) | Requested | [ClassicOldSong/moonlight-android#358](https://github.com/ClassicOldSong/moonlight-android/issues/358), [ClassicOldSong/moonlight-android#394](https://github.com/ClassicOldSong/moonlight-android/issues/394) |
 | Configurable 3, 4 and 5-finger taps and double taps, with Nothing passing taps to the PC | [@funkholio](https://github.com/funkholio), [@junoxxx67](https://github.com/junoxxx67) | Reported | [ClassicOldSong/moonlight-android#540](https://github.com/ClassicOldSong/moonlight-android/issues/540), [ClassicOldSong/moonlight-android#470](https://github.com/ClassicOldSong/moonlight-android/issues/470) |
 
 <!-- credits:end -->

@@ -347,7 +347,7 @@
         android:title="@string/category_ui_settings"
         app:iconSpaceReserved="false">
         <com.limelight.preferences.AppStylePreference
-            android:defaultValue="classic"
+            android:defaultValue="material_you"
             android:entries="@array/app_style_names"
             android:entryValues="@array/app_style_values"
             android:key="list_app_style"
