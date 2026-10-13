@@ -331,6 +331,16 @@
     <string name="custom_key_delete_confirm">Delete \"%1$s\"?</string>
     <string name="game_menu_add_custom_key">Add custom key</string>
     <string name="game_menu_manage_custom_keys">Manage custom keys</string>
+    <string name="game_menu_customize_quick_bar">Customize quick-action bar</string>
+    <string name="title_quick_bar">Quick-action bar</string>
+    <string name="summary_quick_bar">Pin actions and custom keys as small buttons over the stream, in the corner you choose</string>
+    <string name="quick_bar_position">Screen corner</string>
+    <string name="quick_bar_top_left">Top left</string>
+    <string name="quick_bar_top_right">Top right</string>
+    <string name="quick_bar_bottom_left">Bottom left</string>
+    <string name="quick_bar_bottom_right">Bottom right</string>
+    <string name="quick_bar_editor_hint">Checked items appear as buttons over the stream in this order. Green buttons are switched on. The bar fades after a few seconds, and a long press shows a button\'s name. Disconnect and Quit are left out, so a stray tap cannot end the stream.</string>
+    <string name="quick_bar_custom_key">Key: %1$s</string>
     <string name="game_menu_editor_save">Save</string>
     <string name="game_menu_editor_reset">Reset</string>
     <string name="game_menu_editor_drag">Drag to reorder</string>

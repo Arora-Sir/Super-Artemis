@@ -29,6 +29,7 @@ import com.limelight.menu.GameMenuLayout;
 import com.limelight.menu.GameMenuRenderer;
 import com.limelight.menu.MenuEntry;
 import com.limelight.menu.MenuSections;
+import com.limelight.menu.QuickBarEditor;
 import com.limelight.preferences.PreferenceConfiguration;
 
 import java.util.ArrayList;
@@ -118,6 +119,8 @@ public class GameMenu implements Game.GameMenuCallbacks {
         } else {
             entry.runnable.run();
         }
+        // Toggles such as the microphone also show their state on the quick-action bar
+        game.refreshQuickActionBar();
     }
 
     // Runs an action exactly as a menu tap would, waiting for game focus when the action sends input
@@ -297,6 +300,11 @@ public class GameMenu implements Game.GameMenuCallbacks {
         }
 
         List<MenuEntry> navigation = new ArrayList<>();
+        navigation.add(new MenuEntry(getString(R.string.game_menu_customize_quick_bar), R.drawable.ic_gm_toggle_floating_button, false, false,
+                () -> {
+                    hideMenu();
+                    QuickBarEditor.show(themedContext(), prefs(), game::reloadQuickActionBar);
+                }));
         navigation.add(new MenuEntry(getString(R.string.game_menu_back_to_quick_menu), R.drawable.ic_gm_back, false, false,
                 () -> showMenu(device)));
         navigation.add(cancelEntry());

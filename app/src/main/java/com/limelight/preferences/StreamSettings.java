@@ -55,6 +55,7 @@ import com.limelight.BuildConfig;
 import com.limelight.GameMenu;
 import com.limelight.menu.GameMenuEditor;
 import com.limelight.menu.GameMenuLayout;
+import com.limelight.menu.QuickBarEditor;
 import com.limelight.LimeLog;
 import com.limelight.PcView;
 import com.limelight.R;
@@ -380,6 +381,7 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
             setupBackupRestore();
             setupGameMenuEditor();
             setupCustomKeys();
+            setupQuickBar();
             PackageManager pm = activity.getPackageManager();
 
             // hide on-screen controls category on non touch screen devices
@@ -1232,6 +1234,16 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
                             style.setValue(GameMenuLayout.getStyle(prefs));
                         }
                     });
+                    return true;
+                });
+            }
+        }
+
+        private void setupQuickBar() {
+            Preference quickBar = findPreference("pref_quick_bar");
+            if (quickBar != null) {
+                quickBar.setOnPreferenceClickListener(preference -> {
+                    QuickBarEditor.show(requireContext(), PreferenceManager.getDefaultSharedPreferences(requireContext()), null);
                     return true;
                 });
             }

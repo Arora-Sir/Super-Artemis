@@ -604,6 +604,11 @@
             android:summary="@string/summary_customize_game_menu"
             android:title="@string/title_customize_game_menu"
             app:iconSpaceReserved="false" />
+        <Preference
+            android:key="pref_quick_bar"
+            android:summary="@string/summary_quick_bar"
+            android:title="@string/title_quick_bar"
+            app:iconSpaceReserved="false" />
         <CheckBoxPreference
             android:key="checkbox_full_screen"
             android:title="@string/title_checkbox_full_screen"

@@ -8,7 +8,10 @@ import static com.limelight.utils.ExternalDisplayControlActivity.closeExternalDi
 import static com.limelight.utils.ServerHelper.getActiveDisplay;
 import static com.limelight.utils.ServerHelper.getSecondaryDisplay;
 
+import com.limelight.actions.StreamAction;
+import com.limelight.actions.StreamActionHost;
 import com.limelight.binding.PlatformBinding;
+import com.limelight.menu.QuickActionBar;
 import com.limelight.binding.audio.AndroidAudioRenderer;
 import com.limelight.binding.audio.MicrophoneCaptureManager;
 import com.limelight.binding.audio.MicrophoneStateStore;
@@ -303,6 +306,7 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
     public boolean allowChangeMouseMode = true;
     private boolean onExternelDisplay = false;
     private ImageButton floatingMenuButton;
+    private QuickActionBar quickActionBar;
     private ImageButton overlayToggleButton;
     private float floatingButtonDX, floatingButtonDY;
     private boolean isButtonMoving = false;
@@ -890,6 +894,7 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
         floatingMenuButton = findViewById(R.id.floatingMenuButton);
         updateFloatingButtonVisibility(prefConfig.enableBackMenu && prefConfig.enableFloatingButton);
         initFloatingButton();
+        initQuickActionBar();
 
         overlayToggleButton = findViewById(R.id.overlayToggleZoomButton);
         setupOverlayToggleButton();
@@ -1224,6 +1229,10 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
 
                 overlayToggleZoomButtonShown = overlayToggleButton != null && overlayToggleButton.isShown();
 
+                if (quickActionBar != null) {
+                    quickActionBar.setHidden(true);
+                }
+
                 if (overlayToggleZoomButtonShown) {
                     overlayToggleButton.setVisibility(View.GONE);
                 }
@@ -1260,6 +1269,10 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
 
                 if (overlayToggleZoomButtonShown) {
                     overlayToggleButton.setVisibility(View.VISIBLE);
+                }
+
+                if (quickActionBar != null) {
+                    quickActionBar.setHidden(false);
                 }
 
                 // Restore overlays to previous state when leaving PiP
@@ -3855,6 +3868,9 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
 
                 hideSystemUi(1000);
                 applyMicrophoneInitialState();
+                if (quickActionBar != null) {
+                    quickActionBar.setConnected(true);
+                }
 
                 if (prefConfig.preventPacketLoss) {
                     timerHandler.postDelayed(backgroundPing, 1000);
@@ -4423,6 +4439,50 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
     public void toggleFloatingButtonVisibility() {
         if (floatingMenuButton != null) {
             updateFloatingButtonVisibility(floatingMenuButton.getVisibility() == View.GONE);
+        }
+        // The bar moves next to the menu button or back to the corner
+        reloadQuickActionBar();
+    }
+
+    // Pinned actions and custom keys over the stream, which appear once the connection is up
+    private void initQuickActionBar() {
+        if (!(gameMenuCallbacks instanceof GameMenu) || floatingMenuButton == null) {
+            return;
+        }
+        GameMenu menu = (GameMenu) gameMenuCallbacks;
+        quickActionBar = new QuickActionBar(this, (FrameLayout) floatingMenuButton.getParent(), new QuickActionBar.Host() {
+            @Override
+            public StreamActionHost actionHost() {
+                return menu.getActionHost();
+            }
+
+            @Override
+            public void runAction(StreamAction action) {
+                menu.runAction(action);
+            }
+
+            @Override
+            public void sendKeys(short[] keys) {
+                Game.this.sendKeys(keys);
+            }
+
+            @Override
+            public boolean isFloatingMenuButtonVisible() {
+                return floatingMenuButton.getVisibility() == View.VISIBLE;
+            }
+        });
+    }
+
+    public void reloadQuickActionBar() {
+        if (quickActionBar != null) {
+            quickActionBar.reload();
+        }
+    }
+
+    // Called after menu actions so toggles on the bar show their new state
+    public void refreshQuickActionBar() {
+        if (quickActionBar != null) {
+            quickActionBar.refreshSoon();
         }
     }
 

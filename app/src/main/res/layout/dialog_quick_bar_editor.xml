@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Quick-action bar editor body: screen corner, hint, then the reorderable list of actions and custom keys to pin -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingTop="4dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="24dp"
+        android:paddingRight="24dp"
+        android:text="@string/quick_bar_position"
+        android:textColor="?android:attr/textColorSecondary"
+        android:textSize="14sp" />
+
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="none">
+
+    <RadioGroup
+        android:id="@+id/quick_bar_position"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingLeft="20dp"
+        android:paddingRight="24dp">
+
+        <RadioButton
+            android:id="@+id/quick_bar_top_left"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="12dp"
+            android:minHeight="48dp"
+            android:text="@string/quick_bar_top_left" />
+
+        <RadioButton
+            android:id="@+id/quick_bar_top_right"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="12dp"
+            android:minHeight="48dp"
+            android:text="@string/quick_bar_top_right" />
+
+        <RadioButton
+            android:id="@+id/quick_bar_bottom_left"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="12dp"
+            android:minHeight="48dp"
+            android:text="@string/quick_bar_bottom_left" />
+
+        <RadioButton
+            android:id="@+id/quick_bar_bottom_right"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:text="@string/quick_bar_bottom_right" />
+    </RadioGroup>
+    </HorizontalScrollView>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="24dp"
+        android:paddingTop="4dp"
+        android:paddingRight="24dp"
+        android:paddingBottom="8dp"
+        android:text="@string/quick_bar_editor_hint"
+        android:textColor="?android:attr/textColorSecondary"
+        android:textSize="14sp" />
+
+    <FrameLayout
+        android:id="@+id/quick_bar_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+</LinearLayout>

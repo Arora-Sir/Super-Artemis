@@ -15,6 +15,7 @@ All notable changes to Super Artemis are listed here. The format follows [Keep a
 - Restore shows a preview first (date, app version, settings and PC counts, what happens to your PCs). A backup without pairing keys keeps the PCs already on the device and only adds new ones.
 - Customizable in-stream Quick Menu: choose and reorder actions in an editor, with List, Grid with icons and Compact styles. The editor has a style picker and a live preview, and "Customize menu" sits right in the Quick Menu.
 - The Quick Menu is split into Actions, Session and Menu sections. Disconnect and Quit are always in the Session section, drawn in red. The Advanced Menu has "Back to Quick Menu".
+- Quick-action bar: pin actions (such as Pan/Zoom or the microphone) and custom keys as small buttons over the stream, in the top left, top right, bottom left or bottom right corner. Switched-on toggles show green, and the bar fades while idle. Set it up in Settings > UI or from the Advanced Menu during a stream.
 - Custom keys without JSON: record a key combination on the built-in keyboard or a physical keyboard, name it, mark it sticky and pick one of 28 icons. Manage keys in Settings > Special Key Layout > Custom keys, or add them during a stream from Send special keys. They keep working with import, export, backup and the on-screen key layer.
 - Separate "Five-finger tap opens menu" setting.
 - Credits for everyone whose code, design or request shaped the fork, in the README and release notes.
