@@ -538,8 +538,14 @@ public class MediaCodecHelper {
         boolean setNewOption = false;
 
 //derflacco
-        // NVIDIA Tegra extra low-latency toggles
-        if (isNvidiaDecoder(decoderInfo.getName())) {
+        // NVIDIA Tegra extra low-latency toggles.
+        //
+        // The tryNumber guard is not optional. The caller loops forever until either
+        // configure() succeeds or this method reports that it has no new options left to
+        // try. Setting setNewOption unconditionally meant that, on an NVIDIA decoder whose
+        // configure() never succeeds, it never ran out of options, the loop spun forever
+        // and the app hung at connection time with no error.
+        if (tryNumber < 3 && isNvidiaDecoder(decoderInfo.getName())) {
             safeSet(videoFormat, "media.low-latency.enable", 1);
             safeSet(videoFormat, "vendor.low-latency.enable", 1);
             safeSet(videoFormat, "disable-output-reorder", 1);
@@ -669,8 +675,12 @@ public class MediaCodecHelper {
                     // Standard Android hints
                     safeSet(videoFormat, MediaFormat.KEY_OPERATING_RATE, (int) Short.MAX_VALUE);
                     safeSet(videoFormat, MediaFormat.KEY_PRIORITY, 0);
+
+                    // Inside the guard, like every other vendor block. Sitting outside it
+                    // reported "I still have options" forever on MediaTek decoders, and the
+                    // caller's retry loop never terminated.
+                    setNewOption = true;
                 }
-                setNewOption = true;
             }
 
             else if (isDecoderInList(kirinDecoderPrefixes, decoderInfo.getName())) {

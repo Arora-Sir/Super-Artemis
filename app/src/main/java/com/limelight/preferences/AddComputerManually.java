@@ -392,9 +392,9 @@ public class AddComputerManually extends AppCompatActivity {
             builder.setTitle(R.string.pair_pc_confirm_title);
             builder.setMessage(getString(R.string.pair_pc_confirm_message, hostName));
 
+            // Finishing here interrupted the add thread on slow networks, and doAddPc() already finishes on success
             builder.setPositiveButton(getString(R.string.proceed), (dialog, which) -> {
                 dialog.dismiss();
-                finish();
                 computersToAdd.add(server + '?' + query);
             });
 

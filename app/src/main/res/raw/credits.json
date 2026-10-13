@@ -191,6 +191,102 @@
         { "label": "ClassicOldSong/moonlight-android#358", "url": "https://github.com/ClassicOldSong/moonlight-android/issues/358" },
         { "label": "ClassicOldSong/moonlight-android#394", "url": "https://github.com/ClassicOldSong/moonlight-android/issues/394" }
       ]
+    },
+    {
+      "feature": "Frame pacing setting honoured again, no frame-dropping drain loop, refresh rate tracked during the stream",
+      "role": "code",
+      "people": [{ "handle": "coroiu" }],
+      "links": [
+        { "label": "coroiu/twilight-android@a3d872503", "url": "https://github.com/coroiu/twilight-android/commit/a3d872503534f731c85331fa6e72e249773d2eb7" },
+        { "label": "coroiu/twilight-android@e34cf77c5", "url": "https://github.com/coroiu/twilight-android/commit/e34cf77c5ea2a925e1cbc3bf6c1be26966f36410" },
+        { "label": "coroiu/twilight-android@98298aa6e", "url": "https://github.com/coroiu/twilight-android/commit/98298aa6ec56645f9096ebf85b9d599e20c25b49" },
+        { "label": "ClassicOldSong/moonlight-android#416", "url": "https://github.com/ClassicOldSong/moonlight-android/issues/416" },
+        { "label": "ClassicOldSong/moonlight-android#415", "url": "https://github.com/ClassicOldSong/moonlight-android/issues/415" },
+        { "label": "ClassicOldSong/moonlight-android#376", "url": "https://github.com/ClassicOldSong/moonlight-android/issues/376" }
+      ]
+    },
+    {
+      "feature": "Surface frame rate and fixed size hack removed",
+      "role": "code",
+      "people": [{ "handle": "derflacco" }],
+      "links": [
+        { "label": "derflacco/moonlight-android@e3eaf4939", "url": "https://github.com/derflacco/moonlight-android/commit/e3eaf49395f3ab7db63d2a1ebd2272e6d9c0c9e2" },
+        { "label": "derflacco/moonlight-android@5c0d3981a", "url": "https://github.com/derflacco/moonlight-android/commit/5c0d3981aee27d29b7a8334aa4727a50ded432a8" },
+        { "label": "ClassicOldSong/moonlight-android#443", "url": "https://github.com/ClassicOldSong/moonlight-android/issues/443" }
+      ]
+    },
+    {
+      "feature": "Decoder setup hang guard, audio effects setting, private key kept out of Android backups, poster provider path checks",
+      "role": "code",
+      "people": [{ "handle": "Rafael-CN" }],
+      "links": [
+        { "label": "Rafael-CN/VibeArtemis@a502acb23", "url": "https://github.com/Rafael-CN/VibeArtemis/commit/a502acb23982841e176d4ddffcbdab852aff78db" }
+      ]
+    },
+    {
+      "feature": "Joy-Con fix setting applies again",
+      "role": "code",
+      "people": [{ "handle": "CoolRobloxDeveloper" }],
+      "links": [
+        { "label": "ClassicOldSong/moonlight-android#570", "url": "https://github.com/ClassicOldSong/moonlight-android/pull/570" },
+        { "label": "ClassicOldSong/moonlight-android#450", "url": "https://github.com/ClassicOldSong/moonlight-android/issues/450" }
+      ]
+    },
+    {
+      "feature": "4K streams keep the current display mode",
+      "role": "code",
+      "people": [{ "handle": "Mad-Melon" }],
+      "links": [
+        { "label": "ClassicOldSong/moonlight-android#601", "url": "https://github.com/ClassicOldSong/moonlight-android/pull/601" },
+        { "label": "ClassicOldSong/moonlight-android#505", "url": "https://github.com/ClassicOldSong/moonlight-android/issues/505" }
+      ]
+    },
+    {
+      "feature": "Print Screen key and Samsung keyboard cover screenshot key",
+      "role": "code",
+      "people": [{ "handle": "Lian-CrescentMoon" }],
+      "links": [
+        { "label": "ClassicOldSong/moonlight-android#606", "url": "https://github.com/ClassicOldSong/moonlight-android/pull/606" }
+      ]
+    },
+    {
+      "feature": "No crash with vendor keyboards that report out-of-range key codes",
+      "role": "code",
+      "people": [{ "handle": "qiin2333" }],
+      "links": [
+        { "label": "qiin2333/moonlight-vplus#591", "url": "https://github.com/qiin2333/moonlight-vplus/pull/591" }
+      ]
+    },
+    {
+      "feature": "Adding a PC from an art:// pairing link works on slow networks",
+      "role": "code",
+      "people": [{ "handle": "Swanand01" }],
+      "links": [
+        { "label": "Swanand01/moonlight-android@350a7461c", "url": "https://github.com/Swanand01/moonlight-android/commit/350a7461c3120f7b74b454c3fa3e5ac1be9005ba" }
+      ]
+    },
+    {
+      "feature": "Controller LED, rumble and keyboard fixes from Moonlight 12.2",
+      "role": "code",
+      "people": [{ "handle": "cgutman" }, { "handle": "T2Fat2Fly" }, { "handle": "bladeoner" }, { "handle": "ReenigneArcher" }],
+      "links": [
+        { "label": "moonlight-stream/moonlight-android@abde6021e", "url": "https://github.com/moonlight-stream/moonlight-android/commit/abde6021e83e4689fcbd3872afb86998aff16f2f" },
+        { "label": "moonlight-stream/moonlight-android#1454", "url": "https://github.com/moonlight-stream/moonlight-android/pull/1454" },
+        { "label": "moonlight-stream/moonlight-android@280454fdb", "url": "https://github.com/moonlight-stream/moonlight-android/commit/280454fdb018bbeff3dbac4b54dccef524a11f92" },
+        { "label": "moonlight-stream/moonlight-android#1582", "url": "https://github.com/moonlight-stream/moonlight-android/pull/1582" },
+        { "label": "moonlight-stream/moonlight-android@8974dcda6", "url": "https://github.com/moonlight-stream/moonlight-android/commit/8974dcda6e448a0abb9281af4349aa4f992f6743" }
+      ]
+    },
+    {
+      "feature": "Video loss recovery, RTT and leak fixes and RTSP hardening in moonlight-common-c",
+      "role": "code",
+      "people": [{ "handle": "cgutman" }, { "handle": "foxirain" }, { "handle": "JustinZeus" }],
+      "links": [
+        { "label": "ClassicOldSong/moonlight-common-c#2", "url": "https://github.com/ClassicOldSong/moonlight-common-c/pull/2" },
+        { "label": "moonlight-stream/moonlight-common-c@d85371cd8", "url": "https://github.com/moonlight-stream/moonlight-common-c/commit/d85371cd8cb6304e66ef90a02e2e1609a8621906" },
+        { "label": "moonlight-stream/moonlight-common-c@20c05eda6", "url": "https://github.com/moonlight-stream/moonlight-common-c/commit/20c05eda6a0d410d84fe97a3a79d04fb70609d48" },
+        { "label": "moonlight-stream/moonlight-common-c@7b026e77b", "url": "https://github.com/moonlight-stream/moonlight-common-c/commit/7b026e77be62175104640e7e722b758df6d3d0d7" }
+      ]
     }
   ]
 }

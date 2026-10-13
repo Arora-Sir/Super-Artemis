@@ -608,8 +608,6 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
 
         videoDecoder.configure(format, renderTarget, null, 0);
 
-        try { applySurfaceFrameRate(renderTarget, targetFps); } catch (Throwable ignored) {}
-
         try {
             MediaCodecInfo __info = (android.os.Build.VERSION.SDK_INT >= 21) ? videoDecoder.getCodecInfo() : null;
             String __name = (__info != null) ? __info.getName() : "<unknown>";
@@ -754,7 +752,20 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
         adaptivePlayback = MediaCodecHelper.decoderSupportsAdaptivePlayback(selectedDecoderInfo, mimeType);
         fusedIdrFrame = MediaCodecHelper.decoderSupportsFusedIdrFrame(selectedDecoderInfo, mimeType);
 
+        // The loop below relies on setDecoderLowLatencyOptions() eventually reporting that
+        // it has no further options to try. A vendor block that forgets its tryNumber guard
+        // breaks that contract and hangs the app at connection time with no error, which
+        // has happened, on NVIDIA and MediaTek decoders. This bound makes the failure mode
+        // a clean error instead of a hang, whatever a future vendor block does.
+        final int MAX_DECODER_CONFIG_TRIES = 16;
+
         for (int tryNumber = 0;; tryNumber++) {
+            if (tryNumber >= MAX_DECODER_CONFIG_TRIES) {
+                LimeLog.severe("Decoder configuration did not converge after " +
+                        MAX_DECODER_CONFIG_TRIES + " tries; giving up on " + selectedDecoderInfo.getName());
+                return -5;
+            }
+
             LimeLog.info("Decoder configuration try: "+tryNumber);
 
             MediaFormat mediaFormat = createBaseMediaFormat(mimeType);
@@ -1153,6 +1164,18 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
         });
     }
 
+    /** Current refresh rate of the display we are rendering to, 60 Hz if unavailable. */
+    private float readDisplayRefreshRate() {
+        float hz = 0f;
+        try {
+            if (Build.VERSION.SDK_INT >= 17 && context != null) {
+                android.view.Display d = ((android.view.WindowManager) context.getSystemService(android.content.Context.WINDOW_SERVICE)).getDefaultDisplay();
+                if (d != null) hz = d.getRefreshRate();
+            }
+        } catch (Throwable ignored) {}
+        return hz > 0f ? hz : 60f;
+    }
+
     private void startRendererThread()
     {
         rendererThread = new Thread() {
@@ -1161,28 +1184,22 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
                 // Boost thread priority to reduce decoding latency
                 android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_URGENT_DISPLAY);
 
-                // Compute display refresh and vsync period once (fallback 60 Hz if unavailable)
-                long vsyncPeriodNs;
-                float displayHz = 60f;
-                try {
-                    if (Build.VERSION.SDK_INT >= 17 && context != null) {
-                        android.view.Display d = ((android.view.WindowManager) context.getSystemService(android.content.Context.WINDOW_SERVICE)).getDefaultDisplay();
-                        if (d != null) displayHz = d.getRefreshRate();
-                    }
-                } catch (Throwable ignored) {}
-                if (displayHz <= 0f) displayHz = 60f;
-                vsyncPeriodNs = (long) (1_000_000_000L / displayHz);
+                // Display refresh rate, re-read as we go. A mode switch requested in
+                // prepareDisplayForRendering() may not have settled by the time this thread
+                // starts, and the panel can change rate mid-stream (battery saver, thermal).
+                // Sampling once pinned the drop thresholds to whatever was active at startup.
+                float displayHz = readDisplayRefreshRate();
+                long vsyncPeriodNs = (long) (1_000_000_000L / displayHz);
+                long lastHzPollNs = System.nanoTime();
 
                 // Stream cadence (targetFps set in setup(...))
                 final int tfps = (targetFps > 0 ? targetFps : 60);
                 final long streamPeriodNs = (long) (1_000_000_000L / Math.max(1, tfps));
 
 
-                // Adaptive period selection to avoid added latency on high-refresh devices
-                final boolean highRefresh = displayHz >= 90f;
-                final boolean managedMode = (prefs != null && prefs.framePacing == PreferenceConfiguration.FRAME_PACING_BALANCED);
-                // Use stream-aligned thresholds only on lower-refresh screens while in Balanced.
-                final long periodNs = (preferLowerDelays ? vsyncPeriodNs : Math.max(vsyncPeriodNs, streamPeriodNs));
+                // Adaptive period selection to avoid added latency on high-refresh devices.
+                // Recomputed alongside vsyncPeriodNs whenever the display rate changes.
+                long periodNs = (preferLowerDelays ? vsyncPeriodNs : Math.max(vsyncPeriodNs, streamPeriodNs));
                 boolean isC2Decoder = false;
                 try {
                     String decName = videoDecoder.getName();
@@ -1210,42 +1227,26 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
                 BufferInfo info = new BufferInfo();
                 long lastOutputNs = System.nanoTime();
                 while (!stopping) {
-                    /* LATEST_ONLY_LOW_LATENCY */
-                    if (!preferLowerDelays) {
-                        try {
-                            android.media.MediaCodec.BufferInfo __tmpInfo = new android.media.MediaCodec.BufferInfo();
-                            int __idx = videoDecoder.dequeueOutputBuffer(__tmpInfo, 0);
-                            int __last = -1;
-                            long __lastPtsUs = -1L;
-
-                            // Drain non-blocking; keep only the newest buffer
-                            while (__idx >= 0) {
-                                if (__last >= 0) {
-                                    try { videoDecoder.releaseOutputBuffer(__last, false); } catch (Throwable ignored) {}
-                                }
-                                __last = __idx;
-                                __lastPtsUs = __tmpInfo.presentationTimeUs;
-                                __idx = videoDecoder.dequeueOutputBuffer(__tmpInfo, 0);
-                            }
-
-                            if (__last >= 0) {
-                                long __nowNs = System.nanoTime();
-                                if (android.os.Build.VERSION.SDK_INT >= 21) {
-                                    releaseWithPolicy(__last, System.nanoTime());} else {
-                                    releaseWithPolicy(__last, System.nanoTime());}
-
-                                // Update decode->present EWMA and decode stats if we have a valid PTS
-                                if (__lastPtsUs >= 0) {
-                                    long __d2pNs = __nowNs - (__lastPtsUs * 1000L);
-                                    ewmaDecodeToPresentNs += EWMA_ALPHA * (__d2pNs - ewmaDecodeToPresentNs);
-                                    try { updateDecodeLatencyStats(__lastPtsUs); } catch (Throwable ignored) {}
-                                }
-
-                                continue; // handled this iteration
-                            }
-                        } catch (Throwable ignored) {}
+                    // Cheap enough at once a second, and keeps the thresholds honest if the
+                    // panel changes rate after this thread started.
+                    long nowPollNs = System.nanoTime();
+                    if (nowPollNs - lastHzPollNs >= 1_000_000_000L) {
+                        lastHzPollNs = nowPollNs;
+                        float currentHz = readDisplayRefreshRate();
+                        if (Math.abs(currentHz - displayHz) > 1f) {
+                            LimeLog.info("Display refresh rate changed: " + displayHz + " -> " + currentHz + " Hz");
+                            displayHz = currentHz;
+                            vsyncPeriodNs = (long) (1_000_000_000L / displayHz);
+                            periodNs = (preferLowerDelays ? vsyncPeriodNs : Math.max(vsyncPeriodNs, streamPeriodNs));
+                        }
                     }
-                    /* /LATEST_ONLY_LOW_LATENCY */
+
+                    // NB: no "latest-only" drain here. Draining every ready output
+                    // buffer and discarding all but the newest turned any momentary
+                    // hiccup into a self-sustaining ~50% frame loss: once two buffers
+                    // were ready per pass it binned one every pass and never recovered.
+                    // Frames are queued below and paced by the Choreographer, as in
+                    // v20.2.6.
 
 
                     try {
@@ -2408,22 +2409,6 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
             return str;
         }
     }
-
-
-    private void applySurfaceFrameRate(android.view.Surface surface, int targetFps) {
-        if (surface == null) return;
-        try {
-            // API 30+ supports Surface.setFrameRate; for older, attempt View-based call elsewhere.
-            if (android.os.Build.VERSION.SDK_INT >= 30) {
-                surface.setFrameRate((float) targetFps,
-                        android.view.Surface.FRAME_RATE_COMPATIBILITY_DEFAULT);
-                LimeLog.info("Applied Surface frame rate: " + targetFps + " Hz");
-            }
-        } catch (Throwable t) {
-            // best-effort
-        }
-    }
-
 
 
     private boolean isMTKDecoderName(String name) {

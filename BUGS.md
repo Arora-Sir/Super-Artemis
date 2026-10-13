@@ -89,3 +89,19 @@ Each entry records a problem that was fixed in a way a future change could silen
 - **Fix Applied:** The middle click change is reverted in `TrackpadContext`, and "Middle mouse click" is a gesture action that any tap or double tap can run. Do not reintroduce finger-count handling inside the touch contexts, gestures belong to `GestureDispatcher`.
 - **Verification:** `GesturesTest`. A device check of trackpad mode is pending.
 - **Status:** Fixed.
+
+## BUG-012: Frame pacing forced to Balanced and half the frames dropped
+
+- **Symptom:** Render FPS stayed below the incoming FPS on Samsung and other 120 Hz devices (ClassicOldSong/moonlight-android#416, #415, #376), and the frame pacing setting had no effect.
+- **Root Cause:** The 20.3.0 experimental renderer work in the base overwrote `prefConfig.framePacing` with Balanced on both branches of the low-delay block, a "latest-only" drain loop discarded all but the newest output buffer once two were ready, the drop thresholds were sampled once at stream start, and a reflective `setFrameRate` with a fixed surface size added stutter.
+- **Fix Applied:** Ports of coroiu/twilight-android `a3d872503`, `e34cf77c5` and `98298aa6e`, and derflacco/moonlight-android `e3eaf4939` and `5c0d3981a`. `Game.java` must not assign `framePacing` outside the frame rate cap fallbacks, and the renderer must not drain and discard ready buffers.
+- **Verification:** Unit suite and build. Render and discard FPS at 120 FPS on the Tab and the S24 are part of the device checks.
+- **Status:** Fixed, device check pending.
+
+## BUG-013: Decoder setup could hang the app at connection time
+
+- **Symptom:** On some NVIDIA and MediaTek decoders, connecting never finished and showed no error.
+- **Root Cause:** `initializeDecoder()` retries while the low-latency helper reports new options. The NVIDIA block always reported new options and the MediaTek block reported them outside its retry guard.
+- **Fix Applied:** Port of Rafael-CN/VibeArtemis `a502acb23`: both guards fixed and the retry loop has an absolute bound. New vendor blocks must keep their `tryNumber` guard.
+- **Verification:** Unit suite and build.
+- **Status:** Fixed.

@@ -39,6 +39,7 @@ public class KeyboardTranslator implements InputManager.InputDeviceListener {
     public static final int VK_EQUALS = 61;
     public static final int VK_ESCAPE = 27;
     public static final int VK_F1 = 112;
+    public static final int VK_F13 = 0x7C;
     public static final int VK_F12 = 123;
 
     public static final int VK_END = 35;
@@ -124,7 +125,8 @@ public class KeyboardTranslator implements InputManager.InputDeviceListener {
 
             for (int i = 0; i <= maxKeyCode; i++) {
                 int deviceKeyCode = device.getKeyCodeForKeyLocation(i);
-                if (deviceKeyCode != KeyEvent.KEYCODE_UNKNOWN) {
+                // Vendor keyboard layouts can map keys to key codes above KeyEvent.getMaxKeyCode(), which crashed stream start
+                if (deviceKeyCode != KeyEvent.KEYCODE_UNKNOWN && deviceKeyCode >= 0 && deviceKeyCode <= maxKeyCode) {
                     deviceKeyCodeToQwertyKeyCode[deviceKeyCode] = i;
                 }
             }
@@ -215,6 +217,11 @@ public class KeyboardTranslator implements InputManager.InputDeviceListener {
         else if (keycode >= KeyEvent.KEYCODE_F1 &&
                  keycode <= KeyEvent.KEYCODE_F12) {
             translated = (keycode - KeyEvent.KEYCODE_F1) + VK_F1;
+        }
+        // Android 15 and 16 key codes, from moonlight-stream/moonlight-android@8974dcda6
+        else if (keycode >= KeyEvent.KEYCODE_F13 &&
+                 keycode <= KeyEvent.KEYCODE_F24) {
+            translated = (keycode - KeyEvent.KEYCODE_F13) + VK_F13;
         }
         else {
             switch (keycode) {
@@ -348,8 +355,10 @@ public class KeyboardTranslator implements InputManager.InputDeviceListener {
                 break;
                 
             case KeyEvent.KEYCODE_SYSRQ:
-                // Android defines this as SysRq/PrntScrn
-                translated = VK_PRINTSCREEN;
+                // Android defines this as SysRq/PrntScrn.
+                // VK_PRINTSCREEN (154) is the Java AWT key code, not a Windows virtual-key
+                // code, so hosts ignore it. Windows' VK_SNAPSHOT is 0x2C.
+                translated = 0x2C;
                 break;
                 
             case KeyEvent.KEYCODE_TAB:
@@ -402,6 +411,14 @@ public class KeyboardTranslator implements InputManager.InputDeviceListener {
 
             case KeyEvent.KEYCODE_NUMPAD_DOT:
                 translated = 0x6E;
+                break;
+
+            case KeyEvent.KEYCODE_PRINT:
+                translated = 0x2A;
+                break;
+
+            case KeyEvent.KEYCODE_SCREENSHOT:
+                translated = 0x2C;
                 break;
 
             default:

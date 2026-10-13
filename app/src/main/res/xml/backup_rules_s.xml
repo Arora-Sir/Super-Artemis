@@ -1,10 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <data-extraction-rules>
-  <!-- Don't sync preferences because it often contains device-specific data -->
+  <!--
+    Same reasoning as backup_rules.xml, for Android 12+.
+
+    client.key is the private key identifying this device to every paired host. It lives
+    in getFilesDir() and was not excluded, so it travelled in cloud backups and in
+    device-to-device transfers. Re-pairing after a restore is quick and is the right
+    recovery path.
+  -->
   <cloud-backup disableIfNoEncryptionCapabilities="true">
+    <!-- Don't sync preferences because it often contains device-specific data -->
     <exclude domain="sharedpref" path="."/>
+    <exclude domain="file" path="client.key"/>
+    <exclude domain="file" path="client.crt"/>
+    <exclude domain="file" path="client.p12"/>
   </cloud-backup>
   <device-transfer>
     <exclude domain="sharedpref" path="."/>
+    <exclude domain="file" path="client.key"/>
+    <exclude domain="file" path="client.crt"/>
+    <exclude domain="file" path="client.p12"/>
   </device-transfer>
 </data-extraction-rules>

@@ -37,7 +37,7 @@ The debug build needs pairing with Apollo first. Then check the mic off by defau
 | W9 | Opt-in Material You style on Android 12+ | Code and unit tests done, device look pending |
 | W10 | Branding and link fixes, fastlane, issue templates, FUNDING.yml | Done (new store screenshots are taken during the device checks) |
 | W12 | About: Support development (UPI, UPI QR, PayPal), developer profiles, credits, star on GitHub | Code and unit tests done, device check pending |
-| W17 | Scan active forks and upstream issues for small, high-demand additions | Planned |
+| W17 | Scan active forks and upstream issues for small, high-demand additions | Done: 13 fixes ported with credit. The native core fixes sit uncommitted in the submodule until the common-c branch is committed and pushed. Deferred: Samsung Book Cover pointer capture (ClassicOldSong/moonlight-android#607, needs a device test with S Pen isolation), HDR indicator in the overlay (#431) and mouse sensitivity (#452, #529) |
 | W11 | README rewrite with the fork's USP, release notes | Planned |
 | W14 | In-stream verification on the Tab and the S24 | Waiting for pairing |
 | W15 | Push, CI release build, draft release, device install | Planned |

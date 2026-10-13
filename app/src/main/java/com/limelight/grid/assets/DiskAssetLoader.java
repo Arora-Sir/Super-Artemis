@@ -147,6 +147,15 @@ public class DiskAssetLoader {
         return CacheHelper.openPath(false, cacheDir, "boxart", computerUuid, appId + ".png");
     }
 
+    /**
+     * Root of the box art cache. Exposed so callers that build a path from untrusted input
+     * (PosterContentProvider is exported) can verify the resolved file still sits inside
+     * it before opening anything.
+     */
+    public File getBoxArtDirectory() {
+        return new File(cacheDir, "boxart");
+    }
+
     public void deleteAssetsForComputer(String computerUuid) {
         File dir = CacheHelper.openPath(false, cacheDir, "boxart", computerUuid);
         File[] files = dir.listFiles();

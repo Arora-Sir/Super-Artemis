@@ -1,4 +1,4 @@
-First Super Artemis release, based on Artemis 20.2.6.
+First Super Artemis release, based on Artemis.
 - Microphone streaming to Apollo, off until you unmute it
 - Quick Menu with sections, styles, live editor and a corner quick-action bar
 - Custom keys recorded in the app, with icons
@@ -6,3 +6,4 @@ First Super Artemis release, based on Artemis 20.2.6.
 - Resume when reopened, picture-in-picture on app switch
 - Backup and restore with a preview that keeps your PCs
 - Settings search, optional Material You style
+- Frame pacing setting honoured, fewer dropped frames

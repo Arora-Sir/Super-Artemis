@@ -2,4 +2,19 @@
 <full-backup-content>
     <!-- Don't sync preferences because it often contains device-specific data -->
     <exclude domain="sharedpref" path="."/>
+
+    <!--
+      The client identity must never leave the device.
+
+      client.key is the private key that proves to every paired host that this device is
+      who it claims to be. It lives in getFilesDir(), which the previous rules did not
+      exclude, so it was being copied into Google Drive backups and into device-to-device
+      transfers. Anyone who obtained that backup could impersonate this client to hosts it
+      had already paired with.
+
+      Re-pairing is quick and is the correct recovery path after a restore.
+    -->
+    <exclude domain="file" path="client.key"/>
+    <exclude domain="file" path="client.crt"/>
+    <exclude domain="file" path="client.p12"/>
 </full-backup-content>

@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to Super Artemis are listed here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow [Semantic Versioning](https://semver.org/). Super Artemis is based on Artemis 20.2.6 (ClassicOldSong/moonlight-android, branch `moonlight-noir`).
+All notable changes to Super Artemis are listed here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow [Semantic Versioning](https://semver.org/). Super Artemis is based on Artemis (ClassicOldSong/moonlight-android, branch `moonlight-noir` at `c5cf27f`), which is version 20.2.6 plus the renderer work of the 20.3.0 experimental builds.
 
 ## [Unreleased]
 
@@ -41,3 +41,11 @@ All notable changes to Super Artemis are listed here. The format follows [Keep a
 - A three-finger tap in trackpad mode no longer sends a middle click and toggles the keyboard at the same time. Middle click is now a gesture action you can choose.
 - Microphone capture falls back to the next audio source on devices that reject the first one instead of failing.
 - Backups no longer include Android framework files or settings search history.
+- The frame pacing setting is honoured again instead of always being forced to Balanced, a renderer loop that dropped about half the frames after any hiccup is gone, and the drop thresholds follow refresh rate changes during a stream, from @coroiu. The broken "Warp Drive" pacing options, which asked the host for double or quadruple the frame rate, are removed. This addresses the Samsung render rate reports in ClassicOldSong/moonlight-android#416, #415 and #376.
+- The forced surface frame rate and fixed surface size, which caused stutter, are removed, from @derflacco.
+- Decoder setup can no longer loop forever on NVIDIA and MediaTek decoders, the audio effects setting is no longer tied to "Play audio on PC", Android cloud and device transfer backups no longer copy the pairing private key, and the exported poster provider only serves files from its own cache, from @Rafael-CN.
+- The Joy-Con fix setting applies again (@CoolRobloxDeveloper, ClassicOldSong/moonlight-android#570), 4K streams no longer switch display modes needlessly (@Mad-Melon, #601), Print Screen sends the right key and the Samsung keyboard cover screenshot key reaches the PC (@Lian-CrescentMoon, #606), and vendor keyboards with out-of-range key codes no longer crash stream start (@qiin2333, qiin2333/moonlight-vplus#591).
+- Adding a PC from an `art://` pairing link no longer fails on slow networks, from @Swanand01.
+- Controller LED crashes, rumble on newer Android versions, Xbox Series controller IDs, Shift for the plus key and Android 15 and 16 key codes, from Moonlight 12.2 (@cgutman, @T2Fat2Fly, @bladeoner, @ReenigneArcher).
+- Native core: recovery after multi-block video loss and partially dropped IDR frames, no speculative loss reports with RFI off, RTT queries without the ENet lock, thread and pthread attribute leaks, and RTSP hardening against malformed or oversized responses (@cgutman, @foxirain, picked as in ClassicOldSong/moonlight-common-c#2 by @JustinZeus).
+- The local mouse cursor setting lists the Ctrl+Alt+Shift shortcuts.

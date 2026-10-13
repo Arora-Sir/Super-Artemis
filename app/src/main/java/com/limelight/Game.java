@@ -703,20 +703,23 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
         } catch (Throwable ignored) {}
 
 // --- latency profile selection ---
+        // NB: this must not touch prefConfig.framePacing. Forcing BALANCED sent every
+        // stream through the Choreographer path, which delivers vsync callbacks at 60 Hz
+        // on some devices and rendered 120 FPS streams at exactly 60. v20.2.6 only ever
+        // overrides framePacing in the CAP_FPS fallback below, and the user's choice is
+        // otherwise honoured.
         try {
             if (prefConfig != null && prefConfig.preferLowerDelays) {
                 // Intermediate: more responsive than Balanced but not 0 µs
                 decoderRenderer.setPreferLowerDelays(true);
                 decoderRenderer.setPreferLowerDelaysTimeoutUs(500);  // 0.5 ms
-                prefConfig.framePacing = PreferenceConfiguration.FRAME_PACING_BALANCED;
-                LimeLog.info("PreferLowerDelays: preferLowerDelays=true, timeout=500us, pacing=BALANCED");
+                LimeLog.info("PreferLowerDelays: preferLowerDelays=true, timeout=500us");
             } else {
-                // Balanced default
                 decoderRenderer.setPreferLowerDelays(false);
                 decoderRenderer.setPreferLowerDelaysTimeoutUs(2000); // 2 ms
-                prefConfig.framePacing = PreferenceConfiguration.FRAME_PACING_BALANCED;
-                LimeLog.info("Balanced: preferLowerDelays=false, timeout=2000us, pacing=BALANCED");
+                LimeLog.info("PreferLowerDelays: preferLowerDelays=false, timeout=2000us");
             }
+            LimeLog.info("Frame pacing: " + prefConfig.framePacing);
         } catch (Throwable ignored) {}
 
 // Don't stream HDR if the decoder can't support it
@@ -785,10 +788,6 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
                     LimeLog.info("Adjusting FPS target for screen to " + chosenFrameRate);
                 }
             }
-        }
-
-        if (prefConfig.framePacingWarpFactor > 0) {
-            chosenFrameRate *= prefConfig.framePacingWarpFactor;
         }
 
         StreamConfiguration config = new StreamConfiguration.Builder()
@@ -890,7 +889,8 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
                 decoderRenderer.setRenderTarget(streamContainer.getSurface());
 
                 // Starten Sie die NvConnection
-                conn.start(new AndroidAudioRenderer(Game.this, prefConfig.playHostAudio),
+                // The renderer flag turns on client-side audio effects, while playHostAudio asks the host to keep its own speakers on
+                conn.start(new AndroidAudioRenderer(Game.this, prefConfig.enableAudioFx),
                         decoderRenderer, Game.this);
             }
         });
@@ -905,51 +905,6 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
         overlayToggleButton = findViewById(R.id.overlayToggleZoomButton);
         setupOverlayToggleButton();
 
-        //fixed size + pacing without back-pressure on MTK
-        try {
-            View root = findViewById(android.R.id.content);
-            // Niente getIdentifier: troviamo la prima SurfaceView nel layout
-            SurfaceView streamSurfaceView = findFirstSurfaceViewFrom(root);
-
-            if (streamSurfaceView != null) {
-                // Avoid resizes/glitches that break the compositor
-                int vw = (prefConfig != null && prefConfig.width > 0) ? prefConfig.width : displayWidth;
-                int vh = (prefConfig != null && prefConfig.height > 0) ? prefConfig.height : displayHeight;
-                try { streamSurfaceView.getHolder().setFixedSize(vw, vh); } catch (Throwable ignored) {}
-                try { streamSurfaceView.setZOrderOnTop(false); } catch (Throwable ignored) {}
-                try { streamSurfaceView.setZOrderMediaOverlay(false); } catch (Throwable ignored) {}
-
-                // 2) setFrameRate via reflection (compat < 30)
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
-                    float displayHz = 60f;
-                    try {
-                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-                            displayHz = currentDisplay.getMode().getRefreshRate();
-                        } else {
-                            displayHz = currentDisplay.getRefreshRate();
-                        }
-                    } catch (Throwable ignored) {}
-
-                    float targetFps = (prefConfig != null && prefConfig.fps > 0) ? prefConfig.fps : displayHz;
-
-                    boolean isMTKDevice;
-                    try {
-                        String sum = (android.os.Build.MANUFACTURER + " " + android.os.Build.HARDWARE + " " + android.os.Build.BOARD)
-                                .toLowerCase(java.util.Locale.US);
-                        isMTKDevice = sum.contains("mtk") || sum.contains("mediatek");
-                    } catch (Throwable t) { isMTKDevice = false; }
-
-                    int compat = isMTKDevice
-                            ? Surface.FRAME_RATE_COMPATIBILITY_DEFAULT
-                            : Surface.FRAME_RATE_COMPATIBILITY_FIXED_SOURCE;
-
-                    try {
-                        java.lang.reflect.Method m = SurfaceView.class.getMethod("setFrameRate", float.class, int.class);
-                        m.invoke(streamSurfaceView, Math.min(targetFps, displayHz), compat);
-                    } catch (Throwable ignored) {}
-                }
-            }
-        } catch (Throwable ignored) {}
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -1385,6 +1340,19 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
                 parameterTypes[1] = boolean.class;
                 Method requestMetaKeyEventMethod = semWindowManager.getDeclaredMethod("requestMetaKeyEvent", parameterTypes);
                 requestMetaKeyEventMethod.invoke(manager, this.getComponentName(), enabled);
+
+                // The same class can also hand us system keys that Android would otherwise consume.
+                // Request the screenshot key found on Samsung keyboard covers (KEYCODE_SYSRQ), so it
+                // reaches the host as Print Screen instead of taking a screenshot of the tablet.
+                try {
+                    Method requestSystemKeyEventMethod = semWindowManager.getDeclaredMethod("requestSystemKeyEvent",
+                            int.class, ComponentName.class, boolean.class);
+                    requestSystemKeyEventMethod.invoke(manager, KeyEvent.KEYCODE_SYSRQ, this.getComponentName(), enabled);
+                } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException |
+                         RuntimeException e) {
+                    // Not available or not permitted on this device. The key keeps its local function.
+                    e.printStackTrace();
+                }
             }
             else {
                 LimeLog.warning("SemWindowManager.getInstance() returned null");
@@ -1525,7 +1493,11 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
                 // On non-4K streams, we force the resolution to never change unless it's above
                 // 60 FPS, which may require a resolution reduction due to HDMI bandwidth limitations,
                 // or it's a native resolution stream.
-                if (prefConfig.width < 3840 && prefConfig.fps <= 60 && !isNativeResolutionStream) {
+                // Also preserve the current resolution if it already exactly matches the stream.
+                if (prefConfig.fps <= 60 &&
+                        ((prefConfig.width < 3840 && !isNativeResolutionStream) ||
+                        (currentDisplay.getMode().getPhysicalWidth() == prefConfig.width &&
+                                currentDisplay.getMode().getPhysicalHeight() == prefConfig.height))) {
                     if (currentDisplay.getMode().getPhysicalWidth() != candidate.getPhysicalWidth() ||
                             currentDisplay.getMode().getPhysicalHeight() != candidate.getPhysicalHeight()) {
                         continue;
@@ -2082,6 +2054,18 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
         }
         if (event.isMetaPressed()) {
             modifier |= KeyboardPacket.MODIFIER_META;
+        }
+        return applyKeySpecificModifiers(event.getKeyCode(), modifier);
+    }
+
+    private byte getModifierState(int keyCode) {
+        return applyKeySpecificModifiers(keyCode, getModifierState());
+    }
+
+    private byte applyKeySpecificModifiers(int keyCode, byte modifier) {
+        if (keyCode == KeyEvent.KEYCODE_PLUS) {
+            // The host protocol has a single US =/+ virtual key, so Android's semantic plus key needs Shift.
+            modifier |= KeyboardPacket.MODIFIER_SHIFT;
         }
         return modifier;
     }
@@ -4111,10 +4095,10 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
             }
 
             if (buttonDown) {
-                conn.sendKeyboardInput(keyMap, KeyboardPacket.KEY_DOWN, getModifierState(), (byte)0);
+                conn.sendKeyboardInput(keyMap, KeyboardPacket.KEY_DOWN, getModifierState(keyCode), (byte)0);
             }
             else {
-                conn.sendKeyboardInput(keyMap, KeyboardPacket.KEY_UP, getModifierState(), (byte)0);
+                conn.sendKeyboardInput(keyMap, KeyboardPacket.KEY_UP, getModifierState(keyCode), (byte)0);
             }
         }
     }
@@ -4619,19 +4603,6 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
         if (commitTextQueue.size() == 1) {
             commitTextHandler.post(flushCommitTextQueue);
         }
-    }
-
-    /** Helper ricorsivo per trovare la prima SurfaceView nel layout corrente */
-    private SurfaceView findFirstSurfaceViewFrom(View v) {
-        if (v instanceof SurfaceView) return (SurfaceView) v;
-        if (v instanceof ViewGroup) {
-            ViewGroup g = (ViewGroup) v;
-            for (int i = 0; i < g.getChildCount(); i++) {
-                SurfaceView found = findFirstSurfaceViewFrom(g.getChildAt(i));
-                if (found != null) return found;
-            }
-        }
-        return null;
     }
 
 }
