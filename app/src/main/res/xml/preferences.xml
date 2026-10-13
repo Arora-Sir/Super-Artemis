@@ -787,6 +787,13 @@
         app:initialExpandedChildrenCount="3"
         app:iconSpaceReserved="false">
         <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="checkbox_release_keys_on_close"
+            android:summary="@string/summary_release_keys_on_close"
+            android:title="@string/title_release_keys_on_close"
+            app:iconSpaceReserved="false"
+            search:keywords="@string/keywords_release_keys" />
+        <CheckBoxPreference
             android:key="checkbox_enable_sticky_modifier_key_virtual_keyboard"
             android:title="@string/title_checkbox_enable_sticky_modifier_key_virtual_keyboard"
             android:summary="@string/summary_checkbox_enable_sticky_modifier_key_virtual_keyboard"

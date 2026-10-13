@@ -29,9 +29,11 @@ import com.limelight.Game;
 import com.limelight.R;
 import com.limelight.preferences.PreferenceConfiguration;
 
+import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class KeyBoardLayoutController {
@@ -82,6 +84,8 @@ public class KeyBoardLayoutController {
     private static final HashMap<Integer, Runnable> longClickRunnables = new HashMap<>();
 
     private final BitSet modifierKeyStates = new BitSet();
+    // Keys whose press already went to the PC and whose release has not, so hiding the keyboard can let go of them
+    private final Map<Integer, View> pressedKeys = new HashMap<>();
 
     public boolean isModifierKeyPressed(int keyCode) {
         return modifierKeyStates.get(keyCode);
@@ -204,6 +208,12 @@ public class KeyBoardLayoutController {
             KeyEvent keyEvent = new KeyEvent(keyAction, keyCode);
             keyEvent.setSource(0);
             sendKeyEvent(keyEvent);
+            if (keyAction == KeyEvent.ACTION_DOWN) {
+                pressedKeys.put(keyCode, v);
+            }
+            else {
+                pressedKeys.remove(keyCode);
+            }
 
             if (_isModifierKey) {
                 Runnable longClickRunnable = longClickRunnables.get(keyCode);
@@ -280,7 +290,23 @@ public class KeyBoardLayoutController {
         return keyboardView.getVisibility() == View.VISIBLE;
     }
 
+    // NOTE: Sends the release of every key still down, including Ctrl, Alt, Shift or Win latched with a long press, and clears their pressed look.
+    // NOTE: Without this a key held when the keyboard hides stays pressed on the PC with nothing on screen to show it.
+    private void releaseHeldKeys() {
+        for (Map.Entry<Integer, View> key : new ArrayList<>(pressedKeys.entrySet())) {
+            KeyEvent release = new KeyEvent(KeyEvent.ACTION_UP, key.getKey());
+            release.setSource(0);
+            sendKeyEvent(release);
+            key.getValue().setBackgroundResource(R.drawable.bg_ax_keyboard_button);
+        }
+        pressedKeys.clear();
+        modifierKeyStates.clear();
+    }
+
     public void hide(boolean temporary) {
+        if (prefConfig.releaseKeysOnClose) {
+            releaseHeldKeys();
+        }
         if (prefConfig.enableKeyboardVibrate) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 keyboardView.performHapticFeedback(HapticFeedbackConstants.REJECT);
