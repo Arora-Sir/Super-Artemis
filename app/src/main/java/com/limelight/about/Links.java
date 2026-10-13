@@ -3,6 +3,8 @@ package com.limelight.about;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.widget.Toast;
 
@@ -46,5 +48,36 @@ public final class Links {
         catch (ActivityNotFoundException e) {
             Toast.makeText(context, context.getString(R.string.about_no_app_for_link, url), Toast.LENGTH_LONG).show();
         }
+    }
+
+    // NOTE: Opens a GitHub page in the default browser, skipping the GitHub app that claims every github.com link.
+    // NOTE: The GitHub app cannot show the issue form chooser, so it opens its home screen and asks again which app to use.
+    // NOTE: A plain https link with no host resolves to the browser the user picked as default, which is the app this page needs.
+    public static void openInBrowser(Context context, String url) {
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        String browser = defaultBrowser(context);
+        if (browser != null) {
+            try {
+                context.startActivity(new Intent(intent).setPackage(browser));
+                return;
+            }
+            catch (ActivityNotFoundException e) {
+                // Fall back to the usual link handling below
+            }
+        }
+        open(context, url);
+    }
+
+    // The package of the default browser, or null when there is none or the system would ask which one to use
+    static String defaultBrowser(Context context) {
+        Intent probe = new Intent(Intent.ACTION_VIEW, Uri.parse("https://"));
+        probe.addCategory(Intent.CATEGORY_BROWSABLE);
+        ResolveInfo info = context.getPackageManager().resolveActivity(probe, PackageManager.MATCH_DEFAULT_ONLY);
+        if (info == null || info.activityInfo == null) {
+            return null;
+        }
+        String pkg = info.activityInfo.packageName;
+        // The system resolver means no default is set
+        return "android".equals(pkg) || pkg.contains("resolver") ? null : pkg;
     }
 }

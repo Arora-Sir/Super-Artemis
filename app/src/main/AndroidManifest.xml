@@ -53,6 +53,12 @@
             <action android:name="android.intent.action.VIEW" />
             <data android:scheme="upi" />
         </intent>
+        <!-- Lets the bug report link find the default browser, since the GitHub app cannot show the issue form chooser -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <data android:scheme="https" />
+        </intent>
     </queries>
 
     <application
