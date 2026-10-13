@@ -1130,4 +1130,50 @@
             android:title="@string/title_follow_update"
             app:iconSpaceReserved="false" />
     </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="category_about"
+        android:title="@string/category_about"
+        app:iconSpaceReserved="false">
+
+        <Preference
+            android:key="pref_about_support"
+            android:summary="@string/summary_support"
+            android:title="@string/title_support"
+            app:iconSpaceReserved="false" />
+        <Preference
+            android:key="pref_about_profiles"
+            android:summary="@string/summary_developer_profiles"
+            android:title="@string/title_developer_profiles"
+            app:iconSpaceReserved="false" />
+        <Preference
+            android:key="pref_about_credits"
+            android:summary="@string/summary_credits"
+            android:title="@string/title_credits"
+            app:iconSpaceReserved="false" />
+        <Preference
+            android:key="pref_about_star"
+            android:summary="@string/summary_star_github"
+            android:title="@string/title_star_github"
+            app:iconSpaceReserved="false" />
+        <Preference
+            android:key="pref_about_source"
+            android:summary="@string/summary_source_code"
+            android:title="@string/title_source_code"
+            app:iconSpaceReserved="false" />
+        <Preference
+            android:key="pref_about_issue"
+            android:summary="@string/summary_report_issue"
+            android:title="@string/title_report_issue"
+            app:iconSpaceReserved="false" />
+        <Preference
+            android:key="pref_about_privacy"
+            android:summary="@string/summary_privacy_policy"
+            android:title="@string/title_privacy_policy"
+            app:iconSpaceReserved="false" />
+        <Preference
+            android:key="pref_about_version"
+            android:title="@string/title_about_version"
+            app:iconSpaceReserved="false" />
+    </PreferenceCategory>
 </PreferenceScreen>

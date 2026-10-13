@@ -47,6 +47,14 @@
         android:name="android.hardware.type.pc"
         android:required="false"/>
 
+    <!-- Lets Support development find installed UPI apps on Android 11+ -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="upi" />
+        </intent>
+    </queries>
+
     <application
         android:name=".ArtemisApplication"
         android:allowBackup="true"

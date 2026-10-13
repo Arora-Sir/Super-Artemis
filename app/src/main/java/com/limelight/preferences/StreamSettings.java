@@ -59,6 +59,7 @@ import com.limelight.menu.QuickBarEditor;
 import com.limelight.LimeLog;
 import com.limelight.PcView;
 import com.limelight.R;
+import com.limelight.about.AboutSection;
 import com.limelight.backup.BackupRestoreController;
 import com.limelight.binding.audio.MicrophoneCaptureManager;
 import com.limelight.customkeys.CustomKeysManager;
@@ -401,6 +402,7 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
             setupBackgroundPolicy();
             setupAppStyle();
             hideUpstreamPerformanceSharing();
+            AboutSection.bind(this);
             PackageManager pm = activity.getPackageManager();
 
             // hide on-screen controls category on non touch screen devices

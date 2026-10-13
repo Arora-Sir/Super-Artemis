@@ -21,7 +21,8 @@ All notable changes to Super Artemis are listed here. The format follows [Keep a
 - "When you leave the stream" setting: Disconnect (default), Disconnect and resume when reopened (Recents or the app icon reconnects to the same app within 30 minutes, with no battery use while away), or Keep streaming in picture-in-picture (replaces the old PiP switch, which carries over). Picture-in-picture now also starts when quick switching to the previous app.
 - "Connect to the last PC on app start" setting (off by default).
 - Multi-finger gestures: choose what 3, 4 and 5-finger taps and double taps do (any action, a custom key, the Quick Menu, a middle mouse click, or Nothing so the tap reaches the PC). Defaults match Artemis, and the old five-finger switch carries over.
-- Credits for everyone whose code, design or request shaped the fork, in the README and release notes.
+- Settings > About: Support development (UPI app, UPI QR code, PayPal, a GitHub star), developer profiles, in-app credits with links to every person and source, source code, issue reporting, privacy policy and version.
+- Credits for everyone whose code, design or request shaped the fork, in the app, the README and the release notes.
 
 ### Changed
 
