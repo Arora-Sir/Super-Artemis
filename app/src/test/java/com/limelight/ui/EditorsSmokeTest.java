@@ -129,8 +129,20 @@ public class EditorsSmokeTest {
     }
 
     @Test
-    public void quickBarEditorOpensOnAGivenCorner() {
-        openInBothStyles((activity, prefs) -> QuickBarEditor.show(activity, prefs, () -> { }, com.limelight.menu.QuickBarLayout.POSITION_BOTTOM_RIGHT));
+    public void quickBarEditorOpensOnAGivenBarOfASet() {
+        openInBothStyles((activity, prefs) -> {
+            com.limelight.menu.BarSets.save(prefs, new com.limelight.menu.BarSets.State(java.util.Arrays.asList(
+                    new com.limelight.menu.BarSets.Set("Desktop", java.util.Arrays.asList(
+                            new com.limelight.menu.BarSets.Bar(com.limelight.menu.BarSets.TOP_LEFT, 1, 3, 0, 0, java.util.Arrays.asList("microphone", "zoom")),
+                            new com.limelight.menu.BarSets.Bar(com.limelight.menu.BarSets.BOTTOM_RIGHT, 3, 2, -40, 20, java.util.Arrays.asList("key:builtin_esc")))),
+                    new com.limelight.menu.BarSets.Set("Game", new java.util.ArrayList<>())), 0));
+            QuickBarEditor.show(activity, prefs, () -> { }, 1);
+            android.view.View controls = ShadowDialog.getLatestDialog().findViewById(R.id.quick_bar_bar_controls);
+            org.junit.Assert.assertEquals(android.view.View.VISIBLE, controls.getVisibility());
+            com.limelight.ui.FlowRow chips = ShadowDialog.getLatestDialog().findViewById(R.id.quick_bar_bars);
+            // Two bars and the Add bar chip
+            org.junit.Assert.assertEquals(3, chips.getChildCount());
+        });
     }
 
     @Test

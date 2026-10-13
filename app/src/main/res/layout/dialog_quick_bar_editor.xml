@@ -1,107 +1,187 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Quick-action bar editor: a screen preview with four corners to pick from, the direction of the picked corner, then its items -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/quick_bar_panes"
+<!-- Quick-action bar editor: the set, a screen preview of its bars, the selected bar's anchor, grid and offset, then its items -->
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:paddingLeft="24dp"
-    android:paddingRight="24dp">
+    android:layout_height="wrap_content">
 
     <LinearLayout
-        android:id="@+id/quick_bar_controls"
+        android:id="@+id/quick_bar_panes"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <FrameLayout
-            android:id="@+id/quick_bar_preview"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/sa_quick_bar_preview_height"
-            android:background="@drawable/bg_preview_screen"
-            android:padding="8dp">
-
-            <LinearLayout
-                android:id="@+id/quick_bar_slot_top_left"
-                style="@style/SuperArtemis.CornerSlot"
-                android:layout_gravity="top|start" />
-
-            <LinearLayout
-                android:id="@+id/quick_bar_slot_top_right"
-                style="@style/SuperArtemis.CornerSlot"
-                android:layout_gravity="top|end" />
-
-            <LinearLayout
-                android:id="@+id/quick_bar_slot_bottom_left"
-                style="@style/SuperArtemis.CornerSlot"
-                android:layout_gravity="bottom|start" />
-
-            <LinearLayout
-                android:id="@+id/quick_bar_slot_bottom_right"
-                style="@style/SuperArtemis.CornerSlot"
-                android:layout_gravity="bottom|end" />
-
-            <TextView
-                android:id="@+id/quick_bar_preview_label"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:paddingLeft="56dp"
-                android:paddingRight="56dp"
-                android:textAppearance="@style/TextAppearance.SuperArtemis.BodySmall" />
-        </FrameLayout>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="@string/quick_bar_direction"
-            android:textAppearance="@style/TextAppearance.SuperArtemis.SectionLabel" />
+        android:orientation="vertical"
+        android:paddingLeft="24dp"
+        android:paddingRight="24dp">
 
         <LinearLayout
+            android:id="@+id/quick_bar_controls"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:orientation="horizontal">
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="12dp"
+                    android:text="@string/quick_bar_set_label"
+                    android:textAppearance="@style/TextAppearance.SuperArtemis.SectionLabel" />
+
+                <TextView
+                    android:id="@+id/quick_bar_set"
+                    style="@style/SuperArtemis.Segment"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:singleLine="true" />
+
+                <ImageButton
+                    android:id="@+id/quick_bar_set_menu"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_marginLeft="4dp"
+                    android:background="@drawable/bg_button_text"
+                    android:contentDescription="@string/quick_bar_set_options"
+                    android:src="@drawable/ic_sa_more_horiz"
+                    android:tint="?attr/saOnSurfaceVariant" />
+            </LinearLayout>
+
+            <FrameLayout
+                android:id="@+id/quick_bar_preview"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/sa_quick_bar_preview_height"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_preview_screen"
+                android:padding="4dp" />
+
+            <com.limelight.ui.FlowRow
+                android:id="@+id/quick_bar_bars"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp" />
+
+            <LinearLayout
+                android:id="@+id/quick_bar_bar_controls"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="@string/quick_bar_anchor"
+                    android:textAppearance="@style/TextAppearance.SuperArtemis.SectionLabel" />
+
+                <LinearLayout
+                    android:id="@+id/quick_bar_anchor"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:orientation="vertical" />
+
+                <TextView
+                    android:id="@+id/quick_bar_rows_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:textAppearance="@style/TextAppearance.SuperArtemis.BodyMedium" />
+
+                <SeekBar
+                    android:id="@+id/quick_bar_rows"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:max="19" />
+
+                <TextView
+                    android:id="@+id/quick_bar_columns_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.SuperArtemis.BodyMedium" />
+
+                <SeekBar
+                    android:id="@+id/quick_bar_columns"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:max="19" />
+
+                <TextView
+                    android:id="@+id/quick_bar_offset_x_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.SuperArtemis.BodyMedium" />
+
+                <SeekBar
+                    android:id="@+id/quick_bar_offset_x"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:max="200" />
+
+                <TextView
+                    android:id="@+id/quick_bar_offset_y_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.SuperArtemis.BodyMedium" />
+
+                <SeekBar
+                    android:id="@+id/quick_bar_offset_y"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:max="200" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="end"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/quick_bar_reset_offset"
+                        style="@style/Widget.SuperArtemis.Button.Text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/quick_bar_reset_offset" />
+
+                    <Button
+                        android:id="@+id/quick_bar_remove_bar"
+                        style="@style/Widget.SuperArtemis.Button.Text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:text="@string/quick_bar_remove_bar" />
+                </LinearLayout>
+            </LinearLayout>
 
             <TextView
-                android:id="@+id/quick_bar_direction_row"
-                style="@style/SuperArtemis.Segment"
-                android:layout_marginRight="8dp"
-                android:text="@string/quick_bar_direction_row" />
-
-            <TextView
-                android:id="@+id/quick_bar_direction_column"
-                style="@style/SuperArtemis.Segment"
-                android:text="@string/quick_bar_direction_column" />
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/quick_bar_editor_hint"
+                android:textAppearance="@style/TextAppearance.SuperArtemis.BodySmall" />
         </LinearLayout>
 
-        <TextView
+        <LinearLayout
+            android:id="@+id/quick_bar_items_pane"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="@string/quick_bar_editor_hint"
-            android:textAppearance="@style/TextAppearance.SuperArtemis.BodySmall" />
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/quick_bar_items_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:textAppearance="@style/TextAppearance.SuperArtemis.SectionLabel" />
+
+            <FrameLayout
+                android:id="@+id/quick_bar_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp" />
+        </LinearLayout>
     </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/quick_bar_items_pane"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/quick_bar_items_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:textAppearance="@style/TextAppearance.SuperArtemis.SectionLabel" />
-
-        <FrameLayout
-            android:id="@+id/quick_bar_list"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp" />
-    </LinearLayout>
-</LinearLayout>
+</androidx.core.widget.NestedScrollView>

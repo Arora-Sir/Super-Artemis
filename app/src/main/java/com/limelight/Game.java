@@ -4552,8 +4552,8 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
             }
 
             @Override
-            public void showBarMenu(String corner, String buttonLabel) {
-                menu.showQuickBarMenu(corner, buttonLabel);
+            public void showBarMenu(int barIndex, String buttonLabel) {
+                menu.showQuickBarMenu(barIndex, buttonLabel);
             }
         });
     }

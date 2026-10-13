@@ -28,6 +28,7 @@ import com.limelight.menu.GameMenuLayout;
 import com.limelight.menu.GameMenuRenderer;
 import com.limelight.menu.MenuEntry;
 import com.limelight.menu.MenuSections;
+import com.limelight.menu.BarSets;
 import com.limelight.menu.QuickBarEditor;
 import com.limelight.menu.QuickBarLayout;
 import com.limelight.theme.ThemeManager;
@@ -287,45 +288,76 @@ public class GameMenu implements Game.GameMenuCallbacks {
                 .build());
     }
 
-    // NOTE: Opened by a long press on a quick-action bar button. Every entry works on that button's corner.
+    // NOTE: Opened by a long press on a quick-action bar button. Every entry works on that button's bar in the active set.
     // NOTE: A key recorded or pinned here goes straight onto this bar and into Send special keys, so it is ready in both places.
-    public void showQuickBarMenu(String corner, String buttonLabel) {
-        String cornerName = getString(QuickBarEditor.cornerNameFor(corner));
+    public void showQuickBarMenu(int barIndex, String buttonLabel) {
+        List<BarSets.Bar> bars = BarSets.load(prefs()).activeSet().bars;
+        if (barIndex < 0 || barIndex >= bars.size()) {
+            return;
+        }
+        String barName = getString(QuickBarEditor.anchorNameFor(bars.get(barIndex).anchor));
         List<MenuEntry> entries = new ArrayList<>();
         entries.add(new MenuEntry(getString(R.string.quick_bar_menu_add_key), R.drawable.ic_gm_add, false, false,
-                () -> KeyPicker.createKey(themedContext(), key -> pinToBar(corner, QuickBarLayout.customKeyItem(key.id)))));
+                () -> KeyPicker.createKey(themedContext(), key -> pinToBar(barIndex, QuickBarLayout.customKeyItem(key.id)))));
         entries.add(new MenuEntry(getString(R.string.quick_bar_menu_pin_key), R.drawable.ic_gm_send_keys, false, false,
-                () -> showPinKeyMenu(corner)));
+                () -> showPinKeyMenu(barIndex)));
         entries.add(new MenuEntry(getString(R.string.quick_bar_menu_edit_bar), R.drawable.ic_gm_toggle_floating_button, false, false,
-                () -> QuickBarEditor.show(themedContext(), prefs(), game::reloadQuickActionBar, corner)));
+                () -> QuickBarEditor.show(themedContext(), prefs(), game::reloadQuickActionBar, barIndex)));
         entries.add(new MenuEntry(getString(R.string.game_menu_manage_custom_keys), R.drawable.ic_gm_edit, false, false,
                 () -> SpecialKeysManager.show(themedContext(), game::reloadQuickActionBar)));
         entries.add(cancelEntry());
-        showMenuDialog(game.getString(R.string.quick_bar_menu_title, buttonLabel, cornerName), entries);
+        showMenuDialog(game.getString(R.string.quick_bar_menu_title, buttonLabel, barName), entries);
     }
 
     // Special keys not on this bar yet, each one tap away from being pinned
-    private void showPinKeyMenu(String corner) {
-        List<String> items = QuickBarLayout.getItems(prefs(), corner);
+    private void showPinKeyMenu(int barIndex) {
+        List<BarSets.Bar> bars = BarSets.load(prefs()).activeSet().bars;
+        if (barIndex < 0 || barIndex >= bars.size()) {
+            return;
+        }
+        List<String> items = bars.get(barIndex).items;
         List<MenuEntry> entries = new ArrayList<>();
         for (CustomKey key : SpecialKeys.visible(game)) {
             String item = QuickBarLayout.customKeyItem(key.id);
             if (!items.contains(item)) {
                 entries.add(new MenuOption(key.name, key.icon != null ? IconCatalog.drawableFor(key.icon) : 0, false,
-                        () -> pinToBar(corner, item)));
+                        () -> pinToBar(barIndex, item)));
             }
         }
         entries.add(cancelEntry());
         showMenuDialog(getString(R.string.quick_bar_menu_pin_key), entries);
     }
 
-    private void pinToBar(String corner, String item) {
-        List<String> items = new ArrayList<>(QuickBarLayout.getItems(prefs(), corner));
-        if (!items.contains(item)) {
-            items.add(item);
-            QuickBarLayout.setItems(prefs(), corner, items);
+    private void pinToBar(int barIndex, String item) {
+        BarSets.State state = BarSets.load(prefs());
+        List<BarSets.Bar> bars = state.activeSet().bars;
+        if (barIndex >= 0 && barIndex < bars.size()) {
+            bars.get(barIndex).add(item);
+            BarSets.save(prefs(), state);
         }
         game.reloadQuickActionBar();
+    }
+
+    // Only offered when there is more than one set, so the Quick Menu stays short for everyone else
+    private MenuEntry switchBarSetEntry() {
+        BarSets.State state = BarSets.load(prefs());
+        if (state.sets.size() < 2) {
+            return null;
+        }
+        return new MenuEntry(getString(R.string.quick_bar_switch_set), R.drawable.ic_sa_dashboard_customize, false, false, () -> {
+            List<MenuEntry> entries = new ArrayList<>();
+            for (int i = 0; i < state.sets.size(); i++) {
+                int index = i;
+                String name = state.sets.get(i).name;
+                entries.add(new MenuOption(i == state.active ? game.getString(R.string.quick_bar_set_active, name) : name,
+                        R.drawable.ic_gm_toggle_floating_button, false, () -> {
+                    BarSets.setActive(prefs(), index);
+                    game.reloadQuickActionBar();
+                }));
+            }
+            entries.add(cancelEntry());
+            showMenuDialog(getString(R.string.quick_bar_switch_set), entries);
+        });
     }
 
     private MenuEntry quickBarEditorEntry() {
@@ -387,8 +419,12 @@ public class GameMenu implements Game.GameMenuCallbacks {
                 () -> showAdvancedMenu(device)));
         navigation.add(new MenuEntry(getString(R.string.game_menu_customize), R.drawable.ic_gm_customize_menu, false, false,
                 () -> showMenuEditor(device)));
-        // The corner bars are edited from here too, so changing them never needs the Advanced Menu or Settings
+        // The bars are edited and switched from here too, so changing them never needs the Advanced Menu or Settings
         navigation.add(quickBarEditorEntry());
+        MenuEntry switchSet = switchBarSetEntry();
+        if (switchSet != null) {
+            navigation.add(switchSet);
+        }
         navigation.add(cancelEntry());
 
         showMenuDialog(getString(R.string.quick_menu_title), new MenuSections(game.getResources())

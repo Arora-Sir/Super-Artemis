@@ -20,7 +20,7 @@ Artemis already improves a lot on Moonlight. These are the things you lose if yo
 | Microphone streaming to the PC, off until you unmute it | No | No | Yes |
 | Microphone state at stream start (off, on or last state, per PC) | No | No | Yes |
 | Quick Menu you reorder, in list, grid or compact style with a live preview | No | Fixed menu | Yes |
-| Quick-action bars in any screen corner, as a row or a column | No | No | Yes |
+| Quick-action bars anywhere on screen, as grids, in switchable sets | No | No | Yes |
 | Special keys you hide, reorder and give icons | No | No | Yes |
 | Record your own key shortcuts on the built-in keyboard, with 75 icons | No | JSON file only | Yes |
 | Choose what 3, 4 and 5-finger taps, double taps, holds and swipes do | No | Fixed taps | Yes |
@@ -57,7 +57,7 @@ Everything else from Artemis stays: custom virtual buttons, custom resolutions a
 | :--- | :--- |
 | Quick Menu editor | Choose the actions and special keys, drag to reorder, hide actions you never use from the Advanced Menu, and pick list, grid or compact with a live preview. |
 | Sections | Actions and session controls are separate, and Disconnect and Quit sit in their own red section. |
-| Quick-action bars | Small bars in any corner, each with its own items, as a row or a column. Toggles show when they are on and the bars fade when idle. Edit them from the Quick Menu during a stream. |
+| Quick-action bars | Any number of bars, each at one of nine positions with a nudge, as a grid of 1 to 20 rows and columns. Bars live in named sets (game, desktop and so on) that you switch from the Quick Menu. Toggles show when they are on and the bars fade when idle. Edit them from the Quick Menu during a stream. |
 | Floating menu button | Opens the Quick Menu even with the Back menu turned off. |
 
 ### Keys and keyboard

@@ -25,8 +25,9 @@ import com.limelight.customkeys.SpecialKeys;
 import java.util.ArrayList;
 import java.util.List;
 
-// NOTE: Small round buttons over the stream for the actions and keys the user pinned, one bar per screen corner, as a row or a column.
-// NOTE: Each bar starts in its corner, fades after a few idle seconds so it does not cover the game, and only exists while connected and outside picture-in-picture.
+// NOTE: Small round buttons over the stream for the pinned actions and keys, drawn from the bars of the active set in BarSets.
+// NOTE: Each bar is a grid at one of nine anchors, nudged by its offset, and fills from the anchor's corner (see BarSets.grid).
+// NOTE: Bars fade after a few idle seconds so they do not cover the game, and only exist while connected and outside picture-in-picture.
 public final class QuickActionBar {
     public interface Host {
         StreamActionHost actionHost();
@@ -36,11 +37,11 @@ public final class QuickActionBar {
         // Runs a special key, a single shortcut or a key with several steps
         void runKey(CustomKey key);
 
-        // The top left bar starts beside or below the menu button when that button is shown
+        // A top left bar starts beside or below the menu button when that button is shown
         boolean isFloatingMenuButtonVisible();
 
-        // Long press on a button: a menu to add keys to this corner or edit its bar, titled with the button's name
-        void showBarMenu(String corner, String buttonLabel);
+        // Long press on a button: a menu to add keys to this bar or edit it, titled with the button's name. The index points into the active set.
+        void showBarMenu(int barIndex, String buttonLabel);
     }
 
     private static final long FADE_DELAY_MS = 3000;
@@ -104,8 +105,9 @@ public final class QuickActionBar {
         }
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        for (String corner : QuickBarLayout.POSITIONS) {
-            LinearLayout bar = buildBar(corner, QuickBarLayout.getItems(prefs, corner), QuickBarLayout.getDirection(prefs, corner));
+        List<BarSets.Bar> specs = BarSets.load(prefs).activeSet().bars;
+        for (int i = 0; i < specs.size(); i++) {
+            LinearLayout bar = buildBar(i, specs.get(i));
             if (bar != null) {
                 bar.setVisibility(hidden ? View.GONE : View.VISIBLE);
                 bars.add(bar);
@@ -115,48 +117,82 @@ public final class QuickActionBar {
         wake();
     }
 
-    private LinearLayout buildBar(String corner, List<String> items, String direction) {
+    private LinearLayout buildBar(int index, BarSets.Bar spec) {
         float density = context.getResources().getDisplayMetrics().density;
-        boolean column = QuickBarLayout.DIRECTION_COLUMN.equals(direction);
-        LinearLayout bar = new LinearLayout(context);
-        bar.setOrientation(column ? LinearLayout.VERTICAL : LinearLayout.HORIZONTAL);
-        // Gaps between buttons swallow taps too, so a near miss never reaches the stream
-        bar.setClickable(true);
-        bar.setElevation(9999 * density);
-
+        // Items whose action or key is gone are skipped before the grid is laid out, so the grid has no holes
+        List<String> items = new ArrayList<>();
         List<ImageButton> buttons = new ArrayList<>();
-        for (String item : items) {
+        for (String item : spec.items) {
             ImageButton button = buttonFor(item);
             if (button != null) {
+                items.add(item);
                 buttons.add(button);
             }
         }
         if (buttons.isEmpty()) {
             return null;
         }
-        // The first item always sits in the corner, so bars on the right or bottom are filled from the far end
-        boolean reverse = column ? !QuickBarLayout.isTop(corner) : !QuickBarLayout.isLeft(corner);
+        LinearLayout bar = new LinearLayout(context);
+        bar.setOrientation(LinearLayout.VERTICAL);
+        bar.setGravity(spec.isRight() ? Gravity.END : spec.isLeft() ? Gravity.START : Gravity.CENTER_HORIZONTAL);
+        // Gaps between buttons swallow taps too, so a near miss never reaches the stream
+        bar.setClickable(true);
+        bar.setElevation(9999 * density);
+
         int size = (int) (BUTTON_DP * density);
         int gap = (int) (GAP_DP * density);
-        for (int i = 0; i < buttons.size(); i++) {
-            ImageButton button = buttons.get(reverse ? buttons.size() - 1 - i : i);
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(size, size);
-            if (i > 0) {
-                if (column) {
-                    params.topMargin = gap;
-                }
-                else {
+        List<List<String>> grid = BarSets.grid(spec, items);
+        for (int r = 0; r < grid.size(); r++) {
+            LinearLayout row = new LinearLayout(context);
+            row.setOrientation(LinearLayout.HORIZONTAL);
+            List<String> cells = grid.get(r);
+            for (int c = 0; c < cells.size(); c++) {
+                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(size, size);
+                if (c > 0) {
                     params.leftMargin = gap;
                 }
+                String item = cells.get(c);
+                if (item == null) {
+                    // An empty cell keeps the columns of a partly filled row lined up with the full rows
+                    row.addView(new View(context), params);
+                    continue;
+                }
+                ImageButton button = buttons.get(items.indexOf(item));
+                button.setOnLongClickListener(v -> {
+                    host.showBarMenu(index, String.valueOf(v.getContentDescription()));
+                    return true;
+                });
+                row.addView(button, params);
             }
-            button.setOnLongClickListener(v -> {
-                host.showBarMenu(corner, String.valueOf(v.getContentDescription()));
-                return true;
-            });
-            bar.addView(button, params);
+            LinearLayout.LayoutParams rowParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            if (r > 0) {
+                rowParams.topMargin = gap;
+            }
+            bar.addView(row, rowParams);
         }
-        parent.addView(bar, layoutParams(corner, column, density));
+        parent.addView(bar, layoutParams(spec, density));
+        placeInside(bar, spec.offsetXDp * density, spec.offsetYDp * density);
         return bar;
+    }
+
+    // NOTE: Applies the offset once the bar is measured and clamps it so the whole bar stays on screen.
+    // NOTE: An offset saved on a wide tablet can point past the edge of a phone screen, and a bar off screen could never be long pressed to fix it.
+    public static void placeInside(View bar, float offsetX, float offsetY) {
+        bar.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+            @Override
+            public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                View parent = (View) v.getParent();
+                if (parent == null) {
+                    return;
+                }
+                int minX = parent.getPaddingLeft() - left;
+                int maxX = parent.getWidth() - parent.getPaddingRight() - right;
+                int minY = parent.getPaddingTop() - top;
+                int maxY = parent.getHeight() - parent.getPaddingBottom() - bottom;
+                v.setTranslationX(Math.max(minX, Math.min(maxX, offsetX)));
+                v.setTranslationY(Math.max(minY, Math.min(maxY, offsetY)));
+            }
+        });
     }
 
     public void refreshSoon() {
@@ -211,34 +247,38 @@ public final class QuickActionBar {
         return button;
     }
 
-    private FrameLayout.LayoutParams layoutParams(String corner, boolean column, float density) {
+    private FrameLayout.LayoutParams layoutParams(BarSets.Bar spec, float density) {
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
         int gap = (int) (GAP_DP * density);
         int edge = (int) (EDGE_DP * density);
-        boolean top = QuickBarLayout.isTop(corner);
-        boolean left = QuickBarLayout.isLeft(corner);
-        params.gravity = (top ? Gravity.TOP : Gravity.BOTTOM) | (left ? Gravity.START : Gravity.END);
-        int vertical = edge;
-        int horizontal = gap;
-        // The menu button owns the top left corner, so that bar starts right of it as a row or under it as a column
-        if (QuickBarLayout.POSITION_TOP_LEFT.equals(corner) && host.isFloatingMenuButtonVisible()) {
+        int vertical = spec.isTop() ? Gravity.TOP : spec.isBottom() ? Gravity.BOTTOM : Gravity.CENTER_VERTICAL;
+        int horizontal = spec.isLeft() ? Gravity.START : spec.isRight() ? Gravity.END : Gravity.CENTER_HORIZONTAL;
+        params.gravity = vertical | horizontal;
+        int edgeMargin = edge;
+        int sideMargin = gap;
+        // The menu button owns the top left corner, so a wide bar there starts right of it and a tall one starts under it
+        if (BarSets.TOP_LEFT.equals(spec.anchor) && host.isFloatingMenuButtonVisible()) {
             int step = (int) ((BUTTON_DP + GAP_DP) * density);
-            if (column) {
-                vertical += step;
-                horizontal = 0;
+            if (spec.rows > spec.columns) {
+                edgeMargin += step;
+                sideMargin = 0;
             }
             else {
-                horizontal = step;
+                sideMargin = step;
             }
         }
-        if (top) {
-            params.topMargin = vertical;
+        if (spec.isTop()) {
+            params.topMargin = edgeMargin;
         }
-        else {
-            params.bottomMargin = vertical;
+        else if (spec.isBottom()) {
+            params.bottomMargin = edgeMargin;
         }
-        params.setMarginStart(left ? horizontal : 0);
-        params.setMarginEnd(left ? 0 : horizontal);
+        if (spec.isLeft()) {
+            params.setMarginStart(sideMargin);
+        }
+        else if (spec.isRight()) {
+            params.setMarginEnd(sideMargin);
+        }
         return params;
     }
 

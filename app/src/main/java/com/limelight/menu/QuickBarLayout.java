@@ -15,8 +15,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-// NOTE: Stores the on-screen quick-action bars: each screen corner has its own items, in order, and its own direction (a row or a column).
+// NOTE: The item format of every quick-action bar, and the four corner bars of earlier versions.
 // NOTE: Items are stream action IDs or "key:<special key ID>". Session actions are never allowed, so one stray tap cannot end a stream.
+// NOTE: Bars now live in BarSets. The corner keys here are only read once, when BarSets turns them into the Default set, and stay for older versions.
 public final class QuickBarLayout {
     public static final String POSITION_TOP_LEFT = "top_left";
     public static final String POSITION_TOP_RIGHT = "top_right";
