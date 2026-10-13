@@ -41,7 +41,14 @@ done
 
 # 3. Keep the README credits table in sync with credits.json.
 if echo "$STAGED_FILES" | grep -qE '^(README\.md|app/src/main/res/raw/credits\.json)$'; then
-    PYTHON=$(command -v python3 || command -v python)
+    # On Windows, python3 can be the Microsoft Store stub that only prints an install hint, so take the first interpreter that runs
+    PYTHON=""
+    for candidate in python3 python py; do
+        if command -v "$candidate" >/dev/null 2>&1 && "$candidate" -c "import sys" >/dev/null 2>&1; then
+            PYTHON="$candidate"
+            break
+        fi
+    done
     if [ -n "$PYTHON" ] && ! "$PYTHON" scripts/render_credits.py --check >/dev/null 2>&1; then
         echo "BLOCKED: README credits are stale. Run: python scripts/render_credits.py --write" >&2
         FAILED=1
