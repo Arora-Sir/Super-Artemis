@@ -1347,7 +1347,8 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
         }
 
         private void setupGestures() {
-            Preference gestures = findPreference("pref_gestures");
+            // The row opens the editor, the switch after its divider turns every multi-finger gesture on or off
+            Preference gestures = findPreference(GestureEditor.ENABLED_PREF);
             if (gestures != null) {
                 gestures.setOnPreferenceClickListener(preference -> {
                     com.limelight.ui.SafeRun.run(requireContext(), preference.getKey(), () -> GestureEditor.show(ThemeManager.dialogContext(requireContext()), PreferenceManager.getDefaultSharedPreferences(requireContext())));

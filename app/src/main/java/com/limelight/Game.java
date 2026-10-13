@@ -3199,8 +3199,8 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
                     return handleTouchInput(event, trackpadContextMap, false);
                 } else {
                     // Multi-finger gestures come first, so they work in every touch mode, including pan and zoom and on-screen control editing
-                    if (!cancellingGestureTouch && gestureDispatcher != null
-                            && (prefConfig.enableMultiTouchGestures || !prefConfig.enableMultiTouchScreen)) {
+                    // One switch on the Settings row turns them all off, which hands every touch to the touch mode
+                    if (!cancellingGestureTouch && gestureDispatcher != null && prefConfig.enableMultiTouchGestures) {
                         gestureTouchView = view;
                         if (gestureDispatcher.onTouchEvent(event)) {
                             return true;

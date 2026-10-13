@@ -59,7 +59,7 @@ The first Super Artemis release, not published yet. The date is set when the `v1
 - Settings sections are regrouped and renamed: In-stream controls, Starting and leaving a stream, Appearance, Built-in keyboard and Virtual keys on screen are new, and rarely used items moved to More. Tablets show a section list beside the settings.
 - Duplicate settings are gone: the menu style lives in the menu editor, "Disable default special keys" became per-key hiding (the old switch carries over), and the overlay zoom button became a Pan/Zoom pin on the top right quick-action bar (also carried over).
 - The Support dialog has no GitHub button any more, since About has one "Source code on GitHub" entry.
-- "Enable multi-touch gestures" moved from Mouse and touch into the Multi-finger gestures dialog as "Gestures in multi-touch mode", next to the gestures it switches on. The saved choice carries over.
+- "Enable multi-touch gestures" became one switch on the Multi-finger gestures row in Settings, after a divider: the row opens the gesture editor and the switch turns every multi-finger gesture on or off in every touch mode, multi-touch included. It is on by default. With it off, every touch reaches the touch mode as it would without Super Artemis.
 - SETUP.md shows how Apollo's Do and Undo commands make Steam Streaming Microphone the default PC microphone only while a stream runs.
 
 ### Fixed

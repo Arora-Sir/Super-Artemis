@@ -1025,7 +1025,7 @@ private static int getFramePacingValue(Context context) {
 
         config.enableMouseLocalCursor=prefs.getBoolean("checkbox_mouse_local_cursor",false);
 
-        config.enableMultiTouchGestures = prefs.getBoolean("checkbox_multi_touch_gestures", false);
+        config.enableMultiTouchGestures = prefs.getBoolean(com.limelight.gestures.GestureEditor.ENABLED_PREF, true);
 
 
         config.enablePerfOverlayLiteDialog=prefs.getBoolean("checkbox_enable_perf_overlay_lite_dialog",false);

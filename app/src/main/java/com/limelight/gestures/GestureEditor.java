@@ -45,7 +45,8 @@ public final class GestureEditor {
     }
 
     // Upstream setting key, kept so the saved choice carries over
-    static final String MULTI_TOUCH_PREF = "checkbox_multi_touch_gestures";
+    // Master switch for every multi-finger gesture in every touch mode, shown on the Settings row
+    public static final String ENABLED_PREF = "checkbox_gestures_enabled";
     // Wide enough for two columns of gesture rows
     private static final int TWO_COLUMN_MIN_WIDTH_DP = 720;
 
@@ -139,16 +140,6 @@ public final class GestureEditor {
         LinearLayout swipes = column(dialogContext, twoColumns);
         columns.addView(taps);
         columns.addView(swipes);
-
-        // The old "Enable multi-touch gestures" setting lives here now, next to the gestures it switches on
-        View multiTouch = LayoutInflater.from(dialogContext).inflate(R.layout.gesture_switch_row, taps, false);
-        CompoundButton multiTouchSwitch = multiTouch.findViewById(R.id.gesture_multitouch_switch);
-        multiTouchSwitch.setChecked(prefs.getBoolean(MULTI_TOUCH_PREF, false));
-        multiTouch.setOnClickListener(v -> {
-            multiTouchSwitch.toggle();
-            prefs.edit().putBoolean(MULTI_TOUCH_PREF, multiTouchSwitch.isChecked()).apply();
-        });
-        taps.addView(multiTouch);
 
         addSection(taps, R.string.gesture_section_taps);
         for (GestureBindingStore.Slot slot : GestureBindingStore.SLOTS) {

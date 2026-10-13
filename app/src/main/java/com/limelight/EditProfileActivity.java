@@ -325,7 +325,7 @@ public class EditProfileActivity extends AppCompatActivity {
             if (_pref != null) {
                 _pref.setVisible(false);
             }
-            _pref = findPreference("pref_gestures");
+            _pref = findPreference(com.limelight.gestures.GestureEditor.ENABLED_PREF);
             if (_pref != null) {
                 _pref.setVisible(false);
             }

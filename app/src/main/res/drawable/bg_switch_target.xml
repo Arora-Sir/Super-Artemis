@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Switch side of a two-target settings row on Android 5, where layer-list items cannot be sized, so only the ripple shows. drawable-v23 adds the divider. -->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="?android:attr/colorControlHighlight" />
