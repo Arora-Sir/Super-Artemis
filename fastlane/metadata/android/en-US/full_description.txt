@@ -1,37 +1,25 @@
-This app streams games, programs, or your full desktop from your PC or <a href="https://github.com/LizardByte/Sunshine">Sunshine</a> on your local network or the Internet. Mouse, keyboard, and controller input is sent from your Android device to the PC.
+Super Artemis streams games, apps or your whole desktop from a PC running <a href="https://github.com/ClassicOldSong/Apollo">Apollo</a> (or Sunshine) to your Android phone or tablet. It builds on <a href="https://github.com/ClassicOldSong/moonlight-android">Artemis</a> and Moonlight and adds the features people kept asking for, in one app.
 
-Streaming performance may vary based on your client device and network setup. HDR requires an HDR10-capable device, a GPU that can encode HEVC Main 10, and an HDR10-enabled game.
+<b>Why Super Artemis</b>
+* Microphone streaming to Apollo, off by default so no battery or privacy indicator is used until you unmute it from the menu
+* A Quick Menu you arrange yourself: pick and reorder actions, choose list, grid or compact, with Disconnect and Quit kept in their own red section
+* A quick-action bar with your favourite actions and keys as small buttons in any screen corner
+* Custom keys recorded on the built-in keyboard, with names and icons, no JSON files
+* Configurable 3, 4 and 5-finger taps and double taps
+* Leave a stream your way: disconnect, resume when you come back, or keep it in picture-in-picture
+* Backup and restore of every setting, with a preview that keeps the PCs already on your device
+* Settings search and an optional Material You style on Android 12 and later
 
-'''Features'''
-* Open-source and completely free (no ads, IAPs, or "Pro")
-* Streams games purchased from any store
-* Works on your home network or over the Internet/LTE
-* Up to 4K 120 FPS HDR streaming with 7.1 surround sound
-* H.264, HEVC, and AV1 codec support (AV1 requires Sunshine and a supported host GPU)
-* Keyboard and mouse support (best with Android 8.0 or later)
-* Stylus/S-Pen support
-* Supports PS3/4/5, Xbox 360/One/Series, and Android gamepads
-* Local co-op with up to 16 connected controllers (max of 4 controllers with GFE)
-* Force feedback and gamepad motion sensor support
-* Mouse control via gamepad by long-pressing Start
+<b>Also included</b>
+* Up to 4K 120 FPS HDR with H.264, HEVC and AV1
+* Keyboard, mouse, touch, stylus (S Pen) and controller input
+* Network drop grace period so short Wi-Fi drops do not end the session
+* Open source (GPLv3), no ads and no tracking
 
-'''Quick Setup Host Instructions for GeForce Experience (NVIDIA-only)'''
-# Make sure GeForce Experience is open on your PC. Turn on GameStream in the SHIELD settings page.
-# Tap on the PC in Moonlight and type the PIN on your PC
-# Start streaming!
+<b>Quick setup</b>
+# Install Apollo on your PC from https://github.com/ClassicOldSong/Apollo/releases
+# Open the Apollo Web UI on your PC and finish its first-time setup
+# Tap your PC in Super Artemis and enter the PIN in the Apollo Web UI
+# Start streaming
 
-'''Quick Setup Host Instructions for Sunshine (all GPUs)'''
-# Install Sunshine on your PC from https://github.com/LizardByte/Sunshine/releases
-# Navigate to the Sunshine Web UI on your PC for first-time setup
-# Tap on the PC in Moonlight and type the PIN in the Sunshine Web UI on your PC
-# Start streaming!
-
-To have a good experience, you need a mid to high-end wireless router with a good wireless connection to your Android device (5 GHz highly recommended) and a good connection from your PC to your router (Ethernet highly recommended).
-
-'''Detailed Setup Instructions'''
-See the full setup guide https://bit.ly/1skHFjN for:
-* Adding a PC manually (if your PC is not detected)
-* Streaming over the Internet or LTE
-* Using a controller connected directly to your PC
-* Streaming your full desktop
-* Adding custom apps to stream
+Super Artemis is an independent fork and is not affiliated with the Artemis or Moonlight projects. Credits for everyone whose work it builds on are in the app under About and in the README.

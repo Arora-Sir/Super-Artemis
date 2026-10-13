@@ -1,0 +1,8 @@
+First Super Artemis release, based on Artemis 20.2.6.
+- Microphone streaming to Apollo, off until you unmute it
+- Quick Menu with sections, styles, live editor and a corner quick-action bar
+- Custom keys recorded in the app, with icons
+- Configurable 3, 4 and 5-finger taps and double taps
+- Resume when reopened, picture-in-picture on app switch
+- Backup and restore with a preview that keeps your PCs
+- Settings search, optional Material You style

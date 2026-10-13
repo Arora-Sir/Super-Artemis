@@ -254,13 +254,6 @@
     <string name="applist_menu_details">Wyświetl szczegóły</string>
     <string name="addpc_fail">Nie można połączyć się z określonym komputerem. Upewnij się, że wymagane porty są dozwolone przez zaporę sieciową.</string>
     <string name="category_basic_settings">Ustawienia podstawowe</string>
-    <string name="text_native_res_dialog">Natywna rozdzielczość i/lub liczba klatek na sekundę mogą nie być obsługiwane przez serwer streamingu. Prawdopodobnie konieczne będzie ręczne skonfigurowanie odpowiedniego niestandardowego trybu wyświetlania dla komputera hosta.
-\n
-\nJeśli zdecydujesz się utworzyć niestandardową rozdzielczość w panelu sterowania NVIDIA aby dopasować ustawienia ekranu, upewnij się, że przeczytałeś i zrozumiałeś ostrzeżenie firmy NVIDIA dotyczące możliwego uszkodzenia monitora, niestabilności komputera i innych potencjalnych problemów.
-\n
-\nNie ponosimy odpowiedzialności za jakiekolwiek problemy wynikające z utworzenia niestandardowej rozdzielczości na komputerze.
-\n
-\nMoże się zdarzyć, że monitor nie obsługuje wymaganej konfiguracji wyświetlania. W takim przypadku można spróbować skonfigurować monitor wirtualny. Jeśli urządzenie lub komputer hosta nie obsługuje przesyłania strumieniowego w określonej rozdzielczości lub częstotliwości odświeżania, niestety nie masz szczęścia.</string>
     <string name="fps_suffix_fps">FPS</string>
     <string name="summary_checkbox_gamepad_motion_fallback">Używa wbudowanych czujników ruchu urządzenia, jeśli czujniki gamepada nie są obsługiwane przez podłączony gamepad lub wersję systemu Android.
 \nUwaga: Włączenie tej opcji może spowodować, że gamepad będzie wyświetlany na hoście jako kontroler PlayStation.</string>

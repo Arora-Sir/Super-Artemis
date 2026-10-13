@@ -35,7 +35,7 @@ The debug build needs pairing with Apollo first. Then check the mic off by defau
 | W6 | Configurable 3, 4 and 5-finger tap and double tap gestures | Code and unit tests done, device check pending |
 | W7 | When you leave the stream: Disconnect, Resume when reopened, or Picture-in-picture, plus auto-connect on start | Code and unit tests done, device matrix pending |
 | W9 | Opt-in Material You style on Android 12+ | Code and unit tests done, device look pending |
-| W10 | Branding and link fixes, fastlane, issue templates, FUNDING.yml | Planned |
+| W10 | Branding and link fixes, fastlane, issue templates, FUNDING.yml | Done (new store screenshots are taken during the device checks) |
 | W12 | About: Support development (UPI, UPI QR, PayPal), developer profiles, credits, star on GitHub | Planned |
 | W17 | Scan active forks and upstream issues for small, high-demand additions | Planned |
 | W11 | README rewrite with the fork's USP, release notes | Planned |

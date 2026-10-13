@@ -30,6 +30,9 @@ All notable changes to Super Artemis are listed here. The format follows [Keep a
 - "Remember mouse mode" is on by default.
 - The app installs side by side with Artemis, Artemis-mic and Moonlight under its own package ID.
 - Release APKs are built and signed by GitHub Actions.
+- The app names itself Super Artemis everywhere, in English and in the French, Russian, Vietnamese and Chinese translations. Store metadata, issue templates and the pull request template describe this fork and its credit rules.
+- The native resolution warning explains how Apollo handles resolution instead of warning about custom NVIDIA modes.
+- Sharing performance logs with the upstream Artemis dataset and its dashboard link are hidden. Local performance logging stays.
 
 ### Fixed
 

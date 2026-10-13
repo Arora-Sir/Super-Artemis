@@ -400,6 +400,7 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
             setupGestures();
             setupBackgroundPolicy();
             setupAppStyle();
+            hideUpstreamPerformanceSharing();
             PackageManager pm = activity.getPackageManager();
 
             // hide on-screen controls category on non touch screen devices
@@ -1261,6 +1262,17 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
         }
 
         // Material You needs Android 12 for wallpaper colors, and the screen rebuilds right away so the change is visible
+        // NOTE: Sharing performance logs emails them to the upstream Artemis dataset, and the dashboard link shows that dataset.
+        // NOTE: Neither belongs to this fork, so both are hidden while local performance logging stays available.
+        private void hideUpstreamPerformanceSharing() {
+            for (String key : new String[] {"share_performance_logs", "option_view_shared_pref_logs"}) {
+                Preference preference = findPreference(key);
+                if (preference != null) {
+                    preference.setVisible(false);
+                }
+            }
+        }
+
         private void setupAppStyle() {
             ListPreference style = findPreference(ThemeManager.PREF_KEY);
             if (style == null) {

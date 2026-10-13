@@ -9,7 +9,8 @@ body:
         Thank you for taking the time to fill out this bug form!
 
         **READ ME FIRST!**
-        If you're here because something basic is not working (like gamepad input, video, or similar), it's probably something specific to your setup, so make sure you've gone through the Troubleshooting Guide first: https://github.com/moonlight-stream/moonlight-docs/wiki/Troubleshooting
+        If something basic is not working (like gamepad input or video), it is probably specific to your setup, so go through the Troubleshooting Guide first: https://github.com/moonlight-stream/moonlight-docs/wiki/Troubleshooting
+        Please report Super Artemis issues here, not in the Artemis or Moonlight repositories.
 
   - type: textarea
     id: describe-bug
@@ -62,7 +63,7 @@ body:
   - type: dropdown
     id: settings-default
     attributes:
-      label: Moonlight default settings
+      label: Default settings
       description: Does the problem still occur after reverting settings back to default?
       options:
         - "Yes"
@@ -83,7 +84,7 @@ body:
     id: gamepad-on-screen
     attributes:
       label: Gamepad-related input issue
-      description: If gamepad input is not working, does it work if you use Moonlight's on-screen controls?
+      description: If gamepad input is not working, does it work with the on-screen controls?
       options:
         - "Yes"
         - "No"
@@ -102,6 +103,22 @@ body:
     validations:
       required: true
   - type: input
+    id: app-version
+    attributes:
+      label: Super Artemis version
+      description: Settings > About > Version, or the APK name
+      placeholder: e.g. 1.0.0
+    validations:
+      required: true
+  - type: input
+    id: host-version
+    attributes:
+      label: Host software and version
+      description: Apollo is recommended. Sunshine and GeForce Experience may behave differently.
+      placeholder: e.g. Apollo 0.4.6
+    validations:
+      required: true
+  - type: input
     id: android
     attributes:
       label: Android version
@@ -114,7 +131,7 @@ body:
     attributes:
       label: Device model
       description: What is the device model?
-      placeholder: e.g. Samsung Galaxy S21
+      placeholder: e.g. Samsung Galaxy Tab S10 Ultra
     validations:
       required: true
   - type: input
@@ -126,19 +143,11 @@ body:
     validations:
       required: true
   - type: input
-    id: server-geforce
-    attributes:
-      label: Server PC GeForce Experience version
-      description: What is the GeForce Experience version?
-      placeholder: e.g. 3.16.0.140
-    validations:
-      required: false
-  - type: input
     id: server-driver
     attributes:
-      label: Server PC Nvidia GPU driver version
-      description: What is the Nvidia GPU driver version?
-      placeholder: e.g. 417.35
+      label: Server PC GPU and driver version
+      description: Which GPU and driver version does the PC use?
+      placeholder: e.g. NVIDIA RTX 3060, driver 580.88
     validations:
       required: false
   - type: input

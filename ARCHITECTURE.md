@@ -142,6 +142,8 @@ Restore: SAF OpenDocument -> BackupCodec.parse validates the whole file (nothing
 | Disconnect and Quit sit in a fixed, red Session section of the Quick Menu | They end the stream, so they must always be one tap away and never be mistaken for ordinary actions |
 | One action registry behind the menu, the quick-action bar and gestures | An action is defined once, so labels, icons, availability and behaviour cannot drift between the places that trigger it |
 | `GameActionHost` adapts `Game` instead of `Game` implementing the interface | Keeps the upstream `Game.java` untouched, which keeps future upstream merges small |
+| Upstream performance log sharing is hidden, not removed | It sends data to a dataset this fork does not run, while hiding keeps the upstream code intact for merges |
+| Stale translations of changed strings are removed instead of kept | The English text is accurate, and an outdated translation would describe upstream behaviour |
 | Material You turns checkboxes into switches through the preference theme | No preference XML changes, so upstream merges of `preferences.xml` stay simple and Classic is untouched |
 | Framework dialogs use the device default dialog theme under Material You | Dozens of upstream dialogs use `android.app.AlertDialog`, and the device default is the rounded system style on Android 12+ without touching each dialog |
 | Resume relaunches through `ShortcutTrampoline` instead of storing the stream intent | The intent holds a certificate byte array and a list that cannot be persisted, and the trampoline already binds the PC service, waits for the PC and resolves the app |

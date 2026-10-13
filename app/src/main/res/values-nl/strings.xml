@@ -188,13 +188,6 @@
     <string name="perf_overlay_netlatency">Gemiddelde netwerkvertraging: %1$d ms (variantie: %2$d ms)</string>
     <string name="addpc_wrong_sitelocal">Dat adres lijkt niet te kloppen. U moet het publieke IP-adres van uw router gebruiken om te kunnen streamen over het Internet.</string>
     <string name="title_native_res_dialog">Oorspronkelijke Resolutie Waarschuwing</string>
-    <string name="text_native_res_dialog">Oorspronkelijke resolutiemodes zijn niet officieel ondersteund door GeForce Experience, hierdoor zal de resolutie van uw host display niet automatisch ingesteld worden. U zal het manueel moeten instellen in het spel.
-\n
-\nAls u kiest om een aangepaste resolutie in het NVIDIA Controle Paneel in te stellen dat overeenkomt met uw de resolutie van uw apparaat, controleer a.u.b. of u NVIDIA\'s waarschuwingen in verband met mogelijke schade aan uw monitor, PC instabiliteit, en andere mogelijke problemen heeft gelezen en deze begrijpt.
-\n
-\nWij zijn niet verantwoordelijk voor problemen veroorzaakt door het instellen van een aangepaste resolutie op uw PC.
-\n
-\nTot slot, uw apparaat of host PC ondersteunt mogelijk streamen met oorspronkelijke resoluties niet. Als het niet werkt op uw toestel heeft u spijtig genoeg gewoon pech.</string>
     <string name="summary_fps_list">Verhogen voor een vloeiendere video stream. Verlagen voor betere prestaties op minder krachtige apparaten.</string>
     <string name="summary_audio_config_list">5.1 of 7.1 surround sound inschakelen voor home-cinema systemen</string>
     <string name="summary_checkbox_touchscreen_trackpad">Wanneer ingeschakeld functioneert het touchscreen als een trackpad. Wanneer uitgeschakeld bedient het touchscreen rechtstreeks de muiscursor.</string>

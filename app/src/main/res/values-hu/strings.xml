@@ -71,13 +71,6 @@
     <string name="title_seekbar_bitrate">Videó bitráta</string>
     <string name="summary_fps_list">Növelje a gördülékenyebb videofolyamot. Csökkenjen a jobb teljesítmény érdekében az alsó kategóriás eszközökön.</string>
     <string name="title_fps_list">Videó képkockasebessége</string>
-    <string name="text_native_res_dialog">Előfordulhat, hogy a streaming szerver nem támogatja a natív felbontást és/vagy FPS-t. Valószínűleg kézzel kell beállítania egy megfelelő egyéni megjelenítési módot a fogadó számítógépen.
-\n
-\nHa úgy dönt, hogy egyéni felbontást hoz létre az NVIDIA Vezérlőpultban a képernyő beállításainak megfelelően, kérjük, győződjön meg róla, hogy elolvasta és megértette az NVIDIA figyelmeztetését a monitor lehetséges károsodására, a számítógép instabilitására és más lehetséges problémákra vonatkozóan.
-\n
-\nNem vállalunk felelősséget a számítógépén egyéni felbontás létrehozásából eredő problémákért.
-\n
-\nElőfordulhat, hogy az Ön monitora nem támogatja a szükséges kijelzőkonfigurációt. Ebben az esetben megpróbálhat egy virtuális monitort beállítani. Végül, ha a készülék vagy a gazdaszámítógép nem támogatja a streaminget egy adott felbontáson vagy frissítési frekvencián, akkor sajnos nincs szerencséje.</string>
     <string name="title_native_res_dialog">Natív felbontás figyelmeztetés</string>
     <string name="summary_resolution_list">Növelje a kép tisztaságának növelése érdekében. Csökkenjen a jobb teljesítmény érdekében az alsó kategóriás eszközökön és a lassabb hálózatokon.</string>
     <string name="title_resolution_list">Videó felbontás</string>
