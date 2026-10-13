@@ -3316,9 +3316,12 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
         cancelEvent.setAction(MotionEvent.ACTION_CANCEL);
         view.dispatchTouchEvent(cancelEvent);
         cancelEvent.recycle();
+        // The contexts are null while touch input is disabled, and a gesture can still claim a touch then
         for (TouchContext aTouchContext : touchContextMap) {
-            aTouchContext.cancelTouch();
-            aTouchContext.setPointerCount(0);
+            if (aTouchContext != null) {
+                aTouchContext.cancelTouch();
+                aTouchContext.setPointerCount(0);
+            }
         }
     }
 

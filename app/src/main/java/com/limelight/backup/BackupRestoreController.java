@@ -56,6 +56,9 @@ public final class BackupRestoreController {
 
     private final Fragment fragment;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
+    // NOTE: Settings replaces its fragment on a fold, a display change or some setting changes. Dialogs of the old fragment
+    // NOTE: are closed with it, because their buttons would use its closed executor and unregistered file pickers.
+    private final List<android.app.Dialog> openDialogs = new ArrayList<>();
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
     private final ActivityResultLauncher<String> backupLauncher;
     private final ActivityResultLauncher<String[]> restoreLauncher;
@@ -115,7 +118,7 @@ public final class BackupRestoreController {
                 .setPositiveButton(R.string.backup_save_to_device, null)
                 .setNeutralButton(R.string.backup_share, null)
                 .setNegativeButton(android.R.string.cancel, null);
-        AlertDialog dialog = builder.create();
+        AlertDialog dialog = track(builder.create());
         if (dialog.getWindow() != null) {
             // The dialog shrinks and scrolls above the keyboard, so the second password field and the buttons stay reachable
             dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
@@ -178,7 +181,26 @@ public final class BackupRestoreController {
         restoreLauncher.launch(BackupRestoreManager.READABLE_MIME_TYPES);
     }
 
+    private <T extends android.app.Dialog> T track(T dialog) {
+        openDialogs.add(dialog);
+        dialog.setOnDismissListener(d -> openDialogs.remove(dialog));
+        return dialog;
+    }
+
+    // Work for a fragment that is gone is dropped instead of crashing on its closed executor
+    private void execute(Runnable work) {
+        if (executor.isShutdown() || !fragment.isAdded()) {
+            return;
+        }
+        executor.execute(work);
+    }
+
     public void shutdown() {
+        for (android.app.Dialog dialog : new ArrayList<>(openDialogs)) {
+            dialog.setOnDismissListener(null);
+            dialog.dismiss();
+        }
+        openDialogs.clear();
         executor.shutdown();
     }
 
@@ -191,7 +213,7 @@ public final class BackupRestoreController {
         }
         Context appContext = fragment.requireContext().getApplicationContext();
         boolean includePairingKeys = pendingIncludePairingKeys;
-        executor.execute(() -> {
+        execute(() -> {
             try {
                 BackupRestoreManager.writeBackup(appContext, uri, includePairingKeys, password);
                 toast(appContext, appContext.getString(R.string.backup_success));
@@ -208,9 +230,12 @@ public final class BackupRestoreController {
 
     // The share sheet gets a temporary copy, so the user can send it with Quick Share, a chat app or a cloud drive without saving it first
     private void shareBackup(boolean includePairingKeys, char[] password) {
+        if (!fragment.isAdded()) {
+            return;
+        }
         Context context = fragment.requireContext();
         Context appContext = context.getApplicationContext();
-        executor.execute(() -> {
+        execute(() -> {
             try {
                 Uri uri = BackupRestoreManager.createShareableBackup(appContext, includePairingKeys, password);
                 mainHandler.post(() -> {
@@ -242,7 +267,7 @@ public final class BackupRestoreController {
             return;
         }
         Context appContext = fragment.requireContext().getApplicationContext();
-        executor.execute(() -> {
+        execute(() -> {
             try {
                 byte[] data = BackupRestoreManager.readBytes(appContext, uri);
                 openBackup(appContext, data, null);
@@ -313,7 +338,7 @@ public final class BackupRestoreController {
                 .setView(box)
                 .setPositiveButton(R.string.restore_unlock, null)
                 .setNegativeButton(android.R.string.cancel, null);
-        AlertDialog dialog = builder.create();
+        AlertDialog dialog = track(builder.create());
         dialog.show();
         Dialogs.fitWidth(dialog, Dialogs.WIDTH_STANDARD_DP);
         Button unlock = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
@@ -348,7 +373,7 @@ public final class BackupRestoreController {
             field.setText("");
             dialog.dismiss();
             Toast.makeText(context, R.string.restore_unlocking, Toast.LENGTH_SHORT).show();
-            executor.execute(() -> openBackup(appContext, data, password));
+            execute(() -> openBackup(appContext, data, password));
         });
     }
 
@@ -443,7 +468,7 @@ public final class BackupRestoreController {
                     }
                 })
                 .setNegativeButton(android.R.string.cancel, null);
-        dialog[0] = builder.create();
+        dialog[0] = track(builder.create());
         dialog[0].show();
         Dialogs.fitWidth(dialog[0], Dialogs.WIDTH_STANDARD_DP);
         refresh.run();
@@ -508,9 +533,12 @@ public final class BackupRestoreController {
     }
 
     private void applyBackup(BackupFile backup, RestoreSelection selection) {
+        if (!fragment.isAdded()) {
+            return;
+        }
         Activity activity = fragment.requireActivity();
         Context appContext = activity.getApplicationContext();
-        executor.execute(() -> {
+        execute(() -> {
             try {
                 BackupRestoreManager.applyBackup(appContext, backup, selection);
                 mainHandler.post(() -> {

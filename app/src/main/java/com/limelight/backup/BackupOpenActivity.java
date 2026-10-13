@@ -14,7 +14,8 @@ public class BackupOpenActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Intent intent = getIntent();
-        Uri uri = Intent.ACTION_SEND.equals(intent.getAction()) ? intent.getParcelableExtra(Intent.EXTRA_STREAM) : intent.getData();
+        android.os.Parcelable shared = Intent.ACTION_SEND.equals(intent.getAction()) ? intent.getParcelableExtra(Intent.EXTRA_STREAM) : intent.getData();
+        Uri uri = shared instanceof Uri ? (Uri) shared : null;
         if (uri != null) {
             Intent settings = new Intent(this, StreamSettings.class)
                     .setData(uri)

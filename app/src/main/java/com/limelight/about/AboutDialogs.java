@@ -94,13 +94,27 @@ public final class AboutDialogs {
         SpannableStringBuilder line = new SpannableStringBuilder(text);
         int classicAt = text.indexOf(classic);
         if (classicAt >= 0) {
-            line.setSpan(new URLSpan(Links.githubUser("ClassicOldSong")), classicAt, classicAt + classic.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            line.setSpan(new SafeUrlSpan(Links.githubUser("ClassicOldSong")), classicAt, classicAt + classic.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
         int moonlightAt = text.indexOf(moonlight);
         if (moonlightAt >= 0) {
-            line.setSpan(new URLSpan(Links.githubUser("cgutman")), moonlightAt, moonlightAt + moonlight.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            line.setSpan(new SafeUrlSpan(Links.githubUser("cgutman")), moonlightAt, moonlightAt + moonlight.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
         return line;
+    }
+
+    // A link span that opens through Links.open, so a device without a browser shows a message instead of crashing
+    static final class SafeUrlSpan extends android.text.style.ClickableSpan {
+        final String url;
+
+        SafeUrlSpan(String url) {
+            this.url = url;
+        }
+
+        @Override
+        public void onClick(@NonNull View widget) {
+            Links.open(widget.getContext(), url);
+        }
     }
 
     private static void addChip(FlowRow row, int iconRes, CharSequence text, Runnable action) {
@@ -138,7 +152,7 @@ public final class AboutDialogs {
                 String handle = entry.handles.get(i);
                 int start = text.length();
                 text.append('@').append(handle);
-                text.setSpan(new URLSpan(Links.githubUser(handle)), start, text.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                text.setSpan(new SafeUrlSpan(Links.githubUser(handle)), start, text.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
         }
         return text;

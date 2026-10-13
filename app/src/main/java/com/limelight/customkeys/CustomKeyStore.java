@@ -98,9 +98,16 @@ public final class CustomKeyStore {
         }
         for (int i = 0; i < file.data.size(); i++) {
             KeyConfigHelper.Shortcut shortcut = file.data.get(i);
+            // A hand-edited or imported file can hold null entries, which are skipped like empty ones
+            if (shortcut == null) {
+                continue;
+            }
             List<Integer> codes = new ArrayList<>();
             if (shortcut.keys != null) {
                 for (String code : shortcut.keys) {
+                    if (code == null) {
+                        throw new FormatException("A key code is missing");
+                    }
                     codes.add(parseKeyCode(code));
                 }
             }

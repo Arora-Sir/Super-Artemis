@@ -261,6 +261,10 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
         private MicrophonePreviewPreference microphonePreviewPreference;
         private boolean pendingMicrophoneEnableAfterPermission;
 
+        // Used by the system when it recreates the fragment, which reads the current settings itself
+        public SettingsFragment() {
+        }
+
         public SettingsFragment(PreferenceConfiguration prefCfg) {
             prevPrefConfig = prefCfg;
         }
@@ -423,6 +427,9 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
 
         @Override
         public void onCreatePreferences(Bundle bundle, String s) {
+            if (prevPrefConfig == null) {
+                prevPrefConfig = PreferenceConfiguration.readPreferences(requireContext());
+            }
             initializePreferences();
         }
 

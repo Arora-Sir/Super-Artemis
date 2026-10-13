@@ -7,7 +7,7 @@ import static org.junit.Assert.assertTrue;
 import android.content.Context;
 import android.content.Intent;
 import android.text.Spanned;
-import android.text.style.URLSpan;
+import android.text.style.ClickableSpan;
 
 import androidx.test.core.app.ApplicationProvider;
 
@@ -48,9 +48,10 @@ public class AboutTest {
                 + "\"links\":[{\"label\":\"owner/repo#1\",\"url\":\"https://github.com/owner/repo/pull/1\"}]}]}");
         CharSequence line = AboutDialogs.creditLine(context, entries.get(0));
         assertEquals("Code ported by @logabell, @Yundi339", line.toString());
-        URLSpan[] spans = ((Spanned) line).getSpans(0, line.length(), URLSpan.class);
+        ClickableSpan[] spans = ((Spanned) line).getSpans(0, line.length(), ClickableSpan.class);
         assertEquals(2, spans.length);
-        assertEquals("https://github.com/logabell", spans[0].getURL());
+        // Links open through Links.open, which handles a device without a browser
+        assertEquals("https://github.com/logabell", ((AboutDialogs.SafeUrlSpan) spans[0]).url);
         // Each link becomes one chip with this label
         assertEquals("owner/repo#1", entries.get(0).links.get(0).label);
         assertEquals("https://github.com/owner/repo/pull/1", entries.get(0).links.get(0).url);

@@ -108,7 +108,7 @@ public final class Dialogs {
     public static int color(Context context, int attr) {
         TypedValue value = new TypedValue();
         context.getTheme().resolveAttribute(attr, value, true);
-        return value.resourceId != 0 ? context.getColor(value.resourceId) : value.data;
+        return value.resourceId != 0 ? androidx.core.content.ContextCompat.getColor(context, value.resourceId) : value.data;
     }
 
     // Puts a small icon before a dialog button label, tinted like the label, such as the share icon on Share
