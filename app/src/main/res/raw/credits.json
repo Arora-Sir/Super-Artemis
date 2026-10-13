@@ -137,6 +137,24 @@
         { "label": "ClassicOldSong/moonlight-android#582", "url": "https://github.com/ClassicOldSong/moonlight-android/issues/582" },
         { "label": "ClassicOldSong/moonlight-android#403", "url": "https://github.com/ClassicOldSong/moonlight-android/issues/403" }
       ]
+    },
+    {
+      "feature": "Custom keys recorded in the app, with names and icons",
+      "role": "request",
+      "people": [{ "handle": "Senjar" }, { "handle": "Sx1Fl0NdqlkM6N4s2pswXKUI0k9FKTaOckLbNXu" }, { "handle": "loudcricketts" }],
+      "links": [
+        { "label": "ClassicOldSong/moonlight-android#348", "url": "https://github.com/ClassicOldSong/moonlight-android/issues/348" },
+        { "label": "ClassicOldSong/moonlight-android#243", "url": "https://github.com/ClassicOldSong/moonlight-android/issues/243" },
+        { "label": "ClassicOldSong/moonlight-android#239", "url": "https://github.com/ClassicOldSong/moonlight-android/issues/239" }
+      ]
+    },
+    {
+      "feature": "Duplicate keys as separate custom keys",
+      "role": "request",
+      "people": [{ "handle": "voguelike" }],
+      "links": [
+        { "label": "ClassicOldSong/moonlight-android#521", "url": "https://github.com/ClassicOldSong/moonlight-android/issues/521" }
+      ]
     }
   ]
 }

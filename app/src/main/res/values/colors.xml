@@ -10,4 +10,5 @@
     <color name="option_card_stroke">#52FFFFFF</color>
     <!-- Disconnect and Quit in the in-stream menu, the same readable red as other warnings -->
     <color name="menu_destructive">@color/backup_caution</color>
+    <color name="icon_choice_fill">#2980CBC4</color>
 </resources>

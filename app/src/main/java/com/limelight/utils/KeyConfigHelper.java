@@ -23,6 +23,8 @@ public class KeyConfigHelper {
         public String name;
         public boolean sticky = false;  // Default to false
         public List<String> keys;
+        // Optional icon ID from customkeys.IconCatalog, absent in files written by older versions
+        public String icon;
 
         // Default constructor for Gson
         public Shortcut() {

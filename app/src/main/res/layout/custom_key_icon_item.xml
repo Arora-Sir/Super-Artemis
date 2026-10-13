@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- One cell of the custom key icon picker, 48dp so it stays an easy touch target -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="48dp">
+
+    <ImageView
+        android:id="@+id/custom_key_icon"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:layout_gravity="center"
+        android:background="@drawable/bg_icon_choice"
+        android:clickable="true"
+        android:focusable="true"
+        android:padding="10dp" />
+</FrameLayout>

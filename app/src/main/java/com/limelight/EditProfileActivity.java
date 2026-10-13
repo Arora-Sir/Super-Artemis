@@ -294,6 +294,11 @@ public class EditProfileActivity extends AppCompatActivity {
             if (_pref != null) {
                 _pref.setVisible(false);
             }
+            // Custom keys are shared by every profile, so they are managed from the main settings only
+            _pref = findPreference("pref_custom_keys");
+            if (_pref != null) {
+                _pref.setVisible(false);
+            }
             _pref = findPreference("import_keyboard_file");
             if (_pref != null) {
                 _pref.setVisible(false);

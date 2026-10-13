@@ -1,12 +1,10 @@
 package com.limelight;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
-import android.text.TextUtils;
 import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -21,16 +19,18 @@ import com.limelight.actions.StreamActionHost;
 import com.limelight.actions.StreamActionRegistry;
 import com.limelight.binding.input.GameInputDevice;
 import com.limelight.binding.input.KeyboardTranslator;
+import com.limelight.customkeys.CustomKey;
+import com.limelight.customkeys.CustomKeyEditor;
+import com.limelight.customkeys.CustomKeyStore;
+import com.limelight.customkeys.CustomKeysManager;
+import com.limelight.customkeys.IconCatalog;
 import com.limelight.menu.GameMenuEditor;
 import com.limelight.menu.GameMenuLayout;
 import com.limelight.menu.GameMenuRenderer;
 import com.limelight.menu.MenuEntry;
 import com.limelight.menu.MenuSections;
 import com.limelight.preferences.PreferenceConfiguration;
-import com.limelight.utils.KeyConfigHelper;
-import com.limelight.utils.KeyMapper;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -221,44 +221,29 @@ public class GameMenu implements Game.GameMenuCallbacks {
                     () -> sendKeys(new short[]{KeyboardTranslator.VK_LWIN, KeyboardTranslator.VK_LMENU, KeyboardTranslator.VK_B})));
         }
 
-        // Import custom shortcuts
-        SharedPreferences preferences = game.getSharedPreferences(PREF_NAME, Activity.MODE_PRIVATE);
-        String value = preferences.getString(KEY_NAME,"");
-
-        if(!TextUtils.isEmpty(value)){
-            try {
-                KeyConfigHelper.ShortcutFile shortcutFile = KeyConfigHelper.parseShortcutFile(value);
-                if (shortcutFile != null && shortcutFile.data != null && !shortcutFile.data.isEmpty()) {
-                    List<KeyConfigHelper.Shortcut> data = shortcutFile.data;
-                    for (KeyConfigHelper.Shortcut sc : data) {
-                        List<String> keys = sc.keys;
-                        short[] keyCodes = new short[keys.size()];
-
-                        for (int i = 0; i < keys.size(); i++) {
-                            String code = keys.get(i);
-                            int keycode;
-
-                            if (code.startsWith("0x")) {               // literal hex value
-                                keycode = Integer.parseInt(code.substring(2), 16);
-                            } else if (code.startsWith("VK_")) {       // symbolic constant in KeyMapper
-                                Field field = KeyMapper.class.getDeclaredField(code);
-                                keycode = field.getInt(null);
-                            } else {                                   // unsupported
-                                throw new IllegalArgumentException("Unknown key code: " + code);
-                            }
-                            keyCodes[i] = (short) keycode;
-                        }
-
-                        // Whatever MenuOption looks like in your project
-                        MenuOption option = new MenuOption(sc.name, () -> sendKeys(keyCodes));
-                        options.add(option);
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                Toast.makeText(game,getString(R.string.wrong_import_format),Toast.LENGTH_SHORT).show();
+        // Custom keys from the in-app editor or an imported file, with their icons
+        try {
+            for (CustomKey key : CustomKeyStore.load(game)) {
+                short[] keyCodes = key.keyCodes();
+                options.add(new MenuOption(key.name, key.icon != null ? IconCatalog.drawableFor(key.icon) : 0, false,
+                        () -> sendKeys(keyCodes)));
             }
+        } catch (CustomKeyStore.FormatException e) {
+            Toast.makeText(game,getString(R.string.wrong_import_format),Toast.LENGTH_SHORT).show();
         }
+
+        // Recording a key opens on top of the stream, and the list reopens with the new key when it is saved
+        options.add(new MenuOption(getString(R.string.game_menu_add_custom_key), R.drawable.ic_gm_add, false,
+                () -> CustomKeyEditor.show(themedContext(), null, key -> {
+                    try {
+                        CustomKeyStore.upsert(game, key);
+                    } catch (CustomKeyStore.FormatException e) {
+                        Toast.makeText(game, getString(R.string.wrong_import_format), Toast.LENGTH_SHORT).show();
+                    }
+                    showSpecialKeysMenu();
+                })));
+        options.add(new MenuOption(getString(R.string.game_menu_manage_custom_keys), R.drawable.ic_gm_edit, false,
+                () -> CustomKeysManager.show(themedContext(), this::showSpecialKeysMenu)));
         options.add(new MenuOption(getString(R.string.game_menu_cancel), null));
 
         showMenuDialog(getString(R.string.game_menu_send_keys), options);
