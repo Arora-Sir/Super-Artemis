@@ -1,30 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Gesture editor row: the gesture name and the action it runs, tappable to change the action -->
+<!-- Gesture editor row: the gesture with its icon, and the action it runs with that action's icon. Tap to change the action. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="?android:attr/selectableItemBackground"
+    android:background="@drawable/bg_row"
     android:clickable="true"
     android:focusable="true"
     android:gravity="center_vertical"
-    android:minHeight="56dp"
-    android:orientation="vertical"
-    android:paddingLeft="24dp"
+    android:minHeight="64dp"
+    android:orientation="horizontal"
+    android:paddingLeft="12dp"
     android:paddingTop="8dp"
-    android:paddingRight="24dp"
+    android:paddingRight="12dp"
     android:paddingBottom="8dp">
 
-    <TextView
-        android:id="@+id/gesture_row_title"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textColor="?android:attr/textColorPrimary"
-        android:textSize="16sp" />
+    <ImageView
+        android:id="@+id/gesture_row_icon"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@drawable/bg_icon_circle"
+        android:importantForAccessibility="no"
+        android:padding="9dp"
+        android:tint="?attr/saOnSecondaryContainer" />
 
-    <TextView
-        android:id="@+id/gesture_row_action"
-        android:layout_width="match_parent"
+    <LinearLayout
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:textColor="?android:attr/colorAccent"
-        android:textSize="14sp" />
+        android:layout_marginLeft="16dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/gesture_row_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.SuperArtemis.BodyLarge" />
+
+        <TextView
+            android:id="@+id/gesture_row_action"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawablePadding="6dp"
+            android:gravity="center_vertical"
+            android:textAppearance="@style/TextAppearance.SuperArtemis.BodyMedium" />
+    </LinearLayout>
 </LinearLayout>

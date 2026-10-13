@@ -157,9 +157,6 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
     private final TouchContext[] touchContextMap = new TouchContext[2];
     private final TouchContext[] trackpadContextMap = new TouchContext[2];
     private PanZoomHandler panZoomHandler;
-    private long threeFingerDownTime = 0;
-    private long fourFingerDownTime = 0;
-    private long fiveFingerDownTime = 0;
 
     private static final int REFERENCE_HORIZ_RES = 1280;
     private static final int REFERENCE_VERT_RES = 720;
@@ -170,9 +167,6 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
     private static final int STYLUS_UP_DEAD_ZONE_DELAY = 150;
     private static final int STYLUS_UP_DEAD_ZONE_RADIUS = 50;
 
-    private static final int THREE_FINGER_TAP_THRESHOLD = 300;
-    private static final int FOUR_FINGER_TAP_THRESHOLD = 300;
-    private static final int FIVE_FINGER_TAP_THRESHOLD = 300;
 
     private Handler timerHandler;
 
@@ -311,6 +305,9 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
     private ImageButton floatingMenuButton;
     private QuickActionBar quickActionBar;
     private GestureDispatcher gestureDispatcher;
+    // The view the current gesture started on, and a guard so the cancel sent for a gesture is not read as a new touch
+    private View gestureTouchView;
+    private boolean cancellingGestureTouch;
     // Set when the user leaves with Home, Recents or a quick switch, as opposed to Disconnect, Quit or Back
     private boolean leftByUser;
     private ImageButton overlayToggleButton;
@@ -3119,6 +3116,15 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
                 if (eventSource == InputDevice.SOURCE_TOUCHPAD) {
                     return handleTouchInput(event, trackpadContextMap, false);
                 } else {
+                    // Multi-finger gestures come first, so they work in every touch mode, including pan and zoom and on-screen control editing
+                    if (!cancellingGestureTouch && gestureDispatcher != null
+                            && (prefConfig.enableMultiTouchGestures || !prefConfig.enableMultiTouchScreen)) {
+                        gestureTouchView = view;
+                        if (gestureDispatcher.onTouchEvent(event)) {
+                            return true;
+                        }
+                    }
+
                     if (virtualController != null &&
                             (virtualController.getControllerMode() == VirtualController.ControllerMode.MoveButtons ||
                                     virtualController.getControllerMode() == VirtualController.ControllerMode.ResizeButtons)) {
@@ -3135,23 +3141,6 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
                     // If touch is disabled or not initialized, we'll try panning the streamView
                     if (touchContextMap[0] == null) {
                         return true;
-                    }
-
-                    if (prefConfig.enableMultiTouchGestures || !prefConfig.enableMultiTouchScreen) {
-                        int pointerCount = event.getPointerCount();
-                        if (pointerCount > 2) {
-                            int eventAction = event.getActionMasked();
-                            if (
-                                    (
-                                            eventAction == MotionEvent.ACTION_POINTER_DOWN
-                                                    || eventAction == MotionEvent.ACTION_POINTER_UP
-                                                    || eventAction == MotionEvent.ACTION_UP
-                                    )
-                                            && handleMultiTouchGesture(event, eventAction, pointerCount, view)
-                            ) {
-                                return true;
-                            }
-                        }
                     }
 
                     if (prefConfig.enableMultiTouchScreen && !prefConfig.touchscreenTrackpad && trySendTouchEvent(view, event)) {
@@ -3281,25 +3270,6 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
                 break;
             case MotionEvent.ACTION_POINTER_UP:
             case MotionEvent.ACTION_UP:
-                if (prefConfig.touchscreenTrackpad) {
-                    if (pointerCount == 1 &&
-                            (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU || (event.getFlags() & MotionEvent.FLAG_CANCELED) == 0)) {
-                        // All fingers up: a multi-finger tap runs the user's gesture binding, unbound taps fall through to the PC
-                        long currentEventTime = event.getEventTime();
-                        int tapFingers = 0;
-                        if (currentEventTime - threeFingerDownTime < THREE_FINGER_TAP_THRESHOLD) {
-                            tapFingers = 3;
-                        } else if (currentEventTime - fourFingerDownTime < FOUR_FINGER_TAP_THRESHOLD) {
-                            tapFingers = 4;
-                        } else if (currentEventTime - fiveFingerDownTime < FIVE_FINGER_TAP_THRESHOLD) {
-                            tapFingers = 5;
-                        }
-                        if (tapFingers > 0 && gestureDispatcher != null && gestureDispatcher.handlesTap(tapFingers)) {
-                            gestureDispatcher.onTap(tapFingers, currentEventTime);
-                            return true;
-                        }
-                    }
-                }
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && (event.getFlags() & MotionEvent.FLAG_CANCELED) != 0) {
                     context.cancelTouch();
                 }
@@ -3335,55 +3305,6 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
                 return false;
         }
 
-        return true;
-    }
-
-    private boolean handleMultiTouchGesture(MotionEvent event, int eventAction, int pointerCount, View view) {
-
-        if (eventAction == MotionEvent.ACTION_POINTER_DOWN) {
-            if (pointerCount == 3) {
-                threeFingerDownTime = event.getEventTime();
-            } else if (pointerCount == 4) {
-                threeFingerDownTime = 0;
-                fourFingerDownTime = event.getEventTime();
-            } else if (pointerCount == 5) {
-                threeFingerDownTime = 0;
-                fourFingerDownTime = 0;
-                fiveFingerDownTime = event.getEventTime();
-            }
-        }
-
-        switch (eventAction) {
-            case MotionEvent.ACTION_POINTER_UP:
-            case MotionEvent.ACTION_UP:
-                long currentEventTime = event.getEventTime();
-                int tapFingers = 0;
-                if (pointerCount >= 5 && fiveFingerDownTime > 0 && currentEventTime - fiveFingerDownTime < FIVE_FINGER_TAP_THRESHOLD) {
-                    tapFingers = 5;
-                } else if (pointerCount == 4 && fourFingerDownTime > 0 && currentEventTime - fourFingerDownTime < FOUR_FINGER_TAP_THRESHOLD) {
-                    tapFingers = 4;
-                } else if (pointerCount == 3 && threeFingerDownTime > 0 && currentEventTime - threeFingerDownTime < THREE_FINGER_TAP_THRESHOLD) {
-                    tapFingers = 3;
-                }
-                // Taps with a gesture binding are consumed, unbound ones go on to the PC like any other touch
-                if (tapFingers > 0 && gestureDispatcher != null && gestureDispatcher.handlesTap(tapFingers)) {
-                    gestureDispatcher.onTap(tapFingers, currentEventTime);
-                    threeFingerDownTime = 0;
-                    fourFingerDownTime = 0;
-                    fiveFingerDownTime = 0;
-                    break;
-                }
-                threeFingerDownTime = 0;
-                fourFingerDownTime = 0;
-                fiveFingerDownTime = 0;
-
-                cancelStaleTouchState(event, view);
-                return false;
-            default:
-                return false;
-        }
-
-        cancelStaleTouchState(event, view);
         return true;
     }
 
@@ -4491,6 +4412,27 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
             @Override
             public void sendKeys(short[] keys) {
                 Game.this.sendKeys(keys);
+            }
+
+            // Pan and zoom stops following the fingers, and every other mode tells the PC the touch was cancelled
+            @Override
+            public void cancelTouch(MotionEvent event) {
+                if (isPanZoomMode) {
+                    MotionEvent cancel = MotionEvent.obtain(event);
+                    cancel.setAction(MotionEvent.ACTION_CANCEL);
+                    panZoomHandler.handleTouchEvent(cancel);
+                    cancel.recycle();
+                    return;
+                }
+                if (gestureTouchView != null) {
+                    cancellingGestureTouch = true;
+                    try {
+                        cancelStaleTouchState(event, gestureTouchView);
+                    }
+                    finally {
+                        cancellingGestureTouch = false;
+                    }
+                }
             }
         });
         quickActionBar = new QuickActionBar(this, (FrameLayout) floatingMenuButton.getParent(), new QuickActionBar.Host() {
