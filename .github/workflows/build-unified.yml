@@ -93,11 +93,25 @@ jobs:
           name: SuperArtemis-arm64-v8a
           path: ${{ steps.rename.outputs.apk }}
 
+      # Hand-written notes for the tag when they exist, otherwise the generated Thanks section from credits.json
+      - name: Pick release notes
+        if: github.ref_type == 'tag'
+        id: notes
+        run: |
+          NOTES=".github/release-notes/${GITHUB_REF_NAME}.md"
+          if [ ! -f "$NOTES" ]; then
+            NOTES="release-notes.md"
+            python3 scripts/render_credits.py --release-notes > "$NOTES"
+          fi
+          echo "path=$NOTES" >> "$GITHUB_OUTPUT"
+
       - name: Create draft GitHub release
         if: github.ref_type == 'tag'
         uses: softprops/action-gh-release@v2
         with:
           draft: true
+          name: Super Artemis ${{ github.ref_name }}
+          body_path: ${{ steps.notes.outputs.path }}
           files: ${{ steps.rename.outputs.apk }}
 
       - name: Remove decoded keystore

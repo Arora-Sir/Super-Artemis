@@ -1,64 +1,80 @@
 # Project context
 
-This is the handoff file for anyone (human or AI) resuming work on Super Artemis. It records what works, what is in progress, what comes next and where to start reading. Reset it once 1.0.0 is released and stable.
+This is the handoff file for anyone (human or AI) resuming work on Super Artemis. It records what works, what is waiting, what comes next and where to start reading. Reset it once 1.0.0 is released and stable.
 
 ## Current state
 
-- Branch `unified-main` is based on Artemis `moonlight-noir` (commit `c5cf27f`). Nothing in this repository is published yet. The native core branch `super-artemis` is pushed to `Arora-Sir/moonlight-common-c`.
+- Branch `unified-main` is based on Artemis `moonlight-noir` (commit `c5cf27f`). Nothing in this repository is published yet. The native core branch `super-artemis` is pushed to `Arora-Sir/moonlight-common-c`, and the common-c fixes from W17 are applied in the submodule working tree but not committed or pushed yet.
+- Every planned feature for 1.0.0 is implemented. Workstreams after the backup commit (`6f810d67`) are prepared as one cumulative patch per workstream and wait for the commit review.
 - Version `1.0.0` (versionCode 1) is set but not released. The package IDs are `com.mohitarora.superartemis` (release) and `com.mohitarora.superartemis.debug` (debug). Earlier test installs used `com.limelight.superartemisdebug`, which can be uninstalled.
-- Debug builds and the unit tests pass, apart from the five known upstream failures (BUGS.md, BUG-009).
+- Debug builds pass, and the unit suite has 133 tests with only the five known upstream failures (BUGS.md, BUG-009).
 
 ## What works (verified on a Galaxy Tab S10 Ultra, Android 16)
 
 - Side-by-side install next to Artemis, Artemis-mic and Moonlight.
 - Settings search, including items inside collapsed categories.
-- Menu editor: drag to reorder, save, reset, and the three menu styles in settings.
-- Five-finger tap setting stays independent of Back Menu.
-- Backup through the system file picker (settings-only by default, pairing keys as one opt-in card with a red caution) and restore with a preview that keeps existing PCs, brings back settings such as the five-finger tap, then restarts the app.
+- Backup through the system file picker (settings-only by default, pairing keys as one opt-in card with a red caution) and restore with a preview that keeps existing PCs, brings back settings, then restarts the app. The pairing-keys preview shows its red warning.
+- Menu editor in Settings: style picker, side by side list and live preview, Session section in red, Cancel keeps the saved layout.
+- Custom keys in Settings: empty state, the keyboard recorder (Ctrl + Shift + ESC recorded, duplicates ignored, name filled in), icon choice, the saved JSON (`0xA2`, `0xA0`, `0x1B` with the icon ID) and delete with confirmation.
+- Streaming at native 2960x1848 with Fit fills the screen, and native costs about 2.5% more battery than 1080p on the Tab (1,022 mA against 996 mA at 55 Mbps).
 
-## Not yet verified in a live stream
+## Waiting for device checks
 
-The debug build needs pairing with Apollo first. Then check the mic off by default and mute/unmute, the menu styles in-stream, S Pen behaviour and decode time against the Artemis-mic baseline at 2560x1600, 120 FPS, HEVC.
+Everything below is implemented with unit tests and needs the Tab and the S24, with the debug build paired to Apollo:
+
+- Microphone off by default, mute and unmute, the green privacy dot and Apollo's "first client microphone packet" log.
+- Quick Menu sections and all three styles in a stream, Back to Quick Menu, D-pad navigation in the menu.
+- Quick-action bar in each corner, green toggles, fading, long press names, hidden in picture-in-picture.
+- Custom keys from Send special keys during a stream, and custom keys on the on-screen key layer.
+- Every gesture slot including double taps, Nothing passing taps to the PC, trackpad mode three-finger tap.
+- Leaving the stream: Disconnect, Resume when reopened (Home, Recents, quick switch, then Recents card and app icon), picture-in-picture on Home and on a quick switch to the previous app, Connect to the last PC on app start.
+- Material You on and off: switches, dynamic colors, rounded dialogs, in-stream menus.
+- About: Support (UPI chooser and the no-app fallback, QR scanned from another phone, PayPal), profiles, credits links.
+- Frame pacing at 120 FPS: render and discard FPS on both devices, compared with Artemis-mic.
+- S Pen strokes reach the PC, Print Screen key, Samsung keyboard cover screenshot key.
+- New store screenshots for fastlane, taken from the Tab.
 
 ## Workstreams to 1.0.0
 
 | ID | Work | Status |
 | :--- | :--- | :--- |
 | W0 | Credits system and attribution in commit history | Done |
-| W18 | Project docs (this file, ARCHITECTURE, SETUP, BUGS, CHANGELOG) and the dash check hook | Done, kept current at every step |
+| W18 | Project docs (this file, ARCHITECTURE, SETUP, BUGS, CHANGELOG, UPSTREAM, PRIVACY) and the dash check hook | Done, kept current at every step |
 | W13 | Package ID `com.mohitarora.superartemis`, APK naming, release signing | Done |
 | W1 | Restore keeps paired PCs when the backup has no keys, plus a restore preview | Done |
 | W2 | Backup and restore dialog visual polish | Done |
-| W3 | Shared action registry, Quick Menu sections (Session in red), Customize in the Quick Menu, Back to Quick Menu in Advanced, style picker and live preview in the editor, one RecyclerView renderer | Code and unit tests done, device check pending |
-| W5 | In-app custom keys with a keyboard recorder and icons | Code and unit tests done, device check pending |
-| W4 | Floating quick-action bar in a chosen screen corner | Code and unit tests done, device check pending |
-| W6 | Configurable 3, 4 and 5-finger tap and double tap gestures | Code and unit tests done, device check pending |
-| W7 | When you leave the stream: Disconnect, Resume when reopened, or Picture-in-picture, plus auto-connect on start | Code and unit tests done, device matrix pending |
-| W9 | Opt-in Material You style on Android 12+ | Code and unit tests done, device look pending |
-| W10 | Branding and link fixes, fastlane, issue templates, FUNDING.yml | Done (new store screenshots are taken during the device checks) |
-| W12 | About: Support development (UPI, UPI QR, PayPal), developer profiles, credits, star on GitHub | Code and unit tests done, device check pending |
-| W17 | Scan active forks and upstream issues for small, high-demand additions | Done: 13 fixes ported with credit. The native core fixes sit uncommitted in the submodule until the common-c branch is committed and pushed. Deferred: Samsung Book Cover pointer capture (ClassicOldSong/moonlight-android#607, needs a device test with S Pen isolation), HDR indicator in the overlay (#431) and mouse sensitivity (#452, #529) |
-| W11 | README rewrite with the fork's USP, release notes | Planned |
-| W14 | In-stream verification on the Tab and the S24 | Waiting for pairing |
-| W15 | Push, CI release build, draft release, device install | Planned |
-| W16 | Small upstream bug-fix PRs after release | Planned |
+| W3 | Shared action registry, Quick Menu sections (Session in red), Customize in the Quick Menu, Back to Quick Menu in Advanced, style picker and live preview in the editor, one RecyclerView renderer | Done, in-stream check pending |
+| W5 | In-app custom keys with a keyboard recorder and icons | Done, in-stream check pending |
+| W4 | Quick-action bar in a chosen screen corner | Done, device check pending |
+| W6 | Configurable 3, 4 and 5-finger tap and double tap gestures | Done, device check pending |
+| W7 | When you leave the stream: Disconnect, Resume when reopened, or Picture-in-picture, plus auto-connect on start | Done, device matrix pending |
+| W9 | Opt-in Material You style on Android 12+ | Done, device look pending |
+| W10 | Branding and link fixes, fastlane, issue templates, FUNDING.yml, PR template, PRIVACY.md | Done (new store screenshots come from the device checks) |
+| W12 | About: Support development (UPI, UPI QR, PayPal), developer profiles, credits, star on GitHub | Done, device check pending |
+| W17 | Fork and upstream scan, then the approved fixes | Done: 13 fixes ported with credit. Deferred: Samsung Book Cover pointer capture (ClassicOldSong/moonlight-android#607, needs a device test with S Pen isolation), HDR indicator in the overlay (#431) and mouse sensitivity (#452, #529) |
 | W8 | Document Apollo per-client Do and Undo commands for connect and disconnect actions | Done (SETUP.md, with a mouse speed example) |
 | W19 | Stay current with upstream: UPSTREAM.md rule, weekly upstream watch issue, Dependabot | Done |
+| W11 | README with the fork's USP, CHANGELOG 1.0.0, release notes | Done (`.github/release-notes/v1.0.0.md`, attached to the draft release by CI) |
+| W14 | In-stream verification on the Tab and the S24 | Waiting (list above) |
+| W15 | Commit review, push, signing secrets, `v1.0.0` tag, CI draft release, install on both devices | Waiting for the owner |
+| W16 | Small upstream bug-fix PRs after release | After release |
 
 ## Open problems
 
-- README.md and fastlane metadata still describe upstream Artemis and Moonlight. Rewritten in W10 and W11.
-- `SUPER_ARTEMIS.md` duplicates what will move into README.md and this file. Merged in W11.
+- The common-c fixes must be committed in the submodule (with `git am`, so each keeps its author) and pushed to `Arora-Sir/moonlight-common-c` before the superproject commit that points at them.
+- The fastlane screenshots still show upstream Moonlight until new ones are taken.
 
 ## Known unknowns
 
-- Whether quick-switch to the previous app enters Picture-in-picture on One UI with Android 16 (measured in W7 before any change).
-- Whether the Android 16 trackpad tap issue (ClassicOldSong/moonlight-android#594) and the Samsung pacing issues (#416, #376, #415) reproduce on the test devices.
+- Whether a quick switch to the previous app enters picture-in-picture on One UI with Android 16 without the fallback in `onUserLeaveHint`.
+- Whether the Android 16 trackpad tap issue (ClassicOldSong/moonlight-android#594) reproduces on the Tab.
+- How much the frame pacing fixes change render FPS on the S24 and the Tab at 120 FPS.
 
 ## Where to start reading
 
 1. ARCHITECTURE.md for layers, modules and design decisions.
-2. `app/src/main/java/com/limelight/Game.java` for the stream activity (search for `applyMicrophoneInitialState` and `handleMultiTouchGesture`).
-3. `actions/StreamActionRegistry.java` for every stream action, then `GameMenu.java` and the `menu/` package for the in-stream menu and its editor.
-4. `preferences/StreamSettings.java` for settings and search, and the `backup/` package (start at `BackupRestoreController` and `RestoreStrategy`) for backup and restore.
-5. `app/src/main/res/raw/credits.json` and CONTRIBUTING.md before porting anything from another project.
+2. `app/src/main/java/com/limelight/Game.java` for the stream activity (search for `applyMicrophoneInitialState`, `handleMultiTouchGesture`, `initQuickActionBar` and `onUserLeaveHint`).
+3. `actions/StreamActionRegistry.java` for every stream action, then `GameMenu.java` and the `menu/` package for the in-stream menu, the editor and the quick-action bar.
+4. `customkeys/`, `gestures/`, `session/`, `theme/` and `about/` for the features of the same names.
+5. `preferences/StreamSettings.java` for settings and search, and the `backup/` package (start at `BackupRestoreController` and `RestoreStrategy`) for backup and restore.
+6. `app/src/main/res/raw/credits.json`, CONTRIBUTING.md and UPSTREAM.md before porting anything from another project.

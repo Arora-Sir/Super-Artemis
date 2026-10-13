@@ -1,87 +1,69 @@
-# Artemis Android
+# Super Artemis
 
-Previously named Moonlight Noir
+Stream games, apps or your whole desktop from a PC running [Apollo](https://github.com/ClassicOldSong/Apollo) to your Android phone or tablet, with your microphone, your own menu and your own controls.
 
-An open source client for [Apollo](https://github.com/ClassicOldSong/Apollo)/[Sunshine](https://github.com/LizardByte/Sunshine).
+Super Artemis is a fork of [Artemis](https://github.com/ClassicOldSong/moonlight-android) by ClassicOldSong, itself a fork of [Moonlight](https://github.com/moonlight-stream/moonlight-android). It keeps everything Artemis does and adds the features its community kept asking for, plus proven fixes from upstream Moonlight and other forks, with credit to everyone involved.
 
-Artemis Android will allow you to stream your collection of games from your Windows PC to your Android device,
-whether in your own home or over the internet.
+[Download the latest release](https://github.com/Arora-Sir/Super-Artemis/releases/latest) · [Get updates with Obtainium](https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22com.mohitarora.superartemis%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2FArora-Sir%2FSuper-Artemis%22%2C%22author%22%3A%22Arora-Sir%22%2C%22name%22%3A%22Super%20Artemis%22%2C%22additionalSettings%22%3A%22%7B%5C%22apkFilterRegEx%5C%22%3A%5C%22arm64-v8a%5C%22%2C%5C%22versionExtractionRegEx%5C%22%3A%5C%22v%28.%2B%29%5C%22%2C%5C%22matchGroupToUse%5C%22%3A%5C%22%241%5C%22%7D%22%7D) · [Report an issue](https://github.com/Arora-Sir/Super-Artemis/issues/new/choose)
 
-Artemis is currently the best fork of Moonlight with loads of optimizations for office usage.
+## Why Super Artemis
 
-A more seamless experience with virtual display will be Artemis paired with [Apollo](https://github.com/ClassicOldSong/Apollo).
+- **Talk while you play.** Your microphone streams to Apollo, and it stays off (no battery, no privacy indicator) until you unmute it from the menu.
+- **Your menu, your way.** Pick and reorder Quick Menu actions, choose list, grid or compact, and see the result live while editing. Disconnect and Quit always sit in their own red section.
+- **One tap, always on screen.** Pin actions and custom keys to a small quick-action bar in any screen corner. Toggles show green while on, and the bar fades when idle.
+- **Custom keys without JSON.** Record a shortcut on the built-in keyboard, name it and give it an icon.
+- **Gestures you choose.** Decide what 3, 4 and 5-finger taps and double taps do, or let them reach the PC.
+- **Leave and come back.** Disconnect, resume the same app when you return, or keep it in picture-in-picture, including on a quick app switch.
+- **Settings you never lose.** Back up every setting to one file and restore it with a preview that keeps the PCs already on your device.
+- **Smoother video.** The frame pacing setting works again, a renderer loop that dropped frames is gone, and native core fixes improve recovery after packet loss.
+- **Find anything.** Search all settings, and choose an optional Material You style on Android 12 and later.
 
-# Features
+## Features
 
-If you switch back to the main stream version, you'll be missing the following awesome features which are very unlikely to be added there:
+| Area | What you get |
+| :--- | :--- |
+| Voice | Microphone streaming to Apollo, "Microphone at stream start" (always off, always on, follow last state, remembered per PC), mute and unmute from the menu or the quick-action bar |
+| Menus | Sectioned Quick Menu, Advanced Menu with Back to Quick Menu, list, grid and compact styles, editor with live preview, quick-action bar in a corner you pick |
+| Input | Custom keys with a keyboard recorder and 28 icons, configurable multi-finger taps and double taps, S Pen strokes reach the PC on Android 13+, Print Screen and Samsung keyboard cover screenshot key |
+| Sessions | When you leave the stream: disconnect, resume when reopened (within 30 minutes) or picture-in-picture, optional connect to the last PC on app start, network drop grace period for short Wi-Fi drops |
+| Performance | Honoured frame pacing, no frame-dropping drain loop, refresh rate tracking, post-start low latency on Android 11+, decoder setup that cannot hang |
+| Backup | One JSON file through the system file picker, settings only by default, pairing keys as an explicit opt-in, restore preview that keeps existing PCs |
+| Look | Settings search, optional Material You (wallpaper colors, switches, rounded dialogs) |
+| About | Support development, developer profiles and in-app credits with links to every contributor |
 
-1. Custom virtual buttons with import and export support.
-2. [Custom resolutions](https://github.com/moonlight-stream/moonlight-android/pull/1349).
-3. Custom bitrates.
-4. [Multiple mouse mode switching](https://github.com/moonlight-stream/moonlight-android/pull/1304) (normal mouse, [multi-touch](https://github.com/moonlight-stream/moonlight-android/pull/1364), touchpad, disabled, local cursor mode).
-5. Optimized virtual gamepad skins and free joystick.
-6. External monitor mode.
-7. Joycon D-pad support.
-8. Simplified performance information display.
-9. [Game back menu](https://github.com/moonlight-stream/moonlight-android/pull/1171).
-10. Custom shortcut commands.
-11. Easy soft keyboard switching.
-12. Portrait mode.
-13. Display on top mode, useful for foldable phones.
-14. [Virtual touchpad space and sensitivity adjustment](https://github.com/moonlight-stream/moonlight-android/issues/1348#issuecomment-2236344729) for playing right-click view games, such as Warcraft.
-15. Force use device's own vibration motor (in case your gamepad's vibration is not effective).
-16. Gamepad debugging page to view gamepad vibration and gyroscope information, as well as Android kernel version information.
-17. Trackpad tap/scrolling support
-18. Natural track pad mode with touch screen
-19. Non-QWERTY keyboard layout support
-20. Quick Meta key with physical BACK button
-21. Frame rate lock fix for some devices
-22. Video scale mode: Fit/Fill/Stretch
-23. View pan/zoom support
-24. Rotate screen in-game
-25. Add option to quit app directly
-26. Samsung DeX scrolling support
-27. Proper click/scroll/right-click for trackpad on generic Android tablet when using local cursor
-28. Virtual Display integration with [Apollo](https://github.com/ClassicOldSong/Apollo)
-29. Server Command integration with [Apollo](https://github.com/ClassicOldSong/Apollo)
-30. Clipboard sync (requires Apollo)
-31. SBS 3D for external Displays (Using AI MiDaS v2 Lite)
+Everything from Artemis is still there: custom virtual buttons, custom resolutions and bitrates, multiple mouse modes, virtual gamepad skins, external display mode, Apollo virtual display, server commands and clipboard sync.
 
-# Disclaimer
+## Get started
 
-This is the `go away` version of Moonlight Android.
+1. Install [Apollo](https://github.com/ClassicOldSong/Apollo/releases) on your Windows PC and finish its first-time setup in the web UI.
+2. Install Super Artemis from [Releases](https://github.com/Arora-Sir/Super-Artemis/releases/latest) (or follow it with Obtainium). It installs as `com.mohitarora.superartemis`, next to Artemis and Moonlight.
+3. Tap your PC in the app and enter the PIN in the Apollo web UI.
+4. Start streaming. Open the menu with the Back key, a five-finger tap or the floating button.
 
-I got kicked from Moonlight and Sunshine's Discord server literally for helping people out.
+### Host setup
 
-This is what I got for finding a bug, opened an issue, getting no response, troubleshoot myself, fixed the issue myself, shared it by PR to the main repo hoping my efforts can help someone else during the maintainance gap.
-
-Yes, I'm going away. Fixes and improvements on this fork are not necessarily be merged to the main repo either. I have also started [a fork of Sunshine called Apollo](https://github.com/ClassicOldSong/Apollo) and will add useful features that will never get merged by the main repo shortly. [Apollo](https://github.com/ClassicOldSong/Apollo) and [Moonlight Noir](https://github.com/ClassicOldSong/moonlight-android) will no longer be compatible with OG Sunshine and OG Moonlight eventually, but they'll work even better with much more carefully designed features.
-
-The main repo had stayed silent for 5 months, with nobody actually responding to issues, and people are getting totally no help besides the limited FAQ in their Discord server. I tried to answer issues and questions, solve problems within my ablilty but I got kicked out just for helping others.
-
-**PRs for feature improvements are welcomed here unlike the main repo, your ideas are more likely to be appreciated and your efforts are actually being respected. We welcome people who can and willing to share their efforts, helping yourselves and other people in need.**
-
-**Update**: They have contacted me and apologized for this incident, but the fact it **happened** still motivated me to start my own fork.
-
-## Downloads
-* [Download APK directly](https://github.com/ClassicOldSong/moonlight-android/releases)
-* [Use Obtainium](https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22com.limelight.noir%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2FClassicOldSong%2Fmoonlight-android%22%2C%22author%22%3A%22ClassicOldSong%22%2C%22name%22%3A%22Artemis%22%2C%22additionalSettings%22%3A%22%7B%5C%22apkFilterRegEx%5C%22%3A%5C%22nonRoot%5C%22%2C%5C%22matchGroutToUse%5C%22%3A%5C%22%241%5C%22%2C%5C%22versionExtractionRegEx%5C%22%3A%5C%22v(.%2B)%5C%22%7D%22%7D) (recommended)
+- **Microphone:** in Apollo's `sunshine.conf` set `stream_mic = enabled` and `mic_backend = steam_streaming_microphone`, then turn on "Enable microphone streaming" in the app.
+- **Network drop grace period:** set Apollo's ping timeout at least as long as the grace period chosen in the app, or the host ends the session first.
+- **Actions on connect and disconnect:** Apollo's per-client Do and Undo commands run on every session start and stop. SETUP.md has a ready mouse speed example.
 
 ## Building
-* Install Android Studio and the Android NDK
-* Run ‘git submodule update --init --recursive’ from within moonlight-android/
-* In moonlight-android/, create a file called ‘local.properties’. Add an ‘ndk.dir=’ property to the local.properties file and set it equal to your NDK directory.
-* Build the APK using Android Studio or gradle
 
-## Authors
+You need JDK 17 or newer, the Android SDK (platform 36) and NDK `27.0.12077973`.
 
-* [Cameron Gutman](https://github.com/cgutman)  
-* [Diego Waxemberg](https://github.com/dwaxemberg)  
-* [Aaron Neyer](https://github.com/Aaronneyer)  
-* [Andrew Hennessy](https://github.com/yetanothername)
+```
+git clone --recurse-submodules https://github.com/Arora-Sir/Super-Artemis.git
+cd Super-Artemis
+./gradlew assembleNonRoot_gameDebug
+```
 
-Moonlight is the work of students at [Case Western](http://case.edu) and was
-started as a project at [MHacks](http://mhacks.org).
+The APK lands in `app/build/outputs/apk/nonRoot_game/debug/`. SETUP.md covers devices, pairing, tests, release signing and the doc checks. ARCHITECTURE.md explains how the app is built, CONTEXT.md shows the current state and UPSTREAM.md how the fork stays current with upstream.
+
+## Support
+
+Super Artemis is free, open source and has no ads. If it makes your streaming better:
+
+- Star this repository, it helps other people find it.
+- Support development in the app (Settings > About > Support development), with [PayPal](https://paypal.me/arorasir) or by UPI (`mohit1998arora@yescred`).
 
 ## Credits and thanks
 
@@ -124,3 +106,9 @@ Super Artemis stands on the work of these people and projects. The table is gene
 | Configurable 3, 4 and 5-finger taps and double taps, with Nothing passing taps to the PC | [@funkholio](https://github.com/funkholio), [@nightshadecf](https://github.com/nightshadecf), [@junoxxx67](https://github.com/junoxxx67) | Reported | [ClassicOldSong/moonlight-android#540](https://github.com/ClassicOldSong/moonlight-android/issues/540), [ClassicOldSong/moonlight-android#504](https://github.com/ClassicOldSong/moonlight-android/issues/504), [ClassicOldSong/moonlight-android#470](https://github.com/ClassicOldSong/moonlight-android/issues/470) |
 
 <!-- credits:end -->
+
+## License
+
+Super Artemis is licensed under the GNU General Public License v3, like Artemis and Moonlight. See LICENSE.txt. The privacy policy is in PRIVACY.md.
+
+Moonlight was created by [Cameron Gutman](https://github.com/cgutman), [Diego Waxemberg](https://github.com/dwaxemberg), [Aaron Neyer](https://github.com/Aaronneyer) and [Andrew Hennessy](https://github.com/yetanothername), and Artemis and Apollo by [ClassicOldSong](https://github.com/ClassicOldSong). Super Artemis is an independent fork and is not affiliated with those projects.

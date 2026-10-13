@@ -4,6 +4,12 @@ All notable changes to Super Artemis are listed here. The format follows [Keep a
 
 ## [Unreleased]
 
+Nothing yet.
+
+## [1.0.0]
+
+The first Super Artemis release, not published yet. The date is set when the `v1.0.0` tag is published, and the release notes are in `.github/release-notes/v1.0.0.md`.
+
 ### Added
 
 - Microphone streaming to Apollo hosts that negotiate a mic stream (Steam Streaming Microphone on Windows), ported from @logabell's work in ClassicOldSong/moonlight-android#537.
@@ -50,3 +56,7 @@ All notable changes to Super Artemis are listed here. The format follows [Keep a
 - Controller LED crashes, rumble on newer Android versions, Xbox Series controller IDs, Shift for the plus key and Android 15 and 16 key codes, from Moonlight 12.2 (@cgutman, @T2Fat2Fly, @bladeoner, @ReenigneArcher).
 - Native core: recovery after multi-block video loss and partially dropped IDR frames, no speculative loss reports with RFI off, RTT queries without the ENet lock, thread and pthread attribute leaks, and RTSP hardening against malformed or oversized responses (@cgutman, @foxirain, picked as in ClassicOldSong/moonlight-common-c#2 by @JustinZeus).
 - The local mouse cursor setting lists the Ctrl+Alt+Shift shortcuts.
+
+### Credits
+
+Everyone credited for this release is listed in the README credits table and in Settings > About > Credits, both generated from `app/src/main/res/raw/credits.json`.

@@ -14,7 +14,7 @@ Each entry records a problem that was fixed in a way a future change could silen
 
 - **Symptom:** Turning off the Back Menu setting also disabled the five-finger tap that opens the in-stream menu.
 - **Root Cause:** Both five-finger paths in `Game.java` checked `prefConfig.enableBackMenu`, although that setting only describes the physical back key.
-- **Fix Applied:** A separate `checkbox_five_finger_menu` setting (`enableFiveFingerMenu`) gates the gesture. The back key, floating button and controller combo still follow Back Menu.
+- **Fix Applied:** The five-finger tap first got its own setting, which configurable gestures later replaced: the `gesture_tap_5` binding decides what it does, and the old `checkbox_five_finger_menu` value migrates into it. The back key, floating button and controller combo still follow Back Menu. Gestures must never check `enableBackMenu`.
 - **Verification:** On the Tab, Floating Button greys out with Back Menu off while "Five-finger tap opens menu" stays independent.
 - **Status:** Fixed.
 

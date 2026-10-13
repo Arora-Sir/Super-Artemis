@@ -87,7 +87,7 @@ Manual toggles write the per-host state used by "Follow last state".
 ### In-stream menu
 
 ```
-Back key / five-finger tap / floating button -> GameMenu.showMenu
+Back key / floating button / a gesture bound to the Quick Menu (five-finger tap by default) -> GameMenu.showMenu
   -> StreamActionRegistry actions, filtered by isAvailable(GameActionHost), labels from the live state
   -> Quick Menu   Actions: pinned IDs in user order
                   Session: Disconnect and Quit in red (always present, not configurable)
@@ -159,7 +159,7 @@ Restore: SAF OpenDocument -> BackupCodec.parse validates the whole file (nothing
 | Custom keys keep the upstream JSON format and only add an optional `icon` field | Files from the upstream wiki, imports, exports and backups keep working in both directions |
 | A custom key without an ID gets its list position as ID on first save | The on-screen key layer already names such keys `custom_<position>`, so their saved positions survive the switch to the editor |
 | One RecyclerView renderer for every menu style and the editor preview | The preview cannot disagree with the real menu, and D-pad focus works the same in every style |
-| Five-finger tap has its own setting | Back Menu only describes the physical back key |
+| Multi-finger gestures do not depend on Back Menu | Back Menu only describes the physical back key, so turning it off must not remove gesture bindings |
 | Settings search uses exact matching and expands collapsed categories first | Fuzzy matching ranked loosely related settings first, and the library cannot scroll to items hidden in a collapsed group |
 | Backups are settings-only by default, pairing keys are opt-in | A file with keys can connect to the user's PCs as this device, so including them must be a deliberate choice |
 | Restore validates the whole file and shows a preview before writing, then restarts the process | A half-applied or surprising restore is worse than none, and long-lived services cache hosts and identity |
