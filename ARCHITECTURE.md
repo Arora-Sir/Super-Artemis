@@ -169,4 +169,5 @@ Restore: SAF OpenDocument -> BackupCodec.parse validates the whole file (nothing
 | Backups record a fingerprint of the public client certificate | The preview can tell whether added PCs work as is or need pairing again, without storing any secret |
 | The restore preview counts saved PCs and never calls them paired | `computers4.db` also holds PCs found by LAN discovery, and pair state is only known after asking each host |
 | Credits live in one JSON file | README, release notes and the app always agree, and CI catches drift |
+| Upstream changes are tracked from a reviewed commit per source, with a weekly report | Nothing slips between reviews, and the report starts exactly where the last review ended |
 | Upstream contributions are small bug fixes only | The upstream maintainer declined menu reordering and Material 3 pending a UI rewrite |

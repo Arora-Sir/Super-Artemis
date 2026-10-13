@@ -4,7 +4,7 @@
 
 Super Artemis is an open source game streaming client. It has no accounts, no ads, no analytics and no tracking, and the developer runs no server that the app talks to.
 
-## What stays on your device
+## What the app stores
 
 - Settings, menu layouts, custom keys, gesture bindings and profiles are stored in the app's private storage.
 - The list of PCs you added, with their addresses and server certificates, is stored in the app's private storage.
@@ -23,7 +23,7 @@ The microphone is used only while a stream is running, only when "Enable microph
 
 ## Performance logs
 
-Local performance logging, when you turn it on, stays on your device. The upstream option that emails logs to the Artemis performance dataset is hidden in Super Artemis.
+Performance logging, when you turn it on, writes its log files into the app's storage on your device. Super Artemis hides the upstream Artemis option that emailed these logs to the Artemis performance dataset.
 
 ## Changes
 

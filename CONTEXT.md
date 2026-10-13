@@ -42,7 +42,8 @@ The debug build needs pairing with Apollo first. Then check the mic off by defau
 | W14 | In-stream verification on the Tab and the S24 | Waiting for pairing |
 | W15 | Push, CI release build, draft release, device install | Planned |
 | W16 | Small upstream bug-fix PRs after release | Planned |
-| W8 | Document Apollo per-client Do and Undo commands for connect and disconnect actions | Planned |
+| W8 | Document Apollo per-client Do and Undo commands for connect and disconnect actions | Done (SETUP.md, with a mouse speed example) |
+| W19 | Stay current with upstream: UPSTREAM.md rule, weekly upstream watch issue, Dependabot | Done |
 
 ## Open problems
 

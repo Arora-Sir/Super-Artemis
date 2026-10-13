@@ -54,6 +54,10 @@ Super Artemis is built from the work of many people. Every change that ports cod
 - Run `python scripts/render_credits.py --write` to refresh the README table. CI fails if the table is stale.
 - Release notes take their Thanks section from `python scripts/render_credits.py --release-notes`.
 
+### Taking changes from upstream and forks
+
+Follow UPSTREAM.md: review the weekly "Upstream watch" issue and security advisories, keep original authorship with `git am` or `git cherry-pick` where the change applies cleanly, and add the source to `scripts/upstream_sources.json` when code comes from a new repository.
+
 ## Important Rules
 
 ### AI-Generated Code Policy

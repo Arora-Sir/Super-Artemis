@@ -36,7 +36,34 @@ Release builds install as `com.mohitarora.superartemis` and debug builds as `com
 
 - Microphone: in `sunshine.conf` set `stream_mic = enabled` and `mic_backend = steam_streaming_microphone`.
 - Network drop grace period: the app setting only helps if Apollo's ping timeout is at least as long.
-- Connect and disconnect actions: Apollo web UI, Clients, select the device, then add Do commands (run on every session start) and Undo commands (run on every session stop, which includes disconnect and quit).
+- Connect and disconnect actions: see the next section.
+
+## Run commands on the PC when a stream starts and stops
+
+Apollo runs per-client commands on the host: Do commands when a session starts and Undo commands when it stops, which includes Disconnect, Quit and a dropped connection. This replaces watching logs on the PC (for example with AutoHotkey) to react to disconnects, and nothing is needed in the app.
+
+1. Open the Apollo web UI (`https://<host>:47990`), go to Clients and select this device.
+2. Add a Do command and an Undo command, and enable "Run as administrator" only when the command needs it.
+3. Save. The commands run for this device only, so other clients are not affected.
+
+Example: a faster mouse while streaming from a tablet, and the normal speed afterwards. Save this as `mouse-speed.ps1` on the PC:
+
+```powershell
+param([int]$Speed = 10)
+$signature = '[DllImport("user32.dll")] public static extern bool SystemParametersInfo(int action, int param, IntPtr value, int update);'
+$user32 = Add-Type -MemberDefinition $signature -Name User32 -Namespace Win32 -PassThru
+# SPI_SETMOUSESPEED (0x71), saved to the profile and broadcast to running apps
+$user32::SystemParametersInfo(0x71, 0, [IntPtr]$Speed, 3) | Out-Null
+```
+
+- Do: `powershell -NoProfile -ExecutionPolicy Bypass -File C:\Scripts\mouse-speed.ps1 -Speed 16`
+- Undo: `powershell -NoProfile -ExecutionPolicy Bypass -File C:\Scripts\mouse-speed.ps1 -Speed 10`
+
+Windows mouse speed ranges from 1 to 20, and 10 is the default.
+
+## Keeping up with upstream
+
+Follow UPSTREAM.md. The weekly "Upstream watch" issue lists new commits, releases and security advisories from every project the fork builds on, and `python scripts/upstream_watch.py` produces the same report locally.
 
 ## Tests
 
