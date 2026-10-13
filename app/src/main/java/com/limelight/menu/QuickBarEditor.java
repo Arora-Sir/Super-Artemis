@@ -154,7 +154,7 @@ public final class QuickBarEditor {
             this.context = context;
             this.prefs = prefs;
             this.onChanged = onChanged;
-            this.state = BarSets.load(prefs);
+            this.state = BarSets.load(context);
             this.keys = SpecialKeys.visible(context);
             this.shownSet = state.active;
             loadRows();
@@ -285,12 +285,15 @@ public final class QuickBarEditor {
                     });
             refresh();
 
-            builder.setTitle(R.string.title_quick_bar)
+            // With a profile active the bars belong to it, so the title names the profile being edited
+            String profile = com.limelight.profiles.ProfilesManager.getInstance().getActiveName();
+            builder.setTitle(profile.isEmpty() ? context.getString(R.string.title_quick_bar)
+                    : context.getString(R.string.title_quick_bar_profile, profile))
                     .setView(body)
                     .setPositiveButton(R.string.game_menu_editor_save, (dialog, which) -> {
                         storeRows();
                         state.active = shownSet;
-                        BarSets.save(prefs, state);
+                        BarSets.save(context, state);
                         if (onChanged != null) {
                             onChanged.run();
                         }

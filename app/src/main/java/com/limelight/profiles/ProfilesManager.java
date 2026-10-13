@@ -155,6 +155,62 @@ public class ProfilesManager {
         saveIfPossible();
     }
 
+    // Options are copied one level deep, so editing the copy never changes a list or set held by the original
+    static Map<String, Object> copyOptions(Map<String, Object> options) {
+        Map<String, Object> copy = new java.util.HashMap<>();
+        if (options == null) {
+            return copy;
+        }
+        for (Map.Entry<String, Object> entry : options.entrySet()) {
+            Object value = entry.getValue();
+            if (value instanceof java.util.Collection) {
+                value = new ArrayList<>((java.util.Collection<?>) value);
+            }
+            copy.put(entry.getKey(), value);
+        }
+        return copy;
+    }
+
+    // A new profile with every option of the given one, which stays as it is
+    public SettingsProfile duplicate(UUID uuid, String newName) {
+        SettingsProfile source = profiles.get(uuid);
+        if (source == null) {
+            return null;
+        }
+        long now = System.currentTimeMillis();
+        SettingsProfile copy = new SettingsProfile(UUID.randomUUID(), newName, now, now, copyOptions(source.getOptions()));
+        add(copy);
+        return copy;
+    }
+
+    // Replaces every option of the target with the source's options. The target keeps its name, ID and active state.
+    public boolean copyOptionsInto(UUID from, UUID to) {
+        SettingsProfile source = profiles.get(from);
+        SettingsProfile target = profiles.get(to);
+        if (source == null || target == null || from.equals(to)) {
+            return false;
+        }
+        target.setOptions(copyOptions(source.getOptions()));
+        target.setModifiedUtc(System.currentTimeMillis());
+        update(target);
+        return true;
+    }
+
+    // NOTE: Writes values into the active profile instead of the default settings, for settings that belong to a profile such as quick-action bar sets.
+    // NOTE: Returns false when no profile is active, so the caller writes the default settings instead.
+    public boolean putIntoActive(Map<String, Object> values) {
+        SettingsProfile active = getActive();
+        if (active == null) {
+            return false;
+        }
+        Map<String, Object> options = copyOptions(active.getOptions());
+        options.putAll(values);
+        active.setOptions(options);
+        active.setModifiedUtc(System.currentTimeMillis());
+        update(active);
+        return true;
+    }
+
     public void setActive(UUID uuid) {
         activeProfileId = uuid;
         notifyListeners();

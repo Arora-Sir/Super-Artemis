@@ -81,8 +81,61 @@ public class ProfilesAdapter extends RecyclerView.Adapter<ProfilesAdapter.Profil
                 .show();
         });
 
+        holder.copyProfile.setOnClickListener(v -> showCopyMenu(v, profile));
+
         // Also make the whole row clickable to edit
         holder.itemView.setOnClickListener(v -> holder.editProfile.performClick());
+    }
+
+    // Duplicate makes a new profile, Copy settings into overwrites another profile after a confirmation
+    private void showCopyMenu(View anchor, SettingsProfile profile) {
+        android.widget.PopupMenu popup = new android.widget.PopupMenu(context, anchor);
+        popup.getMenu().add(0, 1, 0, R.string.profile_manager_duplicate);
+        List<SettingsProfile> others = new java.util.ArrayList<>();
+        for (SettingsProfile other : profilesManager.getProfiles()) {
+            if (!other.getUuid().equals(profile.getUuid())) {
+                others.add(other);
+            }
+        }
+        if (!others.isEmpty()) {
+            popup.getMenu().add(0, 2, 1, R.string.profile_manager_copy_into);
+        }
+        popup.setOnMenuItemClickListener(item -> {
+            if (item.getItemId() == 1) {
+                SettingsProfile copy = profilesManager.duplicate(profile.getUuid(),
+                        context.getString(R.string.profile_manager_copy_name, profile.getName()));
+                if (copy != null) {
+                    profilesManager.save(context);
+                    Toast.makeText(context, context.getString(R.string.profile_manager_duplicated, copy.getName()), Toast.LENGTH_SHORT).show();
+                }
+                return true;
+            }
+            String[] names = new String[others.size()];
+            for (int i = 0; i < names.length; i++) {
+                names[i] = others.get(i).getName();
+            }
+            new AlertDialog.Builder(context)
+                    .setTitle(context.getString(R.string.profile_manager_copy_into_title, profile.getName()))
+                    .setItems(names, (dialog, which) -> confirmCopyInto(profile, others.get(which)))
+                    .setNegativeButton(R.string.cancel, null)
+                    .show();
+            return true;
+        });
+        popup.show();
+    }
+
+    private void confirmCopyInto(SettingsProfile from, SettingsProfile to) {
+        new AlertDialog.Builder(context)
+                .setTitle(R.string.profile_manager_copy_into)
+                .setMessage(context.getString(R.string.profile_manager_copy_into_confirm, from.getName(), to.getName()))
+                .setPositiveButton(R.string.profile_manager_copy_into_action, (dialog, which) -> {
+                    if (profilesManager.copyOptionsInto(from.getUuid(), to.getUuid())) {
+                        profilesManager.save(context);
+                        Toast.makeText(context, context.getString(R.string.profile_manager_copied_into, to.getName()), Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .setNegativeButton(R.string.cancel, null)
+                .show();
     }
 
     @Override
@@ -94,6 +147,7 @@ public class ProfilesAdapter extends RecyclerView.Adapter<ProfilesAdapter.Profil
         TextView profileName;
         TextView profileTimestamp;
         RadioButton profileActive;
+        ImageButton copyProfile;
         ImageButton editProfile;
         ImageButton deleteProfile;
 
@@ -102,6 +156,7 @@ public class ProfilesAdapter extends RecyclerView.Adapter<ProfilesAdapter.Profil
             profileName = itemView.findViewById(R.id.profileName);
             profileTimestamp = itemView.findViewById(R.id.profileTimestamp);
             profileActive = itemView.findViewById(R.id.profileActive);
+            copyProfile = itemView.findViewById(R.id.copyProfile);
             editProfile = itemView.findViewById(R.id.editProfile);
             deleteProfile = itemView.findViewById(R.id.deleteProfile);
         }

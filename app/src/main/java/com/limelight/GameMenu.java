@@ -291,7 +291,7 @@ public class GameMenu implements Game.GameMenuCallbacks {
     // NOTE: Opened by a long press on a quick-action bar button. Every entry works on that button's bar in the active set.
     // NOTE: A key recorded or pinned here goes straight onto this bar and into Send special keys, so it is ready in both places.
     public void showQuickBarMenu(int barIndex, String buttonLabel) {
-        List<BarSets.Bar> bars = BarSets.load(prefs()).activeSet().bars;
+        List<BarSets.Bar> bars = BarSets.load(game).activeSet().bars;
         if (barIndex < 0 || barIndex >= bars.size()) {
             return;
         }
@@ -311,7 +311,7 @@ public class GameMenu implements Game.GameMenuCallbacks {
 
     // Special keys not on this bar yet, each one tap away from being pinned
     private void showPinKeyMenu(int barIndex) {
-        List<BarSets.Bar> bars = BarSets.load(prefs()).activeSet().bars;
+        List<BarSets.Bar> bars = BarSets.load(game).activeSet().bars;
         if (barIndex < 0 || barIndex >= bars.size()) {
             return;
         }
@@ -329,18 +329,18 @@ public class GameMenu implements Game.GameMenuCallbacks {
     }
 
     private void pinToBar(int barIndex, String item) {
-        BarSets.State state = BarSets.load(prefs());
+        BarSets.State state = BarSets.load(game);
         List<BarSets.Bar> bars = state.activeSet().bars;
         if (barIndex >= 0 && barIndex < bars.size()) {
             bars.get(barIndex).add(item);
-            BarSets.save(prefs(), state);
+            BarSets.save(game, state);
         }
         game.reloadQuickActionBar();
     }
 
     // Only offered when there is more than one set, so the Quick Menu stays short for everyone else
     private MenuEntry switchBarSetEntry() {
-        BarSets.State state = BarSets.load(prefs());
+        BarSets.State state = BarSets.load(game);
         if (state.sets.size() < 2) {
             return null;
         }
@@ -351,7 +351,7 @@ public class GameMenu implements Game.GameMenuCallbacks {
                 String name = state.sets.get(i).name;
                 entries.add(new MenuOption(i == state.active ? game.getString(R.string.quick_bar_set_active, name) : name,
                         R.drawable.ic_gm_toggle_floating_button, false, () -> {
-                    BarSets.setActive(prefs(), index);
+                    BarSets.setActive(game, index);
                     game.reloadQuickActionBar();
                 }));
             }

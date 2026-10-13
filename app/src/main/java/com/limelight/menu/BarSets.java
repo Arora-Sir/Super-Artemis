@@ -1,6 +1,11 @@
 package com.limelight.menu;
 
+import android.content.Context;
 import android.content.SharedPreferences;
+
+import androidx.preference.PreferenceManager;
+
+import com.limelight.profiles.ProfilesManager;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -9,11 +14,15 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 // NOTE: Quick-action bars as named sets. A set holds any number of bars, and each bar has an anchor, a grid of rows and columns, an offset and its items.
 // NOTE: One set is active at a time and the Quick Menu switches between sets, so a game layout and a desktop layout can each keep their own bars.
 // NOTE: The first load turns the four corner bars of earlier versions into a "Default" set. Their old keys stay untouched, so an older version still reads them.
+// NOTE: Sets belong to the active settings profile. Reads go through the profile overlay and saves go into the profile, so each profile keeps its own sets.
+// NOTE: Without an active profile, or for a profile made before sets existed, the default settings hold the sets.
 public final class BarSets {
     public static final String PREF_SETS = "quick_bar_sets";
     public static final String PREF_ACTIVE = "quick_bar_active_set";
@@ -136,6 +145,25 @@ public final class BarSets {
 
     static int clamp(int value, int min, int max) {
         return Math.max(min, Math.min(max, value));
+    }
+
+    public static State load(Context context) {
+        return load(ProfilesManager.getInstance().getOverlayingSharedPreferences(context));
+    }
+
+    public static void save(Context context, State state) {
+        Map<String, Object> values = new HashMap<>();
+        values.put(PREF_SETS, toJson(state.sets));
+        values.put(PREF_ACTIVE, state.active);
+        if (!ProfilesManager.getInstance().putIntoActive(values)) {
+            save(PreferenceManager.getDefaultSharedPreferences(context), state);
+        }
+    }
+
+    public static void setActive(Context context, int index) {
+        State state = load(context);
+        state.active = clamp(index, 0, state.sets.size() - 1);
+        save(context, state);
     }
 
     public static State load(SharedPreferences prefs) {

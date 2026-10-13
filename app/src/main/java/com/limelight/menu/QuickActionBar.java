@@ -104,8 +104,7 @@ public final class QuickActionBar {
             return;
         }
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        List<BarSets.Bar> specs = BarSets.load(prefs).activeSet().bars;
+        List<BarSets.Bar> specs = BarSets.load(context).activeSet().bars;
         for (int i = 0; i < specs.size(); i++) {
             LinearLayout bar = buildBar(i, specs.get(i));
             if (bar != null) {

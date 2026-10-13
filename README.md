@@ -57,8 +57,9 @@ Everything else from Artemis stays: custom virtual buttons, custom resolutions a
 | :--- | :--- |
 | Quick Menu editor | Choose the actions and special keys, drag to reorder, hide actions you never use from the Advanced Menu, and pick list, grid or compact with a live preview. |
 | Sections | Actions and session controls are separate, and Disconnect and Quit sit in their own red section. |
-| Quick-action bars | Any number of bars, each at one of nine positions with a nudge, as a grid of 1 to 20 rows and columns. Bars live in named sets (game, desktop and so on) that you switch from the Quick Menu. Toggles show when they are on and the bars fade when idle. Edit them from the Quick Menu during a stream. |
+| Quick-action bars | Any number of bars, each at one of nine positions with a nudge, as a grid of 1 to 20 rows and columns. Bars live in named sets (game, desktop and so on) that you switch from the Quick Menu, and each settings profile keeps its own sets. Toggles show when they are on and the bars fade when idle. Edit them from the Quick Menu during a stream. |
 | Floating menu button | Opens the Quick Menu even with the Back menu turned off. |
+| Profile copies | Duplicate a settings profile, or copy all of its settings into another profile, from the copy button in Profiles. |
 
 ### Keys and keyboard
 

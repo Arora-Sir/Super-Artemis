@@ -43,6 +43,15 @@
         android:layout_marginRight="8dp" />
 
     <ImageButton
+        android:id="@+id/copyProfile"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:background="?android:attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/profile_manager_copy"
+        android:src="@drawable/ic_sa_content_copy"
+        android:tint="#FFFFFF" />
+
+    <ImageButton
         android:id="@+id/editProfile"
         android:layout_width="48dp"
         android:layout_height="48dp"
