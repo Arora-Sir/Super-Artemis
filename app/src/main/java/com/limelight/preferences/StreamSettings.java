@@ -66,6 +66,7 @@ import com.limelight.gestures.GestureEditor;
 import com.limelight.session.BackgroundPolicy;
 import com.limelight.binding.input.virtual_controller.keyboard.KeyBoardControllerConfigurationLoader;
 import com.limelight.binding.video.MediaCodecHelper;
+import com.limelight.theme.ThemeManager;
 import com.limelight.utils.Dialog;
 import com.limelight.utils.FileUriUtils;
 import com.limelight.utils.PerformanceDataTracker;
@@ -80,6 +81,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class StreamSettings extends AppCompatActivity implements SearchPreferenceResultListener {
+    private String appliedStyle;
     private PreferenceConfiguration previousPrefs;
     private int previousDisplayPixelCount;
 
@@ -117,8 +119,19 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        // The app style changed in settings while this screen was in the background
+        if (ThemeManager.needsRecreate(this, appliedStyle)) {
+            recreate();
+        }
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
 //        setTheme(R.style.AppTheme);
+        // Classic or Material You, applied before any view is inflated
+        appliedStyle = ThemeManager.apply(this);
         super.onCreate(savedInstanceState);
 
         previousPrefs = PreferenceConfiguration.readPreferences(this);
@@ -386,6 +399,7 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
             setupQuickBar();
             setupGestures();
             setupBackgroundPolicy();
+            setupAppStyle();
             PackageManager pm = activity.getPackageManager();
 
             // hide on-screen controls category on non touch screen devices
@@ -1244,6 +1258,22 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
                     return true;
                 });
             }
+        }
+
+        // Material You needs Android 12 for wallpaper colors, and the screen rebuilds right away so the change is visible
+        private void setupAppStyle() {
+            ListPreference style = findPreference(ThemeManager.PREF_KEY);
+            if (style == null) {
+                return;
+            }
+            if (!ThemeManager.isSupported()) {
+                style.setVisible(false);
+                return;
+            }
+            style.setOnPreferenceChangeListener((preference, newValue) -> {
+                requireActivity().getWindow().getDecorView().post(() -> requireActivity().recreate());
+                return true;
+            });
         }
 
         // The summary spells out what each choice costs, since the trade-off is battery against convenience

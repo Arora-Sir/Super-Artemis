@@ -54,6 +54,14 @@
         <item>71</item>
     </string-array>
 
+    <string-array name="app_style_names">
+        <item>@string/app_style_classic</item>
+        <item>@string/app_style_material_you</item>
+    </string-array>
+    <string-array name="app_style_values" translatable="false">
+        <item>classic</item>
+        <item>material_you</item>
+    </string-array>
     <string-array name="background_policy_names">
         <item>@string/background_policy_disconnect</item>
         <item>@string/background_policy_resume</item>

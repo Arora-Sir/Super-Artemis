@@ -21,6 +21,7 @@ import com.limelight.preferences.PreferenceConfiguration;
 import com.limelight.preferences.StreamSettings;
 import com.limelight.profiles.ProfilesManager;
 import com.limelight.profiles.SettingsProfile;
+import com.limelight.theme.ThemeManager;
 import com.limelight.utils.UiHelper;
 
 import java.util.HashMap;
@@ -29,6 +30,7 @@ import java.util.Map;
 import java.util.UUID;
 
 public class EditProfileActivity extends AppCompatActivity {
+    private String appliedStyle;
     private String profileUuid;
     private SettingsProfile currentProfile;
     private InMemorySharedPreferences inMemoryPrefs;
@@ -36,7 +38,18 @@ public class EditProfileActivity extends AppCompatActivity {
     private String pendingProfileName; // Holds new name for unsaved profiles
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        // The app style changed in settings while this screen was in the background
+        if (ThemeManager.needsRecreate(this, appliedStyle)) {
+            recreate();
+        }
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // Classic or Material You, applied before any view is inflated
+        appliedStyle = ThemeManager.apply(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_profile);
 
@@ -295,7 +308,11 @@ public class EditProfileActivity extends AppCompatActivity {
                 _pref.setVisible(false);
             }
             // Custom keys are shared by every profile, so they are managed from the main settings only
-            // Leaving and reconnecting behaviour applies to the whole app
+            // App style, leaving and reconnecting behaviour apply to the whole app
+            _pref = findPreference("list_app_style");
+            if (_pref != null) {
+                _pref.setVisible(false);
+            }
             _pref = findPreference("list_background_policy");
             if (_pref != null) {
                 _pref.setVisible(false);

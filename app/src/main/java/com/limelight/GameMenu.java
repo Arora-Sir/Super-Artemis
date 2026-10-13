@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
-import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.Window;
@@ -31,6 +30,7 @@ import com.limelight.menu.MenuEntry;
 import com.limelight.menu.MenuSections;
 import com.limelight.menu.QuickBarEditor;
 import com.limelight.preferences.PreferenceConfiguration;
+import com.limelight.theme.ThemeManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -133,8 +133,9 @@ public class GameMenu implements Game.GameMenuCallbacks {
         }
     }
 
+    // Menus follow the app style (Classic or Material You), not the stream activity's own theme
     private Context themedContext() {
-        return new ContextThemeWrapper(dialogScreenContext, game.getApplicationInfo().theme);
+        return ThemeManager.dialogContext(dialogScreenContext, game.getApplicationInfo().theme);
     }
 
     private void showMenuDialog(String title, List<MenuEntry> entries) {

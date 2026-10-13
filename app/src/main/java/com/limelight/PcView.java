@@ -22,6 +22,7 @@ import com.limelight.preferences.GlPreferences;
 import com.limelight.preferences.PreferenceConfiguration;
 import com.limelight.preferences.StreamSettings;
 import com.limelight.profiles.ProfilesManager;
+import com.limelight.theme.ThemeManager;
 import com.limelight.ui.AdapterFragment;
 import com.limelight.ui.AdapterFragmentCallbacks;
 import com.limelight.utils.Dialog;
@@ -72,6 +73,7 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 public class PcView extends AppCompatActivity implements AdapterFragmentCallbacks {
+    private String appliedStyle;
     private RelativeLayout noPcFoundLayout;
     private PcGridAdapter pcGridAdapter;
     private ShortcutHelper shortcutHelper;
@@ -209,6 +211,8 @@ public class PcView extends AppCompatActivity implements AdapterFragmentCallback
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // Classic or Material You, applied before any view is inflated
+        appliedStyle = ThemeManager.apply(this);
         super.onCreate(savedInstanceState);
 
         // Assume we're in the foreground when created to avoid a race
@@ -376,6 +380,11 @@ public class PcView extends AppCompatActivity implements AdapterFragmentCallback
     @Override
     protected void onResume() {
         super.onResume();
+        // The app style changed in settings while this screen was in the background
+        if (ThemeManager.needsRecreate(this, appliedStyle)) {
+            recreate();
+            return;
+        }
 
         // Display a decoder crash notification if we've returned after a crash
         UiHelper.showDecoderCrashDialog(this);

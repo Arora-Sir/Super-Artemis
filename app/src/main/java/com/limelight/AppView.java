@@ -15,6 +15,7 @@ import com.limelight.nvstream.http.NvHTTP;
 import com.limelight.nvstream.http.PairingManager;
 import com.limelight.preferences.PreferenceConfiguration;
 import com.limelight.profiles.ProfilesManager;
+import com.limelight.theme.ThemeManager;
 import com.limelight.ui.AdapterFragment;
 import com.limelight.ui.AdapterFragmentCallbacks;
 import com.limelight.utils.CacheHelper;
@@ -57,6 +58,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import org.xmlpull.v1.XmlPullParserException;
 
 public class AppView extends AppCompatActivity implements AdapterFragmentCallbacks {
+    private String appliedStyle;
     private AppGridAdapter appGridAdapter;
     private String uuidString;
     private ShortcutHelper shortcutHelper;
@@ -295,6 +297,8 @@ public class AppView extends AppCompatActivity implements AdapterFragmentCallbac
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // Classic or Material You, applied before any view is inflated
+        appliedStyle = ThemeManager.apply(this);
         super.onCreate(savedInstanceState);
 
         // Assume we're in the foreground when created to avoid a race
@@ -392,6 +396,11 @@ public class AppView extends AppCompatActivity implements AdapterFragmentCallbac
     @Override
     protected void onResume() {
         super.onResume();
+        // The app style changed in settings while this screen was in the background
+        if (ThemeManager.needsRecreate(this, appliedStyle)) {
+            recreate();
+            return;
+        }
 
         // Display a decoder crash notification if we've returned after a crash
         UiHelper.showDecoderCrashDialog(this);

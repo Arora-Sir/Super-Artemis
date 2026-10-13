@@ -591,6 +591,14 @@
             android:title="@string/title_gestures"
             app:iconSpaceReserved="false" />
         <ListPreference
+            android:defaultValue="classic"
+            android:entries="@array/app_style_names"
+            android:entryValues="@array/app_style_values"
+            android:key="list_app_style"
+            android:title="@string/title_app_style"
+            app:iconSpaceReserved="false"
+            app:useSimpleSummaryProvider="true" />
+        <ListPreference
             android:defaultValue="list"
             android:entries="@array/game_menu_style_names"
             android:entryValues="@array/game_menu_style_values"

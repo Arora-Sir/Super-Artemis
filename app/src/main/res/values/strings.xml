@@ -294,6 +294,9 @@
     <string name="restore_apply">Restore</string>
     <string name="restore_success">Settings restored, restarting</string>
     <string name="restore_failed">Restore failed: %1$s</string>
+    <string name="title_app_style">App style</string>
+    <string name="app_style_classic">Classic</string>
+    <string name="app_style_material_you">Material You (wallpaper colors, switches, rounded dialogs)</string>
     <string name="title_background_policy">When you leave the stream</string>
     <string name="background_policy_disconnect">Disconnect</string>
     <string name="background_policy_resume">Disconnect, resume when reopened</string>

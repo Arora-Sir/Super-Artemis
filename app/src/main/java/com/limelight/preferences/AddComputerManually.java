@@ -17,6 +17,7 @@ import com.limelight.R;
 import com.limelight.nvstream.http.ComputerDetails;
 import com.limelight.nvstream.http.NvHTTP;
 import com.limelight.nvstream.jni.MoonBridge;
+import com.limelight.theme.ThemeManager;
 import com.limelight.utils.Dialog;
 import com.limelight.utils.ServerHelper;
 import com.limelight.utils.SpinnerDialog;
@@ -41,6 +42,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class AddComputerManually extends AppCompatActivity {
+    private String appliedStyle;
     private TextView hostText;
     private ComputerManagerService.ComputerManagerBinder managerBinder;
     private final LinkedBlockingQueue<String> computersToAdd = new LinkedBlockingQueue<>();
@@ -277,7 +279,18 @@ public class AddComputerManually extends AppCompatActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        // The app style changed in settings while this screen was in the background
+        if (ThemeManager.needsRecreate(this, appliedStyle)) {
+            recreate();
+        }
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // Classic or Material You, applied before any view is inflated
+        appliedStyle = ThemeManager.apply(this);
         super.onCreate(savedInstanceState);
 
         String action = getIntent().getAction();

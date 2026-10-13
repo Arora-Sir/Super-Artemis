@@ -63,6 +63,28 @@
         <item name="android:windowBackground">@android:color/black</item>
     </style>
 
+    <!-- NOTE: Opt-in Material You style (Android 12+ only): ThemeManager applies it with wallpaper colors on top. -->
+    <!-- NOTE: Settings rows show switches, androidx dialogs use the Material 3 dialog and framework dialogs use the device's own rounded style. -->
+    <style name="AppTheme.MaterialYou" parent="Theme.Material3.DynamicColors.Dark.NoActionBar">
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:forceDarkAllowed">false</item>
+        <item name="preferenceTheme">@style/PreferenceTheme.MaterialYou</item>
+        <item name="alertDialogTheme">@style/ThemeOverlay.Material3.MaterialAlertDialog</item>
+        <item name="materialAlertDialogTheme">@style/ThemeOverlay.Material3.MaterialAlertDialog</item>
+        <item name="android:alertDialogTheme">@android:style/Theme.DeviceDefault.Dialog.Alert</item>
+    </style>
+
+    <style name="PreferenceTheme.MaterialYou" parent="@style/PreferenceThemeOverlay">
+        <item name="checkBoxPreferenceStyle">@style/Preference.MaterialYouSwitch</item>
+    </style>
+
+    <style name="Preference.MaterialYouSwitch" parent="@style/Preference.CheckBoxPreference.Material">
+        <item name="android:widgetLayout">@layout/preference_widget_material_switch</item>
+    </style>
+
     <declare-styleable name="ApertureViewGroup">
         <attr name="aperture_color1" format="color" />
         <attr name="aperture_color2" format="color" />

@@ -13,15 +13,28 @@ import android.widget.ImageButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.limelight.profiles.ProfilesAdapter;
 import com.limelight.profiles.ProfilesManager;
+import com.limelight.theme.ThemeManager;
 import com.limelight.utils.UiHelper;
 
 public class ProfilesActivity extends AppCompatActivity implements ProfilesManager.ProfileChangeListener {
+    private String appliedStyle;
     private ProfilesAdapter adapter;
     private RecyclerView recyclerView;
     private View emptyState;
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        // The app style changed in settings while this screen was in the background
+        if (ThemeManager.needsRecreate(this, appliedStyle)) {
+            recreate();
+        }
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // Classic or Material You, applied before any view is inflated
+        appliedStyle = ThemeManager.apply(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profiles);
 
