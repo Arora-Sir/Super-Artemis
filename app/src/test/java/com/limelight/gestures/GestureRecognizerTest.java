@@ -28,12 +28,17 @@ public class GestureRecognizerTest {
     private final List<String> events = new ArrayList<>();
     private final List<Integer> tapFingers = new ArrayList<>();
     private final List<Integer> swipeFingers = new ArrayList<>();
+    private final List<Integer> holdFingers = new ArrayList<>();
+    // The hold timer, fired by hand so the tests do not wait
+    private final List<Runnable> scheduled = new ArrayList<>();
     private MultiFingerGestureRecognizer recognizer;
 
     @Before
     public void setUp() {
         tapFingers.clear();
         swipeFingers.clear();
+        holdFingers.clear();
+        scheduled.clear();
         events.clear();
         recognizer = new MultiFingerGestureRecognizer(new MultiFingerGestureRecognizer.Callbacks() {
             @Override
@@ -47,8 +52,23 @@ public class GestureRecognizerTest {
             }
 
             @Override
+            public boolean handlesHold(int fingers) {
+                return holdFingers.contains(fingers);
+            }
+
+            @Override
+            public long holdDurationMs() {
+                return 500;
+            }
+
+            @Override
             public void onTap(int fingers, long eventTimeMs) {
                 events.add("tap" + fingers);
+            }
+
+            @Override
+            public void onHold(int fingers) {
+                events.add("hold" + fingers);
             }
 
             @Override
@@ -60,7 +80,25 @@ public class GestureRecognizerTest {
             public void cancelPassThrough(MotionEvent event) {
                 events.add("cancel");
             }
-        }, DENSITY);
+        }, DENSITY, new MultiFingerTapDetector.Scheduler() {
+            @Override
+            public void schedule(Runnable runnable, long delayMs) {
+                scheduled.add(runnable);
+            }
+
+            @Override
+            public void cancel(Runnable runnable) {
+                scheduled.remove(runnable);
+            }
+        });
+    }
+
+    private void elapseHold() {
+        List<Runnable> due = new ArrayList<>(scheduled);
+        scheduled.clear();
+        for (Runnable runnable : due) {
+            runnable.run();
+        }
     }
 
     // Builds a touch event with every finger at (x + 60 * i, y)
@@ -110,6 +148,64 @@ public class GestureRecognizerTest {
         long time = land(3, 1000, 100, 100);
         assertTrue(liftAll(3, time + 120, 104, 102));
         assertEquals(Arrays.asList("cancel", "tap3"), events);
+    }
+
+    // NOTE: Regression test for the right click that came with every 3, 4 and 5-finger tap in the mouse and trackpad modes.
+    // NOTE: The touch modes track two fingers, so any lift that reaches them looks like a two-finger tap. The first lift is now consumed.
+    @Test
+    public void firstLiftOfATapNeverReachesTheTouchModes() {
+        tapFingers.add(3);
+        long time = land(3, 1000, 100, 100);
+        assertTrue(feed(MotionEvent.ACTION_POINTER_UP, 2, 3, time + 100, 100, 100));
+        assertEquals(Collections.singletonList("cancel"), events);
+        assertTrue(feed(MotionEvent.ACTION_POINTER_UP, 1, 2, time + 110, 100, 100));
+        assertTrue(feed(MotionEvent.ACTION_UP, 0, 1, time + 120, 100, 100));
+        assertEquals(Arrays.asList("cancel", "tap3"), events);
+    }
+
+    @Test
+    public void boundHoldClaimsTheFingersAtOnceAndFiresAfterItsDuration() {
+        holdFingers.add(4);
+        long time = land(4, 1000, 100, 100);
+        assertEquals(Collections.singletonList("cancel"), events);
+        assertEquals(1, scheduled.size());
+        elapseHold();
+        assertTrue(liftAll(4, time + 900, 100, 100));
+        assertEquals(Arrays.asList("cancel", "hold4"), events);
+    }
+
+    @Test
+    public void heldFingersThatMoveOrLiftEarlyRunNoHold() {
+        holdFingers.add(3);
+        long time = land(3, 1000, 100, 100);
+        feed(MotionEvent.ACTION_MOVE, 0, 3, time + 60, 160, 100);
+        assertTrue(scheduled.isEmpty());
+        liftAll(3, time + 120, 160, 100);
+
+        time = land(3, 5000, 100, 100);
+        liftAll(3, time + 100, 100, 100);
+        assertTrue(scheduled.isEmpty());
+        assertEquals(Arrays.asList("cancel", "cancel"), events);
+    }
+
+    @Test
+    public void aHoldIsNeverAlsoATap() {
+        tapFingers.add(3);
+        holdFingers.add(3);
+        long time = land(3, 1000, 100, 100);
+        elapseHold();
+        assertTrue(liftAll(3, time + 100, 100, 100));
+        assertEquals(Arrays.asList("cancel", "hold3"), events);
+    }
+
+    @Test
+    public void quickTapStillWorksWhenAHoldIsBoundToo() {
+        tapFingers.add(5);
+        holdFingers.add(5);
+        long time = land(5, 1000, 100, 100);
+        assertTrue(liftAll(5, time + 100, 100, 100));
+        assertEquals(Arrays.asList("cancel", "tap5"), events);
+        assertTrue(scheduled.isEmpty());
     }
 
     @Test

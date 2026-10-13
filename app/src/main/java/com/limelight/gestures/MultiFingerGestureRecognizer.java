@@ -3,11 +3,12 @@ package com.limelight.gestures;
 import android.os.Build;
 import android.view.MotionEvent;
 
-// NOTE: Recognizes taps and swipes with 3 or more fingers on the stream. Game runs it before any touch mode (direct touch, trackpad, pan and zoom),
+// NOTE: Recognizes taps, holds and swipes with 3 or more fingers on the stream. Game runs it before any touch mode (direct touch, trackpad, pan and zoom),
 // NOTE: so a gesture works the same in every mode, including the one that toggles pan and zoom off again.
 // NOTE: Fingers must all land within a short window, which keeps fast play on on-screen buttons from ever counting as a gesture.
-// NOTE: A finger count with a swipe bound is claimed as soon as the fingers land, and its touches stop reaching the PC.
-// NOTE: Taps are only taken back at the end, so finger counts with just a tap bound still pass drags and holds to the PC.
+// NOTE: A finger count with a swipe or a hold bound is claimed as soon as the fingers land, and its touches stop reaching the PC.
+// NOTE: A finger count with only a tap bound is claimed when the first finger lifts, so drags and holds still reach the PC,
+// NOTE: and the touch modes never see the lifts that they would read as a two-finger tap (a right click).
 public final class MultiFingerGestureRecognizer {
     public enum Direction { UP, DOWN, LEFT, RIGHT }
 
@@ -16,9 +17,16 @@ public final class MultiFingerGestureRecognizer {
 
         boolean ownsSwipes(int fingers);
 
+        boolean handlesHold(int fingers);
+
+        // How long the fingers stay still before a hold runs
+        long holdDurationMs();
+
         void onTap(int fingers, long eventTimeMs);
 
         void onSwipe(int fingers, Direction direction);
+
+        void onHold(int fingers);
 
         // Ends whatever this touch already started on the PC or in pan and zoom, because the gesture takes it over
         void cancelPassThrough(MotionEvent event);
@@ -37,23 +45,30 @@ public final class MultiFingerGestureRecognizer {
 
     private final Callbacks callbacks;
     private final float density;
+    private final MultiFingerTapDetector.Scheduler scheduler;
+    private final Runnable holdRunnable = this::onHoldElapsed;
 
     private boolean tracking;
     private boolean invalid;
     private boolean claimed;
     private boolean swiped;
     private boolean lifted;
+    private boolean tapPending;
+    private boolean held;
+    private boolean holdScheduled;
+    private boolean swipesBound;
     private int fingers;
+    private int holdFingers;
     private long firstDownTime;
     private long lastDownTime;
-    private long firstLiftTime;
     private float startX;
     private float startY;
     private float maxDistance;
 
-    public MultiFingerGestureRecognizer(Callbacks callbacks, float density) {
+    public MultiFingerGestureRecognizer(Callbacks callbacks, float density, MultiFingerTapDetector.Scheduler scheduler) {
         this.callbacks = callbacks;
         this.density = density;
+        this.scheduler = scheduler;
     }
 
     // Returns true when the event belongs to a gesture and must not reach the PC or any touch mode
@@ -74,11 +89,7 @@ public final class MultiFingerGestureRecognizer {
                 return onMove(event);
 
             case MotionEvent.ACTION_POINTER_UP:
-                if (tracking && !lifted) {
-                    lifted = true;
-                    firstLiftTime = event.getEventTime();
-                }
-                return claimed;
+                return onFirstLifts(event);
 
             case MotionEvent.ACTION_UP:
                 return onLastFingerUp(event);
@@ -106,13 +117,24 @@ public final class MultiFingerGestureRecognizer {
         startX = centroidX(event);
         startY = centroidY(event);
         maxDistance = 0;
+        cancelHold();
         // A finger that lands late (a thumb joining a held on-screen button) or a stylus never starts a gesture
         if (count >= MIN_FINGERS && (lastDownTime - firstDownTime > LANDING_WINDOW_MS || !allFingers(event))) {
             invalid = true;
         }
-        if (!claimed && !invalid && count >= MIN_FINGERS && callbacks.ownsSwipes(count)) {
-            claimed = true;
-            callbacks.cancelPassThrough(event);
+        if (invalid || count < MIN_FINGERS) {
+            return claimed;
+        }
+        boolean holds = callbacks.handlesHold(count);
+        swipesBound = callbacks.ownsSwipes(count);
+        // Swipes and holds take the fingers at once, before a trackpad drag or a Windows press and hold can start on the PC
+        if (!claimed && (holds || swipesBound)) {
+            claim(event);
+        }
+        if (holds) {
+            holdFingers = count;
+            holdScheduled = true;
+            scheduler.schedule(holdRunnable, callbacks.holdDurationMs());
         }
         return claimed;
     }
@@ -124,11 +146,32 @@ public final class MultiFingerGestureRecognizer {
         float dx = centroidX(event) - startX;
         float dy = centroidY(event) - startY;
         maxDistance = Math.max(maxDistance, (float) Math.hypot(dx, dy));
-        if (claimed && !swiped && !invalid && event.getEventTime() - lastDownTime <= SWIPE_MAX_MS) {
+        if (maxDistance > TAP_SLOP_DP * density) {
+            // Moving fingers are a swipe or a drag, never a hold
+            cancelHold();
+        }
+        if (claimed && swipesBound && !swiped && !held && !invalid && event.getEventTime() - lastDownTime <= SWIPE_MAX_MS) {
             Direction direction = swipeDirection(dx, dy, SWIPE_MIN_DP * density);
             if (direction != null) {
                 swiped = true;
+                cancelHold();
                 callbacks.onSwipe(fingers, direction);
+            }
+        }
+        return claimed;
+    }
+
+    // NOTE: The first lift decides a tap. When it qualifies, the gesture is claimed here, so the remaining lifts never reach
+    // NOTE: the touch modes. Those only track two fingers and would send a right click for the second one.
+    private boolean onFirstLifts(MotionEvent event) {
+        if (tracking && !lifted) {
+            lifted = true;
+            cancelHold();
+            if (qualifiesAsTap(event.getEventTime())) {
+                tapPending = true;
+                if (!claimed) {
+                    claim(event);
+                }
             }
         }
         return claimed;
@@ -137,9 +180,10 @@ public final class MultiFingerGestureRecognizer {
     private boolean onLastFingerUp(MotionEvent event) {
         boolean consume = claimed;
         boolean canceled = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && (event.getFlags() & MotionEvent.FLAG_CANCELED) != 0;
-        if (tracking && !invalid && !swiped && !canceled && fingers >= MIN_FINGERS) {
-            long held = (lifted ? firstLiftTime : event.getEventTime()) - lastDownTime;
-            if (held <= TAP_MAX_MS && maxDistance <= TAP_SLOP_DP * density && callbacks.handlesTap(fingers)) {
+        if (!canceled) {
+            // A tap whose fingers all lifted together reaches this point without a first lift
+            boolean tap = lifted ? tapPending : qualifiesAsTap(event.getEventTime());
+            if (tap) {
                 if (!claimed) {
                     callbacks.cancelPassThrough(event);
                 }
@@ -149,6 +193,32 @@ public final class MultiFingerGestureRecognizer {
         }
         reset();
         return consume;
+    }
+
+    private boolean qualifiesAsTap(long liftTime) {
+        return tracking && !invalid && !swiped && !held && fingers >= MIN_FINGERS
+                && liftTime - lastDownTime <= TAP_MAX_MS && maxDistance <= TAP_SLOP_DP * density
+                && callbacks.handlesTap(fingers);
+    }
+
+    private void onHoldElapsed() {
+        holdScheduled = false;
+        if (tracking && !lifted && !invalid && !swiped && !held && fingers == holdFingers && maxDistance <= TAP_SLOP_DP * density) {
+            held = true;
+            callbacks.onHold(fingers);
+        }
+    }
+
+    private void claim(MotionEvent event) {
+        claimed = true;
+        callbacks.cancelPassThrough(event);
+    }
+
+    private void cancelHold() {
+        if (holdScheduled) {
+            holdScheduled = false;
+            scheduler.cancel(holdRunnable);
+        }
     }
 
     // The direction of a finished swipe, or null when the movement is too short or too diagonal
@@ -165,12 +235,17 @@ public final class MultiFingerGestureRecognizer {
     }
 
     private void reset() {
+        cancelHold();
         tracking = false;
         invalid = false;
         claimed = false;
         swiped = false;
         lifted = false;
+        tapPending = false;
+        held = false;
+        swipesBound = false;
         fingers = 0;
+        holdFingers = 0;
         maxDistance = 0;
     }
 

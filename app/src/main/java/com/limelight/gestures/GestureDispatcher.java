@@ -42,7 +42,7 @@ public final class GestureDispatcher implements MultiFingerGestureRecognizer.Cal
         this.prefs = PreferenceManager.getDefaultSharedPreferences(context);
         this.target = target;
         Handler handler = new Handler(Looper.getMainLooper());
-        this.detector = new MultiFingerTapDetector(new MultiFingerTapDetector.Scheduler() {
+        MultiFingerTapDetector.Scheduler scheduler = new MultiFingerTapDetector.Scheduler() {
             @Override
             public void schedule(Runnable runnable, long delayMs) {
                 handler.postDelayed(runnable, delayMs);
@@ -52,9 +52,10 @@ public final class GestureDispatcher implements MultiFingerGestureRecognizer.Cal
             public void cancel(Runnable runnable) {
                 handler.removeCallbacks(runnable);
             }
-        }, (fingers, doubleTap) -> fire(new GestureBindingStore.Slot(fingers, doubleTap)),
+        };
+        this.detector = new MultiFingerTapDetector(scheduler, (fingers, doubleTap) -> fire(new GestureBindingStore.Slot(fingers, doubleTap)),
                 fingers -> !GestureBindingStore.NONE.equals(binding(new GestureBindingStore.Slot(fingers, true))));
-        this.recognizer = new MultiFingerGestureRecognizer(this, context.getResources().getDisplayMetrics().density);
+        this.recognizer = new MultiFingerGestureRecognizer(this, context.getResources().getDisplayMetrics().density, scheduler);
     }
 
     // Feeds every stream touch through gesture recognition first. True means the event belongs to a gesture.
@@ -72,6 +73,21 @@ public final class GestureDispatcher implements MultiFingerGestureRecognizer.Cal
     @Override
     public boolean ownsSwipes(int fingers) {
         return GestureBindingStore.hasSwipe(prefs, fingers);
+    }
+
+    @Override
+    public boolean handlesHold(int fingers) {
+        return !GestureBindingStore.NONE.equals(binding(new GestureBindingStore.Slot(fingers, GestureBindingStore.Kind.HOLD)));
+    }
+
+    @Override
+    public long holdDurationMs() {
+        return GestureBindingStore.holdDurationMs(prefs);
+    }
+
+    @Override
+    public void onHold(int fingers) {
+        fire(new GestureBindingStore.Slot(fingers, GestureBindingStore.Kind.HOLD));
     }
 
     @Override

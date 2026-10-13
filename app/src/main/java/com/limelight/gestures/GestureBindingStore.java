@@ -11,7 +11,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-// NOTE: Which action each multi-finger gesture runs: taps and double taps with 3, 4 or 5 fingers, and swipes with 3 or 4 fingers in four directions.
+// NOTE: Which action each multi-finger gesture runs: taps, double taps and holds with 3, 4 or 5 fingers, and swipes with 3 or 4 fingers in four directions.
 // NOTE: Values are "none", "quick_menu", "middle_click", a stream action ID, "key:<special key ID>" or "combo:<hex key codes joined by +>".
 // NOTE: Defaults match the gestures Artemis always had, swipes start as Nothing, and the old "Five-finger tap opens menu" switch decides the five-finger default.
 public final class GestureBindingStore {
@@ -28,8 +28,13 @@ public final class GestureBindingStore {
     // Five-finger swipes look like a palm on the screen, so only 3 and 4 fingers can swipe
     public static final int[] SWIPE_FINGER_COUNTS = {3, 4};
 
+    // How long the fingers stay still before a hold runs, chosen in the gesture editor
+    public static final String HOLD_DURATION_PREF = "gesture_hold_ms";
+    public static final long[] HOLD_DURATIONS_MS = {500, 1000, 2000};
+    static final long DEFAULT_HOLD_MS = 500;
+
     public enum Kind {
-        TAP("tap_"), DOUBLE_TAP("double_"),
+        TAP("tap_"), DOUBLE_TAP("double_"), HOLD("hold_"),
         SWIPE_UP("swipe_up_"), SWIPE_DOWN("swipe_down_"), SWIPE_LEFT("swipe_left_"), SWIPE_RIGHT("swipe_right_");
 
         final String prefix;
@@ -39,7 +44,7 @@ public final class GestureBindingStore {
         }
 
         public boolean isSwipe() {
-            return this != TAP && this != DOUBLE_TAP;
+            return this == SWIPE_UP || this == SWIPE_DOWN || this == SWIPE_LEFT || this == SWIPE_RIGHT;
         }
     }
 
@@ -72,6 +77,9 @@ public final class GestureBindingStore {
         }
         for (int fingers : FINGER_COUNTS) {
             slots.add(new Slot(fingers, Kind.DOUBLE_TAP));
+        }
+        for (int fingers : FINGER_COUNTS) {
+            slots.add(new Slot(fingers, Kind.HOLD));
         }
         for (int fingers : SWIPE_FINGER_COUNTS) {
             for (Kind kind : Arrays.asList(Kind.SWIPE_UP, Kind.SWIPE_DOWN, Kind.SWIPE_LEFT, Kind.SWIPE_RIGHT)) {
@@ -112,7 +120,29 @@ public final class GestureBindingStore {
         for (Slot slot : SLOTS) {
             editor.remove(slot.prefKey());
         }
+        editor.remove(HOLD_DURATION_PREF);
         editor.apply();
+    }
+
+    // A stored duration outside the offered choices falls back to the default
+    public static long holdDurationMs(SharedPreferences prefs) {
+        long value;
+        try {
+            value = prefs.getLong(HOLD_DURATION_PREF, DEFAULT_HOLD_MS);
+        }
+        catch (ClassCastException e) {
+            return DEFAULT_HOLD_MS;
+        }
+        for (long choice : HOLD_DURATIONS_MS) {
+            if (choice == value) {
+                return value;
+            }
+        }
+        return DEFAULT_HOLD_MS;
+    }
+
+    public static void setHoldDurationMs(SharedPreferences prefs, long durationMs) {
+        prefs.edit().putLong(HOLD_DURATION_PREF, durationMs).apply();
     }
 
     // True when any swipe with this many fingers runs something, so those touches belong to the app from the moment the fingers land

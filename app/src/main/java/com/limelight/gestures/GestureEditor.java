@@ -26,7 +26,7 @@ import com.limelight.ui.Dialogs;
 import java.util.ArrayList;
 import java.util.List;
 
-// NOTE: Lists every multi-finger gesture in sections (taps, double taps, swipes) with the action each one runs, and changes an action in a picker.
+// NOTE: Lists every multi-finger gesture in sections (taps, double taps, holds, swipes) with the action each one runs, and changes an action in a picker.
 // NOTE: Every choice is saved at once. Wide screens show taps and swipes side by side.
 public final class GestureEditor {
     static final class Option {
@@ -89,6 +89,8 @@ public final class GestureEditor {
         switch (slot.kind) {
             case DOUBLE_TAP:
                 return context.getString(R.string.gesture_double_tap, slot.fingers);
+            case HOLD:
+                return context.getString(R.string.gesture_hold, slot.fingers);
             case SWIPE_UP:
                 return context.getString(R.string.gesture_swipe_up, slot.fingers);
             case SWIPE_DOWN:
@@ -114,6 +116,8 @@ public final class GestureEditor {
                 return R.drawable.ic_sa_swipe_right;
             case DOUBLE_TAP:
                 return R.drawable.ic_sa_gesture;
+            case HOLD:
+                return R.drawable.ic_ck_timer;
             default:
                 return R.drawable.ic_sa_touch_app;
         }
@@ -158,6 +162,13 @@ public final class GestureEditor {
                 addRow(context, taps, prefs, slot, options, refreshers);
             }
         }
+        addSection(taps, R.string.gesture_section_holds);
+        for (GestureBindingStore.Slot slot : GestureBindingStore.SLOTS) {
+            if (slot.kind == GestureBindingStore.Kind.HOLD) {
+                addRow(context, taps, prefs, slot, options, refreshers);
+            }
+        }
+        addHoldDurationRow(context, taps, prefs, refreshers);
         for (int fingers : GestureBindingStore.SWIPE_FINGER_COUNTS) {
             TextView header = addSection(swipes, 0);
             header.setText(context.getString(R.string.gesture_section_swipes, fingers));
@@ -236,6 +247,55 @@ public final class GestureEditor {
         refreshers.add(refresh);
         row.setOnClickListener(v -> choose(context, prefs, slot, options, refresh));
         parent.addView(row);
+    }
+
+    // How long a hold takes, picked from three choices like any other gesture setting
+    private static void addHoldDurationRow(Context context, LinearLayout parent, SharedPreferences prefs, List<Runnable> refreshers) {
+        View row = LayoutInflater.from(parent.getContext()).inflate(R.layout.gesture_row, parent, false);
+        ((ImageView) row.findViewById(R.id.gesture_row_icon)).setImageResource(R.drawable.ic_ck_timer);
+        ((TextView) row.findViewById(R.id.gesture_row_title)).setText(R.string.gesture_hold_duration);
+        TextView value = row.findViewById(R.id.gesture_row_action);
+        Runnable refresh = () -> {
+            value.setText(holdDurationLabel(context, GestureBindingStore.holdDurationMs(prefs)));
+            value.setTextColor(Dialogs.color(context, R.attr.saPrimary));
+        };
+        refresh.run();
+        refreshers.add(refresh);
+        row.setOnClickListener(v -> chooseHoldDuration(context, prefs, refresh));
+        parent.addView(row);
+    }
+
+    static String holdDurationLabel(Context context, long durationMs) {
+        return context.getString(R.string.gesture_hold_seconds, String.valueOf(durationMs / 1000f).replace(".0", ""));
+    }
+
+    private static void chooseHoldDuration(Context context, SharedPreferences prefs, Runnable onChosen) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        Context dialogContext = builder.getContext();
+        long current = GestureBindingStore.holdDurationMs(prefs);
+        LinearLayout list = new LinearLayout(dialogContext);
+        list.setOrientation(LinearLayout.VERTICAL);
+        int side = (int) Dialogs.dp(dialogContext, 8);
+        list.setPadding(side, 0, side, side);
+        builder.setCustomTitle(Dialogs.header(dialogContext, R.drawable.ic_ck_timer, context.getString(R.string.gesture_hold_duration), null))
+                .setView(list)
+                .setNegativeButton(R.string.game_menu_cancel, null);
+        AlertDialog[] dialog = new AlertDialog[1];
+        for (long duration : GestureBindingStore.HOLD_DURATIONS_MS) {
+            View row = LayoutInflater.from(dialogContext).inflate(R.layout.sa_choice_row, list, false);
+            ((ImageView) row.findViewById(R.id.sa_choice_icon)).setImageResource(R.drawable.ic_ck_timer);
+            ((TextView) row.findViewById(R.id.sa_choice_label)).setText(holdDurationLabel(context, duration));
+            row.findViewById(R.id.sa_choice_check).setVisibility(duration == current ? View.VISIBLE : View.INVISIBLE);
+            row.setOnClickListener(v -> {
+                GestureBindingStore.setHoldDurationMs(prefs, duration);
+                onChosen.run();
+                if (dialog[0] != null) {
+                    dialog[0].dismiss();
+                }
+            });
+            list.addView(row);
+        }
+        dialog[0] = Dialogs.show(builder, Dialogs.WIDTH_STANDARD_DP);
     }
 
     private static void refreshAll(List<Runnable> refreshers) {

@@ -431,10 +431,14 @@
     <string name="title_auto_connect_last">Connect to the last PC on app start</string>
     <string name="summary_auto_connect_last">Opening the app from the launcher starts your last stream right away</string>
     <string name="title_gestures">Multi-finger gestures</string>
-    <string name="summary_gestures">Choose what multi-finger taps, double taps and swipes do</string>
-    <string name="gesture_editor_hint">Tap a gesture to choose what it does. Gestures set to Nothing reach the PC like any other touch. Once a swipe is set for a number of fingers, the app keeps those touches. A double tap waits a moment before a single tap with the same fingers runs.</string>
+    <string name="summary_gestures">Choose what multi-finger taps, double taps, holds and swipes do</string>
+    <string name="gesture_editor_hint">Tap a gesture to choose what it does. Gestures set to Nothing reach the PC like any other touch. Once a swipe or a hold is set for a number of fingers, the app keeps those touches. A double tap waits a moment before a single tap with the same fingers runs.</string>
     <string name="gesture_tap">%1$d-finger tap</string>
     <string name="gesture_double_tap">%1$d-finger double tap</string>
+    <string name="gesture_hold">%1$d-finger hold</string>
+    <string name="gesture_section_holds">Holds</string>
+    <string name="gesture_hold_duration">Hold for</string>
+    <string name="gesture_hold_seconds">%1$s s</string>
     <string name="gesture_swipe_up">%1$d-finger swipe up</string>
     <string name="gesture_swipe_down">%1$d-finger swipe down</string>
     <string name="gesture_swipe_left">%1$d-finger swipe left</string>

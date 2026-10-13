@@ -81,8 +81,9 @@ public class GesturesTest {
         for (GestureBindingStore.Slot slot : GestureBindingStore.SLOTS) {
             assertTrue(keys.add(slot.prefKey()));
         }
-        // Taps and double taps with 3, 4 and 5 fingers, and swipes in four directions with 3 and 4 fingers
-        assertEquals(14, keys.size());
+        // Taps, double taps and holds with 3, 4 and 5 fingers, and swipes in four directions with 3 and 4 fingers
+        assertEquals(17, keys.size());
+        assertEquals("gesture_hold_4", new GestureBindingStore.Slot(4, GestureBindingStore.Kind.HOLD).prefKey());
         assertEquals("gesture_tap_3", tap(3).prefKey());
         assertEquals("gesture_double_5", doubleTap(5).prefKey());
     }
@@ -110,6 +111,22 @@ public class GesturesTest {
         assertTrue(GestureBindingStore.hasSwipe(prefs, 4));
         // Taps keep their own bindings
         assertEquals(StreamActionRegistry.ID_TOGGLE_KEYBOARD, GestureBindingStore.get(prefs, tap(3)));
+    }
+
+    @Test
+    public void holdsStartAsNothingAndTheirDurationStaysOnTheOfferedChoices() {
+        for (int fingers : GestureBindingStore.FINGER_COUNTS) {
+            assertEquals(GestureBindingStore.NONE, GestureBindingStore.get(prefs, new GestureBindingStore.Slot(fingers, GestureBindingStore.Kind.HOLD)));
+        }
+        assertFalse(GestureBindingStore.Kind.HOLD.isSwipe());
+        assertEquals(500, GestureBindingStore.holdDurationMs(prefs));
+        GestureBindingStore.setHoldDurationMs(prefs, 2000);
+        assertEquals(2000, GestureBindingStore.holdDurationMs(prefs));
+        GestureBindingStore.setHoldDurationMs(prefs, 1234);
+        assertEquals(500, GestureBindingStore.holdDurationMs(prefs));
+        GestureBindingStore.setHoldDurationMs(prefs, 1000);
+        GestureBindingStore.reset(prefs);
+        assertEquals(500, GestureBindingStore.holdDurationMs(prefs));
     }
 
     @Test

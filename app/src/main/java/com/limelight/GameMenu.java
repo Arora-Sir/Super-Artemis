@@ -124,7 +124,11 @@ public class GameMenu implements Game.GameMenuCallbacks {
 
     // Runs an action exactly as a menu tap would, waiting for game focus when the action sends input
     public void runAction(StreamAction action) {
-        Runnable runnable = () -> action.run(actionHost);
+        // Toggles run from a gesture or a bar show their new state on the bars too, just like a menu tap
+        Runnable runnable = () -> {
+            action.run(actionHost);
+            game.refreshQuickActionBar();
+        };
         if (action.needsGameFocus) {
             runWithGameFocus(runnable);
         } else {
