@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+// Microphone capture for streaming to the host, ported from the work of @logabell (ClassicOldSong/moonlight-android#537)
 public class MicrophoneCaptureManager {
     public interface LevelListener {
         void onLevelUpdate(double level, boolean signalDetected, String status);

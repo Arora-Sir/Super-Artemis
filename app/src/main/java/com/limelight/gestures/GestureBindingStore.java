@@ -17,6 +17,7 @@ import java.util.Locale;
 public final class GestureBindingStore {
     public static final String NONE = "none";
     public static final String QUICK_MENU = "quick_menu";
+    // Middle click as a gesture action, as suggested by @wefcdse (ClassicOldSong/moonlight-android#409)
     public static final String MIDDLE_CLICK = "middle_click";
     static final String KEY_PREFIX = "key:";
     static final String COMBO_PREFIX = "combo:";

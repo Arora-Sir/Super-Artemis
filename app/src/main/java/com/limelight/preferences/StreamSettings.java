@@ -155,6 +155,7 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
 
     // NOTE: The search bar stays above the list instead of scrolling away with it, so search is one tap from anywhere in settings.
     // NOTE: The search page opens in its own full-screen container on top of the bar and the list.
+    // Search comes from the SearchPreference library by @ByteHamster (MIT)
     private void setupSearchBar() {
         searchConfiguration = new SearchConfiguration(this);
         searchConfiguration.setFragmentContainerViewId(R.id.settings_search_container);

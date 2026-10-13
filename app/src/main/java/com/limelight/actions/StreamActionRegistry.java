@@ -48,6 +48,7 @@ public final class StreamActionRegistry {
                     .activeWhen(StreamActionHost::isZoomEnabled).build(),
             StreamAction.builder(ID_ROTATE_SCREEN, R.string.game_menu_rotate_screen, R.drawable.ic_gm_rotate_screen,
                     StreamActionHost::rotateScreen).availableWhen(StreamActionHost::canRotateScreen).build(),
+            // Based on the in-stream mic toggle idea by @ShadowLemoon (qiin2333/moonlight-vplus#314)
             // Only offered when the host negotiated the mic stream, so toggling just pauses or resumes local capture
             StreamAction.builder(ID_MICROPHONE, R.string.game_menu_item_microphone, R.drawable.ic_gm_microphone,
                     StreamActionHost::toggleMicrophone)

@@ -81,6 +81,7 @@ public class PosterContentProvider extends ContentProvider {
             throw new FileNotFoundException();
         }
 
+        // These path checks are ported from @Rafael-CN (Rafael-CN/VibeArtemis@a502acb23)
         File file = mDiskAssetLoader.getFile(uuid, parsedAppId);
 
         // Third check: whatever the path construction did, the result must still live

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Grid style tile for the in-stream menu, sized well above the 48dp touch target minimum -->
+<!-- Grid style tile for the in-stream menu, sized well above the 48dp touch target minimum (idea from @Rafael-CN, Rafael-CN/VibeArtemis@600a068) -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"

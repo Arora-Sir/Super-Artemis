@@ -677,6 +677,7 @@ private static int getFramePacingValue(Context context) {
         // Migrate the removed "Warp Drive" options. They multiplied the frame rate
         // requested from the host and left the decoder configured for a rate that was
         // never sent, and getFramePacingValue() had no branch for them either.
+        // Removal ported from @coroiu (coroiu/twilight-android@a3d872503).
         if (prefs.contains(FRAME_PACING_PREF_STRING)) {
             String stored = prefs.getString(FRAME_PACING_PREF_STRING, DEFAULT_FRAME_PACING);
             if (stored.equals("warp") || stored.equals("warp2")) {
@@ -992,6 +993,7 @@ private static int getFramePacingValue(Context context) {
 
         config.enableKeyboardVibrate = prefs.getBoolean(CHECKBOX_ENABLE_KEYBOARD_VIBRATE,false);
         //兼容joycon手柄
+        // Read under the same key the setting saves, fix from @CoolRobloxDeveloper (ClassicOldSong/moonlight-android#570)
         config.enableJoyConFix = prefs.getBoolean("checkbox_enable_joyconfix",false);
         //全键盘透明度
         config.oscKeyboardOpacity = prefs.getInt("seekbar_keyboard_axi_opacity",DEFAULT_OPACITY);

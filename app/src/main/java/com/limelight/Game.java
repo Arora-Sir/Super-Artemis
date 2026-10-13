@@ -808,6 +808,7 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
                 .setClientRefreshRateX100((int)(displayRefreshRate * 100))
                 .setAudioConfiguration(prefConfig.audioConfiguration)
                 .setEnableMicrophone(prefConfig.enableMicrophone)
+                // Network drop grace period, ported from @MikalaiKryvusha (MikalaiKryvusha/moonlight-common-c@25ffe75)
                 .setControlPeerTimeoutMs(prefConfig.networkGraceSeconds * 1000)
                 .setColorSpace(decoderRenderer.getPreferredColorSpace())
                 .setColorRange(decoderRenderer.getPreferredColorRange())
@@ -1342,6 +1343,7 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
                 // The same class can also hand us system keys that Android would otherwise consume.
                 // Request the screenshot key found on Samsung keyboard covers (KEYCODE_SYSRQ), so it
                 // reaches the host as Print Screen instead of taking a screenshot of the tablet.
+                // From @Lian-CrescentMoon (ClassicOldSong/moonlight-android#606).
                 try {
                     Method requestSystemKeyEventMethod = semWindowManager.getDeclaredMethod("requestSystemKeyEvent",
                             int.class, ComponentName.class, boolean.class);
@@ -1492,6 +1494,7 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
                 // 60 FPS, which may require a resolution reduction due to HDMI bandwidth limitations,
                 // or it's a native resolution stream.
                 // Also preserve the current resolution if it already exactly matches the stream.
+                // Fix from @Mad-Melon (ClassicOldSong/moonlight-android#601).
                 if (prefConfig.fps <= 60 &&
                         ((prefConfig.width < 3840 && !isNativeResolutionStream) ||
                         (currentDisplay.getMode().getPhysicalWidth() == prefConfig.width &&
@@ -3496,6 +3499,7 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
 
     // NOTE: The mic stream is negotiated at connect whenever it is enabled, so the host keeps a mic channel open.
     // NOTE: AudioRecord only starts here when the initial state asks for it, so muted streams keep the mic hardware and Opus encoder off.
+    // NOTE: The off, on and follow-last-state choice follows the design by @Yundi339 in qiin2333/moonlight-vplus#639.
     private void applyMicrophoneInitialState() {
         if (!prefConfig.enableMicrophone) {
             return;

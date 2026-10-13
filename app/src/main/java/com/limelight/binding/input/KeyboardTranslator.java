@@ -126,6 +126,7 @@ public class KeyboardTranslator implements InputManager.InputDeviceListener {
             for (int i = 0; i <= maxKeyCode; i++) {
                 int deviceKeyCode = device.getKeyCodeForKeyLocation(i);
                 // Vendor keyboard layouts can map keys to key codes above KeyEvent.getMaxKeyCode(), which crashed stream start
+                // Fix from @qiin2333 (qiin2333/moonlight-vplus#591)
                 if (deviceKeyCode != KeyEvent.KEYCODE_UNKNOWN && deviceKeyCode >= 0 && deviceKeyCode <= maxKeyCode) {
                     deviceKeyCodeToQwertyKeyCode[deviceKeyCode] = i;
                 }
@@ -358,6 +359,7 @@ public class KeyboardTranslator implements InputManager.InputDeviceListener {
                 // Android defines this as SysRq/PrntScrn.
                 // VK_PRINTSCREEN (154) is the Java AWT key code, not a Windows virtual-key
                 // code, so hosts ignore it. Windows' VK_SNAPSHOT is 0x2C.
+                // Fix from @Lian-CrescentMoon (ClassicOldSong/moonlight-android#606).
                 translated = 0x2C;
                 break;
                 

@@ -545,6 +545,7 @@ public class MediaCodecHelper {
         // try. Setting setNewOption unconditionally meant that, on an NVIDIA decoder whose
         // configure() never succeeds, it never ran out of options, the loop spun forever
         // and the app hung at connection time with no error.
+        // Fix ported from @Rafael-CN (Rafael-CN/VibeArtemis@a502acb23).
         if (tryNumber < 3 && isNvidiaDecoder(decoderInfo.getName())) {
             safeSet(videoFormat, "media.low-latency.enable", 1);
             safeSet(videoFormat, "vendor.low-latency.enable", 1);

@@ -64,7 +64,7 @@ public class StreamView extends SurfaceView {
     }
 
     private void init() {
-        // Keep stylus strokes (S Pen) on the stream instead of letting the handwriting IME claim them (Moonlight V+ PR #634)
+        // Keep stylus strokes (S Pen) on the stream instead of letting the handwriting IME claim them (ported from @Yundi339, qiin2333/moonlight-vplus#634)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             setAutoHandwritingEnabled(false);
         }

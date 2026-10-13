@@ -757,6 +757,7 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
         // breaks that contract and hangs the app at connection time with no error, which
         // has happened, on NVIDIA and MediaTek decoders. This bound makes the failure mode
         // a clean error instead of a hang, whatever a future vendor block does.
+        // Ported from @Rafael-CN (Rafael-CN/VibeArtemis@a502acb23).
         final int MAX_DECODER_CONFIG_TRIES = 16;
 
         for (int tryNumber = 0;; tryNumber++) {
@@ -1188,6 +1189,7 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
                 // prepareDisplayForRendering() may not have settled by the time this thread
                 // starts, and the panel can change rate mid-stream (battery saver, thermal).
                 // Sampling once pinned the drop thresholds to whatever was active at startup.
+                // From the frame pacing fixes by @coroiu (coroiu/twilight-android@e34cf77c5).
                 float displayHz = readDisplayRefreshRate();
                 long vsyncPeriodNs = (long) (1_000_000_000L / displayHz);
                 long lastHzPollNs = System.nanoTime();
