@@ -83,6 +83,9 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class StreamSettings extends AppCompatActivity implements SearchPreferenceResultListener {
+    // Set by BackupOpenActivity: the intent data is a backup file to restore
+    public static final String EXTRA_RESTORE_BACKUP = "com.limelight.RESTORE_BACKUP";
+
     // Settings this fork hides are left out of search results too
     private static final String[] HIDDEN_FROM_SEARCH = {"share_performance_logs", "option_view_shared_pref_logs"};
 
@@ -1420,6 +1423,12 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
             }
             if (getActivity() instanceof StreamSettings) {
                 ((StreamSettings) getActivity()).onSettingsListReady(this);
+            }
+            // A backup opened from another app goes straight to the password prompt or restore preview, once
+            Intent intent = requireActivity().getIntent();
+            if (intent.getBooleanExtra(EXTRA_RESTORE_BACKUP, false) && intent.getData() != null) {
+                intent.removeExtra(EXTRA_RESTORE_BACKUP);
+                backupRestore.startRestore(intent.getData());
             }
         }
 

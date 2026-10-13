@@ -23,6 +23,32 @@ public final class BackupFile {
         return root.optString("appVersion", "");
     }
 
+    // Empty for backups made before the device name was recorded
+    public String deviceModel() {
+        return root.optString("deviceModel", "");
+    }
+
+    // Settings files besides the main one and the per-PC files: special keys, on-screen controls and keyboard layouts
+    public int layoutFileCount() {
+        JSONObject prefs = prefs();
+        int count = 0;
+        if (prefs != null) {
+            java.util.Iterator<String> names = prefs.keys();
+            while (names.hasNext()) {
+                String name = names.next();
+                if (!PrefsSnapshot.DEFAULT_PREFS_KEY.equals(name) && !MergeHostsStrategy.PER_HOST_FILES.contains(name)
+                        && prefs.optJSONObject(name) != null && prefs.optJSONObject(name).length() > 0) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+
+    public boolean hasProfiles() {
+        return files().length() > 0;
+    }
+
     // Empty for backups made before the fingerprint existed
     String identityFingerprint() {
         return root.optString("identityFingerprint", "");

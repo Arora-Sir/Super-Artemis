@@ -1,68 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Backup dialog body: a one-line summary, then the pairing keys opt-in as one tappable card with its benefit and a red caution aligned to its title -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- Backup dialog body: the pairing keys opt-in with its red caution, then password protection, which pairing keys require -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:paddingLeft="24dp"
-    android:paddingTop="4dp"
-    android:paddingRight="24dp"
-    android:paddingBottom="4dp">
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/backup_dialog_summary"
-        android:textColor="?android:attr/textColorSecondary"
-        android:textSize="14sp" />
+    android:layout_height="wrap_content">
 
     <LinearLayout
-        android:id="@+id/backup_keys_card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:background="@drawable/bg_option_card"
-        android:clickable="true"
-        android:focusable="true"
-        android:orientation="horizontal"
-        android:paddingLeft="4dp"
-        android:paddingRight="12dp"
-        android:paddingBottom="12dp">
-
-        <CheckBox
-            android:id="@+id/backup_include_keys"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:contentDescription="@string/backup_include_pairing_keys"
-            android:minWidth="48dp"
-            android:minHeight="48dp" />
+        android:orientation="vertical"
+        android:paddingLeft="24dp"
+        android:paddingRight="24dp"
+        android:paddingBottom="8dp">
 
         <LinearLayout
-            android:layout_width="0dp"
+            android:id="@+id/backup_keys_card"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:background="@drawable/bg_card_clickable"
+            android:clickable="true"
+            android:focusable="true"
             android:orientation="vertical"
-            android:paddingTop="13dp">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/backup_include_pairing_keys"
-                android:textColor="?android:attr/textColorPrimary"
-                android:textSize="16sp" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:text="@string/backup_keys_benefit"
-                android:textColor="?android:attr/textColorSecondary"
-                android:textSize="14sp" />
+            android:paddingLeft="16dp"
+            android:paddingRight="12dp"
+            android:paddingBottom="16dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:paddingTop="13dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/backup_include_pairing_keys"
+                        android:textAppearance="@style/TextAppearance.SuperArtemis.BodyLarge" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="@string/backup_keys_benefit"
+                        android:textAppearance="@style/TextAppearance.SuperArtemis.BodyMedium" />
+                </LinearLayout>
+
+                <Switch
+                    style="@style/Widget.SuperArtemis.Switch"
+                    android:id="@+id/backup_include_keys"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginTop="8dp"
+                    android:contentDescription="@string/backup_include_pairing_keys"
+                    android:minHeight="48dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
                 android:background="@drawable/bg_caution_callout"
                 android:orientation="horizontal"
                 android:padding="10dp">
@@ -80,9 +83,104 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/backup_keys_caution"
+                    android:textAppearance="@style/TextAppearance.SuperArtemis.BodyMedium"
+                    android:textColor="@color/backup_caution" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/backup_password_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_card"
+            android:orientation="vertical"
+            android:paddingLeft="16dp"
+            android:paddingRight="12dp"
+            android:paddingBottom="12dp">
+
+            <LinearLayout
+                android:id="@+id/backup_password_toggle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_row"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:paddingTop="13dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/backup_use_password"
+                        android:textAppearance="@style/TextAppearance.SuperArtemis.BodyLarge" />
+
+                    <TextView
+                        android:id="@+id/backup_password_summary"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="@string/backup_password_summary"
+                        android:textAppearance="@style/TextAppearance.SuperArtemis.BodyMedium" />
+                </LinearLayout>
+
+                <Switch
+                    style="@style/Widget.SuperArtemis.Switch"
+                    android:id="@+id/backup_use_password"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:contentDescription="@string/backup_use_password"
+                    android:minHeight="48dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/backup_password_fields"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <EditText
+                    style="@style/Widget.SuperArtemis.TextField"
+                    android:id="@+id/backup_password"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/backup_password_hint"
+                    android:imeOptions="actionNext"
+                    android:importantForAutofill="no"
+                    android:inputType="textPassword"
+                    android:minHeight="48dp" />
+
+                <EditText
+                    style="@style/Widget.SuperArtemis.TextField"
+                    android:id="@+id/backup_password_confirm"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/backup_password_confirm_hint"
+                    android:layout_marginTop="8dp"
+                    android:imeOptions="actionDone"
+                    android:importantForAutofill="no"
+                    android:inputType="textPassword"
+                    android:minHeight="48dp" />
+
+                <TextView
+                    android:id="@+id/backup_password_error"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.SuperArtemis.BodySmall"
                     android:textColor="@color/backup_caution"
-                    android:textSize="14sp" />
+                    android:visibility="gone" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
-</LinearLayout>
+</ScrollView>

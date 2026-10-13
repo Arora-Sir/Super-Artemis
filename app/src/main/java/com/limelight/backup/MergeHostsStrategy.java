@@ -23,9 +23,14 @@ final class MergeHostsStrategy implements RestoreStrategy {
             AppView.HIDDEN_APPS_PREF_FILENAME, MicrophoneStateStore.PREF_NAME));
 
     @Override
-    public void apply(Context context, BackupFile backup) throws IOException, JSONException, InvalidBackupException {
-        PrefsSnapshot.restore(context, backup.prefs(), PER_HOST_FILES);
-        FileSnapshot.restore(context, backup.files());
+    public void apply(Context context, BackupFile backup, RestoreSelection selection) throws IOException, JSONException, InvalidBackupException {
+        PrefsSnapshot.restore(context, backup.prefs(), PER_HOST_FILES, selection);
+        if (selection.profiles) {
+            FileSnapshot.restore(context, backup.files());
+        }
+        if (!selection.pcs) {
+            return;
+        }
 
         JSONArray hosts = backup.hosts();
         ComputerDatabaseManager db = new ComputerDatabaseManager(context);

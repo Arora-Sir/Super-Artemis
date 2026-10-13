@@ -14,9 +14,11 @@ import java.util.Collections;
 // Used when the backup carries pairing keys: the device becomes the backed-up client, so its PC list must match the backup exactly
 final class ReplaceAllStrategy implements RestoreStrategy {
     @Override
-    public void apply(Context context, BackupFile backup) throws IOException, JSONException, InvalidBackupException {
-        PrefsSnapshot.restore(context, backup.prefs(), Collections.emptySet());
-        FileSnapshot.restore(context, backup.files());
+    public void apply(Context context, BackupFile backup, RestoreSelection selection) throws IOException, JSONException, InvalidBackupException {
+        PrefsSnapshot.restore(context, backup.prefs(), Collections.emptySet(), selection);
+        if (selection.profiles) {
+            FileSnapshot.restore(context, backup.files());
+        }
 
         JSONArray hosts = backup.hosts();
         ComputerDatabaseManager db = new ComputerDatabaseManager(context);

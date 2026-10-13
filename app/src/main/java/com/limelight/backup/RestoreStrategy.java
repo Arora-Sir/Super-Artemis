@@ -6,11 +6,11 @@ import org.json.JSONException;
 
 import java.io.IOException;
 
-// How a validated backup is applied. The choice depends only on whether the backup carries pairing keys.
+// How a validated backup is applied. Replacing everything happens only when the backup carries pairing keys and the user chose to restore them.
 public interface RestoreStrategy {
-    void apply(Context context, BackupFile backup) throws IOException, JSONException, InvalidBackupException;
+    void apply(Context context, BackupFile backup, RestoreSelection selection) throws IOException, JSONException, InvalidBackupException;
 
-    static RestoreStrategy forBackup(BackupFile backup) {
-        return backup.hasPairingKeys() ? new ReplaceAllStrategy() : new MergeHostsStrategy();
+    static RestoreStrategy forBackup(BackupFile backup, RestoreSelection selection) {
+        return backup.hasPairingKeys() && selection.pairingKeys ? new ReplaceAllStrategy() : new MergeHostsStrategy();
     }
 }

@@ -270,10 +270,20 @@ public class BackupRestoreTest {
     }
 
     @Test
-    public void validateRejectsNewerSchema() throws Exception {
+    public void validateRejectsASchemaThatNeedsANewerReader() throws Exception {
         JSONObject json = BackupCodec.create(context, false);
         json.put("schemaVersion", BackupCodec.SCHEMA_VERSION + 1);
+        json.put("minReaderVersion", BackupCodec.SCHEMA_VERSION + 1);
         assertInvalid(json);
+    }
+
+    // A newer app that only adds sections keeps minReaderVersion, so this version still restores what it understands
+    @Test
+    public void validateAcceptsANewerSchemaThatOlderReadersUnderstand() throws Exception {
+        JSONObject json = BackupCodec.create(context, false);
+        json.put("schemaVersion", BackupCodec.SCHEMA_VERSION + 1);
+        json.put("futureSection", new JSONObject().put("x", 1));
+        assertNotNull(BackupCodec.validate(json));
     }
 
     @Test
@@ -284,11 +294,15 @@ public class BackupRestoreTest {
     }
 
     @Test
-    public void validateRejectsUnknownPreferenceType() throws Exception {
+    public void unknownPreferenceTypesFromNewerVersionsAreSkipped() throws Exception {
         JSONObject json = BackupCodec.create(context, false);
-        JSONObject typed = new JSONObject().put("type", "double").put("value", 1.0);
-        json.getJSONObject("sharedPreferences").put(PrefsSnapshot.DEFAULT_PREFS_KEY, new JSONObject().put("k", typed));
-        assertInvalid(json);
+        JSONObject entries = new JSONObject()
+                .put("future", new JSONObject().put("type", "double").put("value", 1.0))
+                .put("list_fps", new JSONObject().put("type", "string").put("value", "90"));
+        json.getJSONObject("sharedPreferences").put(PrefsSnapshot.DEFAULT_PREFS_KEY, entries);
+        BackupRestoreManager.applyBackup(context, BackupCodec.validate(json));
+        assertEquals("90", defaultPrefs.getString("list_fps", null));
+        assertFalse(defaultPrefs.contains("future"));
     }
 
     @Test

@@ -16,6 +16,9 @@ import java.util.Date;
 public final class BackupCodec {
     public static final String FORMAT = "super-artemis-backup";
     public static final int SCHEMA_VERSION = 1;
+    // NOTE: Oldest reader that can still apply a file of this schema. A future version that only adds sections keeps this at 1,
+    // NOTE: so older apps restore everything they understand and skip the rest. Only a breaking change raises it.
+    public static final int MIN_READER_VERSION = 1;
 
     private BackupCodec() {
     }
@@ -24,9 +27,12 @@ public final class BackupCodec {
         JSONObject root = new JSONObject();
         root.put("format", FORMAT);
         root.put("schemaVersion", SCHEMA_VERSION);
+        root.put("minReaderVersion", MIN_READER_VERSION);
         root.put("createdAt", BackupIo.isoTimestamp(new Date()));
         root.put("appVersion", BuildConfig.VERSION_NAME);
         root.put("sourcePackage", context.getPackageName());
+        // Shown in the restore preview ("Made on ..."), so the user can tell backups from different devices apart
+        root.put("deviceModel", (android.os.Build.MANUFACTURER + " " + android.os.Build.MODEL).trim());
         String fingerprint = IdentitySnapshot.fingerprint(context);
         if (fingerprint != null) {
             root.put("identityFingerprint", fingerprint);
@@ -57,8 +63,10 @@ public final class BackupCodec {
                 throw new InvalidBackupException("Not a Super Artemis backup");
             }
             int schema = root.optInt("schemaVersion", -1);
-            if (schema < 1 || schema > SCHEMA_VERSION) {
-                throw new InvalidBackupException("Unsupported backup version " + schema);
+            // Files without minReaderVersion come from schema 1, which every reader understands
+            int minReader = root.optInt("minReaderVersion", Math.min(schema, SCHEMA_VERSION));
+            if (schema < 1 || minReader > SCHEMA_VERSION) {
+                throw new InvalidBackupException("This backup needs a newer Super Artemis (backup version " + schema + ")");
             }
             PrefsSnapshot.validate(root.getJSONObject("sharedPreferences"));
             JSONObject files = root.optJSONObject("files");

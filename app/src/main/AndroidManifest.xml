@@ -173,6 +173,41 @@
             android:launchMode="singleInstance"
             android:taskAffinity=""
             android:theme="@style/ExternalDisplayControllerTheme"/>
+        <!-- Opens a Super Artemis backup from a file manager, a download or the share sheet and hands it to the restore preview -->
+        <activity
+            android:name=".backup.BackupOpenActivity"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:label="@string/title_restore_settings"
+            android:noHistory="true"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="content" />
+                <data android:scheme="file" />
+                <data android:mimeType="application/vnd.superartemis.backup" />
+            </intent-filter>
+            <!-- File managers usually report an unknown extension as a generic file, so the .sabackup name is matched too -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="content" />
+                <data android:scheme="file" />
+                <data android:host="*" />
+                <data android:mimeType="*/*" />
+                <data android:pathPattern=".*\.sabackup" />
+                <data android:pathPattern=".*\..*\.sabackup" />
+                <data android:pathPattern=".*\..*\..*\.sabackup" />
+                <data android:pathPattern=".*\..*\..*\..*\.sabackup" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="application/vnd.superartemis.backup" />
+            </intent-filter>
+        </activity>
+
         <activity
             android:name=".preferences.StreamSettings"
             android:resizeableActivity="true"
