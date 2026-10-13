@@ -13,26 +13,28 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.limelight.R;
+import com.limelight.ui.Dialogs;
 
 // NOTE: Support development, reached only from Settings > About. A UPI app opens through the system chooser, the QR works from another phone,
 // NOTE: and when no UPI app is installed the UPI ID is copied instead, so every path ends somewhere useful.
+// NOTE: The dialog has no buttons of its own: back or a tap outside closes it, like any other sheet of options.
 public final class SupportDialog {
     private SupportDialog() {
     }
 
     public static void show(Context context) {
-        View body = LayoutInflater.from(context).inflate(R.layout.dialog_support, null);
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        Context dialogContext = builder.getContext();
+        View body = LayoutInflater.from(dialogContext).inflate(R.layout.dialog_support, null);
         ((TextView) body.findViewById(R.id.support_upi_id)).setText(Links.UPI_ID);
         body.findViewById(R.id.support_upi_app).setOnClickListener(v -> payWithUpiApp(context));
         body.findViewById(R.id.support_copy_upi).setOnClickListener(v -> copyUpiId(context, R.string.support_upi_copied));
         body.findViewById(R.id.support_paypal).setOnClickListener(v -> Links.open(context, Links.PAYPAL));
-        body.findViewById(R.id.support_star).setOnClickListener(v -> Links.open(context, Links.REPOSITORY));
 
-        new AlertDialog.Builder(context)
-                .setTitle(R.string.title_support)
-                .setView(body)
-                .setPositiveButton(R.string.custom_keys_done, null)
-                .show();
+        builder.setCustomTitle(Dialogs.header(dialogContext, R.drawable.ic_sa_favorite,
+                        context.getString(R.string.title_support), context.getString(R.string.support_intro)))
+                .setView(body);
+        Dialogs.show(builder, Dialogs.WIDTH_STANDARD_DP);
     }
 
     static Intent upiIntent() {

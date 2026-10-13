@@ -114,6 +114,16 @@
       ]
     },
     {
+      "feature": "Brand icons for the developer links, from Primer Octicons (MIT), Bootstrap Icons (MIT) and Simple Icons (CC0)",
+      "role": "assets",
+      "people": [],
+      "links": [
+        { "label": "primer/octicons", "url": "https://github.com/primer/octicons" },
+        { "label": "twbs/icons", "url": "https://github.com/twbs/icons" },
+        { "label": "simple-icons/simple-icons", "url": "https://github.com/simple-icons/simple-icons" }
+      ]
+    },
+    {
       "feature": "Reorderable Quick Menu and floating buttons",
       "role": "request",
       "people": [{ "handle": "Sx1Fl0NdqlkM6N4s2pswXKUI0k9FKTaOckLbNXu" }],

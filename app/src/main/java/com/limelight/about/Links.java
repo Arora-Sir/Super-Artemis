@@ -25,6 +25,11 @@ public final class Links {
     public static final String GITHUB_PROFILE = "https://github.com/Arora-Sir";
     public static final String LINKEDIN = "https://www.linkedin.com/in/arora-sir";
     public static final String X_PROFILE = "https://x.com/MohitAr0rA";
+    // Short forms shown under each profile link
+    public static final String WEBSITE_LABEL = "mohitarora.me";
+    public static final String GITHUB_LABEL = "@Arora-Sir";
+    public static final String LINKEDIN_LABEL = "in/arora-sir";
+    public static final String X_LABEL = "@MohitAr0rA";
 
     private Links() {
     }

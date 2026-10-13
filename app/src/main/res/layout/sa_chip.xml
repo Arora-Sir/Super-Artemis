@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Outlined link chip with a small link icon -->
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="32dp"
+    android:background="@drawable/bg_chip"
+    android:drawablePadding="6dp"
+    android:ellipsize="middle"
+    android:focusable="true"
+    android:gravity="center_vertical"
+    android:maxLines="1"
+    android:paddingLeft="10dp"
+    android:paddingRight="12dp"
+    android:textAppearance="@style/TextAppearance.SuperArtemis.BodySmall"
+    android:textColor="?android:attr/textColorPrimary" />

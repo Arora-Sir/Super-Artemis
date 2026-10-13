@@ -51,7 +51,9 @@ public class AboutTest {
         URLSpan[] spans = ((Spanned) line).getSpans(0, line.length(), URLSpan.class);
         assertEquals(2, spans.length);
         assertEquals("https://github.com/logabell", spans[0].getURL());
-        assertEquals("owner/repo#1", AboutDialogs.linkLine(entries.get(0)).toString());
+        // Each link becomes one chip with this label
+        assertEquals("owner/repo#1", entries.get(0).links.get(0).label);
+        assertEquals("https://github.com/owner/repo/pull/1", entries.get(0).links.get(0).url);
     }
 
     @Test

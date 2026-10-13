@@ -18,7 +18,6 @@ public final class AboutSection {
         onClick(fragment, "pref_about_support", () -> SupportDialog.show(context));
         onClick(fragment, "pref_about_profiles", () -> AboutDialogs.showProfiles(context));
         onClick(fragment, "pref_about_credits", () -> AboutDialogs.showCredits(context));
-        onClick(fragment, "pref_about_star", () -> Links.open(context, Links.REPOSITORY));
         onClick(fragment, "pref_about_source", () -> Links.open(context, Links.REPOSITORY));
         onClick(fragment, "pref_about_issue", () -> Links.open(context, Links.NEW_ISSUE));
         onClick(fragment, "pref_about_privacy", () -> Links.open(context, Links.PRIVACY));

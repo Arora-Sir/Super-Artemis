@@ -996,5 +996,4 @@
 
     <string name="title_checkbox_full_screen">Enable Full Screen</string>
     <string name="summary_checkbox_full_screen">Hide system bars with immersive mode</string>
-    <string name="support_star">Star on GitHub</string>
 </resources>

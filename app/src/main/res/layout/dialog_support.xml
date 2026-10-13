@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Support development: UPI app, UPI QR with the ID to copy, PayPal and a GitHub star. No nagging, it only opens from About. -->
+<!-- Support development: a UPI card (QR, ID with copy, open a UPI app) and a PayPal card. It only opens from About, never as a prompt. -->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
@@ -9,90 +9,134 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:paddingLeft="24dp"
-        android:paddingTop="4dp"
         android:paddingRight="24dp"
-        android:paddingBottom="8dp">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/support_intro"
-            android:textColor="?android:attr/textColorSecondary"
-            android:textSize="14sp" />
-
-        <Button
-            android:id="@+id/support_upi_app"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:minHeight="48dp"
-            android:text="@string/support_pay_upi_app" />
+        android:paddingBottom="24dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:background="@drawable/bg_preview_frame"
-            android:gravity="center_horizontal"
-            android:orientation="vertical"
+            android:background="@drawable/bg_card"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
             android:padding="16dp">
 
             <ImageView
-                android:layout_width="200dp"
-                android:layout_height="200dp"
-                android:background="@android:color/white"
+                android:layout_width="@dimen/sa_support_qr_size"
+                android:layout_height="@dimen/sa_support_qr_size"
+                android:background="@drawable/bg_qr"
                 android:contentDescription="@string/support_qr_description"
+                android:padding="8dp"
                 android:scaleType="fitCenter"
                 android:src="@drawable/support_upi_qr" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:text="@string/support_qr_caption"
-                android:textColor="?android:attr/textColorSecondary"
-                android:textSize="14sp" />
-
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:layout_marginLeft="16dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/support_upi_id"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="?android:attr/textColorPrimary"
-                    android:textIsSelectable="true"
-                    android:textSize="16sp" />
+                    android:text="@string/support_upi_title"
+                    android:textAppearance="@style/TextAppearance.SuperArtemis.TitleMedium" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="@string/support_qr_caption"
+                    android:textAppearance="@style/TextAppearance.SuperArtemis.BodyMedium" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/support_upi_id"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:textAppearance="@style/TextAppearance.SuperArtemis.BodyLarge"
+                        android:textIsSelectable="true" />
+
+                    <ImageButton
+                        android:id="@+id/support_copy_upi"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="@drawable/bg_button_text"
+                        android:contentDescription="@string/support_copy"
+                        android:src="@drawable/ic_sa_content_copy"
+                        android:tint="?attr/saPrimary" />
+                </LinearLayout>
 
                 <Button
-                    android:id="@+id/support_copy_upi"
-                    style="?android:attr/borderlessButtonStyle"
+                    android:id="@+id/support_upi_app"
+                    style="@style/Widget.SuperArtemis.Button.Filled"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="8dp"
-                    android:minHeight="48dp"
-                    android:text="@string/support_copy" />
+                    android:layout_marginTop="8dp"
+                    android:text="@string/support_pay_upi_app" />
             </LinearLayout>
         </LinearLayout>
 
-        <Button
+        <LinearLayout
             android:id="@+id/support_paypal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:minHeight="48dp"
-            android:text="@string/support_paypal" />
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_card_clickable"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center_vertical"
+            android:minHeight="72dp"
+            android:orientation="horizontal"
+            android:paddingLeft="16dp"
+            android:paddingTop="12dp"
+            android:paddingRight="16dp"
+            android:paddingBottom="12dp">
 
-        <Button
-            android:id="@+id/support_star"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:minHeight="48dp"
-            android:text="@string/support_star" />
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/bg_icon_circle"
+                android:importantForAccessibility="no"
+                android:padding="8dp"
+                android:src="@drawable/ic_sa_payments"
+                android:tint="?attr/saOnSecondaryContainer" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/support_paypal"
+                    android:textAppearance="@style/TextAppearance.SuperArtemis.TitleMedium" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/support_paypal_summary"
+                    android:textAppearance="@style/TextAppearance.SuperArtemis.BodyMedium" />
+            </LinearLayout>
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_sa_open_in_new"
+                android:tint="?attr/saOnSurfaceVariant" />
+        </LinearLayout>
     </LinearLayout>
 </ScrollView>
