@@ -27,6 +27,9 @@ public final class GestureDispatcher implements MultiFingerGestureRecognizer.Cal
 
         void sendKeys(short[] keys);
 
+        // Runs a special key, a single shortcut or a key with several steps
+        void runKey(CustomKey key);
+
         // Ends what the touch already started on the PC or in pan and zoom
         void cancelTouch(MotionEvent event);
     }
@@ -154,7 +157,7 @@ public final class GestureDispatcher implements MultiFingerGestureRecognizer.Cal
         if (keyId != null) {
             CustomKey key = SpecialKeys.find(context, keyId);
             if (key != null) {
-                target.sendKeys(key.keyCodes());
+                target.runKey(key);
             }
             return;
         }

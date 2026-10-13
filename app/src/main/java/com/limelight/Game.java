@@ -305,6 +305,8 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
     private ImageButton floatingMenuButton;
     private QuickActionBar quickActionBar;
     private GestureDispatcher gestureDispatcher;
+    // Runs special keys made of several steps, created on first use
+    private com.limelight.customkeys.FlowRunner flowRunner;
     // The view the current gesture started on, and a guard so the cancel sent for a gesture is not read as a new touch
     private View gestureTouchView;
     private boolean cancellingGestureTouch;
@@ -1715,6 +1717,9 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
     @Override
     protected void onDestroy() {
         stopMicrophoneCapture();
+        if (flowRunner != null) {
+            flowRunner.shutdown();
+        }
         super.onDestroy();
 
         instance = null;
@@ -2259,6 +2264,80 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
 
         conn.sendUtf8Text(event.getCharacters());
         return true;
+    }
+
+    // NOTE: Every special key from the menu, a quick-action bar or a gesture runs here. A single shortcut keeps the original
+    // NOTE: sendKeys timing, and a key with several steps runs them one after another on the flow runner.
+    public void runKey(com.limelight.customkeys.CustomKey key) {
+        if (key == null) {
+            return;
+        }
+        if (key.isSingleCombo()) {
+            sendKeys(key.keyCodes());
+            return;
+        }
+        if (conn == null) {
+            return;
+        }
+        if (flowRunner == null) {
+            flowRunner = new com.limelight.customkeys.FlowRunner(new com.limelight.customkeys.FlowRunner.Sink() {
+                @Override
+                public void keyDown(short vk, byte modifiers) {
+                    NvConnection connection = conn;
+                    if (connection != null) {
+                        connection.sendKeyboardInput(vk, KeyboardPacket.KEY_DOWN, modifiers, (byte) 0);
+                    }
+                }
+
+                @Override
+                public void keyUp(short vk, byte modifiers) {
+                    NvConnection connection = conn;
+                    if (connection != null) {
+                        connection.sendKeyboardInput(vk, KeyboardPacket.KEY_UP, modifiers, (byte) 0);
+                    }
+                }
+
+                @Override
+                public void text(String text) {
+                    NvConnection connection = conn;
+                    if (connection == null) {
+                        return;
+                    }
+                    // Same chunk size as the soft keyboard, split on code points so no character is cut in half
+                    StringBuilder chunk = new StringBuilder();
+                    int bytes = 0;
+                    for (int i = 0; i < text.length(); ) {
+                        int cp = text.codePointAt(i);
+                        String ch = new String(Character.toChars(cp));
+                        int size = ch.getBytes(java.nio.charset.StandardCharsets.UTF_8).length;
+                        if (bytes + size > UTF8_CHUNK_SIZE) {
+                            connection.sendUtf8Text(chunk.toString());
+                            chunk.setLength(0);
+                            bytes = 0;
+                        }
+                        chunk.append(ch);
+                        bytes += size;
+                        i += Character.charCount(cp);
+                    }
+                    if (chunk.length() > 0) {
+                        connection.sendUtf8Text(chunk.toString());
+                    }
+                }
+
+                @Override
+                public void action(String actionId) {
+                    runOnUiThread(() -> {
+                        StreamAction action = com.limelight.actions.StreamActionRegistry.find(actionId);
+                        if (action != null && !action.destructive && gameMenuCallbacks instanceof GameMenu) {
+                            ((GameMenu) gameMenuCallbacks).runAction(action);
+                        }
+                    });
+                }
+            });
+        }
+        if (!flowRunner.run(key)) {
+            Toast.makeText(this, R.string.flow_busy, Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void sendKeys(short[] keys) {
@@ -3419,6 +3498,10 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
 
     private void stopConnection() {
         stopMicrophoneCapture();
+        // A key still running would keep typing into a closed stream, and its held keys must be let go
+        if (flowRunner != null) {
+            flowRunner.cancel();
+        }
 
         if (connecting || connected) {
             connecting = connected = false;
@@ -4421,6 +4504,11 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
                 Game.this.sendKeys(keys);
             }
 
+            @Override
+            public void runKey(com.limelight.customkeys.CustomKey key) {
+                Game.this.runKey(key);
+            }
+
             // Pan and zoom stops following the fingers, and every other mode tells the PC the touch was cancelled
             @Override
             public void cancelTouch(MotionEvent event) {
@@ -4454,8 +4542,8 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
             }
 
             @Override
-            public void sendKeys(short[] keys) {
-                Game.this.sendKeys(keys);
+            public void runKey(com.limelight.customkeys.CustomKey key) {
+                Game.this.runKey(key);
             }
 
             @Override

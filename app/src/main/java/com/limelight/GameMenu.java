@@ -91,10 +91,6 @@ public class GameMenu implements Game.GameMenuCallbacks {
     }
 
 
-    private void sendKeys(short[] keys) {
-        game.sendKeys(keys);
-    }
-
     private void runWithGameFocus(Runnable runnable) {
         // Ensure that the Game activity is still active (not finished)
         if (game.isFinishing()) {
@@ -193,9 +189,8 @@ public class GameMenu implements Game.GameMenuCallbacks {
             Toast.makeText(game,getString(R.string.wrong_import_format),Toast.LENGTH_SHORT).show();
         }
         for (CustomKey key : SpecialKeys.visible(game)) {
-            short[] keyCodes = key.keyCodes();
             options.add(new MenuOption(key.name, key.icon != null ? IconCatalog.drawableFor(key.icon) : 0, false,
-                    () -> sendKeys(keyCodes)));
+                    () -> game.runKey(key)));
         }
 
         // Recording a key opens on top of the stream, and the list reopens with the new key when it is saved

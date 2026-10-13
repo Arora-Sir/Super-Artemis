@@ -18,6 +18,14 @@ public class KeyConfigHelper {
         }
     }
 
+    // One step of a special key: type is combo, text, wait, hold, release, repeat or action
+    public static class Step {
+        public String type;
+        public List<String> keys;
+        public String text;
+        public Integer amount;
+    }
+
     public static class Shortcut {
         public String id;
         public String name;
@@ -25,6 +33,8 @@ public class KeyConfigHelper {
         public List<String> keys;
         // Optional icon ID from customkeys.IconCatalog, absent in files written by older versions
         public String icon;
+        // Optional steps run one after another. Absent for a plain shortcut, and older versions read only keys.
+        public List<Step> steps;
 
         // Default constructor for Gson
         public Shortcut() {

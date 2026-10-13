@@ -33,7 +33,8 @@ public final class QuickActionBar {
 
         void runAction(StreamAction action);
 
-        void sendKeys(short[] keys);
+        // Runs a special key, a single shortcut or a key with several steps
+        void runKey(CustomKey key);
 
         // The top left bar starts beside or below the menu button when that button is shown
         boolean isFloatingMenuButtonVisible();
@@ -179,8 +180,7 @@ public final class QuickActionBar {
             if (key == null) {
                 return null;
             }
-            short[] codes = key.keyCodes();
-            return makeButton(IconCatalog.drawableFor(key.icon), key.name, null, () -> host.sendKeys(codes));
+            return makeButton(IconCatalog.drawableFor(key.icon), key.name, null, () -> host.runKey(key));
         }
         StreamAction action = StreamActionRegistry.find(item);
         if (action == null || action.destructive || !action.isAvailable(host.actionHost())) {

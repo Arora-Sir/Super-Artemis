@@ -107,6 +107,23 @@ public class EditorsSmokeTest {
     }
 
     @Test
+    public void customKeyEditorShowsEveryStepType() {
+        com.limelight.customkeys.CustomKey flow = com.limelight.customkeys.CustomKey.withSteps("f", "Flow", false, null, java.util.Arrays.asList(
+                com.limelight.customkeys.KeyStep.combo(java.util.Arrays.asList(0xA2, 0x43)),
+                com.limelight.customkeys.KeyStep.text("hello"),
+                com.limelight.customkeys.KeyStep.waitMs(200),
+                com.limelight.customkeys.KeyStep.hold(0xA0),
+                com.limelight.customkeys.KeyStep.release(0xA0),
+                com.limelight.customkeys.KeyStep.repeat(2),
+                com.limelight.customkeys.KeyStep.action("pan_zoom")));
+        openInBothStyles((activity, prefs) -> {
+            CustomKeyEditor.show(activity, flow, key -> { });
+            android.widget.LinearLayout steps = ShadowDialog.getLatestDialog().findViewById(R.id.custom_key_steps);
+            org.junit.Assert.assertEquals(7, steps.getChildCount());
+        });
+    }
+
+    @Test
     public void appStylePickerOpens() {
         openInBothStyles((activity, prefs) -> AppStylePicker.show(activity, "classic", style -> { }));
     }

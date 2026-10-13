@@ -67,7 +67,7 @@ public final class CustomKeyStore {
                 }
             }
         }
-        CustomKey added = new CustomKey(key.id != null ? key.id : newId(keys), key.name, key.sticky, key.icon, key.keys);
+        CustomKey added = key.withId(key.id != null ? key.id : newId(keys));
         keys.add(added);
         return added;
     }
@@ -112,7 +112,10 @@ public final class CustomKeyStore {
                 }
             }
             String id = TextUtils.isEmpty(shortcut.id) ? Integer.toString(i) : shortcut.id;
-            keys.add(new CustomKey(id, shortcut.name != null ? shortcut.name : "", shortcut.sticky, shortcut.icon, codes));
+            String name = shortcut.name != null ? shortcut.name : "";
+            List<KeyStep> steps = parseSteps(shortcut.steps);
+            keys.add(steps.isEmpty() ? new CustomKey(id, name, shortcut.sticky, shortcut.icon, codes)
+                    : CustomKey.withSteps(id, name, shortcut.sticky, shortcut.icon, steps));
         }
         return keys;
     }
@@ -126,9 +129,87 @@ public final class CustomKeyStore {
             }
             KeyConfigHelper.Shortcut shortcut = new KeyConfigHelper.Shortcut(key.id, key.name, key.sticky, codes);
             shortcut.icon = key.icon;
+            if (!key.isSingleCombo()) {
+                shortcut.steps = stepsJson(key.steps);
+            }
             shortcuts.add(shortcut);
         }
         return new Gson().toJson(new KeyConfigHelper.ShortcutFile(shortcuts));
+    }
+
+    // NOTE: Steps of a newer version that this one does not know are skipped, so the rest of the key still runs.
+    // NOTE: Steps with missing keys or text are refused, because a hand-edited file must not crash the stream.
+    static List<KeyStep> parseSteps(List<KeyConfigHelper.Step> raw) throws FormatException {
+        List<KeyStep> steps = new ArrayList<>();
+        if (raw == null) {
+            return steps;
+        }
+        for (KeyConfigHelper.Step step : raw) {
+            if (step == null || step.type == null) {
+                continue;
+            }
+            List<Integer> codes = new ArrayList<>();
+            if (step.keys != null) {
+                for (String code : step.keys) {
+                    if (code == null) {
+                        throw new FormatException("A key code is missing");
+                    }
+                    codes.add(parseKeyCode(code));
+                }
+            }
+            int amount = step.amount != null ? step.amount : 0;
+            KeyStep parsed;
+            switch (step.type) {
+                case "combo":
+                    parsed = KeyStep.combo(codes);
+                    break;
+                case "text":
+                    parsed = KeyStep.text(step.text);
+                    break;
+                case "wait":
+                    parsed = step.amount != null ? KeyStep.waitMs(amount) : null;
+                    break;
+                case "hold":
+                    parsed = codes.size() == 1 ? KeyStep.hold(codes.get(0)) : null;
+                    break;
+                case "release":
+                    parsed = codes.size() == 1 ? KeyStep.release(codes.get(0)) : null;
+                    break;
+                case "repeat":
+                    parsed = step.amount != null ? KeyStep.repeat(amount) : null;
+                    break;
+                case "action":
+                    parsed = KeyStep.action(step.text);
+                    break;
+                default:
+                    continue;
+            }
+            if (parsed == null || !parsed.isValid()) {
+                throw new FormatException("A step of type " + step.type + " is incomplete");
+            }
+            steps.add(parsed);
+        }
+        return steps;
+    }
+
+    static List<KeyConfigHelper.Step> stepsJson(List<KeyStep> steps) {
+        List<KeyConfigHelper.Step> out = new ArrayList<>();
+        for (KeyStep step : steps) {
+            KeyConfigHelper.Step json = new KeyConfigHelper.Step();
+            json.type = step.type.name().toLowerCase(Locale.US);
+            if (!step.keys.isEmpty()) {
+                json.keys = new ArrayList<>();
+                for (int code : step.keys) {
+                    json.keys.add(String.format(Locale.US, "0x%02X", code));
+                }
+            }
+            json.text = step.text;
+            if (step.type == KeyStep.Type.WAIT || step.type == KeyStep.Type.REPEAT) {
+                json.amount = step.amount;
+            }
+            out.add(json);
+        }
+        return out;
     }
 
     // Same rules as the import format: literal hex ("0x1B") or a VK_ constant name from KeyMapper
