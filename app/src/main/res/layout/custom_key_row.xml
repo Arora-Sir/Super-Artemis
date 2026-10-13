@@ -1,59 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Custom keys manager row: drag handle, icon, name with its key combination, and delete -->
+<!-- Special keys manager row: drag handle, icon, name with its keys and a built-in tag, then hide or delete -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="?android:attr/selectableItemBackground"
+    android:background="@drawable/bg_row"
     android:focusable="true"
     android:gravity="center_vertical"
-    android:minHeight="56dp"
+    android:minHeight="64dp"
     android:orientation="horizontal"
-    android:paddingLeft="8dp"
-    android:paddingRight="8dp">
+    android:paddingLeft="4dp"
+    android:paddingRight="4dp">
 
     <ImageView
         android:id="@+id/custom_key_row_handle"
-        android:layout_width="48dp"
+        android:layout_width="40dp"
         android:layout_height="48dp"
         android:contentDescription="@string/game_menu_editor_drag"
         android:scaleType="center"
-        android:src="@drawable/ic_gm_drag_handle" />
+        android:src="@drawable/ic_sa_drag_indicator"
+        android:tint="?attr/saOnSurfaceVariant" />
 
     <ImageView
         android:id="@+id/custom_key_row_icon"
-        android:layout_width="22dp"
-        android:layout_height="22dp"
-        android:layout_marginRight="14dp"
-        android:importantForAccessibility="no" />
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@drawable/bg_icon_circle"
+        android:importantForAccessibility="no"
+        android:padding="9dp"
+        android:tint="?attr/saOnSecondaryContainer" />
 
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
         android:layout_weight="1"
         android:orientation="vertical"
-        android:paddingTop="6dp"
-        android:paddingBottom="6dp">
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp">
 
         <TextView
             android:id="@+id/custom_key_row_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="?android:attr/textColorPrimary"
-            android:textSize="15sp" />
+            android:textAppearance="@style/TextAppearance.SuperArtemis.BodyLarge" />
 
         <TextView
             android:id="@+id/custom_key_row_keys"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="?android:attr/textColorSecondary"
-            android:textSize="13sp" />
+            android:textAppearance="@style/TextAppearance.SuperArtemis.BodyMedium" />
     </LinearLayout>
 
     <ImageButton
-        android:id="@+id/custom_key_row_delete"
+        android:id="@+id/custom_key_row_action"
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:background="?android:attr/selectableItemBackgroundBorderless"
-        android:contentDescription="@string/custom_key_delete"
-        android:src="@drawable/ic_gm_delete" />
+        android:background="@drawable/bg_button_text"
+        android:tint="?attr/saOnSurfaceVariant" />
 </LinearLayout>

@@ -122,6 +122,11 @@ public class CustomKeysTest {
     @Test
     public void unknownIconFallsBackToKeyboard() {
         assertEquals(IconCatalog.drawableFor("keyboard"), IconCatalog.drawableFor("removed_icon"));
-        assertEquals(28, IconCatalog.ICONS.size());
+        // 28 original icons and 33 added in round 2, with unique IDs
+        assertEquals(61, IconCatalog.ICONS.size());
+        java.util.Set<String> ids = new java.util.HashSet<>();
+        for (IconCatalog.Icon icon : IconCatalog.ICONS) {
+            assertEquals(true, ids.add(icon.id));
+        }
     }
 }

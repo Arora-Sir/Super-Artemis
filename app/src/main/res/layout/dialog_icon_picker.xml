@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Icon choice for a built-in special key: one scrolling grid -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingLeft="20dp"
+    android:paddingRight="20dp">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/icon_picker_grid"
+        android:layout_width="match_parent"
+        android:layout_height="232dp"
+        android:scrollbars="vertical" />
+</LinearLayout>

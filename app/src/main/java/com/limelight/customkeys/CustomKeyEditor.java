@@ -15,14 +15,12 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.limelight.R;
+import com.limelight.ui.Dialogs;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +34,6 @@ public final class CustomKeyEditor {
 
     // More keys than this is never a shortcut, and hosts can drop very long chords
     static final int MAX_KEYS = 8;
-    private static final int ICON_COLUMNS = 7;
 
     private CustomKeyEditor() {
     }
@@ -133,9 +130,7 @@ public final class CustomKeyEditor {
         });
         keyboardContainer.addView(keyboard);
 
-        iconGrid.setLayoutManager(new GridLayoutManager(context, ICON_COLUMNS));
-        iconGrid.setNestedScrollingEnabled(false);
-        iconGrid.setAdapter(new IconAdapter(icon));
+        IconPicker.attach(iconGrid, icon);
 
         // Physical keyboards record while the key box has focus, so typing the name still works
         dialog.setOnKeyListener((d, keyCode, event) -> {
@@ -151,6 +146,8 @@ public final class CustomKeyEditor {
         });
 
         dialog.show();
+        // The recorder keyboard needs room, so the editor uses the wide dialog size
+        Dialogs.fitWidth(dialog, Dialogs.WIDTH_WIDE_DP);
         refresh.run();
     }
 
@@ -176,47 +173,6 @@ public final class CustomKeyEditor {
                 v.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP);
                 tap.onTap(v);
             });
-        }
-    }
-
-    // Tapping the selected icon again clears it, so a key can go back to having no icon
-    private static final class IconAdapter extends RecyclerView.Adapter<IconAdapter.Holder> {
-        private final String[] selected;
-
-        IconAdapter(String[] selected) {
-            this.selected = selected;
-        }
-
-        static final class Holder extends RecyclerView.ViewHolder {
-            final ImageView image;
-
-            Holder(View itemView) {
-                super(itemView);
-                image = itemView.findViewById(R.id.custom_key_icon);
-            }
-        }
-
-        @NonNull
-        @Override
-        public Holder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            return new Holder(LayoutInflater.from(parent.getContext()).inflate(R.layout.custom_key_icon_item, parent, false));
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull Holder holder, int position) {
-            IconCatalog.Icon icon = IconCatalog.ICONS.get(position);
-            holder.image.setImageResource(icon.drawableRes);
-            holder.image.setContentDescription(icon.id.replace('_', ' '));
-            holder.image.setSelected(icon.id.equals(selected[0]));
-            holder.image.setOnClickListener(v -> {
-                selected[0] = icon.id.equals(selected[0]) ? null : icon.id;
-                notifyDataSetChanged();
-            });
-        }
-
-        @Override
-        public int getItemCount() {
-            return IconCatalog.ICONS.size();
         }
     }
 }

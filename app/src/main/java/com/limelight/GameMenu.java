@@ -17,11 +17,11 @@ import com.limelight.actions.StreamAction;
 import com.limelight.actions.StreamActionHost;
 import com.limelight.actions.StreamActionRegistry;
 import com.limelight.binding.input.GameInputDevice;
-import com.limelight.binding.input.KeyboardTranslator;
 import com.limelight.customkeys.CustomKey;
 import com.limelight.customkeys.CustomKeyEditor;
 import com.limelight.customkeys.CustomKeyStore;
-import com.limelight.customkeys.CustomKeysManager;
+import com.limelight.customkeys.SpecialKeys;
+import com.limelight.customkeys.SpecialKeysManager;
 import com.limelight.customkeys.IconCatalog;
 import com.limelight.menu.GameMenuEditor;
 import com.limelight.menu.GameMenuLayout;
@@ -29,7 +29,6 @@ import com.limelight.menu.GameMenuRenderer;
 import com.limelight.menu.MenuEntry;
 import com.limelight.menu.MenuSections;
 import com.limelight.menu.QuickBarEditor;
-import com.limelight.preferences.PreferenceConfiguration;
 import com.limelight.theme.ThemeManager;
 
 import java.util.ArrayList;
@@ -181,59 +180,16 @@ public class GameMenu implements Game.GameMenuCallbacks {
     private void showSpecialKeysMenu() {
         List<MenuEntry> options = new ArrayList<>();
 
-        if(!PreferenceConfiguration.readPreferences(game).disableDefaultExtraKeys){
-            options.add(new MenuOption(getString(R.string.game_menu_send_keys_esc),
-                    () -> sendKeys(new short[]{KeyboardTranslator.VK_ESCAPE})));
-
-            options.add(new MenuOption(getString(R.string.game_menu_send_keys_f11),
-                    () -> sendKeys(new short[]{KeyboardTranslator.VK_F11})));
-
-            options.add(new MenuOption(getString(R.string.game_menu_send_keys_alt_f4),
-                    () -> sendKeys(new short[]{KeyboardTranslator.VK_LMENU, KeyboardTranslator.VK_F4})));
-
-            options.add(new MenuOption(getString(R.string.game_menu_send_keys_alt_enter),
-                    () -> sendKeys(new short[]{KeyboardTranslator.VK_LMENU, KeyboardTranslator.VK_RETURN})));
-
-            options.add(new MenuOption(getString(R.string.game_menu_send_keys_ctrl_v),
-                    () -> sendKeys(new short[]{KeyboardTranslator.VK_LCONTROL, KeyboardTranslator.VK_V})));
-
-            options.add(new MenuOption(getString(R.string.game_menu_send_keys_win),
-                    () -> sendKeys(new short[]{KeyboardTranslator.VK_LWIN})));
-
-            options.add(new MenuOption(getString(R.string.game_menu_send_keys_win_d),
-                    () -> sendKeys(new short[]{KeyboardTranslator.VK_LWIN, KeyboardTranslator.VK_D})));
-
-            options.add(new MenuOption(getString(R.string.game_menu_send_keys_win_g),
-                    () -> sendKeys(new short[]{KeyboardTranslator.VK_LWIN, KeyboardTranslator.VK_G})));
-
-            options.add(new MenuOption(getString(R.string.game_menu_send_keys_ctrl_alt_tab),
-                    () -> sendKeys(new short[]{KeyboardTranslator.VK_LCONTROL, KeyboardTranslator.VK_LMENU, KeyboardTranslator.VK_TAB})));
-
-            options.add(new MenuOption(getString(R.string.game_menu_send_keys_shift_tab),
-                    () -> sendKeys(new short[]{KeyboardTranslator.VK_LSHIFT, KeyboardTranslator.VK_TAB})));
-
-            options.add(new MenuOption(getString(R.string.game_menu_send_keys_win_shift_left),
-                    () -> sendKeys(new short[]{KeyboardTranslator.VK_LWIN, KeyboardTranslator.VK_LSHIFT, KeyboardTranslator.VK_LEFT})));
-
-            options.add(new MenuOption(getString(R.string.game_menu_send_keys_ctrl_alt_shift_f1),
-                    () -> sendKeys(new short[]{KeyboardTranslator.VK_LCONTROL,KeyboardTranslator.VK_LMENU, KeyboardTranslator.VK_LSHIFT, KeyboardTranslator.VK_F1})));
-
-            options.add(new MenuOption(getString(R.string.game_menu_send_keys_ctrl_alt_shift_f12),
-                    () -> sendKeys(new short[]{KeyboardTranslator.VK_LCONTROL,KeyboardTranslator.VK_LMENU, KeyboardTranslator.VK_LSHIFT, KeyboardTranslator.VK_F12})));
-
-            options.add(new MenuOption(getString(R.string.game_menu_send_keys_alt_b),
-                    () -> sendKeys(new short[]{KeyboardTranslator.VK_LWIN, KeyboardTranslator.VK_LMENU, KeyboardTranslator.VK_B})));
-        }
-
-        // Custom keys from the in-app editor or an imported file, with their icons
+        // Built-in and custom keys in the user's order, each with its icon. Hidden built-in keys stay out.
         try {
-            for (CustomKey key : CustomKeyStore.load(game)) {
-                short[] keyCodes = key.keyCodes();
-                options.add(new MenuOption(key.name, key.icon != null ? IconCatalog.drawableFor(key.icon) : 0, false,
-                        () -> sendKeys(keyCodes)));
-            }
+            CustomKeyStore.load(game);
         } catch (CustomKeyStore.FormatException e) {
             Toast.makeText(game,getString(R.string.wrong_import_format),Toast.LENGTH_SHORT).show();
+        }
+        for (CustomKey key : SpecialKeys.visible(game)) {
+            short[] keyCodes = key.keyCodes();
+            options.add(new MenuOption(key.name, key.icon != null ? IconCatalog.drawableFor(key.icon) : 0, false,
+                    () -> sendKeys(keyCodes)));
         }
 
         // Recording a key opens on top of the stream, and the list reopens with the new key when it is saved
@@ -247,7 +203,7 @@ public class GameMenu implements Game.GameMenuCallbacks {
                     showSpecialKeysMenu();
                 })));
         options.add(new MenuOption(getString(R.string.game_menu_manage_custom_keys), R.drawable.ic_gm_edit, false,
-                () -> CustomKeysManager.show(themedContext(), this::showSpecialKeysMenu)));
+                () -> SpecialKeysManager.show(themedContext(), this::showSpecialKeysMenu)));
         options.add(new MenuOption(getString(R.string.game_menu_cancel), null));
 
         showMenuDialog(getString(R.string.game_menu_send_keys), options);

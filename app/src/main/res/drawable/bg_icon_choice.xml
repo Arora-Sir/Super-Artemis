@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Icon picker cell: outlined in the accent color while selected, plain otherwise -->
+<!-- Icon picker cell: a tonal tile with an accent outline while selected, plain otherwise -->
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_selected="true">
         <shape android:shape="rectangle">
-            <solid android:color="@color/icon_choice_fill" />
+            <solid android:color="?attr/saSecondaryContainer" />
             <stroke
                 android:width="2dp"
-                android:color="?android:attr/colorAccent" />
-            <corners android:radius="10dp" />
+                android:color="?attr/saPrimary" />
+            <corners android:radius="12dp" />
         </shape>
     </item>
     <item>
         <shape android:shape="rectangle">
             <solid android:color="@android:color/transparent" />
-            <corners android:radius="10dp" />
+            <corners android:radius="12dp" />
         </shape>
     </item>
 </selector>

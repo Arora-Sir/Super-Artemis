@@ -63,7 +63,7 @@ import com.limelight.R;
 import com.limelight.about.AboutSection;
 import com.limelight.backup.BackupRestoreController;
 import com.limelight.binding.audio.MicrophoneCaptureManager;
-import com.limelight.customkeys.CustomKeysManager;
+import com.limelight.customkeys.SpecialKeysManager;
 import com.limelight.gestures.GestureEditor;
 import com.limelight.session.BackgroundPolicy;
 import com.limelight.binding.input.virtual_controller.keyboard.KeyBoardControllerConfigurationLoader;
@@ -1359,7 +1359,7 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
             Preference customKeys = findPreference("pref_custom_keys");
             if (customKeys != null) {
                 customKeys.setOnPreferenceClickListener(preference -> {
-                    CustomKeysManager.show(ThemeManager.dialogContext(requireContext()), null);
+                    SpecialKeysManager.show(ThemeManager.dialogContext(requireContext()), null);
                     return true;
                 });
             }

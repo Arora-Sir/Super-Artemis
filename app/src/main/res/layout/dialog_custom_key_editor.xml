@@ -29,8 +29,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             android:text="@string/custom_key_keys_label"
-            android:textColor="?android:attr/textColorSecondary"
-            android:textSize="14sp" />
+            android:textAppearance="@style/TextAppearance.SuperArtemis.SectionLabel" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -53,15 +52,14 @@
                 android:paddingTop="10dp"
                 android:paddingRight="12dp"
                 android:paddingBottom="10dp"
-                android:textColor="?android:attr/textColorPrimary"
-                android:textSize="16sp" />
+                android:textAppearance="@style/TextAppearance.SuperArtemis.BodyLarge" />
 
             <ImageButton
                 android:id="@+id/custom_key_backspace"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:layout_marginLeft="8dp"
-                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:background="@drawable/bg_button_text"
                 android:contentDescription="@string/custom_key_remove_last"
                 android:src="@drawable/ic_gm_backspace" />
         </LinearLayout>
@@ -79,14 +77,14 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:text="@string/custom_key_icon_label"
-            android:textColor="?android:attr/textColorSecondary"
-            android:textSize="14sp" />
+            android:textAppearance="@style/TextAppearance.SuperArtemis.SectionLabel" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/custom_key_icons"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp" />
+            android:layout_height="232dp"
+            android:layout_marginTop="4dp"
+            android:scrollbars="vertical" />
 
         <FrameLayout
             android:id="@+id/custom_key_keyboard"
