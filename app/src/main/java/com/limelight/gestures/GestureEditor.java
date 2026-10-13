@@ -341,6 +341,14 @@ public final class GestureEditor {
             });
             list.addView(row);
         }
+        // A key or flow made here is bound to this gesture straight away
+        list.addView(com.limelight.customkeys.KeyPicker.addButton(dialogContext, key -> {
+            GestureBindingStore.set(prefs, slot, GestureBindingStore.customKeyBinding(key.id));
+            onChosen.run();
+            if (dialog[0] != null) {
+                dialog[0].dismiss();
+            }
+        }));
         dialog[0] = Dialogs.show(builder, Dialogs.WIDTH_STANDARD_DP);
     }
 }

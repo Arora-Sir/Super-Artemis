@@ -66,6 +66,14 @@ public class GameMenuLayoutTest {
     }
 
     @Test
+    public void pinnedSpecialKeysAreKeptInOrder() {
+        prefs.edit().putString(GameMenuLayout.PREF_QUICK_ITEMS, "key:k1,zoom,key:,key:k1,key:builtin_ctrl_c").commit();
+        assertEquals(Arrays.asList("key:k1", StreamActionRegistry.ID_ZOOM, "key:builtin_ctrl_c"), GameMenuLayout.getQuickItems(prefs));
+        assertEquals("k1", GameMenuLayout.keyId("key:k1"));
+        assertEquals(null, GameMenuLayout.keyId(StreamActionRegistry.ID_ZOOM));
+    }
+
+    @Test
     public void resetRestoresDefaults() {
         GameMenuLayout.setQuickItems(prefs, Collections.singletonList(StreamActionRegistry.ID_ZOOM));
         GameMenuLayout.reset(prefs);

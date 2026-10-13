@@ -24,11 +24,17 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.limelight.R;
 import com.limelight.actions.StreamAction;
 import com.limelight.actions.StreamActionRegistry;
+import com.limelight.customkeys.CustomKey;
+import com.limelight.customkeys.IconCatalog;
+import com.limelight.customkeys.KeyPicker;
+import com.limelight.customkeys.SpecialKeys;
 import com.limelight.ui.Dialogs;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 // NOTE: Dialog for choosing the menu style and which actions appear in the in-stream Quick Menu, in what order.
 // NOTE: A live preview drawn by GameMenuRenderer updates on every change, so the user sees the real result before saving.
@@ -39,30 +45,65 @@ public final class GameMenuEditor {
             R.id.game_menu_editor_style_list, R.id.game_menu_editor_style_grid, R.id.game_menu_editor_style_compact};
 
     static final class Row {
+        // The stored item: an action ID or "key:<special key ID>"
+        final String item;
+        // Null for a special key
         final StreamAction action;
+        final int iconRes;
+        final String label;
         boolean inQuickMenu;
 
-        Row(StreamAction action, boolean inQuickMenu) {
+        Row(StreamAction action, String label, boolean inQuickMenu) {
+            this(action.id, action, action.iconRes, label, inQuickMenu);
+        }
+
+        Row(String item, StreamAction action, int iconRes, String label, boolean inQuickMenu) {
+            this.item = item;
             this.action = action;
+            this.iconRes = iconRes;
+            this.label = label;
             this.inQuickMenu = inQuickMenu;
+        }
+
+        static Row forKey(Context context, CustomKey key, boolean inQuickMenu) {
+            return new Row(GameMenuLayout.keyItem(key.id), null, IconCatalog.drawableFor(key.icon),
+                    context.getString(R.string.quick_bar_custom_key, key.name), inQuickMenu);
         }
     }
 
     private GameMenuEditor() {
     }
 
-    // Checked rows come first in their saved order, the rest follow in catalog order
-    static List<Row> buildRows(List<String> quickItems) {
+    // Checked rows come first in their saved order, then the other actions in catalog order, then the other special keys
+    static List<Row> buildRows(Context context, List<String> quickItems, List<CustomKey> keys) {
+        Resources res = context.getResources();
+        Map<String, CustomKey> keysById = new LinkedHashMap<>();
+        for (CustomKey key : keys) {
+            keysById.put(key.id, key);
+        }
         List<Row> rows = new ArrayList<>();
         for (String id : quickItems) {
+            String keyId = GameMenuLayout.keyId(id);
+            if (keyId != null) {
+                CustomKey key = keysById.get(keyId);
+                if (key != null) {
+                    rows.add(Row.forKey(context, key, true));
+                }
+                continue;
+            }
             StreamAction action = StreamActionRegistry.find(id);
             if (action != null && !action.destructive) {
-                rows.add(new Row(action, true));
+                rows.add(new Row(action, res.getString(action.nameRes), true));
             }
         }
         for (StreamAction action : GameMenuLayout.configurableActions()) {
             if (!quickItems.contains(action.id)) {
-                rows.add(new Row(action, false));
+                rows.add(new Row(action, res.getString(action.nameRes), false));
+            }
+        }
+        for (CustomKey key : keys) {
+            if (!quickItems.contains(GameMenuLayout.keyItem(key.id))) {
+                rows.add(Row.forKey(context, key, false));
             }
         }
         return rows;
@@ -73,7 +114,7 @@ public final class GameMenuEditor {
         List<MenuEntry> actions = new ArrayList<>();
         for (Row row : rows) {
             if (row.inQuickMenu) {
-                actions.add(new MenuEntry(res.getString(row.action.nameRes), row.action.iconRes, false, false, null));
+                actions.add(new MenuEntry(row.action != null ? res.getString(row.action.nameRes) : row.label, row.iconRes, false, false, null));
             }
         }
         List<MenuEntry> session = new ArrayList<>();
@@ -114,7 +155,7 @@ public final class GameMenuEditor {
     }
 
     public static void show(Context context, SharedPreferences prefs, Runnable onChanged) {
-        final List<Row> rows = buildRows(GameMenuLayout.getQuickItems(prefs));
+        final List<Row> rows = buildRows(context, GameMenuLayout.getQuickItems(prefs), SpecialKeys.visible(context));
         final Resources res = context.getResources();
         final DisplayMetrics metrics = res.getDisplayMetrics();
         final boolean twoPane = metrics.widthPixels / metrics.density >= TWO_PANE_MIN_WIDTH_DP;
@@ -141,7 +182,10 @@ public final class GameMenuEditor {
 
         RecyclerView list = new RecyclerView(dialogContext);
         list.setLayoutManager(new LinearLayoutManager(dialogContext));
-        listContainer.addView(list, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, paneHeight));
+        LinearLayout listColumn = new LinearLayout(dialogContext);
+        listColumn.setOrientation(LinearLayout.VERTICAL);
+        listColumn.addView(list, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, paneHeight));
+        listContainer.addView(listColumn, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
         final String[] style = {GameMenuLayout.getStyle(prefs)};
         final RecyclerView[] preview = new RecyclerView[1];
@@ -174,6 +218,17 @@ public final class GameMenuEditor {
         final ItemTouchHelper[] touchHelper = new ItemTouchHelper[1];
         final RowAdapter adapter = new RowAdapter(rows, holder -> touchHelper[0].startDrag(holder), refreshPreview);
         list.setAdapter(adapter);
+        // A key or flow made here is pinned straight away, after the rows already in the Quick Menu
+        listColumn.addView(KeyPicker.addButton(dialogContext, key -> {
+            int at = 0;
+            while (at < rows.size() && rows.get(at).inQuickMenu) {
+                at++;
+            }
+            rows.add(at, Row.forKey(context, key, true));
+            adapter.notifyItemInserted(at);
+            list.scrollToPosition(at);
+            refreshPreview.run();
+        }), new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
         touchHelper[0] = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN, 0) {
             @Override
@@ -206,7 +261,7 @@ public final class GameMenuEditor {
                     List<String> ids = new ArrayList<>();
                     for (Row row : rows) {
                         if (row.inQuickMenu) {
-                            ids.add(row.action.id);
+                            ids.add(row.item);
                         }
                     }
                     GameMenuLayout.setQuickItems(prefs, ids);
@@ -265,8 +320,8 @@ public final class GameMenuEditor {
         @Override
         public void onBindViewHolder(@NonNull Holder holder, int position) {
             Row row = rows.get(position);
-            holder.icon.setImageResource(row.action.iconRes);
-            holder.label.setText(row.action.nameRes);
+            holder.icon.setImageResource(row.iconRes);
+            holder.label.setText(row.label);
             holder.check.setOnCheckedChangeListener(null);
             holder.check.setChecked(row.inQuickMenu);
             holder.check.setOnCheckedChangeListener((button, checked) -> {

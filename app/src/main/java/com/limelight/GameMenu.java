@@ -18,11 +18,11 @@ import com.limelight.actions.StreamActionHost;
 import com.limelight.actions.StreamActionRegistry;
 import com.limelight.binding.input.GameInputDevice;
 import com.limelight.customkeys.CustomKey;
-import com.limelight.customkeys.CustomKeyEditor;
 import com.limelight.customkeys.CustomKeyStore;
 import com.limelight.customkeys.SpecialKeys;
 import com.limelight.customkeys.SpecialKeysManager;
 import com.limelight.customkeys.IconCatalog;
+import com.limelight.customkeys.KeyPicker;
 import com.limelight.menu.GameMenuEditor;
 import com.limelight.menu.GameMenuLayout;
 import com.limelight.menu.GameMenuRenderer;
@@ -205,14 +205,7 @@ public class GameMenu implements Game.GameMenuCallbacks {
 
         // Recording a key opens on top of the stream, and the list reopens with the new key when it is saved
         options.add(new MenuOption(getString(R.string.game_menu_add_custom_key), R.drawable.ic_gm_add, false,
-                () -> CustomKeyEditor.show(themedContext(), null, key -> {
-                    try {
-                        CustomKeyStore.upsert(game, key);
-                    } catch (CustomKeyStore.FormatException e) {
-                        Toast.makeText(game, getString(R.string.wrong_import_format), Toast.LENGTH_SHORT).show();
-                    }
-                    showSpecialKeysMenu();
-                })));
+                () -> KeyPicker.createKey(themedContext(), key -> showSpecialKeysMenu())));
         options.add(new MenuOption(getString(R.string.game_menu_manage_custom_keys), R.drawable.ic_gm_edit, false,
                 () -> SpecialKeysManager.show(themedContext(), this::showSpecialKeysMenu)));
         options.add(cancelEntry());
@@ -298,15 +291,7 @@ public class GameMenu implements Game.GameMenuCallbacks {
         String cornerName = getString(QuickBarEditor.cornerNameFor(corner));
         List<MenuEntry> entries = new ArrayList<>();
         entries.add(new MenuEntry(getString(R.string.quick_bar_menu_add_key), R.drawable.ic_gm_add, false, false,
-                () -> CustomKeyEditor.show(themedContext(), null, key -> {
-                    try {
-                        CustomKeyStore.upsert(game, key);
-                    } catch (CustomKeyStore.FormatException e) {
-                        Toast.makeText(game, getString(R.string.wrong_import_format), Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                    pinToBar(corner, QuickBarLayout.customKeyItem(key.id));
-                })));
+                () -> KeyPicker.createKey(themedContext(), key -> pinToBar(corner, QuickBarLayout.customKeyItem(key.id)))));
         entries.add(new MenuEntry(getString(R.string.quick_bar_menu_pin_key), R.drawable.ic_gm_send_keys, false, false,
                 () -> showPinKeyMenu(corner)));
         entries.add(new MenuEntry(getString(R.string.quick_bar_menu_edit_bar), R.drawable.ic_gm_toggle_floating_button, false, false,
@@ -373,6 +358,15 @@ public class GameMenu implements Game.GameMenuCallbacks {
     public void showMenu(GameInputDevice device) {
         List<MenuEntry> actions = new ArrayList<>();
         for (String id : GameMenuLayout.getQuickItems(prefs())) {
+            String keyId = GameMenuLayout.keyId(id);
+            if (keyId != null) {
+                CustomKey key = SpecialKeys.find(game, keyId);
+                if (key != null) {
+                    actions.add(new MenuOption(key.name, key.icon != null ? IconCatalog.drawableFor(key.icon) : 0, false,
+                            () -> game.runKey(key)));
+                }
+                continue;
+            }
             StreamAction action = StreamActionRegistry.find(id);
             if (action != null && action.isAvailable(actionHost)) {
                 actions.add(entryFor(action));

@@ -26,6 +26,7 @@ import com.limelight.R;
 import com.limelight.actions.StreamAction;
 import com.limelight.customkeys.CustomKey;
 import com.limelight.customkeys.IconCatalog;
+import com.limelight.customkeys.KeyPicker;
 import com.limelight.customkeys.SpecialKeys;
 import com.limelight.ui.Dialogs;
 
@@ -151,8 +152,11 @@ public final class QuickBarEditor {
         RecyclerView list = new RecyclerView(dialogContext);
         list.setLayoutManager(new LinearLayoutManager(dialogContext));
         int listHeight = (int) (metrics.heightPixels * (twoPane ? 0.5f : 0.4f));
-        ((FrameLayout) body.findViewById(R.id.quick_bar_list)).addView(list,
-                new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, listHeight));
+        LinearLayout listColumn = new LinearLayout(dialogContext);
+        listColumn.setOrientation(LinearLayout.VERTICAL);
+        listColumn.addView(list, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, listHeight));
+        ((FrameLayout) body.findViewById(R.id.quick_bar_list)).addView(listColumn,
+                new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         ((TextView) body.findViewById(R.id.quick_bar_preview_label)).setText(R.string.quick_bar_preview_label);
 
         final Runnable[] refresh = new Runnable[1];
@@ -209,6 +213,23 @@ public final class QuickBarEditor {
             }
         });
         touchHelper[0].attachToRecyclerView(list);
+        // A key or flow made here is pinned to the selected corner and offered to the other corners
+        listColumn.addView(KeyPicker.addButton(dialogContext, key -> {
+            String item = QuickBarLayout.customKeyItem(key.id);
+            for (String corner : QuickBarLayout.POSITIONS) {
+                boolean here = corner.equals(selected[0]);
+                List<Row> cornerRows = rowsByCorner.get(corner);
+                int at = cornerRows.size();
+                if (here) {
+                    at = 0;
+                    while (at < cornerRows.size() && cornerRows.get(at).pinned) {
+                        at++;
+                    }
+                }
+                cornerRows.add(at, new Row(item, IconCatalog.drawableFor(key.icon), context.getString(R.string.quick_bar_custom_key, key.name), here));
+            }
+            selectCorner.run();
+        }), new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         selectCorner.run();
 
         builder.setTitle(R.string.title_quick_bar)

@@ -1103,6 +1103,7 @@
     <string name="summary_checkbox_full_screen">Hide system bars with immersive mode</string>
     <!-- More keys: everyday Windows shortcuts -->
     <string name="special_keys_more">More keys</string>
+    <string name="key_picker_add">Add key or flow</string>
     <string name="more_key_ctrl_a">Ctrl + A (Select all)</string>
     <string name="more_key_ctrl_c">Ctrl + C (Copy)</string>
     <string name="more_key_ctrl_x">Ctrl + X (Cut)</string>

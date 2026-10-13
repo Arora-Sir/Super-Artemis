@@ -13,7 +13,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-// NOTE: Stores which actions the user pinned to the Quick Menu, in what order, and the menu style.
+// NOTE: Stores which actions and special keys the user pinned to the Quick Menu, in what order, and the menu style.
+// NOTE: A pinned special key is stored as "key:<special key ID>", the same item format the quick-action bars use.
 // NOTE: Disconnect and Quit are not configurable, the Quick Menu always shows them in its Session section, so nobody can lose them.
 public final class GameMenuLayout {
     public static final String PREF_QUICK_ITEMS = "game_menu_quick_items";
@@ -47,6 +48,15 @@ public final class GameMenuLayout {
     public static boolean isConfigurable(String id) {
         StreamAction action = StreamActionRegistry.find(id);
         return action != null && !action.destructive;
+    }
+
+    public static String keyItem(String keyId) {
+        return QuickBarLayout.customKeyItem(keyId);
+    }
+
+    // The special key ID of a pinned key, or null for an action
+    public static String keyId(String item) {
+        return QuickBarLayout.customKeyId(item);
     }
 
     public static List<String> getQuickItems(SharedPreferences prefs) {
@@ -86,7 +96,9 @@ public final class GameMenuLayout {
         Set<String> ids = new LinkedHashSet<>();
         for (String part : raw.split(",")) {
             String id = part.trim();
-            if (isConfigurable(id)) {
+            String keyId = keyId(id);
+            // A key deleted later simply does not show, so its ID is kept like the bars keep theirs
+            if (isConfigurable(id) || (keyId != null && !keyId.isEmpty())) {
                 ids.add(id);
             }
         }

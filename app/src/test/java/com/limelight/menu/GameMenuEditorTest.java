@@ -4,12 +4,14 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import android.content.Context;
 import android.content.res.Resources;
 
 import androidx.test.core.app.ApplicationProvider;
 
 import com.limelight.R;
 import com.limelight.actions.StreamActionRegistry;
+import com.limelight.customkeys.CustomKey;
 import com.limelight.shadows.ShadowMoonBridge;
 
 import org.junit.Test;
@@ -24,12 +26,34 @@ import java.util.List;
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 33, shadows = {ShadowMoonBridge.class})
 public class GameMenuEditorTest {
-    private final Resources res = ApplicationProvider.getApplicationContext().getResources();
+    private static final List<CustomKey> NO_KEYS = new ArrayList<>();
+    private final Context context = ApplicationProvider.getApplicationContext();
+    private final Resources res = context.getResources();
+
+    @Test
+    public void specialKeysCanBePinnedNextToActions() {
+        CustomKey copy = new CustomKey("k1", "Copy", false, "content_copy", Arrays.asList(0xA2, 0x43));
+        CustomKey paste = new CustomKey("k2", "Paste", false, null, Arrays.asList(0xA2, 0x56));
+        List<GameMenuEditor.Row> rows = GameMenuEditor.buildRows(context, Arrays.asList(
+                GameMenuLayout.keyItem("k1"), StreamActionRegistry.ID_ZOOM, GameMenuLayout.keyItem("gone")), Arrays.asList(copy, paste));
+
+        assertEquals("key:k1", rows.get(0).item);
+        assertTrue(rows.get(0).inQuickMenu);
+        assertEquals(null, rows.get(0).action);
+        assertEquals(StreamActionRegistry.ID_ZOOM, rows.get(1).item);
+        // A pinned key that no longer exists is left out, and unpinned keys come last
+        assertEquals("key:k2", rows.get(rows.size() - 1).item);
+        assertFalse(rows.get(rows.size() - 1).inQuickMenu);
+        assertEquals(GameMenuLayout.configurableActions().size() + 2, rows.size());
+
+        List<MenuEntry> preview = GameMenuEditor.buildPreview(res, rows);
+        assertEquals(res.getString(R.string.quick_bar_custom_key, "Copy"), preview.get(1).label);
+    }
 
     @Test
     public void rowsListPinnedActionsFirstAndNeverSessionActions() {
-        List<GameMenuEditor.Row> rows = GameMenuEditor.buildRows(Arrays.asList(
-                StreamActionRegistry.ID_MICROPHONE, StreamActionRegistry.ID_DISCONNECT, StreamActionRegistry.ID_ZOOM));
+        List<GameMenuEditor.Row> rows = GameMenuEditor.buildRows(context, Arrays.asList(
+                StreamActionRegistry.ID_MICROPHONE, StreamActionRegistry.ID_DISCONNECT, StreamActionRegistry.ID_ZOOM), NO_KEYS);
 
         assertEquals(StreamActionRegistry.ID_MICROPHONE, rows.get(0).action.id);
         assertEquals(StreamActionRegistry.ID_ZOOM, rows.get(1).action.id);
@@ -43,7 +67,7 @@ public class GameMenuEditorTest {
 
     @Test
     public void previewShowsActionsThenSessionInRedThenNavigation() {
-        List<GameMenuEditor.Row> rows = GameMenuEditor.buildRows(Arrays.asList(StreamActionRegistry.ID_ZOOM));
+        List<GameMenuEditor.Row> rows = GameMenuEditor.buildRows(context, Arrays.asList(StreamActionRegistry.ID_ZOOM), NO_KEYS);
         List<MenuEntry> preview = GameMenuEditor.buildPreview(res, rows);
 
         List<String> labels = new ArrayList<>();
@@ -65,7 +89,7 @@ public class GameMenuEditorTest {
 
     @Test
     public void emptyActionsSectionIsLeftOut() {
-        List<GameMenuEditor.Row> rows = GameMenuEditor.buildRows(new ArrayList<>());
+        List<GameMenuEditor.Row> rows = GameMenuEditor.buildRows(context, new ArrayList<>(), NO_KEYS);
         List<MenuEntry> preview = GameMenuEditor.buildPreview(res, rows);
         assertTrue(preview.get(0).header);
         assertEquals(res.getString(R.string.game_menu_section_session), preview.get(0).label);
