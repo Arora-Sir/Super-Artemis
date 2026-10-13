@@ -29,8 +29,8 @@ The debug build needs pairing with Apollo first. Then check the mic off by defau
 | W13 | Package ID `com.mohitarora.superartemis`, APK naming, release signing | Done |
 | W1 | Restore keeps paired PCs when the backup has no keys, plus a restore preview | Done |
 | W2 | Backup and restore dialog visual polish | Done |
-| W3 | Shared action registry, Quick Menu sections (Session in red), Customize in the Quick Menu, Back to Quick Menu in Advanced, style picker and live preview in the editor, one RecyclerView renderer | Next |
-| W5 | In-app custom keys with a keyboard recorder and icons | Planned |
+| W3 | Shared action registry, Quick Menu sections (Session in red), Customize in the Quick Menu, Back to Quick Menu in Advanced, style picker and live preview in the editor, one RecyclerView renderer | Code and unit tests done, device check pending |
+| W5 | In-app custom keys with a keyboard recorder and icons | In progress |
 | W4 | Floating quick-action bar next to the menu button | Planned |
 | W6 | Configurable 3, 4 and 5-finger tap and double tap gestures | Planned |
 | W7 | When you leave the stream: Disconnect, Resume when reopened, or Picture-in-picture, plus auto-connect on start | Planned |
@@ -58,6 +58,6 @@ The debug build needs pairing with Apollo first. Then check the mic off by defau
 
 1. ARCHITECTURE.md for layers, modules and design decisions.
 2. `app/src/main/java/com/limelight/Game.java` for the stream activity (search for `applyMicrophoneInitialState` and `handleMultiTouchGesture`).
-3. `GameMenu.java`, `GameMenuLayout.java` and `GameMenuEditor.java` for the in-stream menu.
+3. `actions/StreamActionRegistry.java` for every stream action, then `GameMenu.java` and the `menu/` package for the in-stream menu and its editor.
 4. `preferences/StreamSettings.java` for settings and search, and the `backup/` package (start at `BackupRestoreController` and `RestoreStrategy`) for backup and restore.
 5. `app/src/main/res/raw/credits.json` and CONTRIBUTING.md before porting anything from another project.

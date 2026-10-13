@@ -8,4 +8,6 @@
     <color name="restore_safe">#A5D6A7</color>
     <color name="safe_callout_fill">#1F66BB6A</color>
     <color name="option_card_stroke">#52FFFFFF</color>
+    <!-- Disconnect and Quit in the in-stream menu, the same readable red as other warnings -->
+    <color name="menu_destructive">@color/backup_caution</color>
 </resources>

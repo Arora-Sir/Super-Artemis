@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Menu editor body: style picker, hint, then the reorderable action list and a live preview, side by side on wide screens -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingTop="4dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="24dp"
+        android:paddingRight="24dp"
+        android:text="@string/game_menu_editor_style"
+        android:textColor="?android:attr/textColorSecondary"
+        android:textSize="14sp" />
+
+    <RadioGroup
+        android:id="@+id/game_menu_editor_style"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingLeft="20dp"
+        android:paddingRight="24dp">
+
+        <RadioButton
+            android:id="@+id/game_menu_editor_style_list"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="16dp"
+            android:minHeight="48dp"
+            android:text="@string/game_menu_style_list" />
+
+        <RadioButton
+            android:id="@+id/game_menu_editor_style_grid"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="16dp"
+            android:minHeight="48dp"
+            android:text="@string/game_menu_style_grid" />
+
+        <RadioButton
+            android:id="@+id/game_menu_editor_style_compact"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:text="@string/game_menu_style_compact" />
+    </RadioGroup>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="24dp"
+        android:paddingTop="4dp"
+        android:paddingRight="24dp"
+        android:paddingBottom="8dp"
+        android:text="@string/game_menu_editor_hint"
+        android:textColor="?android:attr/textColorSecondary"
+        android:textSize="14sp" />
+
+    <LinearLayout
+        android:id="@+id/game_menu_editor_panes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <FrameLayout
+            android:id="@+id/game_menu_editor_list"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <LinearLayout
+            android:id="@+id/game_menu_editor_preview_pane"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:paddingLeft="12dp"
+            android:paddingRight="24dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="6dp"
+                android:text="@string/game_menu_editor_preview"
+                android:textColor="?android:attr/textColorSecondary"
+                android:textSize="14sp" />
+
+            <FrameLayout
+                android:id="@+id/game_menu_editor_preview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_preview_frame"
+                android:padding="1dp" />
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

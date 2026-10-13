@@ -32,7 +32,8 @@ Host: Apollo (RTSP, video, audio, control stream over ENet, mic stream over UDP)
 | Microphone lifecycle | `Game.java` (`applyMicrophoneInitialState`, `toggleMicrophoneCapture`) | Starts capture after the connection is up when the setting asks for it, and pauses or resumes capture from the in-stream menu |
 | Native mic path | `jni/moonlight-core/callbacks.c`, submodule `MicrophoneStream.c` | Opus encoding on a native worker and the negotiated mic stream to the host |
 | Control stream timeout | `StreamConfiguration`, `MoonBridge.startConnection`, `callbacks.c`, submodule `ControlStream.c` | Passes the "Network drop grace period" to the ENet peer timeout |
-| In-stream menu | `GameMenu.java`, `GameMenuLayout.java`, `GameMenuEditor.java`, `res/layout/game_menu_*.xml` | Catalog of menu actions with stable IDs, the user-ordered Quick Menu, list/compact/grid rendering and the drag-to-reorder editor |
+| Stream actions | `actions/StreamAction.java`, `actions/StreamActionRegistry.java`, `actions/StreamActionHost.java`, `GameActionHost.java` | One catalog of everything a user can trigger in a stream, with stable IDs, live availability, on/off state and labels. Menus, the quick-action bar and gestures run actions through `StreamActionHost`, which `GameActionHost` implements on top of `Game` |
+| In-stream menu | `GameMenu.java` (facade), `menu/GameMenuLayout.java`, `menu/GameMenuRenderer.java`, `menu/MenuSections.java`, `menu/GameMenuEditor.java`, `res/layout/game_menu_*.xml` | The sectioned Quick Menu (pinned actions, Session in red, Menu), the Advanced Menu with "Back to Quick Menu", one RecyclerView renderer for the list, compact and grid styles, and the editor with a style picker and live preview |
 | Settings search | `preferences/StreamSettings.java` (`setupSearch`, `onSearchResultClicked`), `res/xml/preferences.xml` | Indexes `preferences.xml` with SearchPreference and expands collapsed categories before highlighting a result |
 | Backup and restore | `backup/` package, `res/layout/dialog_backup_options.xml`, `res/layout/dialog_restore_preview.xml` | Exports and imports one JSON file with typed SharedPreferences, profiles, the PC list and optional pairing keys. `BackupRestoreController` runs the dialogs and file pickers, `BackupRestoreManager` moves bytes, `BackupCodec` owns the format and validation, the `*Snapshot` classes capture and restore one kind of data each, `RestoreStrategy` decides merge or replace, and `RestorePreview` describes the outcome before anything is written |
 | Decoder | `binding/video/MediaCodecHelper.java` (`applyFrameworkLowLatencyPostStart`), `MediaCodecDecoderRenderer.java` | Requests framework low latency again after the codec starts (Android 11+) |
@@ -82,10 +83,15 @@ Manual toggles write the per-host state used by "Follow last state".
 
 ```
 Back key / five-finger tap / floating button -> GameMenu.showMenu
-  -> buildActions(): available actions keyed by GameMenuLayout ID
-  -> Quick Menu = configured IDs in user order + Advanced Menu + Cancel
-  -> Advanced Menu = every available action not in the Quick Menu + Customize menu + device options
-  -> MenuOptionAdapter renders list, compact or grid (style read on every open)
+  -> StreamActionRegistry actions, filtered by isAvailable(GameActionHost), labels from the live state
+  -> Quick Menu   Actions: pinned IDs in user order
+                  Session: Disconnect and Quit in red (always present, not configurable)
+                  Menu:    Advanced Menu, Customize menu, Cancel
+  -> Advanced Menu  Actions: every available action not pinned
+                    Controller: input device options
+                    Menu: Back to Quick Menu, Cancel
+  -> GameMenuRenderer draws list, compact or grid in one RecyclerView (style read on every open)
+Customize menu -> GameMenuEditor: style picker, drag to reorder, live preview from the same renderer
 ```
 
 ### Backup and restore
@@ -128,7 +134,11 @@ Restore: SAF OpenDocument -> BackupCodec.parse validates the whole file (nothing
 | Do not port CPU affinity or sustained performance mode | Their author removed or reverted them, and decoding runs in the media codec process the app cannot pin |
 | Keep the Qualcomm fence keys as they are | They are already in upstream Artemis with the same gating |
 | Menu actions have stable IDs and run by position | Allows reordering and hiding, and two items with the same label can no longer trigger each other |
-| Anything left out of the Quick Menu stays in the Advanced Menu | Nobody can lock themselves out of Disconnect or Quit |
+| Anything left out of the Quick Menu stays in the Advanced Menu | No action can become unreachable through customization |
+| Disconnect and Quit sit in a fixed, red Session section of the Quick Menu | They end the stream, so they must always be one tap away and never be mistaken for ordinary actions |
+| One action registry behind the menu, the quick-action bar and gestures | An action is defined once, so labels, icons, availability and behaviour cannot drift between the places that trigger it |
+| `GameActionHost` adapts `Game` instead of `Game` implementing the interface | Keeps the upstream `Game.java` untouched, which keeps future upstream merges small |
+| One RecyclerView renderer for every menu style and the editor preview | The preview cannot disagree with the real menu, and D-pad focus works the same in every style |
 | Five-finger tap has its own setting | Back Menu only describes the physical back key |
 | Settings search uses exact matching and expands collapsed categories first | Fuzzy matching ranked loosely related settings first, and the library cannot scroll to items hidden in a collapsed group |
 | Backups are settings-only by default, pairing keys are opt-in | A file with keys can connect to the user's PCs as this device, so including them must be a deliberate choice |

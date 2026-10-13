@@ -303,7 +303,14 @@
     <string name="title_customize_game_menu">Customize in-stream menu</string>
     <string name="summary_customize_game_menu">Choose which actions appear in the Quick Menu and in what order</string>
     <string name="game_menu_customize">Customize menu</string>
-    <string name="game_menu_editor_hint">Checked actions appear in the Quick Menu in this order. Drag the handle or long press a row to reorder. Unchecked actions stay under Advanced Menu.</string>
+    <string name="game_menu_editor_hint">Checked actions appear in the Quick Menu in this order. Drag the handle or long press a row to reorder. Unchecked actions stay under Advanced Menu. Disconnect and Quit always stay in the Session section.</string>
+    <string name="game_menu_editor_style">Menu style</string>
+    <string name="game_menu_editor_preview">Preview</string>
+    <string name="game_menu_section_actions">Actions</string>
+    <string name="game_menu_section_session">Session</string>
+    <string name="game_menu_section_menu">Menu</string>
+    <string name="game_menu_section_controller">Controller</string>
+    <string name="game_menu_back_to_quick_menu">Back to Quick Menu</string>
     <string name="game_menu_editor_save">Save</string>
     <string name="game_menu_editor_reset">Reset</string>
     <string name="game_menu_editor_drag">Drag to reorder</string>

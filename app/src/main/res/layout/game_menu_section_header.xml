@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Section header in the in-stream menu (Actions, Session, Menu), spanning the full width in every style -->
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/game_menu_item_label"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingLeft="24dp"
+    android:paddingTop="12dp"
+    android:paddingRight="24dp"
+    android:paddingBottom="4dp"
+    android:textAllCaps="true"
+    android:textColor="?android:attr/colorAccent"
+    android:textSize="12sp"
+    android:textStyle="bold" />

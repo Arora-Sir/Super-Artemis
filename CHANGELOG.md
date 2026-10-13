@@ -13,7 +13,8 @@ All notable changes to Super Artemis are listed here. The format follows [Keep a
 - Settings search with results inside collapsed categories.
 - Backup and restore of all settings, profiles and the PC list to a single JSON file through the system file picker. Pairing keys are an explicit opt-in with a clear caution.
 - Restore shows a preview first (date, app version, settings and PC counts, what happens to your PCs). A backup without pairing keys keeps the PCs already on the device and only adds new ones.
-- Customizable in-stream Quick Menu: choose and reorder actions in an editor, with List, Grid with icons and Compact styles.
+- Customizable in-stream Quick Menu: choose and reorder actions in an editor, with List, Grid with icons and Compact styles. The editor has a style picker and a live preview, and "Customize menu" sits right in the Quick Menu.
+- The Quick Menu is split into Actions, Session and Menu sections. Disconnect and Quit are always in the Session section, drawn in red. The Advanced Menu has "Back to Quick Menu".
 - Separate "Five-finger tap opens menu" setting.
 - Credits for everyone whose code, design or request shaped the fork, in the README and release notes.
 

@@ -1,6 +1,7 @@
-package com.limelight;
+package com.limelight.menu;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -10,6 +11,8 @@ import android.content.SharedPreferences;
 import androidx.preference.PreferenceManager;
 import androidx.test.core.app.ApplicationProvider;
 
+import com.limelight.actions.StreamAction;
+import com.limelight.actions.StreamActionRegistry;
 import com.limelight.shadows.ShadowMoonBridge;
 
 import org.junit.Before;
@@ -20,9 +23,7 @@ import org.robolectric.annotation.Config;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 33, shadows = {ShadowMoonBridge.class})
@@ -37,14 +38,16 @@ public class GameMenuLayoutTest {
     }
 
     @Test
-    public void defaultsToUpstreamQuickMenuOrder() {
+    public void defaultsToUpstreamQuickMenuOrderWithoutSessionActions() {
         assertEquals(GameMenuLayout.DEFAULT_QUICK_ITEMS, GameMenuLayout.getQuickItems(prefs));
+        assertFalse(GameMenuLayout.DEFAULT_QUICK_ITEMS.contains(StreamActionRegistry.ID_DISCONNECT));
+        assertFalse(GameMenuLayout.DEFAULT_QUICK_ITEMS.contains(StreamActionRegistry.ID_QUIT));
         assertEquals(GameMenuLayout.STYLE_LIST, GameMenuLayout.getStyle(prefs));
     }
 
     @Test
     public void savedOrderRoundTrips() {
-        List<String> custom = Arrays.asList(GameMenuLayout.ID_MICROPHONE, GameMenuLayout.ID_DISCONNECT, GameMenuLayout.ID_TOGGLE_HUD);
+        List<String> custom = Arrays.asList(StreamActionRegistry.ID_MICROPHONE, StreamActionRegistry.ID_ZOOM, StreamActionRegistry.ID_TOGGLE_HUD);
         GameMenuLayout.setQuickItems(prefs, custom);
         assertEquals(custom, GameMenuLayout.getQuickItems(prefs));
     }
@@ -56,34 +59,37 @@ public class GameMenuLayoutTest {
     }
 
     @Test
-    public void unknownAndDuplicateIdsAreDropped() {
-        prefs.edit().putString(GameMenuLayout.PREF_QUICK_ITEMS, "quit, removed_action,quit,zoom").commit();
-        assertEquals(Arrays.asList(GameMenuLayout.ID_QUIT, GameMenuLayout.ID_ZOOM), GameMenuLayout.getQuickItems(prefs));
+    public void unknownDuplicateAndSessionIdsAreDropped() {
+        // A layout saved before 1.0.0 still lists Disconnect and Quit, which now always live in the Session section
+        prefs.edit().putString(GameMenuLayout.PREF_QUICK_ITEMS, "disconnect,quit, removed_action,zoom,zoom,microphone").commit();
+        assertEquals(Arrays.asList(StreamActionRegistry.ID_ZOOM, StreamActionRegistry.ID_MICROPHONE), GameMenuLayout.getQuickItems(prefs));
     }
 
     @Test
     public void resetRestoresDefaults() {
-        GameMenuLayout.setQuickItems(prefs, Collections.singletonList(GameMenuLayout.ID_QUIT));
+        GameMenuLayout.setQuickItems(prefs, Collections.singletonList(StreamActionRegistry.ID_ZOOM));
         GameMenuLayout.reset(prefs);
         assertEquals(GameMenuLayout.DEFAULT_QUICK_ITEMS, GameMenuLayout.getQuickItems(prefs));
     }
 
     @Test
-    public void unknownStyleFallsBackToList() {
+    public void unknownStyleFallsBackToListAndSetStyleNormalizes() {
         prefs.edit().putString(GameMenuLayout.PREF_STYLE, "carousel").commit();
         assertEquals(GameMenuLayout.STYLE_LIST, GameMenuLayout.getStyle(prefs));
-        prefs.edit().putString(GameMenuLayout.PREF_STYLE, GameMenuLayout.STYLE_GRID).commit();
+        GameMenuLayout.setStyle(prefs, GameMenuLayout.STYLE_GRID);
         assertEquals(GameMenuLayout.STYLE_GRID, GameMenuLayout.getStyle(prefs));
+        GameMenuLayout.setStyle(prefs, "carousel");
+        assertEquals(GameMenuLayout.STYLE_LIST, GameMenuLayout.getStyle(prefs));
     }
 
     @Test
-    public void catalogIdsAreUniqueAndDefaultsAreKnown() {
-        Set<String> ids = new HashSet<>();
-        for (GameMenuLayout.Action action : GameMenuLayout.ACTIONS) {
-            assertTrue("duplicate id " + action.id, ids.add(action.id));
+    public void configurableActionsExcludeSessionActionsAndDefaultsAreConfigurable() {
+        for (StreamAction action : GameMenuLayout.configurableActions()) {
+            assertFalse(action.id, action.destructive);
         }
         for (String id : GameMenuLayout.DEFAULT_QUICK_ITEMS) {
-            assertNotNull(GameMenuLayout.find(id));
+            assertNotNull(id, StreamActionRegistry.find(id));
+            assertTrue(id, GameMenuLayout.isConfigurable(id));
         }
     }
 }

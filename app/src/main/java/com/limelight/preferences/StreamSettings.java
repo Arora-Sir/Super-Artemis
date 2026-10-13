@@ -53,7 +53,8 @@ import com.google.gson.Gson;
 import com.limelight.DebugInfoActivity;
 import com.limelight.BuildConfig;
 import com.limelight.GameMenu;
-import com.limelight.GameMenuEditor;
+import com.limelight.menu.GameMenuEditor;
+import com.limelight.menu.GameMenuLayout;
 import com.limelight.LimeLog;
 import com.limelight.PcView;
 import com.limelight.R;
@@ -1221,7 +1222,14 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
             Preference customize = findPreference("pref_customize_game_menu");
             if (customize != null) {
                 customize.setOnPreferenceClickListener(preference -> {
-                    GameMenuEditor.show(requireContext(), PreferenceManager.getDefaultSharedPreferences(requireContext()), null);
+                    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(requireContext());
+                    // The editor can change the menu style, so the style setting is refreshed to show the saved value
+                    GameMenuEditor.show(requireContext(), prefs, () -> {
+                        ListPreference style = findPreference(GameMenuLayout.PREF_STYLE);
+                        if (style != null) {
+                            style.setValue(GameMenuLayout.getStyle(prefs));
+                        }
+                    });
                     return true;
                 });
             }
