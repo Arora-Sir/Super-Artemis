@@ -294,8 +294,15 @@
     <string name="restore_apply">Restore</string>
     <string name="restore_success">Settings restored, restarting</string>
     <string name="restore_failed">Restore failed: %1$s</string>
-    <string name="title_five_finger_menu">Five-finger tap opens menu</string>
-    <string name="summary_five_finger_menu">Tap the stream with five fingers to open the in-stream menu, independent of the Back Menu setting</string>
+    <string name="title_gestures">Multi-finger gestures</string>
+    <string name="summary_gestures">Choose what 3, 4 and 5-finger taps and double taps do, independent of the Back Menu setting</string>
+    <string name="gesture_editor_hint">Tap a gesture to choose its action. Gestures set to Nothing go to the PC like any other touch. A double tap waits a moment before a single tap with the same fingers runs.</string>
+    <string name="gesture_tap">%1$d-finger tap</string>
+    <string name="gesture_double_tap">%1$d-finger double tap</string>
+    <string name="gesture_action_none">Nothing (send to the PC)</string>
+    <string name="gesture_action_quick_menu">Open Quick Menu</string>
+    <string name="gesture_action_middle_click">Middle mouse click</string>
+    <string name="gesture_action_missing_key">Deleted custom key (does nothing)</string>
     <string name="title_game_menu_style">In-stream menu style</string>
     <string name="game_menu_style_list">List</string>
     <string name="game_menu_style_grid">Grid with icons</string>

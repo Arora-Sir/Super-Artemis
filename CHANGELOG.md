@@ -17,7 +17,7 @@ All notable changes to Super Artemis are listed here. The format follows [Keep a
 - The Quick Menu is split into Actions, Session and Menu sections. Disconnect and Quit are always in the Session section, drawn in red. The Advanced Menu has "Back to Quick Menu".
 - Quick-action bar: pin actions (such as Pan/Zoom or the microphone) and custom keys as small buttons over the stream, in the top left, top right, bottom left or bottom right corner. Switched-on toggles show green, and the bar fades while idle. Set it up in Settings > UI or from the Advanced Menu during a stream.
 - Custom keys without JSON: record a key combination on the built-in keyboard or a physical keyboard, name it, mark it sticky and pick one of 28 icons. Manage keys in Settings > Special Key Layout > Custom keys, or add them during a stream from Send special keys. They keep working with import, export, backup and the on-screen key layer.
-- Separate "Five-finger tap opens menu" setting.
+- Multi-finger gestures: choose what 3, 4 and 5-finger taps and double taps do (any action, a custom key, the Quick Menu, a middle mouse click, or Nothing so the tap reaches the PC). Defaults match Artemis, and the old five-finger switch carries over.
 - Credits for everyone whose code, design or request shaped the fork, in the README and release notes.
 
 ### Changed
@@ -31,5 +31,6 @@ All notable changes to Super Artemis are listed here. The format follows [Keep a
 ### Fixed
 
 - Turning off Back Menu no longer disables the five-finger menu tap.
+- A three-finger tap in trackpad mode no longer sends a middle click and toggles the keyboard at the same time. Middle click is now a gesture action you can choose.
 - Microphone capture falls back to the next audio source on devices that reject the first one instead of failing.
 - Backups no longer include Android framework files or settings search history.

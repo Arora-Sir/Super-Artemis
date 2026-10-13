@@ -155,6 +155,25 @@
       "links": [
         { "label": "ClassicOldSong/moonlight-android#521", "url": "https://github.com/ClassicOldSong/moonlight-android/issues/521" }
       ]
+    },
+    {
+      "feature": "Configurable 3, 4 and 5-finger taps and double taps, with Nothing passing taps to the PC",
+      "role": "report",
+      "people": [{ "handle": "funkholio" }, { "handle": "nightshadecf" }, { "handle": "junoxxx67" }],
+      "links": [
+        { "label": "ClassicOldSong/moonlight-android#540", "url": "https://github.com/ClassicOldSong/moonlight-android/issues/540" },
+        { "label": "ClassicOldSong/moonlight-android#504", "url": "https://github.com/ClassicOldSong/moonlight-android/issues/504" },
+        { "label": "ClassicOldSong/moonlight-android#470", "url": "https://github.com/ClassicOldSong/moonlight-android/issues/470" }
+      ]
+    },
+    {
+      "feature": "Middle mouse click as a gesture action",
+      "role": "idea",
+      "people": [{ "handle": "wefcdse" }],
+      "links": [
+        { "label": "ClassicOldSong/moonlight-android#409", "url": "https://github.com/ClassicOldSong/moonlight-android/pull/409" },
+        { "label": "ClassicOldSong/moonlight-android@16d218341", "url": "https://github.com/ClassicOldSong/moonlight-android/commit/16d218341663c5ce1e61e742a96e695ba39db523" }
+      ]
     }
   ]
 }

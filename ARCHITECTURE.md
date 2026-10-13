@@ -40,7 +40,7 @@ Host: Apollo (RTSP, video, audio, control stream over ENet, mic stream over UDP)
 | Backup and restore | `backup/` package, `res/layout/dialog_backup_options.xml`, `res/layout/dialog_restore_preview.xml` | Exports and imports one JSON file with typed SharedPreferences, profiles, the PC list and optional pairing keys. `BackupRestoreController` runs the dialogs and file pickers, `BackupRestoreManager` moves bytes, `BackupCodec` owns the format and validation, the `*Snapshot` classes capture and restore one kind of data each, `RestoreStrategy` decides merge or replace, and `RestorePreview` describes the outcome before anything is written |
 | Decoder | `binding/video/MediaCodecHelper.java` (`applyFrameworkLowLatencyPostStart`), `MediaCodecDecoderRenderer.java` | Requests framework low latency again after the codec starts (Android 11+) |
 | Stylus | `ui/StreamView.java` (`init`) | Disables automatic handwriting on Android 13+ so stylus strokes reach the host |
-| Gestures | `Game.java` (`handleMultiTouchGesture` and the trackpad up handler) | 3-finger tap keyboard, 4-finger tap full keyboard, 5-finger tap menu (now behind its own setting) |
+| Gestures | `gestures/` package (`GestureBindingStore`, `MultiFingerTapDetector`, `GestureDispatcher`, `GestureEditor`), hooks in `Game.java` (`handleMultiTouchGesture` and the trackpad up handler) | Maps 3, 4 and 5-finger taps and double taps to an action, a custom key, the Quick Menu, a middle click or Nothing. Unbound finger counts are not consumed, so they reach the PC |
 | Credits | `res/raw/credits.json`, `scripts/render_credits.py` | One credits source rendered into the README and release notes, and later into the app |
 | Packaging and CI | `app/build.gradle`, `.github/workflows/build-unified.yml`, `.github/workflows/docs-check.yml`, `scripts/setup-release-signing.ps1` | Package IDs `com.mohitarora.superartemis` (debug `.debug`), `SuperArtemis-<version>-<abi>-<buildType>.apk` names, environment-driven release signing, signed arm64 release builds and the credits check |
 
@@ -140,6 +140,8 @@ Restore: SAF OpenDocument -> BackupCodec.parse validates the whole file (nothing
 | Disconnect and Quit sit in a fixed, red Session section of the Quick Menu | They end the stream, so they must always be one tap away and never be mistaken for ordinary actions |
 | One action registry behind the menu, the quick-action bar and gestures | An action is defined once, so labels, icons, availability and behaviour cannot drift between the places that trigger it |
 | `GameActionHost` adapts `Game` instead of `Game` implementing the interface | Keeps the upstream `Game.java` untouched, which keeps future upstream merges small |
+| A single tap waits for the double tap window only when that finger count has a double tap bound | Users without double taps keep instant single taps |
+| Gestures bound to Nothing are passed to the PC instead of being swallowed | Games that use three-finger touches keep working, which is what ClassicOldSong/moonlight-android#540 asks for |
 | The quick-action bar never offers Disconnect or Quit | A stray tap on an always-visible button must not end the stream |
 | The quick-action bar is anchored to a chosen corner instead of being dragged | Four fixed corners never cover the floating menu button, survive rotation, and need no saved coordinates |
 | Custom keys keep the upstream JSON format and only add an optional `icon` field | Files from the upstream wiki, imports, exports and backups keep working in both directions |

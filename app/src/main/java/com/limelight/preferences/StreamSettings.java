@@ -62,6 +62,7 @@ import com.limelight.R;
 import com.limelight.backup.BackupRestoreController;
 import com.limelight.binding.audio.MicrophoneCaptureManager;
 import com.limelight.customkeys.CustomKeysManager;
+import com.limelight.gestures.GestureEditor;
 import com.limelight.binding.input.virtual_controller.keyboard.KeyBoardControllerConfigurationLoader;
 import com.limelight.binding.video.MediaCodecHelper;
 import com.limelight.utils.Dialog;
@@ -382,6 +383,7 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
             setupGameMenuEditor();
             setupCustomKeys();
             setupQuickBar();
+            setupGestures();
             PackageManager pm = activity.getPackageManager();
 
             // hide on-screen controls category on non touch screen devices
@@ -1234,6 +1236,16 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
                             style.setValue(GameMenuLayout.getStyle(prefs));
                         }
                     });
+                    return true;
+                });
+            }
+        }
+
+        private void setupGestures() {
+            Preference gestures = findPreference("pref_gestures");
+            if (gestures != null) {
+                gestures.setOnPreferenceClickListener(preference -> {
+                    GestureEditor.show(requireContext(), PreferenceManager.getDefaultSharedPreferences(requireContext()));
                     return true;
                 });
             }

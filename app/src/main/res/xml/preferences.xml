@@ -585,11 +585,10 @@
             android:summary="@string/summary_floating_button"
             android:title="@string/title_floating_button"
             app:iconSpaceReserved="false" />
-        <CheckBoxPreference
-            android:defaultValue="true"
-            android:key="checkbox_five_finger_menu"
-            android:summary="@string/summary_five_finger_menu"
-            android:title="@string/title_five_finger_menu"
+        <Preference
+            android:key="pref_gestures"
+            android:summary="@string/summary_gestures"
+            android:title="@string/title_gestures"
             app:iconSpaceReserved="false" />
         <ListPreference
             android:defaultValue="list"

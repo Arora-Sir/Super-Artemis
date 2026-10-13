@@ -81,3 +81,11 @@ Each entry records a problem that was fixed in a way a future change could silen
 - **Fix Applied:** The preview counts saved PCs ("Your 1 PC is kept as it is") and only mentions pairing for PCs added from a backup from another identity, which it detects with the certificate fingerprint.
 - **Verification:** `BackupRestoreTest.previewWithoutKeysCountsKeptAndNewPcs` and the Tab screenshot of the preview.
 - **Status:** Fixed.
+
+## BUG-011: Three-finger trackpad tap fired two actions
+
+- **Symptom:** In trackpad mode a three-finger tap sent a middle mouse click to the PC and also toggled the soft keyboard.
+- **Root Cause:** Upstream commit `16d21834` (ClassicOldSong/moonlight-android) made `TrackpadContext` send a middle click for three fingers, while `Game` still mapped the same tap to the keyboard. Its author reports the follow-up fix in ClassicOldSong/moonlight-android#409 as still unreliable.
+- **Fix Applied:** The middle click change is reverted in `TrackpadContext`, and "Middle mouse click" is a gesture action that any tap or double tap can run. Do not reintroduce finger-count handling inside the touch contexts, gestures belong to `GestureDispatcher`.
+- **Verification:** `GesturesTest`. A device check of trackpad mode is pending.
+- **Status:** Fixed.

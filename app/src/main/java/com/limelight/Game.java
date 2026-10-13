@@ -11,6 +11,7 @@ import static com.limelight.utils.ServerHelper.getSecondaryDisplay;
 import com.limelight.actions.StreamAction;
 import com.limelight.actions.StreamActionHost;
 import com.limelight.binding.PlatformBinding;
+import com.limelight.gestures.GestureDispatcher;
 import com.limelight.menu.QuickActionBar;
 import com.limelight.binding.audio.AndroidAudioRenderer;
 import com.limelight.binding.audio.MicrophoneCaptureManager;
@@ -307,6 +308,7 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
     private boolean onExternelDisplay = false;
     private ImageButton floatingMenuButton;
     private QuickActionBar quickActionBar;
+    private GestureDispatcher gestureDispatcher;
     private ImageButton overlayToggleButton;
     private float floatingButtonDX, floatingButtonDY;
     private boolean isButtonMoving = false;
@@ -3266,19 +3268,18 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
                 if (prefConfig.touchscreenTrackpad) {
                     if (pointerCount == 1 &&
                             (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU || (event.getFlags() & MotionEvent.FLAG_CANCELED) == 0)) {
-                        // All fingers up
+                        // All fingers up: a multi-finger tap runs the user's gesture binding, unbound taps fall through to the PC
                         long currentEventTime = event.getEventTime();
+                        int tapFingers = 0;
                         if (currentEventTime - threeFingerDownTime < THREE_FINGER_TAP_THRESHOLD) {
-                            // This is a 3 finger tap to bring up the keyboard
-                            toggleKeyboard();
-                            return true;
+                            tapFingers = 3;
                         } else if (currentEventTime - fourFingerDownTime < FOUR_FINGER_TAP_THRESHOLD) {
-                            toggleFullKeyboard();
-                            return true;
+                            tapFingers = 4;
                         } else if (currentEventTime - fiveFingerDownTime < FIVE_FINGER_TAP_THRESHOLD) {
-                            if(prefConfig.enableFiveFingerMenu) {
-                                showGameMenu(null);
-                            }
+                            tapFingers = 5;
+                        }
+                        if (tapFingers > 0 && gestureDispatcher != null && gestureDispatcher.handlesTap(tapFingers)) {
+                            gestureDispatcher.onTap(tapFingers, currentEventTime);
                             return true;
                         }
                     }
@@ -3340,19 +3341,20 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
             case MotionEvent.ACTION_POINTER_UP:
             case MotionEvent.ACTION_UP:
                 long currentEventTime = event.getEventTime();
+                int tapFingers = 0;
                 if (pointerCount >= 5 && fiveFingerDownTime > 0 && currentEventTime - fiveFingerDownTime < FIVE_FINGER_TAP_THRESHOLD) {
-                    if(prefConfig.enableFiveFingerMenu) {
-                        showGameMenu(null);
-                    }
-                    fiveFingerDownTime = 0;
-                    break;
+                    tapFingers = 5;
                 } else if (pointerCount == 4 && fourFingerDownTime > 0 && currentEventTime - fourFingerDownTime < FOUR_FINGER_TAP_THRESHOLD) {
-                    toggleFullKeyboard();
-                    fourFingerDownTime = 0;
-                    break;
+                    tapFingers = 4;
                 } else if (pointerCount == 3 && threeFingerDownTime > 0 && currentEventTime - threeFingerDownTime < THREE_FINGER_TAP_THRESHOLD) {
-                    toggleKeyboard();
+                    tapFingers = 3;
+                }
+                // Taps with a gesture binding are consumed, unbound ones go on to the PC like any other touch
+                if (tapFingers > 0 && gestureDispatcher != null && gestureDispatcher.handlesTap(tapFingers)) {
+                    gestureDispatcher.onTap(tapFingers, currentEventTime);
                     threeFingerDownTime = 0;
+                    fourFingerDownTime = 0;
+                    fiveFingerDownTime = 0;
                     break;
                 }
                 threeFingerDownTime = 0;
@@ -4444,12 +4446,36 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
         reloadQuickActionBar();
     }
 
-    // Pinned actions and custom keys over the stream, which appear once the connection is up
+    // Pinned actions and custom keys over the stream, which appear once the connection is up, and the multi-finger gesture bindings
     private void initQuickActionBar() {
         if (!(gameMenuCallbacks instanceof GameMenu) || floatingMenuButton == null) {
             return;
         }
         GameMenu menu = (GameMenu) gameMenuCallbacks;
+        gestureDispatcher = new GestureDispatcher(this, new GestureDispatcher.Target() {
+            @Override
+            public void showQuickMenu() {
+                showGameMenu(null);
+            }
+
+            @Override
+            public void middleClick() {
+                if (conn != null) {
+                    conn.sendMouseButtonDown(MouseButtonPacket.BUTTON_MIDDLE);
+                    conn.sendMouseButtonUp(MouseButtonPacket.BUTTON_MIDDLE);
+                }
+            }
+
+            @Override
+            public void runAction(StreamAction action) {
+                menu.runAction(action);
+            }
+
+            @Override
+            public void sendKeys(short[] keys) {
+                Game.this.sendKeys(keys);
+            }
+        });
         quickActionBar = new QuickActionBar(this, (FrameLayout) floatingMenuButton.getParent(), new QuickActionBar.Host() {
             @Override
             public StreamActionHost actionHost() {
