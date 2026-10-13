@@ -10,26 +10,26 @@ Super Artemis is a fork of [Artemis](https://github.com/ClassicOldSong/moonlight
 
 - **Talk while you play.** Your microphone streams to Apollo, and it stays off (no battery, no privacy indicator) until you unmute it from the menu.
 - **Your menu, your way.** Pick and reorder Quick Menu actions, choose list, grid or compact, and see the result live while editing. Disconnect and Quit always sit in their own red section.
-- **One tap, always on screen.** Pin actions and custom keys to a small quick-action bar in any screen corner. Toggles show green while on, and the bar fades when idle.
-- **Custom keys without JSON.** Record a shortcut on the built-in keyboard, name it and give it an icon.
-- **Gestures you choose.** Decide what 3, 4 and 5-finger taps and double taps do, or let them reach the PC.
+- **One tap, always on screen.** Pin actions and keys to small quick-action bars in any screen corner, each as a row or a column. Toggles show green while on, and the bars fade when idle.
+- **Special keys your way.** Hide, reorder and re-icon the built-in keys, and record your own shortcuts on the built-in keyboard with a name and one of 61 icons.
+- **Gestures you choose.** Decide what 3, 4 and 5-finger taps and double taps and 3 and 4-finger swipes do, in every touch mode including pan and zoom, or let them reach the PC. One tap sets the Windows touchpad swipes.
 - **Leave and come back.** Disconnect, resume the same app when you return, or keep it in picture-in-picture, including on a quick app switch.
 - **Settings you never lose.** Back up every setting to one file and restore it with a preview that keeps the PCs already on your device.
 - **Smoother video.** The frame pacing setting works again, a renderer loop that dropped frames is gone, and native core fixes improve recovery after packet loss.
-- **Find anything.** Search all settings, and choose an optional Material You style on Android 12 and later.
+- **Find anything, on a modern look.** A search bar that stays at the top of Settings, a section list on tablets, rounded dialogs everywhere and an optional Material You style on Android 12 and later.
 
 ## Features
 
 | Area | What you get |
 | :--- | :--- |
 | Voice | Microphone streaming to Apollo, "Microphone at stream start" (always off, always on, follow last state, remembered per PC), mute and unmute from the menu or the quick-action bar |
-| Menus | Sectioned Quick Menu, Advanced Menu with Back to Quick Menu, list, grid and compact styles, editor with live preview, quick-action bar in a corner you pick |
-| Input | Custom keys with a keyboard recorder and 28 icons, configurable multi-finger taps and double taps, S Pen strokes reach the PC on Android 13+, Print Screen and Samsung keyboard cover screenshot key |
+| Menus | Sectioned Quick Menu, Advanced Menu with Back to Quick Menu, list, grid and compact styles picked in the editor with a live preview, quick-action bars in any corners as rows or columns |
+| Input | Special keys (built-in and recorded, 61 icons), configurable multi-finger taps, double taps and swipes that work in every touch mode, S Pen strokes reach the PC on Android 13+, Print Screen and Samsung keyboard cover screenshot key, held keys released when the built-in keyboard closes |
 | Sessions | When you leave the stream: disconnect, resume when reopened (within 30 minutes) or picture-in-picture, optional connect to the last PC on app start, network drop grace period for short Wi-Fi drops |
 | Performance | Honoured frame pacing, no frame-dropping drain loop, refresh rate tracking, post-start low latency on Android 11+, decoder setup that cannot hang |
 | Backup | One JSON file through the system file picker, settings only by default, pairing keys as an explicit opt-in, restore preview that keeps existing PCs |
-| Look | Settings search, optional Material You (wallpaper colors, switches, rounded dialogs) |
-| About | Support development, developer profiles and in-app credits with links to every contributor |
+| Look | Search bar that stays on screen, search by everyday words, a section list on tablets, rounded centered dialogs, optional Material You (wallpaper colors, switches, rounded sections) chosen from live previews |
+| About | Support development (UPI card with QR, PayPal), developer links with their icons and in-app credits with links to every contributor |
 
 Everything from Artemis is still there: custom virtual buttons, custom resolutions and bitrates, multiple mouse modes, virtual gamepad skins, external display mode, Apollo virtual display, server commands and clipboard sync.
 

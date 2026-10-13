@@ -105,3 +105,28 @@ Each entry records a problem that was fixed in a way a future change could silen
 - **Fix Applied:** Port of Rafael-CN/VibeArtemis `a502acb23`: both guards fixed and the retry loop has an absolute bound. New vendor blocks must keep their `tryNumber` guard.
 - **Verification:** Unit suite and build.
 - **Status:** Fixed.
+
+## BUG-014: Gestures stopped working in pan and zoom mode
+
+- **Symptom:** After a three-finger double tap turned on pan and zoom, the same gesture could not turn it off. No multi-finger gesture worked until pan and zoom was turned off from the menu.
+- **Root Cause:** `Game.handleMotionEvent` sent every touch to `PanZoomHandler` and returned before reaching the multi-finger tap detection.
+- **Fix Applied:** `MultiFingerGestureRecognizer` runs at the top of the finger branch, before on-screen control editing, pan and zoom and every touch mode. A recognized gesture cancels what the touch started (a pan, or the touch on the PC). Keep the recognizer first when adding touch modes.
+- **Verification:** `GestureRecognizerTest`, and a device check with injected multi-finger touches.
+- **Status:** Fixed.
+
+## BUG-015: Floating menu button greyed out with Back Menu off
+
+- **Symptom:** "Floating Button" could not be turned on while "Back Menu" was off, and the button never showed in a stream in that case.
+- **Root Cause:** Upstream made the setting depend on `checkbox_enable_quit_dialog`, and `Game` only showed the button when both were on.
+- **Fix Applied:** The dependency is removed in `preferences.xml` and `Game` reads only the floating button setting.
+- **Verification:** Settings shows the switch enabled with Back Menu off, device check in a stream.
+- **Status:** Fixed.
+
+## BUG-016: Material You dialogs sat at the bottom and were narrow on tablets
+
+- **Symptom:** With Material You on, credits, support and other dialogs opened as Samsung bottom sheets about a quarter of the Tab's width, with large type, while Classic dialogs had sharp corners.
+- **Root Cause:** Framework `AlertDialog`s used `Theme.DeviceDefault.Dialog.Alert`, which One UI anchors to the bottom, and Classic used the platform Material dialog with 2 dp corners.
+- **Fix Applied:** Both styles set `android:alertDialogTheme` to a Super Artemis dialog theme (centered, 28 dp corners, role colors, sentence-case buttons). Super Artemis dialogs also size themselves with `ui/Dialogs`.
+- **Verification:** `StyleLayoutsTest` and screenshots on the Tab in both styles.
+- **Status:** Fixed.
+

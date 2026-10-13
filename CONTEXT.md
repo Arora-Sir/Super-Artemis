@@ -7,7 +7,8 @@ This is the handoff file for anyone (human or AI) resuming work on Super Artemis
 - Branch `unified-main` is based on Artemis `moonlight-noir` (commit `c5cf27f`). Nothing in this repository is published yet. The native core branch `super-artemis` is pushed to `Arora-Sir/moonlight-common-c`, and the common-c fixes from W17 are applied in the submodule working tree but not committed or pushed yet.
 - Every planned feature for 1.0.0 is implemented. Workstreams after the backup commit (`6f810d67`) are prepared as one cumulative patch per workstream and wait for the commit review.
 - Version `1.0.0` (versionCode 1) is set but not released. The package IDs are `com.mohitarora.superartemis` (release) and `com.mohitarora.superartemis.debug` (debug). Earlier test installs used `com.limelight.superartemisdebug`, which can be uninstalled.
-- Debug builds pass, and the unit suite has 133 tests with only the five known upstream failures (BUGS.md, BUG-009).
+- Debug builds pass, and the unit suite has 157 tests with only the five known upstream failures (BUGS.md, BUG-009).
+- Round 2 (the owner's 19 points from testing on the Tab, plus two later requests) is implemented: design foundation, settings, About, special keys, quick-action bars per corner, gestures and keyboard. It waits for device checks and the commit review.
 
 ## What works (verified on a Galaxy Tab S10 Ultra, Android 16)
 
@@ -24,12 +25,14 @@ Everything below is implemented with unit tests and needs the Tab and the S24, w
 
 - Microphone off by default, mute and unmute, the green privacy dot and Apollo's "first client microphone packet" log.
 - Quick Menu sections and all three styles in a stream, Back to Quick Menu, D-pad navigation in the menu.
-- Quick-action bar in each corner, green toggles, fading, long press names, hidden in picture-in-picture.
-- Custom keys from Send special keys during a stream, and custom keys on the on-screen key layer.
-- Every gesture slot including double taps, Nothing passing taps to the PC, trackpad mode three-finger tap.
+- Quick-action bars in several corners at once, rows and columns, green toggles, fading, long press names, hidden in picture-in-picture, and the editor preview.
+- Special keys: built-in keys with icons in Send special keys, hide and show again, change an icon, reorder, reset, pin a built-in key to a bar, custom keys on the on-screen key layer.
+- Every gesture slot including double taps and swipes, gestures in pan and zoom mode, Nothing passing taps to the PC, the Windows swipes preset, trackpad mode three-finger tap.
 - Leaving the stream: Disconnect, Resume when reopened (Home, Recents, quick switch, then Recents card and app icon), picture-in-picture on Home and on a quick switch to the previous app, Connect to the last PC on app start.
-- Material You on and off: switches, dynamic colors, rounded dialogs, in-stream menus.
-- About: Support (UPI chooser and the no-app fallback, QR scanned from another phone, PayPal), profiles, credits links.
+- Material You on and off from the preview picker: switches, rounded sections, search bar colors, centered rounded dialogs in both styles, in-stream menus.
+- Settings: sticky search bar, search for "three", "pip" and "upi", the section list on the Tab, regrouped sections, floating menu button with Back Menu off.
+- Built-in keyboard: held Ctrl or Shift released when the keyboard closes, and kept when the option is off.
+- About: Support (UPI chooser and the no-app fallback, QR scanned from another phone, copy, PayPal), developer links with icons, credits cards and chips.
 - Frame pacing at 120 FPS: render and discard FPS on both devices, compared with Artemis-mic.
 - S Pen strokes reach the PC, Print Screen key, Samsung keyboard cover screenshot key.
 - New store screenshots for fastlane, taken from the Tab.
@@ -55,6 +58,15 @@ Everything below is implemented with unit tests and needs the Tab and the S24, w
 | W8 | Document Apollo per-client Do and Undo commands for connect and disconnect actions | Done (SETUP.md, with a mouse speed example) |
 | W19 | Stay current with upstream: UPSTREAM.md rule, weekly upstream watch issue, Dependabot | Done |
 | W11 | README with the fork's USP, CHANGELOG 1.0.0, release notes | Done (`.github/release-notes/v1.0.0.md`, attached to the draft release by CI) |
+| W20 | Design foundation: color roles, one rounded centered dialog theme for both styles, type scale, dialog helpers | Done, device look pending |
+| W21 | Settings: sticky search, search keywords, regrouped sections, duplicates removed, floating button fix, Material You sections, tablet section list | Done, device check pending |
+| W22 | About redesign: Support card, developer links with icons, credits cards | Done, device check pending |
+| W23 | Special keys: built-in keys with icons, hide, re-icon, reorder, reset, 61 icons | Done, in-stream check pending |
+| W24 | Quick-action bars per corner, row or column, editor preview, migrations | Done, in-stream check pending |
+| W25 | Gestures before every touch mode, 3 and 4-finger swipes, Windows preset, editor redesign | Done, in-stream check pending |
+| W26 | App style picker with live previews, menu style only in the editor | Done, device check pending |
+| W27 | Attribution comments at every ported code site | Done |
+| W28 | Release held keys when the built-in keyboard closes | Done, in-stream check pending |
 | W14 | In-stream verification on the Tab and the S24 | Waiting (list above) |
 | W15 | Commit review, push, signing secrets, `v1.0.0` tag, CI draft release, install on both devices | Waiting for the owner |
 | W16 | Small upstream bug-fix PRs after release | After release |
@@ -74,7 +86,8 @@ Everything below is implemented with unit tests and needs the Tab and the S24, w
 
 1. ARCHITECTURE.md for layers, modules and design decisions.
 2. `app/src/main/java/com/limelight/Game.java` for the stream activity (search for `applyMicrophoneInitialState`, `handleMultiTouchGesture`, `initQuickActionBar` and `onUserLeaveHint`).
-3. `actions/StreamActionRegistry.java` for every stream action, then `GameMenu.java` and the `menu/` package for the in-stream menu, the editor and the quick-action bar.
-4. `customkeys/`, `gestures/`, `session/`, `theme/` and `about/` for the features of the same names.
-5. `preferences/StreamSettings.java` for settings and search, and the `backup/` package (start at `BackupRestoreController` and `RestoreStrategy`) for backup and restore.
-6. `app/src/main/res/raw/credits.json`, CONTRIBUTING.md and UPSTREAM.md before porting anything from another project.
+3. `actions/StreamActionRegistry.java` for every stream action, then `GameMenu.java` and the `menu/` package for the in-stream menu, the editor and the quick-action bars.
+4. `ui/Dialogs.java` and `res/values/styles.xml` for the shared dialog, type scale and color roles that every new screen uses.
+5. `customkeys/` (start at `SpecialKeys`), `gestures/` (start at `MultiFingerGestureRecognizer`), `session/`, `theme/` and `about/` for the features of the same names.
+6. `preferences/StreamSettings.java` for settings and search, and the `backup/` package (start at `BackupRestoreController` and `RestoreStrategy`) for backup and restore.
+7. `app/src/main/res/raw/credits.json`, CONTRIBUTING.md and UPSTREAM.md before porting anything from another project.

@@ -16,18 +16,19 @@ The first Super Artemis release, not published yet. The date is set when the `v1
 - "Microphone at stream start" setting with Always off (default), Always on and Follow last state, remembered per PC.
 - Mute and unmute from the in-stream Quick Menu and Advanced Menu. Muting stops the microphone hardware and the Opus encoder, so the privacy indicator turns off and no battery is spent on audio capture.
 - "Network drop grace period" setting (10 to 60 seconds, default 30) so short Wi-Fi drops do not end the session, from @MikalaiKryvusha's KAST.
-- Settings search with results inside collapsed categories.
+- Settings search from a bar that stays at the top of Settings, with results inside collapsed sections and everyday words ("three finger", "pip", "upi") that find the right setting.
 - Backup and restore of all settings, profiles and the PC list to a single JSON file through the system file picker. Pairing keys are an explicit opt-in with a clear caution.
 - Restore shows a preview first (date, app version, settings and PC counts, what happens to your PCs). A backup without pairing keys keeps the PCs already on the device and only adds new ones.
-- Customizable in-stream Quick Menu: choose and reorder actions in an editor, with List, Grid with icons and Compact styles. The editor has a style picker and a live preview, and "Customize menu" sits right in the Quick Menu.
+- Customizable in-stream Quick Menu: choose and reorder actions in an editor, with List, Grid with icons and Compact styles picked right in the editor next to a live preview. "Customize menu" sits right in the Quick Menu.
 - The Quick Menu is split into Actions, Session and Menu sections. Disconnect and Quit are always in the Session section, drawn in red. The Advanced Menu has "Back to Quick Menu".
-- Quick-action bar: pin actions (such as Pan/Zoom or the microphone) and custom keys as small buttons over the stream, in the top left, top right, bottom left or bottom right corner. Switched-on toggles show green, and the bar fades while idle. Set it up in Settings > UI or from the Advanced Menu during a stream.
-- Custom keys without JSON: record a key combination on the built-in keyboard or a physical keyboard, name it, mark it sticky and pick one of 28 icons. Manage keys in Settings > Special Key Layout > Custom keys, or add them during a stream from Send special keys. They keep working with import, export, backup and the on-screen key layer.
-- Opt-in "Material You" app style on Android 12+: wallpaper-based colors, switches instead of checkboxes in Settings, and rounded dialogs, including the in-stream menus. Classic stays the default.
+- Quick-action bars: pin actions (such as Pan/Zoom or the microphone) and special keys as small buttons over the stream, in any screen corners, each corner with its own buttons and its own direction (a row along the edge or a column down the side). Switched-on toggles show green, and the bars fade while idle. The editor previews all four corners. Set them up in Settings > In-stream controls or from the Advanced Menu during a stream.
+- Special keys without JSON: the built-in keys can be hidden, reordered, given another icon or reset, and your own keys are recorded on the built-in keyboard or a physical keyboard with a name, a sticky option and one of 61 icons. Manage them in Settings > In-stream controls > Special keys, or during a stream from Send special keys. Any key can be pinned to a quick-action bar or bound to a gesture, and custom keys keep working with import, export, backup and the on-screen key layer.
+- Opt-in "Material You" app style on Android 12+, chosen from two live preview cards: wallpaper-based colors, switches instead of checkboxes and each settings section in one rounded container, including the in-stream menus. Classic stays the default.
 - "When you leave the stream" setting: Disconnect (default), Disconnect and resume when reopened (Recents or the app icon reconnects to the same app within 30 minutes, with no battery use while away), or Keep streaming in picture-in-picture (replaces the old PiP switch, which carries over). Picture-in-picture now also starts when quick switching to the previous app.
 - "Connect to the last PC on app start" setting (off by default).
-- Multi-finger gestures: choose what 3, 4 and 5-finger taps and double taps do (any action, a custom key, the Quick Menu, a middle mouse click, or Nothing so the tap reaches the PC). Defaults match Artemis, and the old five-finger switch carries over.
-- Settings > About: Support development (UPI app, UPI QR code, PayPal, a GitHub star), developer profiles, in-app credits with links to every person and source, source code, issue reporting, privacy policy and version.
+- "Release held keys when the keyboard closes" (on by default): hiding the built-in keyboard lets go of every key still held, including Ctrl, Alt, Shift or Win latched with a long press, so no key stays pressed out of sight.
+- Multi-finger gestures: choose what 3, 4 and 5-finger taps and double taps and 3 and 4-finger swipes (up, down, left, right) do: any action, a special key, the Quick Menu, a middle mouse click, or Nothing so the touch reaches the PC. Gestures work in every touch mode, including pan and zoom. One tap sets the Windows touchpad swipes (Task View, desktop, switch apps and desktops). Defaults match Artemis, and the old five-finger switch carries over.
+- Settings > About: Support development (a UPI card with the QR code, the UPI ID to copy and a UPI app button, and PayPal), developer links with their icons, in-app credits as cards with a chip for every PR, commit and issue, source code, issue reporting, privacy policy and version.
 - Credits for everyone whose code, design or request shaped the fork, in the app, the README and the release notes.
 
 ### Changed
@@ -41,6 +42,10 @@ The first Super Artemis release, not published yet. The date is set when the `v1
 - The app names itself Super Artemis everywhere, in English and in the French, Russian, Vietnamese and Chinese translations. Store metadata, issue templates and the pull request template describe this fork and its credit rules.
 - The native resolution warning explains how Apollo handles resolution instead of warning about custom NVIDIA modes.
 - Sharing performance logs with the upstream Artemis dataset and its dashboard link are hidden. Local performance logging stays.
+- Every dialog is the same rounded, centered dialog with one type scale, sized for the screen (full width on phones, a readable width on tablets). Material You no longer uses Samsung's bottom-anchored dialogs.
+- Settings sections are regrouped and renamed: In-stream controls, Starting and leaving a stream, Appearance, Built-in keyboard and Virtual keys on screen are new, and rarely used items moved to More. Tablets show a section list beside the settings.
+- Duplicate settings are gone: the menu style lives in the menu editor, "Disable default special keys" became per-key hiding (the old switch carries over), and the overlay zoom button became a Pan/Zoom pin on the top right quick-action bar (also carried over).
+- The Support dialog has no GitHub button any more, since About has one "Source code on GitHub" entry.
 
 ### Fixed
 
@@ -56,6 +61,8 @@ The first Super Artemis release, not published yet. The date is set when the `v1
 - Controller LED crashes, rumble on newer Android versions, Xbox Series controller IDs, Shift for the plus key and Android 15 and 16 key codes, from Moonlight 12.2 (@cgutman, @T2Fat2Fly, @bladeoner, @ReenigneArcher).
 - Native core: recovery after multi-block video loss and partially dropped IDR frames, no speculative loss reports with RFI off, RTT queries without the ENet lock, thread and pthread attribute leaks, and RTSP hardening against malformed or oversized responses (@cgutman, @foxirain, picked as in ClassicOldSong/moonlight-common-c#2 by @JustinZeus).
 - The local mouse cursor setting lists the Ctrl+Alt+Shift shortcuts.
+- Multi-finger gestures work in pan and zoom mode, so the gesture that turned it on can turn it off again.
+- The floating menu button no longer needs Back Menu to be on.
 
 ### Credits
 
