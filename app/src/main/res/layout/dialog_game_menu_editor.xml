@@ -30,7 +30,7 @@
             android:id="@+id/game_menu_editor_style_grid"
             style="@style/SuperArtemis.Segment"
             android:layout_marginRight="8dp"
-            android:text="@string/game_menu_style_grid" />
+            android:text="@string/game_menu_segment_grid" />
 
         <TextView
             android:id="@+id/game_menu_editor_style_compact"

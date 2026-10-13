@@ -13,6 +13,7 @@
         android:paddingBottom="24dp">
 
         <LinearLayout
+            android:id="@+id/support_upi_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/bg_card"
@@ -30,6 +31,7 @@
                 android:src="@drawable/support_upi_qr" />
 
             <LinearLayout
+                android:id="@+id/support_upi_info"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="16dp"
@@ -63,8 +65,7 @@
                         android:layout_weight="1"
                         android:ellipsize="end"
                         android:maxLines="1"
-                        android:textAppearance="@style/TextAppearance.SuperArtemis.BodyLarge"
-                        android:textIsSelectable="true" />
+                        android:textAppearance="@style/TextAppearance.SuperArtemis.BodyLarge" />
 
                     <ImageButton
                         android:id="@+id/support_copy_upi"

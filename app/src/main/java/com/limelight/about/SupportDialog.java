@@ -8,7 +8,10 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.view.LayoutInflater;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,11 +33,29 @@ public final class SupportDialog {
         body.findViewById(R.id.support_upi_app).setOnClickListener(v -> payWithUpiApp(context));
         body.findViewById(R.id.support_copy_upi).setOnClickListener(v -> copyUpiId(context, R.string.support_upi_copied));
         body.findViewById(R.id.support_paypal).setOnClickListener(v -> Links.open(context, Links.PAYPAL));
+        if (Dialogs.isCompact(dialogContext)) {
+            stackUpiCard(body);
+        }
 
         builder.setCustomTitle(Dialogs.header(dialogContext, R.drawable.ic_sa_favorite,
                         context.getString(R.string.title_support), context.getString(R.string.support_intro)))
                 .setView(body);
         Dialogs.show(builder, Dialogs.WIDTH_STANDARD_DP);
+    }
+
+    // On a phone the QR sits above the UPI details, so the ID and the pay button get the full card width
+    private static void stackUpiCard(View body) {
+        LinearLayout card = body.findViewById(R.id.support_upi_card);
+        card.setOrientation(LinearLayout.VERTICAL);
+        card.setGravity(Gravity.CENTER_HORIZONTAL);
+        View info = body.findViewById(R.id.support_upi_info);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.topMargin = (int) Dialogs.dp(body.getContext(), 16);
+        info.setLayoutParams(params);
+        View pay = body.findViewById(R.id.support_upi_app);
+        LinearLayout.LayoutParams payParams = (LinearLayout.LayoutParams) pay.getLayoutParams();
+        payParams.width = ViewGroup.LayoutParams.MATCH_PARENT;
+        pay.setLayoutParams(payParams);
     }
 
     static Intent upiIntent() {

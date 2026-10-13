@@ -150,10 +150,6 @@
         <item name="android:windowMinWidthMinor">@fraction/sa_dialog_width_minor</item>
         <item name="android:backgroundDimAmount">0.6</item>
         <item name="android:windowTitleStyle">@style/SuperArtemis.DialogWindowTitle</item>
-        <item name="android:textColorPrimary">?attr/saOnSurface</item>
-        <item name="android:textColorSecondary">?attr/saOnSurfaceVariant</item>
-        <item name="colorPrimary">?attr/saPrimary</item>
-        <item name="colorSecondary">?attr/saPrimary</item>
         <item name="buttonBarPositiveButtonStyle">@style/Widget.SuperArtemis.AppCompatDialogButton</item>
         <item name="buttonBarNegativeButtonStyle">@style/Widget.SuperArtemis.AppCompatDialogButton</item>
         <item name="buttonBarNeutralButtonStyle">@style/Widget.SuperArtemis.AppCompatDialogButton</item>
@@ -161,7 +157,7 @@
 
     <style name="Widget.SuperArtemis.AppCompatDialogButton" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
         <item name="android:textAllCaps">false</item>
-        <item name="android:textColor">?attr/saPrimary</item>
+        <item name="android:textColor">?attr/colorPrimary</item>
         <item name="android:fontFamily">sans-serif-medium</item>
         <item name="android:textSize">14sp</item>
     </style>
@@ -238,11 +234,35 @@
     </style>
 
     <!-- One choice of a two-choice segmented button -->
+    <!-- Switch in dialogs and editors, tinted from the app style so it matches the settings switches in any dialog theme -->
+    <style name="Widget.SuperArtemis.Switch" parent="">
+        <item name="android:thumbTint">@color/sa_switch_thumb</item>
+        <item name="android:trackTint">@color/sa_switch_track</item>
+    </style>
+
+    <!-- Rounded filled text field used by every dialog input -->
+    <style name="Widget.SuperArtemis.TextField" parent="">
+        <item name="android:background">@drawable/bg_text_field</item>
+        <item name="android:minHeight">52dp</item>
+        <item name="android:paddingLeft">16dp</item>
+        <item name="android:paddingRight">16dp</item>
+        <item name="android:paddingTop">12dp</item>
+        <item name="android:paddingBottom">12dp</item>
+        <item name="android:textAppearance">@style/TextAppearance.SuperArtemis.BodyLarge</item>
+        <item name="android:textColor">?attr/saOnSurface</item>
+        <item name="android:textColorHint">?attr/saOnSurfaceVariant</item>
+    </style>
+
     <style name="SuperArtemis.Segment" parent="">
         <item name="android:layout_width">0dp</item>
-        <item name="android:layout_height">40dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minHeight">40dp</item>
         <item name="android:layout_weight">1</item>
         <item name="android:gravity">center</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:paddingTop">8dp</item>
+        <item name="android:paddingBottom">8dp</item>
         <item name="android:background">@drawable/bg_segment</item>
         <item name="android:textAppearance">@style/TextAppearance.SuperArtemis.TitleSmall</item>
         <item name="android:clickable">true</item>

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- androidx Preference ships "Advanced" for this English region, which outranks the app's default values, so the override is repeated here -->
+<resources>
+    <string name="expand_button_title">Show more</string>
+</resources>

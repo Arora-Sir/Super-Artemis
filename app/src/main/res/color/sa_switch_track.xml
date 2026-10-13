@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Switch track: a translucent primary when on and a translucent outline when off -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:alpha="0.3" android:color="?attr/saPrimary" android:state_checked="true" android:state_enabled="false" />
+    <item android:alpha="0.2" android:color="?attr/saOutline" android:state_enabled="false" />
+    <item android:alpha="0.5" android:color="?attr/saPrimary" android:state_checked="true" />
+    <item android:alpha="0.5" android:color="?attr/saOutline" />
+</selector>

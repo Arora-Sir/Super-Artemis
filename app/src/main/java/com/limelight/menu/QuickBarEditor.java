@@ -10,7 +10,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -312,7 +312,7 @@ public final class QuickBarEditor {
             final ImageView handle;
             final ImageView icon;
             final TextView label;
-            final CheckBox check;
+            final CompoundButton check;
 
             Holder(View itemView) {
                 super(itemView);

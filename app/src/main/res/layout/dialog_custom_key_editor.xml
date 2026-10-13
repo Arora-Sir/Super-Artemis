@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Custom key editor: name, the recorded combination, sticky option, icon choice and the built-in keyboard used as the recorder -->
+<!-- Custom key editor: name, the recorded combination with the built-in keyboard as its recorder, the sticky option and the icon choice -->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
@@ -14,6 +14,7 @@
         android:paddingBottom="8dp">
 
         <EditText
+            style="@style/Widget.SuperArtemis.TextField"
             android:id="@+id/custom_key_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -64,9 +65,17 @@
                 android:src="@drawable/ic_gm_backspace" />
         </LinearLayout>
 
-        <CheckBox
+        <!-- The recorder keyboard sits right under the key box, so recording a combination needs no scrolling -->
+        <FrameLayout
+            android:id="@+id/custom_key_keyboard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp" />
+
+        <Switch
+            style="@style/Widget.SuperArtemis.Switch"
             android:id="@+id/custom_key_sticky"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:minHeight="48dp"
@@ -85,11 +94,5 @@
             android:layout_height="232dp"
             android:layout_marginTop="4dp"
             android:scrollbars="vertical" />
-
-        <FrameLayout
-            android:id="@+id/custom_key_keyboard"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp" />
     </LinearLayout>
 </ScrollView>

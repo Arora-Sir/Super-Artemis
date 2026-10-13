@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Switch row at the top of the gesture editor: whether gestures are read in the multi-touch touchscreen mode -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="4dp"
+    android:background="@drawable/bg_card_clickable"
+    android:clickable="true"
+    android:focusable="true"
+    android:gravity="center_vertical"
+    android:minHeight="72dp"
+    android:orientation="horizontal"
+    android:paddingLeft="12dp"
+    android:paddingTop="8dp"
+    android:paddingRight="16dp"
+    android:paddingBottom="8dp">
+
+    <ImageView
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@drawable/bg_icon_circle"
+        android:importantForAccessibility="no"
+        android:padding="9dp"
+        android:src="@drawable/ic_sa_touch_app"
+        android:tint="?attr/saOnSecondaryContainer" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="12dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/gesture_multitouch_title"
+            android:textAppearance="@style/TextAppearance.SuperArtemis.BodyLarge" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/gesture_multitouch_summary"
+            android:textAppearance="@style/TextAppearance.SuperArtemis.BodyMedium" />
+    </LinearLayout>
+
+    <Switch
+        style="@style/Widget.SuperArtemis.Switch"
+        android:id="@+id/gesture_multitouch_switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="false"
+        android:focusable="false" />
+</LinearLayout>

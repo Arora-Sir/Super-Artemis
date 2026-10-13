@@ -12,11 +12,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import androidx.core.widget.TextViewCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.limelight.R;
@@ -60,7 +61,7 @@ public final class CustomKeyEditor {
         View body = LayoutInflater.from(context).inflate(R.layout.dialog_custom_key_editor, null);
         EditText nameField = body.findViewById(R.id.custom_key_name);
         TextView combo = body.findViewById(R.id.custom_key_combo);
-        CheckBox sticky = body.findViewById(R.id.custom_key_sticky);
+        CompoundButton sticky = body.findViewById(R.id.custom_key_sticky);
         RecyclerView iconGrid = body.findViewById(R.id.custom_key_icons);
         FrameLayout keyboardContainer = body.findViewById(R.id.custom_key_keyboard);
 
@@ -128,6 +129,10 @@ public final class CustomKeyEditor {
                 refresh.run();
             }
         });
+        fitKeyLabels(keyboard);
+        // Taller keys on a phone, where the keyboard is as wide as the screen and every key is narrow
+        keyboard.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                (int) Dialogs.dp(context, Dialogs.isCompact(context) ? 280 : 224)));
         keyboardContainer.addView(keyboard);
 
         IconPicker.attach(iconGrid, icon);
@@ -153,6 +158,24 @@ public final class CustomKeyEditor {
 
     private interface KeyTap {
         void onTap(View key);
+    }
+
+    // NOTE: Key labels stay on one line and shrink to fit their key, so F10, Home or PgUp never wrap into two lines.
+    // NOTE: This matters most with a large system font size, which grows the fixed 12sp labels past the width of a phone key.
+    private static void fitKeyLabels(View view) {
+        if (view instanceof ViewGroup) {
+            ViewGroup group = (ViewGroup) view;
+            for (int i = 0; i < group.getChildCount(); i++) {
+                fitKeyLabels(group.getChildAt(i));
+            }
+            return;
+        }
+        if (view instanceof TextView && !(view instanceof android.widget.EditText)) {
+            TextView label = (TextView) view;
+            label.setMaxLines(1);
+            label.setIncludeFontPadding(false);
+            TextViewCompat.setAutoSizeTextTypeUniformWithConfiguration(label, 7, 14, 1, android.util.TypedValue.COMPLEX_UNIT_SP);
+        }
     }
 
     private static void wireKeyboard(View view, KeyTap tap) {

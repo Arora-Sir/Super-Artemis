@@ -30,15 +30,22 @@ final class IconPicker {
 
     static void attach(RecyclerView grid, String[] selected) {
         Context context = grid.getContext();
-        GridLayoutManager layout = new GridLayoutManager(context, 6);
+        // Columns are worked out before each layout pass, so every row has the same number of cells
+        GridLayoutManager layout = new GridLayoutManager(context, 6) {
+            @Override
+            public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+                int width = getWidth() - getPaddingLeft() - getPaddingRight();
+                if (width > 0) {
+                    int columns = Math.max(4, (int) (width / Dialogs.dp(context, CELL_DP)));
+                    if (getSpanCount() != columns) {
+                        setSpanCount(columns);
+                    }
+                }
+                super.onLayoutChildren(recycler, state);
+            }
+        };
         grid.setLayoutManager(layout);
         grid.getLayoutParams().height = (int) Dialogs.dp(context, GRID_HEIGHT_DP);
-        grid.addOnLayoutChangeListener((v, l, t, r, b, ol, ot, or, ob) -> {
-            int columns = Math.max(4, (int) ((r - l) / Dialogs.dp(context, CELL_DP)));
-            if (layout.getSpanCount() != columns) {
-                layout.setSpanCount(columns);
-            }
-        });
         // The grid sits inside a scrolling dialog, so a drag that starts on it scrolls the icons and not the dialog
         grid.addOnItemTouchListener(new RecyclerView.SimpleOnItemTouchListener() {
             @Override

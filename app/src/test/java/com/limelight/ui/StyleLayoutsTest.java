@@ -25,7 +25,7 @@ public class StyleLayoutsTest {
             R.layout.sa_dialog_header, R.layout.dialog_support, R.layout.sa_link_row, R.layout.credit_card, R.layout.sa_chip,
             R.layout.settings_section_item, R.layout.activity_stream_settings, R.layout.dialog_quick_bar_editor,
             R.layout.custom_key_row, R.layout.special_keys_header, R.layout.dialog_icon_picker, R.layout.custom_key_icon_item,
-            R.layout.gesture_row, R.layout.sa_choice_row, R.layout.dialog_app_style, R.layout.app_style_card,
+            R.layout.gesture_row, R.layout.gesture_switch_row, R.layout.sa_choice_row, R.layout.dialog_app_style, R.layout.app_style_card,
             R.layout.dialog_game_menu_editor, R.layout.game_menu_editor_item, R.layout.dialog_custom_key_editor,
     };
 

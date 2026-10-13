@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Switch thumb: primary when on, a neutral tone when off, faded when disabled, in both app styles -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:alpha="0.6" android:color="?attr/saPrimary" android:state_checked="true" android:state_enabled="false" />
+    <item android:alpha="0.38" android:color="?attr/saOnSurfaceVariant" android:state_enabled="false" />
+    <item android:color="?attr/saPrimary" android:state_checked="true" />
+    <item android:color="?attr/saOnSurfaceVariant" />
+</selector>

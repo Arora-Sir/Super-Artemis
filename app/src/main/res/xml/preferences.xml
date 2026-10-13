@@ -403,12 +403,6 @@
             app:iconSpaceReserved="false" />
         <CheckBoxPreference
             android:defaultValue="false"
-            android:key="checkbox_multi_touch_gestures"
-            android:summary="@string/summary_checkbox_multi_touch_gestures"
-            android:title="@string/title_checkbox_multi_touch_gestures"
-            app:iconSpaceReserved="false" />
-        <CheckBoxPreference
-            android:defaultValue="false"
             android:key="checkbox_mouse_nav_buttons"
             android:summary="@string/summary_checkbox_mouse_nav_buttons"
             android:title="@string/title_checkbox_mouse_nav_buttons"

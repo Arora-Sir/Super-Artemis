@@ -311,6 +311,10 @@
     <string name="developer_role">Developer of Super Artemis</string>
     <string name="title_developer_profiles">Developer</string>
     <string name="summary_developer_profiles">Mohit Arora (Arora-Sir): website, GitHub, LinkedIn and X</string>
+    <string name="developer_find_me">Find me on</string>
+    <string name="developer_built_on_title">Built on</string>
+    <string name="developer_built_on_body">Super Artemis is a fork of Artemis by %1$s, which builds on Moonlight by %2$s and its contributors.</string>
+    <string name="developer_all_credits">All credits</string>
     <string name="profile_website">Website</string>
     <string name="profile_github">GitHub</string>
     <string name="profile_linkedin">LinkedIn</string>
@@ -332,7 +336,7 @@
     <string name="summary_release_keys_on_close">Lets go of every key still held, including Ctrl, Alt, Shift or Win held with a long press, as soon as the built-in keyboard hides. Turn off to keep them held, for example for Shift-clicking.</string>
     <string name="search_settings_hint">Search settings</string>
     <string name="expand_button_title">Show more</string>
-    <string name="keywords_gestures">three finger, four finger, five finger, 3 finger, 4 finger, 5 finger, multi-finger, multitouch, gesture, tap, double tap, swipe, touch shortcut</string>
+    <string name="keywords_gestures">three finger, four finger, five finger, 3 finger, 4 finger, 5 finger, multi-finger, multitouch, gesture, tap, double tap, swipe, touch shortcut, multi-touch gestures, multitouch mode</string>
     <string name="keywords_quick_bar">quick bar, toolbar, buttons, corner, pin, shortcut, overlay, row, column, pan zoom button, mic button</string>
     <string name="keywords_game_menu">quick menu, in-stream menu, menu style, grid, list, compact, customize, layout, actions</string>
     <string name="keywords_special_keys">special keys, custom keys, shortcut, hotkey, key combination, macro, keyboard shortcut, esc, alt f4, ctrl, icons</string>
@@ -406,6 +410,8 @@
     <string name="gesture_group_menu">Menu and mouse</string>
     <string name="gesture_group_actions">Actions</string>
     <string name="gesture_group_keys">Keys</string>
+    <string name="gesture_multitouch_title">Gestures in multi-touch mode</string>
+    <string name="gesture_multitouch_summary">With the multi-touch touchscreen mode, read these gestures instead of sending every touch to the PC. The other touch modes always read them.</string>
     <string name="gesture_windows_preset">Use Windows touchpad swipes</string>
     <string name="gesture_windows_preset_summary">3 fingers: up for Task View, down for the desktop, sideways to switch apps. 4 fingers sideways: switch desktops.</string>
     <string name="gesture_windows_preset_applied">Windows swipes set</string>
@@ -415,11 +421,12 @@
     <string name="gesture_action_missing_key">Deleted custom key (does nothing)</string>
     <string name="game_menu_style_list">List</string>
     <string name="game_menu_style_grid">Grid with icons</string>
+    <string name="game_menu_segment_grid">Grid</string>
     <string name="game_menu_style_compact">Compact</string>
     <string name="title_customize_game_menu">In-stream menu</string>
     <string name="summary_customize_game_menu">Pick the menu style and which actions the Quick Menu shows, with a live preview</string>
     <string name="game_menu_customize">Customize menu</string>
-    <string name="game_menu_editor_hint">Checked actions appear in the Quick Menu in this order. Drag the handle or long press a row to reorder. Unchecked actions stay under Advanced Menu. Disconnect and Quit always stay in the Session section.</string>
+    <string name="game_menu_editor_hint">Switched on actions appear in the Quick Menu in this order. Drag the handle or long press a row to reorder. Switched off actions stay under Advanced Menu. Disconnect and Quit always stay in the Session section.</string>
     <string name="game_menu_editor_style">Menu style</string>
     <string name="game_menu_editor_preview">Preview</string>
     <string name="game_menu_section_actions">Actions</string>
