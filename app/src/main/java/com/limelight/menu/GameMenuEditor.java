@@ -14,7 +14,6 @@ import android.widget.CheckBox;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -25,6 +24,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.limelight.R;
 import com.limelight.actions.StreamAction;
 import com.limelight.actions.StreamActionRegistry;
+import com.limelight.ui.Dialogs;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,6 +35,8 @@ import java.util.List;
 public final class GameMenuEditor {
     // Screens at least this wide show the list and the preview side by side
     private static final int TWO_PANE_MIN_WIDTH_DP = 600;
+    private static final int[] STYLE_IDS = {
+            R.id.game_menu_editor_style_list, R.id.game_menu_editor_style_grid, R.id.game_menu_editor_style_compact};
 
     static final class Row {
         final StreamAction action;
@@ -116,8 +118,9 @@ public final class GameMenuEditor {
         final DisplayMetrics metrics = res.getDisplayMetrics();
         final boolean twoPane = metrics.widthPixels / metrics.density >= TWO_PANE_MIN_WIDTH_DP;
 
-        View body = LayoutInflater.from(context).inflate(R.layout.dialog_game_menu_editor, null);
-        RadioGroup styleGroup = body.findViewById(R.id.game_menu_editor_style);
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        Context dialogContext = builder.getContext();
+        View body = LayoutInflater.from(dialogContext).inflate(R.layout.dialog_game_menu_editor, null);
         FrameLayout listContainer = body.findViewById(R.id.game_menu_editor_list);
         FrameLayout previewContainer = body.findViewById(R.id.game_menu_editor_preview);
         LinearLayout panes = body.findViewById(R.id.game_menu_editor_panes);
@@ -132,11 +135,11 @@ public final class GameMenuEditor {
             LinearLayout.LayoutParams previewParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             previewParams.topMargin = (int) (12 * metrics.density);
             previewPane.setLayoutParams(previewParams);
-            previewPane.setPadding((int) (24 * metrics.density), 0, (int) (24 * metrics.density), 0);
+            previewPane.setPadding(0, 0, 0, 0);
         }
 
-        RecyclerView list = new RecyclerView(context);
-        list.setLayoutManager(new LinearLayoutManager(context));
+        RecyclerView list = new RecyclerView(dialogContext);
+        list.setLayoutManager(new LinearLayoutManager(dialogContext));
         listContainer.addView(list, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, paneHeight));
 
         final String[] style = {GameMenuLayout.getStyle(prefs)};
@@ -145,18 +148,27 @@ public final class GameMenuEditor {
         // The renderer fixes its style when created, so a style change rebuilds the preview view
         final Runnable rebuildPreview = () -> {
             previewContainer.removeAllViews();
-            preview[0] = GameMenuRenderer.create(context, style[0], null);
+            preview[0] = GameMenuRenderer.create(dialogContext, style[0], null);
             previewContainer.addView(preview[0], new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, previewHeight));
             GameMenuRenderer.setEntries(preview[0], buildPreview(res, rows));
         };
         final Runnable refreshPreview = () -> GameMenuRenderer.setEntries(preview[0], buildPreview(res, rows));
         rebuildPreview.run();
 
-        styleGroup.check(radioIdFor(style[0]));
-        styleGroup.setOnCheckedChangeListener((group, checkedId) -> {
-            style[0] = styleFor(checkedId);
-            rebuildPreview.run();
-        });
+        // List, Grid and Compact work as one segmented button, and every choice redraws the preview
+        final Runnable markStyle = () -> {
+            for (int id : STYLE_IDS) {
+                body.findViewById(id).setSelected(id == radioIdFor(style[0]));
+            }
+        };
+        for (int id : STYLE_IDS) {
+            body.findViewById(id).setOnClickListener(v -> {
+                style[0] = styleFor(id);
+                markStyle.run();
+                rebuildPreview.run();
+            });
+        }
+        markStyle.run();
 
         final ItemTouchHelper[] touchHelper = new ItemTouchHelper[1];
         final RowAdapter adapter = new RowAdapter(rows, holder -> touchHelper[0].startDrag(holder), refreshPreview);
@@ -187,8 +199,7 @@ public final class GameMenuEditor {
         });
         touchHelper[0].attachToRecyclerView(list);
 
-        new AlertDialog.Builder(context)
-                .setTitle(R.string.title_customize_game_menu)
+        builder.setTitle(R.string.title_customize_game_menu)
                 .setView(body)
                 .setPositiveButton(R.string.game_menu_editor_save, (dialog, which) -> {
                     List<String> ids = new ArrayList<>();
@@ -209,8 +220,8 @@ public final class GameMenuEditor {
                         onChanged.run();
                     }
                 })
-                .setNegativeButton(R.string.game_menu_cancel, null)
-                .show();
+                .setNegativeButton(R.string.game_menu_cancel, null);
+        Dialogs.show(builder, twoPane ? Dialogs.WIDTH_WIDE_DP : Dialogs.WIDTH_STANDARD_DP);
     }
 
     private interface DragStarter {

@@ -19,14 +19,14 @@ import com.limelight.actions.StreamAction;
 import com.limelight.actions.StreamActionHost;
 import com.limelight.actions.StreamActionRegistry;
 import com.limelight.customkeys.CustomKey;
-import com.limelight.customkeys.CustomKeyStore;
 import com.limelight.customkeys.IconCatalog;
+import com.limelight.customkeys.SpecialKeys;
 
 import java.util.ArrayList;
 import java.util.List;
 
-// NOTE: A row of small round buttons over the stream for actions and custom keys the user pinned, placed in the corner they chose.
-// NOTE: It fades after a few idle seconds so it does not cover the game, and it only exists while connected and outside picture-in-picture.
+// NOTE: Small round buttons over the stream for the actions and keys the user pinned, one bar per screen corner, as a row or a column.
+// NOTE: Each bar starts in its corner, fades after a few idle seconds so it does not cover the game, and only exists while connected and outside picture-in-picture.
 public final class QuickActionBar {
     public interface Host {
         StreamActionHost actionHost();
@@ -35,7 +35,7 @@ public final class QuickActionBar {
 
         void sendKeys(short[] keys);
 
-        // The bar sits next to the menu button when both use the top left corner
+        // The top left bar starts beside or below the menu button when that button is shown
         boolean isFloatingMenuButtonVisible();
     }
 
@@ -45,15 +45,15 @@ public final class QuickActionBar {
     private static final long STATE_REFRESH_DELAY_MS = 400;
     private static final int BUTTON_DP = 36;
     private static final int GAP_DP = 8;
-    private static final int EDGE_TOP_DP = 24;
+    private static final int EDGE_DP = 24;
 
     private final Context context;
     private final FrameLayout parent;
     private final Host host;
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final List<Binding> bindings = new ArrayList<>();
+    private final List<LinearLayout> bars = new ArrayList<>();
     private final Runnable fade = this::fade;
-    private LinearLayout bar;
     private boolean connected;
     private boolean hidden;
 
@@ -82,17 +82,17 @@ public final class QuickActionBar {
     // Hidden in picture-in-picture, restored afterwards
     public void setHidden(boolean hidden) {
         this.hidden = hidden;
-        if (bar != null) {
+        for (LinearLayout bar : bars) {
             bar.setVisibility(hidden ? View.GONE : View.VISIBLE);
         }
     }
 
-    // Rebuilds the bar from the saved items and position, for example after the bar editor saved
+    // Rebuilds every corner from the saved items and directions, for example after the bar editor saved
     public void reload() {
-        if (bar != null) {
+        for (LinearLayout bar : bars) {
             parent.removeView(bar);
-            bar = null;
         }
+        bars.clear();
         bindings.clear();
         handler.removeCallbacks(fade);
         if (!connected) {
@@ -100,32 +100,55 @@ public final class QuickActionBar {
         }
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        float density = context.getResources().getDisplayMetrics().density;
-        LinearLayout row = new LinearLayout(context);
-        row.setOrientation(LinearLayout.HORIZONTAL);
-        // Gaps between buttons swallow taps too, so a near miss never reaches the stream
-        row.setClickable(true);
-        row.setElevation(9999 * density);
-
-        for (String item : QuickBarLayout.getItems(prefs)) {
-            ImageButton button = buttonFor(item);
-            if (button != null) {
-                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams((int) (BUTTON_DP * density), (int) (BUTTON_DP * density));
-                if (row.getChildCount() > 0) {
-                    params.leftMargin = (int) (GAP_DP * density);
-                }
-                row.addView(button, params);
+        for (String corner : QuickBarLayout.POSITIONS) {
+            LinearLayout bar = buildBar(corner, QuickBarLayout.getItems(prefs, corner), QuickBarLayout.getDirection(prefs, corner));
+            if (bar != null) {
+                bar.setVisibility(hidden ? View.GONE : View.VISIBLE);
+                bars.add(bar);
             }
         }
-        if (row.getChildCount() == 0) {
-            return;
-        }
-
-        parent.addView(row, layoutParams(QuickBarLayout.getPosition(prefs), density));
-        bar = row;
-        bar.setVisibility(hidden ? View.GONE : View.VISIBLE);
         refreshStates();
         wake();
+    }
+
+    private LinearLayout buildBar(String corner, List<String> items, String direction) {
+        float density = context.getResources().getDisplayMetrics().density;
+        boolean column = QuickBarLayout.DIRECTION_COLUMN.equals(direction);
+        LinearLayout bar = new LinearLayout(context);
+        bar.setOrientation(column ? LinearLayout.VERTICAL : LinearLayout.HORIZONTAL);
+        // Gaps between buttons swallow taps too, so a near miss never reaches the stream
+        bar.setClickable(true);
+        bar.setElevation(9999 * density);
+
+        List<ImageButton> buttons = new ArrayList<>();
+        for (String item : items) {
+            ImageButton button = buttonFor(item);
+            if (button != null) {
+                buttons.add(button);
+            }
+        }
+        if (buttons.isEmpty()) {
+            return null;
+        }
+        // The first item always sits in the corner, so bars on the right or bottom are filled from the far end
+        boolean reverse = column ? !QuickBarLayout.isTop(corner) : !QuickBarLayout.isLeft(corner);
+        int size = (int) (BUTTON_DP * density);
+        int gap = (int) (GAP_DP * density);
+        for (int i = 0; i < buttons.size(); i++) {
+            ImageButton button = buttons.get(reverse ? buttons.size() - 1 - i : i);
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(size, size);
+            if (i > 0) {
+                if (column) {
+                    params.topMargin = gap;
+                }
+                else {
+                    params.leftMargin = gap;
+                }
+            }
+            bar.addView(button, params);
+        }
+        parent.addView(bar, layoutParams(corner, column, density));
+        return bar;
     }
 
     public void refreshSoon() {
@@ -145,7 +168,7 @@ public final class QuickActionBar {
     private ImageButton buttonFor(String item) {
         String keyId = QuickBarLayout.customKeyId(item);
         if (keyId != null) {
-            CustomKey key = CustomKeyStore.find(context, keyId);
+            CustomKey key = SpecialKeys.find(context, keyId);
             if (key == null) {
                 return null;
             }
@@ -187,39 +210,50 @@ public final class QuickActionBar {
         return button;
     }
 
-    private FrameLayout.LayoutParams layoutParams(String position, float density) {
+    private FrameLayout.LayoutParams layoutParams(String corner, boolean column, float density) {
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
         int gap = (int) (GAP_DP * density);
-        int edge = (int) (EDGE_TOP_DP * density);
-        boolean top = QuickBarLayout.POSITION_TOP_LEFT.equals(position) || QuickBarLayout.POSITION_TOP_RIGHT.equals(position);
-        boolean left = QuickBarLayout.POSITION_TOP_LEFT.equals(position) || QuickBarLayout.POSITION_BOTTOM_LEFT.equals(position);
+        int edge = (int) (EDGE_DP * density);
+        boolean top = QuickBarLayout.isTop(corner);
+        boolean left = QuickBarLayout.isLeft(corner);
         params.gravity = (top ? Gravity.TOP : Gravity.BOTTOM) | (left ? Gravity.START : Gravity.END);
+        int vertical = edge;
+        int horizontal = gap;
+        // The menu button owns the top left corner, so that bar starts right of it as a row or under it as a column
+        if (QuickBarLayout.POSITION_TOP_LEFT.equals(corner) && host.isFloatingMenuButtonVisible()) {
+            int step = (int) ((BUTTON_DP + GAP_DP) * density);
+            if (column) {
+                vertical += step;
+                horizontal = 0;
+            }
+            else {
+                horizontal = step;
+            }
+        }
         if (top) {
-            params.topMargin = edge;
+            params.topMargin = vertical;
         }
         else {
-            params.bottomMargin = edge;
+            params.bottomMargin = vertical;
         }
-        // The floating menu button lives in the top left corner, so the bar starts right after it there
-        int start = QuickBarLayout.POSITION_TOP_LEFT.equals(position) && host.isFloatingMenuButtonVisible()
-                ? (int) ((BUTTON_DP + GAP_DP) * density) : gap;
-        params.setMarginStart(left ? start : 0);
-        params.setMarginEnd(left ? 0 : gap);
+        params.setMarginStart(left ? horizontal : 0);
+        params.setMarginEnd(left ? 0 : horizontal);
         return params;
     }
 
     private void wake() {
-        if (bar == null) {
-            return;
-        }
-        bar.animate().cancel();
-        bar.setAlpha(1f);
         handler.removeCallbacks(fade);
-        handler.postDelayed(fade, FADE_DELAY_MS);
+        for (LinearLayout bar : bars) {
+            bar.animate().cancel();
+            bar.setAlpha(1f);
+        }
+        if (!bars.isEmpty()) {
+            handler.postDelayed(fade, FADE_DELAY_MS);
+        }
     }
 
     private void fade() {
-        if (bar != null) {
+        for (LinearLayout bar : bars) {
             bar.animate().alpha(IDLE_ALPHA).setDuration(300).start();
         }
     }

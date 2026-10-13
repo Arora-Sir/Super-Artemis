@@ -2,6 +2,7 @@ package com.limelight.menu;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
@@ -38,33 +39,66 @@ public class QuickBarTest {
     }
 
     @Test
-    public void barIsEmptyAndTopLeftByDefault() {
-        assertTrue(QuickBarLayout.getItems(prefs).isEmpty());
-        assertEquals(QuickBarLayout.POSITION_TOP_LEFT, QuickBarLayout.getPosition(prefs));
+    public void everyCornerIsEmptyAndARowByDefault() {
+        for (String corner : QuickBarLayout.POSITIONS) {
+            assertTrue(QuickBarLayout.getItems(prefs, corner).isEmpty());
+            assertEquals(QuickBarLayout.DIRECTION_ROW, QuickBarLayout.getDirection(prefs, corner));
+        }
+    }
+
+    @Test
+    public void cornersKeepTheirOwnItemsAndDirections() {
+        QuickBarLayout.setItems(prefs, QuickBarLayout.POSITION_TOP_LEFT, Arrays.asList(StreamActionRegistry.ID_ZOOM));
+        QuickBarLayout.setItems(prefs, QuickBarLayout.POSITION_BOTTOM_RIGHT, Arrays.asList(StreamActionRegistry.ID_MICROPHONE, "key:builtin_esc"));
+        QuickBarLayout.setDirection(prefs, QuickBarLayout.POSITION_BOTTOM_RIGHT, QuickBarLayout.DIRECTION_COLUMN);
+
+        assertEquals(Arrays.asList(StreamActionRegistry.ID_ZOOM), QuickBarLayout.getItems(prefs, QuickBarLayout.POSITION_TOP_LEFT));
+        assertEquals(Arrays.asList(StreamActionRegistry.ID_MICROPHONE, "key:builtin_esc"),
+                QuickBarLayout.getItems(prefs, QuickBarLayout.POSITION_BOTTOM_RIGHT));
+        assertEquals(QuickBarLayout.DIRECTION_ROW, QuickBarLayout.getDirection(prefs, QuickBarLayout.POSITION_TOP_LEFT));
+        assertEquals(QuickBarLayout.DIRECTION_COLUMN, QuickBarLayout.getDirection(prefs, QuickBarLayout.POSITION_BOTTOM_RIGHT));
     }
 
     @Test
     public void itemsKeepOrderAndDropSessionUnknownAndDuplicateEntries() {
-        QuickBarLayout.setItems(prefs, Arrays.asList(StreamActionRegistry.ID_MICROPHONE, "key:k1", StreamActionRegistry.ID_QUIT,
-                "removed_action", "key:", StreamActionRegistry.ID_MICROPHONE, StreamActionRegistry.ID_ZOOM));
-        assertEquals(Arrays.asList(StreamActionRegistry.ID_MICROPHONE, "key:k1", StreamActionRegistry.ID_ZOOM), QuickBarLayout.getItems(prefs));
+        QuickBarLayout.setItems(prefs, QuickBarLayout.POSITION_TOP_RIGHT, Arrays.asList(StreamActionRegistry.ID_MICROPHONE, "key:k1",
+                StreamActionRegistry.ID_QUIT, "removed_action", "key:", StreamActionRegistry.ID_MICROPHONE, StreamActionRegistry.ID_ZOOM));
+        assertEquals(Arrays.asList(StreamActionRegistry.ID_MICROPHONE, "key:k1", StreamActionRegistry.ID_ZOOM),
+                QuickBarLayout.getItems(prefs, QuickBarLayout.POSITION_TOP_RIGHT));
     }
 
     @Test
-    public void positionRoundTripsAndUnknownFallsBackToTopLeft() {
-        for (String position : QuickBarLayout.POSITIONS) {
-            QuickBarLayout.setPosition(prefs, position);
-            assertEquals(position, QuickBarLayout.getPosition(prefs));
-            assertEquals(position, QuickBarEditor.positionFor(QuickBarEditor.radioIdFor(position)));
-        }
-        prefs.edit().putString(QuickBarLayout.PREF_POSITION, "center").commit();
-        assertEquals(QuickBarLayout.POSITION_TOP_LEFT, QuickBarLayout.getPosition(prefs));
+    public void singleBarMovesToItsOldCornerAndOverlayZoomButtonBecomesAPin() {
+        prefs.edit()
+                .putString(QuickBarLayout.LEGACY_ITEMS, StreamActionRegistry.ID_MICROPHONE + ",key:k1")
+                .putString(QuickBarLayout.LEGACY_POSITION, QuickBarLayout.POSITION_BOTTOM_LEFT)
+                .putBoolean(QuickBarLayout.LEGACY_ZOOM_BUTTON, true)
+                .commit();
+
+        assertEquals(Arrays.asList(StreamActionRegistry.ID_MICROPHONE, "key:k1"),
+                QuickBarLayout.getItems(prefs, QuickBarLayout.POSITION_BOTTOM_LEFT));
+        assertEquals(Collections.singletonList(StreamActionRegistry.ID_ZOOM),
+                QuickBarLayout.getItems(prefs, QuickBarLayout.POSITION_TOP_RIGHT));
+        assertFalse(prefs.contains(QuickBarLayout.LEGACY_ITEMS));
+        assertFalse(prefs.contains(QuickBarLayout.LEGACY_POSITION));
+        assertFalse(prefs.contains(QuickBarLayout.LEGACY_ZOOM_BUTTON));
     }
 
     @Test
-    public void customKeyItemsRoundTrip() {
+    public void overlayZoomButtonIsNotPinnedTwice() {
+        prefs.edit()
+                .putString(QuickBarLayout.LEGACY_ITEMS, StreamActionRegistry.ID_ZOOM)
+                .putBoolean(QuickBarLayout.LEGACY_ZOOM_BUTTON, true)
+                .commit();
+        assertEquals(Collections.singletonList(StreamActionRegistry.ID_ZOOM), QuickBarLayout.getItems(prefs, QuickBarLayout.POSITION_TOP_LEFT));
+        assertTrue(QuickBarLayout.getItems(prefs, QuickBarLayout.POSITION_TOP_RIGHT).isEmpty());
+    }
+
+    @Test
+    public void specialKeyItemsRoundTrip() {
         assertEquals("k1", QuickBarLayout.customKeyId(QuickBarLayout.customKeyItem("k1")));
-        assertEquals(null, QuickBarLayout.customKeyId(StreamActionRegistry.ID_ZOOM));
+        assertEquals("builtin_esc", QuickBarLayout.customKeyId(QuickBarLayout.customKeyItem("builtin_esc")));
+        assertNull(QuickBarLayout.customKeyId(StreamActionRegistry.ID_ZOOM));
     }
 
     @Test
@@ -78,6 +112,7 @@ public class QuickBarTest {
         assertEquals(StreamActionRegistry.ID_MICROPHONE, rows.get(1).item);
         assertFalse(rows.get(2).pinned);
         assertEquals(GameMenuLayout.configurableActions().size() + 1, rows.size());
+        assertEquals(Arrays.asList("key:k1", StreamActionRegistry.ID_MICROPHONE), QuickBarEditor.pinnedItems(rows));
         for (QuickBarEditor.Row row : rows) {
             assertFalse(row.item.equals(StreamActionRegistry.ID_DISCONNECT) || row.item.equals(StreamActionRegistry.ID_QUIT));
         }
