@@ -75,7 +75,8 @@ public class SpinnerDialog implements Runnable,OnCancelListener {
 
         if (progress == null)
         {
-            progress = new ProgressDialog(activity);
+            // Themed like every other dialog, so the connecting spinner follows the app style
+            progress = new ProgressDialog(com.limelight.ui.ThemedDialogs.context(activity));
 
             progress.setTitle(title);
             progress.setMessage(message);

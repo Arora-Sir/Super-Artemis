@@ -4319,7 +4319,7 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
         }
         final MouseModeOption[] optionArray = options.toArray(new MouseModeOption[0]);
 
-        new AlertDialog.Builder(context)
+        android.app.AlertDialog.Builder mouseModes = com.limelight.ui.ThemedDialogs.builder(context)
                 .setTitle(getString(R.string.game_menu_select_mouse_mode))
                 .setItems(labels, (dialog, which) -> {
                     dialog.dismiss();
@@ -4336,8 +4336,8 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
                         }
                     }
                 })
-                .create()
-                .show();
+                .setNegativeButton(R.string.game_menu_cancel, null);
+        com.limelight.ui.ThemedDialogs.show(mouseModes);
     }
 
     //本地鼠标光标切换
@@ -4429,7 +4429,7 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
         } else {
             context = this;
         }
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        android.app.AlertDialog.Builder builder = com.limelight.ui.ThemedDialogs.builder(context);
         builder.setTitle(R.string.game_dialog_title_quit_confirm);
         builder.setMessage(R.string.game_dialog_message_quit_confirm);
 
@@ -4441,8 +4441,7 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
 
         builder.setNegativeButton(getString(R.string.no), (dialog, which) -> dialog.dismiss());
 
-        AlertDialog dialog = builder.create();
-        dialog.show();
+        com.limelight.ui.ThemedDialogs.show(builder);
     }
 
     @Override

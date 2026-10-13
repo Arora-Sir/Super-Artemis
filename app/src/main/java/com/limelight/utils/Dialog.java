@@ -63,7 +63,7 @@ public class Dialog implements Runnable {
         if (activity.isFinishing())
             return;
 
-        alert = new AlertDialog.Builder(activity).create();
+        alert = com.limelight.ui.ThemedDialogs.builder(activity).create();
 
         alert.setTitle(title);
         alert.setMessage(message);
