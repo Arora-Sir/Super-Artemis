@@ -125,6 +125,10 @@ public final class GestureDispatcher implements MultiFingerGestureRecognizer.Cal
     }
 
     private void fire(GestureBindingStore.Slot slot) {
+        com.limelight.ui.SafeRun.run(context, slot.prefKey(), () -> fireUnsafe(slot));
+    }
+
+    private void fireUnsafe(GestureBindingStore.Slot slot) {
         String binding = binding(slot);
         if (GestureBindingStore.NONE.equals(binding)) {
             return;

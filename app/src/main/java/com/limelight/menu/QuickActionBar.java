@@ -203,7 +203,7 @@ public final class QuickActionBar {
         }
         button.setOnClickListener(v -> {
             wake();
-            onTap.run();
+            com.limelight.ui.SafeRun.run(context, label, onTap);
             handler.postDelayed(this::refreshStates, STATE_REFRESH_DELAY_MS);
         });
         bindings.add(new Binding(button, action));

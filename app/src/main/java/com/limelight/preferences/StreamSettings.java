@@ -1279,7 +1279,7 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
             if (customize != null) {
                 customize.setOnPreferenceClickListener(preference -> {
                     SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(requireContext());
-                    GameMenuEditor.show(ThemeManager.dialogContext(requireContext()), prefs, null);
+                    com.limelight.ui.SafeRun.run(requireContext(), preference.getKey(), () -> GameMenuEditor.show(ThemeManager.dialogContext(requireContext()), prefs, null));
                     return true;
                 });
             }
@@ -1343,7 +1343,7 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
             Preference gestures = findPreference("pref_gestures");
             if (gestures != null) {
                 gestures.setOnPreferenceClickListener(preference -> {
-                    GestureEditor.show(ThemeManager.dialogContext(requireContext()), PreferenceManager.getDefaultSharedPreferences(requireContext()));
+                    com.limelight.ui.SafeRun.run(requireContext(), preference.getKey(), () -> GestureEditor.show(ThemeManager.dialogContext(requireContext()), PreferenceManager.getDefaultSharedPreferences(requireContext())));
                     return true;
                 });
             }
@@ -1353,7 +1353,7 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
             Preference quickBar = findPreference("pref_quick_bar");
             if (quickBar != null) {
                 quickBar.setOnPreferenceClickListener(preference -> {
-                    QuickBarEditor.show(ThemeManager.dialogContext(requireContext()), PreferenceManager.getDefaultSharedPreferences(requireContext()), null);
+                    com.limelight.ui.SafeRun.run(requireContext(), preference.getKey(), () -> QuickBarEditor.show(ThemeManager.dialogContext(requireContext()), PreferenceManager.getDefaultSharedPreferences(requireContext()), null));
                     return true;
                 });
             }
@@ -1363,7 +1363,7 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
             Preference customKeys = findPreference("pref_custom_keys");
             if (customKeys != null) {
                 customKeys.setOnPreferenceClickListener(preference -> {
-                    SpecialKeysManager.show(ThemeManager.dialogContext(requireContext()), null);
+                    com.limelight.ui.SafeRun.run(requireContext(), preference.getKey(), () -> SpecialKeysManager.show(ThemeManager.dialogContext(requireContext()), null));
                     return true;
                 });
             }
@@ -1373,14 +1373,14 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
             Preference backupPref = findPreference("pref_backup_settings");
             if (backupPref != null) {
                 backupPref.setOnPreferenceClickListener(preference -> {
-                    backupRestore.showBackupOptions();
+                    com.limelight.ui.SafeRun.run(requireContext(), preference.getKey(), () -> backupRestore.showBackupOptions());
                     return true;
                 });
             }
             Preference restorePref = findPreference("pref_restore_settings");
             if (restorePref != null) {
                 restorePref.setOnPreferenceClickListener(preference -> {
-                    backupRestore.chooseRestoreFile();
+                    com.limelight.ui.SafeRun.run(requireContext(), preference.getKey(), () -> backupRestore.chooseRestoreFile());
                     return true;
                 });
             }

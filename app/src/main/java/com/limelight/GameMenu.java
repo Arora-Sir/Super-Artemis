@@ -113,10 +113,11 @@ public class GameMenu implements Game.GameMenuCallbacks {
             return;
         }
 
+        Runnable safe = () -> com.limelight.ui.SafeRun.run(game, entry.label, entry.runnable);
         if (entry.withGameFocus) {
-            runWithGameFocus(entry.runnable);
+            runWithGameFocus(safe);
         } else {
-            entry.runnable.run();
+            safe.run();
         }
         // Toggles such as the microphone also show their state on the quick-action bar
         game.refreshQuickActionBar();
@@ -126,7 +127,7 @@ public class GameMenu implements Game.GameMenuCallbacks {
     public void runAction(StreamAction action) {
         // Toggles run from a gesture or a bar show their new state on the bars too, just like a menu tap
         Runnable runnable = () -> {
-            action.run(actionHost);
+            com.limelight.ui.SafeRun.run(game, action.id, () -> action.run(actionHost));
             game.refreshQuickActionBar();
         };
         if (action.needsGameFocus) {

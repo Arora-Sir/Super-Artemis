@@ -112,6 +112,11 @@ public class EditorsSmokeTest {
     }
 
     @Test
+    public void logSendOptionsOpen() {
+        openInBothStyles((activity, prefs) -> com.limelight.diagnostics.CrashReporter.showSendOptions(activity, "Super Artemis Java crash"));
+    }
+
+    @Test
     public void aboutDialogsOpen() {
         openInBothStyles((activity, prefs) -> SupportDialog.show(activity));
         openInBothStyles((activity, prefs) -> AboutDialogs.showProfiles(activity));

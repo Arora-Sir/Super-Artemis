@@ -280,6 +280,9 @@ public class PcView extends AppCompatActivity implements AdapterFragmentCallback
     private void completeOnCreate() {
         completeOnCreateCalled = true;
 
+        // A crash in the last session is offered once, here on the first screen
+        com.limelight.diagnostics.CrashReporter.offerPendingReport(this);
+
         shortcutHelper = new ShortcutHelper(this);
 
         UiHelper.setLocale(this);

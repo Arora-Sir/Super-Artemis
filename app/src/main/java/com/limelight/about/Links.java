@@ -15,6 +15,9 @@ public final class Links {
     public static final String REPOSITORY = "https://github.com/Arora-Sir/Super-Artemis";
     public static final String RELEASES = REPOSITORY + "/releases";
     public static final String NEW_ISSUE = REPOSITORY + "/issues/new/choose";
+    public static final String ISSUES = REPOSITORY + "/issues";
+    // The bug report form, whose fields can be filled from the link by their ids in .github/ISSUE_TEMPLATE/bug_report.yml
+    public static final String BUG_REPORT = REPOSITORY + "/issues/new?template=bug_report.yml";
     public static final String PRIVACY = REPOSITORY + "/blob/HEAD/PRIVACY.md";
     public static final String LICENSE = REPOSITORY + "/blob/HEAD/LICENSE.txt";
 

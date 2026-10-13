@@ -27,7 +27,7 @@ final class PrefsSnapshot {
 
     // Device-specific state, framework internals and search history that must not travel to another install
     private static final Set<String> EXCLUDED_PREFS = new HashSet<>(Arrays.asList(
-            "DecoderTombstone", "GlPreferences", "preferenceSearch", ResumeStore.PREF_NAME));
+            "DecoderTombstone", "GlPreferences", "preferenceSearch", "CrashReporter", ResumeStore.PREF_NAME));
 
     private PrefsSnapshot() {
     }
