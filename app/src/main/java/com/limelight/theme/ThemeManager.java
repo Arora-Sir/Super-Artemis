@@ -10,8 +10,9 @@ import androidx.preference.PreferenceManager;
 import com.google.android.material.color.DynamicColors;
 import com.limelight.R;
 
-// NOTE: Applies the opt-in "Material You" app style on Android 12+: wallpaper colors, switches instead of checkboxes and rounded dialogs.
-// NOTE: Classic stays the default. Activities call apply() before super.onCreate() and recreate when the style changed while they were in the background.
+// NOTE: Applies the app style. Classic (the default) adds neutral color roles and the rounded Super Artemis dialog to each activity's own theme.
+// NOTE: The opt-in "Material You" style on Android 12+ swaps in wallpaper colors, switches instead of checkboxes and rounded settings sections.
+// NOTE: Activities call apply() before super.onCreate() and recreate when the style changed while they were in the background.
 public final class ThemeManager {
     public static final String PREF_KEY = "list_app_style";
     public static final String CLASSIC = "classic";
@@ -41,6 +42,10 @@ public final class ThemeManager {
             activity.setTheme(R.style.AppTheme_MaterialYou);
             DynamicColors.applyToActivityIfAvailable(activity);
         }
+        else {
+            // Classic keeps each activity's own theme and adds the color roles and the rounded dialog on top
+            activity.getTheme().applyStyle(R.style.ThemeOverlay_SuperArtemis_Classic, true);
+        }
         return style;
     }
 
@@ -54,6 +59,14 @@ public final class ThemeManager {
         if (isMaterialYou(base)) {
             return DynamicColors.wrapContextIfAvailable(new ContextThemeWrapper(base, R.style.AppTheme_MaterialYou));
         }
-        return new ContextThemeWrapper(base, classicTheme);
+        return new ContextThemeWrapper(new ContextThemeWrapper(base, classicTheme), R.style.ThemeOverlay_SuperArtemis_Classic);
+    }
+
+    // Context for Super Artemis dialogs opened from any screen, so they always have the color roles of the current style
+    public static Context dialogContext(Context base) {
+        if (isMaterialYou(base)) {
+            return DynamicColors.wrapContextIfAvailable(new ContextThemeWrapper(base, R.style.AppTheme_MaterialYou));
+        }
+        return new ContextThemeWrapper(base, R.style.ThemeOverlay_SuperArtemis_Classic);
     }
 }

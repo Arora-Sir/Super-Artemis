@@ -11,4 +11,20 @@
     <!-- Disconnect and Quit in the in-stream menu, the same readable red as other warnings -->
     <color name="menu_destructive">@color/backup_caution</color>
     <color name="icon_choice_fill">#2980CBC4</color>
+
+    <!-- Classic style roles: neutral greys over the #1A1A1A background with the Material 3 baseline accent -->
+    <color name="sa_classic_background">#1A1A1A</color>
+    <color name="sa_classic_surface_container">#222222</color>
+    <color name="sa_classic_surface_container_high">#2B2B2B</color>
+    <color name="sa_classic_surface_container_highest">#363636</color>
+    <color name="sa_classic_on_surface">#ECECEC</color>
+    <color name="sa_classic_on_surface_variant">#B8B8B8</color>
+    <color name="sa_classic_primary">#D0BCFF</color>
+    <color name="sa_classic_on_primary">#381E72</color>
+    <color name="sa_classic_primary_container">#4F378B</color>
+    <color name="sa_classic_on_primary_container">#EADDFF</color>
+    <color name="sa_classic_secondary_container">#3F3A4A</color>
+    <color name="sa_classic_on_secondary_container">#E8DEF8</color>
+    <color name="sa_classic_outline">#8C8C8C</color>
+    <color name="sa_classic_outline_variant">#414141</color>
 </resources>

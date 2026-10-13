@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Tablets keep dialogs near the Material 3 reading width instead of stretching them across the screen -->
+<resources>
+    <item name="sa_dialog_width_major" type="fraction">42%</item>
+    <item name="sa_dialog_width_minor" type="fraction">68%</item>
+</resources>

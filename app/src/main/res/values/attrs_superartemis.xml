@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- NOTE: Color roles for Super Artemis screens and dialogs. Classic fills them with fixed greys, Material You with wallpaper colors. -->
+<!-- NOTE: New layouts and drawables use these roles instead of raw colors, so both app styles stay consistent. -->
+<resources>
+    <attr name="saBackground" format="color|reference" />
+    <attr name="saSurfaceContainer" format="color|reference" />
+    <attr name="saSurfaceContainerHigh" format="color|reference" />
+    <attr name="saSurfaceContainerHighest" format="color|reference" />
+    <attr name="saOnSurface" format="color|reference" />
+    <attr name="saOnSurfaceVariant" format="color|reference" />
+    <attr name="saPrimary" format="color|reference" />
+    <attr name="saOnPrimary" format="color|reference" />
+    <attr name="saPrimaryContainer" format="color|reference" />
+    <attr name="saOnPrimaryContainer" format="color|reference" />
+    <attr name="saSecondaryContainer" format="color|reference" />
+    <attr name="saOnSecondaryContainer" format="color|reference" />
+    <attr name="saOutline" format="color|reference" />
+    <attr name="saOutlineVariant" format="color|reference" />
+    <attr name="saError" format="color|reference" />
+    <!-- True in Material You, where settings sections sit in rounded containers -->
+    <attr name="saGroupedSettings" format="boolean" />
+</resources>

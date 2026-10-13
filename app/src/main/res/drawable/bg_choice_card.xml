@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Selectable card: an accent outline marks the current choice -->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="?android:attr/colorControlHighlight">
+    <item>
+        <selector>
+            <item android:state_selected="true">
+                <shape android:shape="rectangle">
+                    <corners android:radius="20dp" />
+                    <solid android:color="?attr/saSurfaceContainerHighest" />
+                    <stroke
+                        android:width="2dp"
+                        android:color="?attr/saPrimary" />
+                </shape>
+            </item>
+            <item>
+                <shape android:shape="rectangle">
+                    <corners android:radius="20dp" />
+                    <solid android:color="?attr/saSurfaceContainerHighest" />
+                </shape>
+            </item>
+        </selector>
+    </item>
+</ripple>

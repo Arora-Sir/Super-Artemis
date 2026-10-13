@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Smallest dialog widths on phones: a comfortable reading width in portrait and landscape -->
+<resources>
+    <item name="sa_dialog_width_major" type="fraction">60%</item>
+    <item name="sa_dialog_width_minor" type="fraction">92%</item>
+</resources>

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Remembers the corner shape a settings row was last clipped to, so it is only rebuilt when the row moves -->
+    <item name="sa_settings_row_shape" type="id" />
+</resources>

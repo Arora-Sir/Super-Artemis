@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A small stand-in for the stream screen in editors with a live preview -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <corners android:radius="16dp" />
+    <solid android:color="?attr/saSurfaceContainerHighest" />
+    <stroke
+        android:width="1dp"
+        android:color="?attr/saOutlineVariant" />
+</shape>

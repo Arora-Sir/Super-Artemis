@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Big enough to scan from another phone, small enough to leave room for the UPI ID on a phone -->
+    <dimen name="sa_support_qr_size">128dp</dimen>
+    <!-- The screen stand-in of the quick-action bar editor -->
+    <dimen name="sa_quick_bar_preview_height">168dp</dimen>
+</resources>

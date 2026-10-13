@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Settings search bar: a full pill in the raised surface color, with a ripple on tap -->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="?android:attr/colorControlHighlight">
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="28dp" />
+            <solid android:color="?attr/saSurfaceContainerHigh" />
+        </shape>
+    </item>
+</ripple>

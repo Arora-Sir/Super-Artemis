@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="sa_support_qr_size">168dp</dimen>
+    <!-- The screen stand-in of the quick-action bar editor -->
+    <dimen name="sa_quick_bar_preview_height">220dp</dimen>
+</resources>

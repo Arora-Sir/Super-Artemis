@@ -63,8 +63,31 @@
         <item name="android:windowBackground">@android:color/black</item>
     </style>
 
+    <!-- NOTE: Classic style roles, applied by ThemeManager on top of each activity theme and every in-stream dialog context. -->
+    <!-- NOTE: Framework dialogs get the rounded, centered Super Artemis dialog instead of the sharp-cornered platform default. -->
+    <style name="ThemeOverlay.SuperArtemis.Classic" parent="">
+        <item name="saBackground">@color/sa_classic_background</item>
+        <item name="saSurfaceContainer">@color/sa_classic_surface_container</item>
+        <item name="saSurfaceContainerHigh">@color/sa_classic_surface_container_high</item>
+        <item name="saSurfaceContainerHighest">@color/sa_classic_surface_container_highest</item>
+        <item name="saOnSurface">@color/sa_classic_on_surface</item>
+        <item name="saOnSurfaceVariant">@color/sa_classic_on_surface_variant</item>
+        <item name="saPrimary">@color/sa_classic_primary</item>
+        <item name="saOnPrimary">@color/sa_classic_on_primary</item>
+        <item name="saPrimaryContainer">@color/sa_classic_primary_container</item>
+        <item name="saOnPrimaryContainer">@color/sa_classic_on_primary_container</item>
+        <item name="saSecondaryContainer">@color/sa_classic_secondary_container</item>
+        <item name="saOnSecondaryContainer">@color/sa_classic_on_secondary_container</item>
+        <item name="saOutline">@color/sa_classic_outline</item>
+        <item name="saOutlineVariant">@color/sa_classic_outline_variant</item>
+        <item name="saError">@color/menu_destructive</item>
+        <item name="saGroupedSettings">false</item>
+        <item name="android:alertDialogTheme">@style/Theme.SuperArtemis.Dialog.Classic</item>
+        <item name="alertDialogTheme">@style/Theme.SuperArtemis.AppCompatDialog</item>
+    </style>
+
     <!-- NOTE: Opt-in Material You style (Android 12+ only): ThemeManager applies it with wallpaper colors on top. -->
-    <!-- NOTE: Settings rows show switches, androidx dialogs use the Material 3 dialog and framework dialogs use the device's own rounded style. -->
+    <!-- NOTE: Settings rows show switches in rounded section containers, and every dialog is the centered Material 3 dialog in wallpaper colors. -->
     <style name="AppTheme.MaterialYou" parent="Theme.Material3.DynamicColors.Dark.NoActionBar">
         <item name="android:windowActionBar">false</item>
         <item name="android:windowNoTitle">true</item>
@@ -72,9 +95,203 @@
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:forceDarkAllowed">false</item>
         <item name="preferenceTheme">@style/PreferenceTheme.MaterialYou</item>
-        <item name="alertDialogTheme">@style/ThemeOverlay.Material3.MaterialAlertDialog</item>
+        <item name="alertDialogTheme">@style/Theme.SuperArtemis.AppCompatDialog</item>
         <item name="materialAlertDialogTheme">@style/ThemeOverlay.Material3.MaterialAlertDialog</item>
-        <item name="android:alertDialogTheme">@android:style/Theme.DeviceDefault.Dialog.Alert</item>
+        <item name="android:alertDialogTheme">@style/Theme.SuperArtemis.Dialog.MaterialYou</item>
+        <item name="saBackground">?attr/colorSurface</item>
+        <item name="saSurfaceContainer">?attr/colorSurfaceContainer</item>
+        <item name="saSurfaceContainerHigh">?attr/colorSurfaceContainerHigh</item>
+        <item name="saSurfaceContainerHighest">?attr/colorSurfaceContainerHighest</item>
+        <item name="saOnSurface">?attr/colorOnSurface</item>
+        <item name="saOnSurfaceVariant">?attr/colorOnSurfaceVariant</item>
+        <item name="saPrimary">?attr/colorPrimary</item>
+        <item name="saOnPrimary">?attr/colorOnPrimary</item>
+        <item name="saPrimaryContainer">?attr/colorPrimaryContainer</item>
+        <item name="saOnPrimaryContainer">?attr/colorOnPrimaryContainer</item>
+        <item name="saSecondaryContainer">?attr/colorSecondaryContainer</item>
+        <item name="saOnSecondaryContainer">?attr/colorOnSecondaryContainer</item>
+        <item name="saOutline">?attr/colorOutline</item>
+        <item name="saOutlineVariant">?attr/colorOutlineVariant</item>
+        <item name="saError">?attr/colorError</item>
+        <item name="saGroupedSettings">true</item>
+    </style>
+
+    <!-- NOTE: The Super Artemis dialog: centered, 28dp corners, sentence-case buttons and the shared type scale. -->
+    <!-- NOTE: The two style variants below only differ in where their colors come from. -->
+    <style name="Theme.SuperArtemis.Dialog" parent="@android:style/Theme.Material.Dialog.Alert">
+        <item name="android:windowBackground">@drawable/bg_dialog</item>
+        <item name="android:windowTitleStyle">@style/SuperArtemis.DialogWindowTitle</item>
+        <item name="android:buttonBarButtonStyle">@style/Widget.SuperArtemis.DialogButton</item>
+        <item name="android:windowMinWidthMajor">@fraction/sa_dialog_width_major</item>
+        <item name="android:windowMinWidthMinor">@fraction/sa_dialog_width_minor</item>
+        <item name="android:backgroundDimAmount">0.6</item>
+    </style>
+
+    <style name="Theme.SuperArtemis.Dialog.Classic">
+        <item name="android:colorAccent">@color/sa_classic_primary</item>
+        <item name="android:colorControlActivated">@color/sa_classic_primary</item>
+        <item name="android:colorBackground">@color/sa_classic_surface_container_high</item>
+        <item name="android:textColorPrimary">@color/sa_classic_on_surface</item>
+        <item name="android:textColorSecondary">@color/sa_classic_on_surface_variant</item>
+    </style>
+
+    <style name="Theme.SuperArtemis.Dialog.MaterialYou">
+        <item name="android:colorAccent">?attr/colorPrimary</item>
+        <item name="android:colorControlActivated">?attr/colorPrimary</item>
+        <item name="android:colorBackground">?attr/colorSurfaceContainerHigh</item>
+        <item name="android:textColorPrimary">?attr/colorOnSurface</item>
+        <item name="android:textColorSecondary">?attr/colorOnSurfaceVariant</item>
+    </style>
+
+    <!-- NOTE: The same rounded, centered dialog for androidx dialogs (backup, list settings, seek bars), which read alertDialogTheme instead of the framework attribute. -->
+    <style name="Theme.SuperArtemis.AppCompatDialog" parent="ThemeOverlay.MaterialComponents.Dialog.Alert">
+        <item name="android:windowBackground">@drawable/bg_dialog</item>
+        <item name="android:windowMinWidthMajor">@fraction/sa_dialog_width_major</item>
+        <item name="android:windowMinWidthMinor">@fraction/sa_dialog_width_minor</item>
+        <item name="android:backgroundDimAmount">0.6</item>
+        <item name="android:windowTitleStyle">@style/SuperArtemis.DialogWindowTitle</item>
+        <item name="android:textColorPrimary">?attr/saOnSurface</item>
+        <item name="android:textColorSecondary">?attr/saOnSurfaceVariant</item>
+        <item name="colorPrimary">?attr/saPrimary</item>
+        <item name="colorSecondary">?attr/saPrimary</item>
+        <item name="buttonBarPositiveButtonStyle">@style/Widget.SuperArtemis.AppCompatDialogButton</item>
+        <item name="buttonBarNegativeButtonStyle">@style/Widget.SuperArtemis.AppCompatDialogButton</item>
+        <item name="buttonBarNeutralButtonStyle">@style/Widget.SuperArtemis.AppCompatDialogButton</item>
+    </style>
+
+    <style name="Widget.SuperArtemis.AppCompatDialogButton" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textColor">?attr/saPrimary</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="SuperArtemis.DialogWindowTitle" parent="">
+        <item name="android:maxLines">2</item>
+        <item name="android:textAppearance">@style/TextAppearance.SuperArtemis.Headline</item>
+    </style>
+
+    <style name="Widget.SuperArtemis.DialogButton" parent="@android:style/Widget.Material.Button.Borderless.Colored">
+        <item name="android:minWidth">64dp</item>
+        <item name="android:textColor">?android:attr/colorAccent</item>
+        <item name="android:maxLines">2</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:letterSpacing">0.01</item>
+    </style>
+
+    <!-- NOTE: One type scale for every Super Artemis screen and dialog, following the Material 3 roles. -->
+    <style name="TextAppearance.SuperArtemis.Headline" parent="@android:style/TextAppearance.Material">
+        <item name="android:textSize">24sp</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
+    </style>
+
+    <style name="TextAppearance.SuperArtemis.TitleMedium" parent="@android:style/TextAppearance.Material">
+        <item name="android:textSize">16sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
+    </style>
+
+    <style name="TextAppearance.SuperArtemis.TitleSmall" parent="@android:style/TextAppearance.Material">
+        <item name="android:textSize">14sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
+    </style>
+
+    <style name="TextAppearance.SuperArtemis.BodyLarge" parent="@android:style/TextAppearance.Material">
+        <item name="android:textSize">16sp</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
+    </style>
+
+    <style name="TextAppearance.SuperArtemis.BodyMedium" parent="@android:style/TextAppearance.Material">
+        <item name="android:textSize">14sp</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textColor">?android:attr/textColorSecondary</item>
+    </style>
+
+    <style name="TextAppearance.SuperArtemis.BodySmall" parent="@android:style/TextAppearance.Material">
+        <item name="android:textSize">12sp</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textColor">?android:attr/textColorSecondary</item>
+    </style>
+
+    <style name="TextAppearance.SuperArtemis.SectionLabel" parent="@android:style/TextAppearance.Material">
+        <item name="android:textSize">14sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textColor">?attr/saPrimary</item>
+    </style>
+
+    <!-- A corner of the quick-action bar preview, sized so an empty corner is still easy to tap -->
+    <style name="SuperArtemis.CornerSlot" parent="">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minWidth">64dp</item>
+        <item name="android:minHeight">48dp</item>
+        <item name="android:padding">6dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:background">@drawable/bg_corner_slot</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+    </style>
+
+    <!-- One choice of a two-choice segmented button -->
+    <style name="SuperArtemis.Segment" parent="">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">40dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:gravity">center</item>
+        <item name="android:background">@drawable/bg_segment</item>
+        <item name="android:textAppearance">@style/TextAppearance.SuperArtemis.TitleSmall</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:drawablePadding">8dp</item>
+        <item name="android:paddingLeft">12dp</item>
+        <item name="android:paddingRight">12dp</item>
+    </style>
+
+    <!-- The search page of Settings: its search bar takes the same raised pill color as the bar above the settings list -->
+    <style name="ThemeOverlay.SuperArtemis.SearchPage" parent="">
+        <item name="cardViewStyle">@style/Widget.SuperArtemis.SearchCard</item>
+    </style>
+
+    <style name="Widget.SuperArtemis.SearchCard" parent="CardView">
+        <item name="cardBackgroundColor">?attr/saSurfaceContainerHigh</item>
+        <item name="cardElevation">0dp</item>
+        <item name="cardCornerRadius">28dp</item>
+    </style>
+
+    <!-- Rounded buttons for Super Artemis dialogs: filled for the main action, tonal for the others -->
+    <style name="Widget.SuperArtemis.Button" parent="@android:style/Widget.Material.Button.Borderless">
+        <item name="android:minHeight">48dp</item>
+        <item name="android:paddingLeft">24dp</item>
+        <item name="android:paddingRight">24dp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:letterSpacing">0.01</item>
+        <item name="android:stateListAnimator">@null</item>
+        <item name="android:gravity">center</item>
+        <item name="android:drawablePadding">8dp</item>
+    </style>
+
+    <style name="Widget.SuperArtemis.Button.Filled">
+        <item name="android:background">@drawable/bg_button_filled</item>
+        <item name="android:textColor">?attr/saOnPrimary</item>
+    </style>
+
+    <style name="Widget.SuperArtemis.Button.Tonal">
+        <item name="android:background">@drawable/bg_button_tonal</item>
+        <item name="android:textColor">?attr/saOnSecondaryContainer</item>
+    </style>
+
+    <style name="Widget.SuperArtemis.Button.Text">
+        <item name="android:background">@drawable/bg_button_text</item>
+        <item name="android:textColor">?attr/saPrimary</item>
+        <item name="android:paddingLeft">12dp</item>
+        <item name="android:paddingRight">12dp</item>
     </style>
 
     <style name="PreferenceTheme.MaterialYou" parent="@style/PreferenceThemeOverlay">

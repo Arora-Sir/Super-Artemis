@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Material 3 dialog header: tonal icon, centered title and an optional supporting line -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:paddingLeft="24dp"
+    android:paddingTop="24dp"
+    android:paddingRight="24dp"
+    android:paddingBottom="16dp">
+
+    <ImageView
+        android:id="@+id/sa_dialog_header_icon"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/bg_icon_circle"
+        android:importantForAccessibility="no"
+        android:padding="12dp"
+        android:scaleType="fitCenter"
+        android:tint="?attr/saOnSecondaryContainer" />
+
+    <TextView
+        android:id="@+id/sa_dialog_header_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textAppearance="@style/TextAppearance.SuperArtemis.Headline" />
+
+    <TextView
+        android:id="@+id/sa_dialog_header_subtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:textAppearance="@style/TextAppearance.SuperArtemis.BodyMedium" />
+</LinearLayout>
