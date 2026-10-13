@@ -34,6 +34,7 @@ import com.limelight.customkeys.IconCatalog;
 import com.limelight.customkeys.KeyPicker;
 import com.limelight.customkeys.SpecialKeys;
 import com.limelight.ui.Dialogs;
+import com.limelight.ui.DragReorder;
 import com.limelight.ui.FlowRow;
 
 import java.util.ArrayList;
@@ -215,25 +216,12 @@ public final class QuickBarEditor {
             list.setAdapter(adapter);
             final ItemTouchHelper[] touchHelper = new ItemTouchHelper[1];
             adapter.dragStarter = holder -> touchHelper[0].startDrag(holder);
-            touchHelper[0] = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN, 0) {
-                @Override
-                public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder from, @NonNull RecyclerView.ViewHolder to) {
-                    int fromPos = from.getBindingAdapterPosition();
-                    int toPos = to.getBindingAdapterPosition();
-                    if (fromPos == RecyclerView.NO_POSITION || toPos == RecyclerView.NO_POSITION) {
-                        return false;
-                    }
-                    Collections.swap(adapter.rows, fromPos, toPos);
-                    adapter.notifyItemMoved(fromPos, toPos);
-                    drawPreview();
-                    return true;
-                }
-
-                @Override
-                public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-                }
-            });
-            touchHelper[0].attachToRecyclerView(list);
+            touchHelper[0] = DragReorder.attach(list, true, null, (from, to) -> {
+                DragReorder.moveItem(adapter.rows, from, to);
+                adapter.notifyItemMoved(from, to);
+                drawPreview();
+                return true;
+            }, null);
 
             // A key or flow made here is pinned to the selected bar and offered to the other bars
             listColumn.addView(KeyPicker.addButton(dialogContext, key -> {

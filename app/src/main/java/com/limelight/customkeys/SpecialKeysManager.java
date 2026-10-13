@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.limelight.R;
 import com.limelight.ui.Dialogs;
+import com.limelight.ui.DragReorder;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -67,38 +68,12 @@ public final class SpecialKeysManager {
 
         final ItemTouchHelper[] touchHelper = new ItemTouchHelper[1];
         adapter.dragStarter = holder -> touchHelper[0].startDrag(holder);
-        touchHelper[0] = new ItemTouchHelper(new ItemTouchHelper.Callback() {
-            // Only shown keys can be reordered, the hidden section stays put
-            @Override
-            public int getMovementFlags(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder holder) {
-                int position = holder.getBindingAdapterPosition();
-                return position >= 0 && position < visible.size() ? makeMovementFlags(ItemTouchHelper.UP | ItemTouchHelper.DOWN, 0) : 0;
-            }
-
-            @Override
-            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder from, @NonNull RecyclerView.ViewHolder to) {
-                int fromPos = from.getBindingAdapterPosition();
-                int toPos = to.getBindingAdapterPosition();
-                if (fromPos < 0 || toPos < 0 || fromPos >= visible.size() || toPos >= visible.size()) {
-                    return false;
-                }
-                Collections.swap(visible, fromPos, toPos);
-                adapter.notifyItemMoved(fromPos, toPos);
-                return true;
-            }
-
-            @Override
-            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-            }
-
-            // Saves once per drag instead of on every step
-            @Override
-            public void clearView(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
-                super.clearView(recyclerView, viewHolder);
-                SpecialKeys.saveOrder(context, visible);
-            }
-        });
-        touchHelper[0].attachToRecyclerView(list);
+        // Only shown keys can be reordered, the hidden section stays put. The order is saved once per drag instead of on every step.
+        touchHelper[0] = DragReorder.attach(list, true, position -> position < visible.size(), (from, to) -> {
+            DragReorder.moveItem(visible, from, to);
+            adapter.notifyItemMoved(from, to);
+            return true;
+        }, () -> SpecialKeys.saveOrder(context, visible));
 
         builder.setCustomTitle(Dialogs.header(dialogContext, R.drawable.ic_sa_keyboard,
                         context.getString(R.string.custom_keys_title), context.getString(R.string.special_keys_hint)))

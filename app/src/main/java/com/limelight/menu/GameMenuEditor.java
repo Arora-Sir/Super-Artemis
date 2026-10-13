@@ -29,6 +29,7 @@ import com.limelight.customkeys.IconCatalog;
 import com.limelight.customkeys.KeyPicker;
 import com.limelight.customkeys.SpecialKeys;
 import com.limelight.ui.Dialogs;
+import com.limelight.ui.DragReorder;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -238,30 +239,12 @@ public final class GameMenuEditor {
             refreshPreview.run();
         }), new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
-        touchHelper[0] = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN, 0) {
-            @Override
-            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder from, @NonNull RecyclerView.ViewHolder to) {
-                int fromPos = from.getAdapterPosition();
-                int toPos = to.getAdapterPosition();
-                if (fromPos == RecyclerView.NO_POSITION || toPos == RecyclerView.NO_POSITION) {
-                    return false;
-                }
-                Collections.swap(rows, fromPos, toPos);
-                adapter.notifyItemMoved(fromPos, toPos);
-                refreshPreview.run();
-                return true;
-            }
-
-            @Override
-            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-            }
-
-            @Override
-            public boolean isLongPressDragEnabled() {
-                return true;
-            }
-        });
-        touchHelper[0].attachToRecyclerView(list);
+        touchHelper[0] = DragReorder.attach(list, true, null, (from, to) -> {
+            DragReorder.moveItem(rows, from, to);
+            adapter.notifyItemMoved(from, to);
+            refreshPreview.run();
+            return true;
+        }, null);
 
         builder.setTitle(R.string.title_customize_game_menu)
                 .setView(body)
