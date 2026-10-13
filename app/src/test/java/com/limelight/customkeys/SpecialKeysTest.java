@@ -80,7 +80,11 @@ public class SpecialKeysTest {
         CustomKeyStore.save(context, Collections.singletonList(
                 new CustomKey("k1", "Task view", false, "desktop_windows", Arrays.asList(0x5B, 0x09))));
         List<CustomKey> keys = SpecialKeys.visible(context);
-        assertEquals("k1", keys.get(keys.size() - 1).id);
+        // The user's keys follow the Artemis keys, and More keys come after them
+        int k1 = ids(keys).indexOf("k1");
+        assertFalse(SpecialKeys.isMoreKey(keys.get(k1 - 1).id));
+        assertTrue(SpecialKeys.isMoreKey(keys.get(k1 + 1).id));
+        assertTrue(SpecialKeys.isMoreKey(keys.get(keys.size() - 1).id));
 
         List<CustomKey> reordered = new ArrayList<>(keys);
         Collections.reverse(reordered);
@@ -108,9 +112,33 @@ public class SpecialKeysTest {
     public void oldHideDefaultKeysSwitchHidesEveryBuiltInKeyOnce() {
         PreferenceManager.getDefaultSharedPreferences(context).edit()
                 .putBoolean(SpecialKeys.LEGACY_HIDE_DEFAULTS, true).commit();
-        assertTrue(SpecialKeys.visible(context).isEmpty());
-        assertEquals(BuiltInKeys.ALL.size(), SpecialKeys.hiddenBuiltIns(context).size());
+        // The old switch covered the Artemis keys only, so More keys stay visible
+        for (CustomKey key : SpecialKeys.visible(context)) {
+            assertTrue(SpecialKeys.isMoreKey(key.id));
+        }
+        int artemisKeys = 0;
+        for (BuiltInKeys.Def def : BuiltInKeys.ALL) {
+            artemisKeys += def.more ? 0 : 1;
+        }
+        assertEquals(artemisKeys, SpecialKeys.hiddenBuiltIns(context).size());
+        assertEquals(BuiltInKeys.ALL.size() - artemisKeys, SpecialKeys.visible(context).size());
         assertFalse(PreferenceManager.getDefaultSharedPreferences(context).contains(SpecialKeys.LEGACY_HIDE_DEFAULTS));
+    }
+
+    @Test
+    public void moreKeysCoverEverydayShortcutsWithTheirOwnIcons() {
+        BuiltInKeys.Def copy = BuiltInKeys.find("builtin_ctrl_c");
+        assertTrue(copy.more);
+        assertEquals(Arrays.asList(0xA2, 0x43), copy.keys);
+        assertEquals("content_copy", copy.icon);
+        assertEquals(Arrays.asList(0xA2, 0xA0, 0x1B), BuiltInKeys.find("builtin_ctrl_shift_esc").keys);
+        assertFalse(SpecialKeys.isMoreKey("builtin_esc"));
+        assertFalse(SpecialKeys.isMoreKey("k1"));
+        for (BuiltInKeys.Def def : BuiltInKeys.ALL) {
+            if (def.more) {
+                assertTrue(def.icon, IconCatalog.drawableFor(def.icon) != IconCatalog.drawableFor("no_such_icon"));
+            }
+        }
     }
 
     @Test

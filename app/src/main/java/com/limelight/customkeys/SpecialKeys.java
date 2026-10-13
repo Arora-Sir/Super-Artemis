@@ -44,25 +44,36 @@ public final class SpecialKeys {
         }
         Set<String> hidden = new HashSet<>();
         for (BuiltInKeys.Def def : BuiltInKeys.ALL) {
-            hidden.add(def.id);
+            // The switch only ever covered the keys Artemis had, so More keys stay visible
+            if (!def.more) {
+                hidden.add(def.id);
+            }
         }
         prefs(context).edit().putString(PREF_HIDDEN, TextUtils.join(",", hidden)).apply();
         defaults.edit().remove(LEGACY_HIDE_DEFAULTS).apply();
     }
 
-    // Built-in and custom keys that are shown, in the user's order
+    // Built-in and custom keys that are shown, in the user's order. Without a saved order the user's keys come right after the Artemis keys and More keys come last.
     public static List<CustomKey> visible(Context context) {
         migrate(context);
         List<CustomKey> keys = new ArrayList<>();
+        List<CustomKey> more = new ArrayList<>();
         Set<String> hidden = hiddenIds(context);
         Map<String, String> icons = iconOverrides(context);
         for (BuiltInKeys.Def def : BuiltInKeys.ALL) {
             if (!hidden.contains(def.id)) {
-                keys.add(builtIn(context, def, icons));
+                (def.more ? more : keys).add(builtIn(context, def, icons));
             }
         }
         keys.addAll(CustomKeyStore.loadOrEmpty(context));
+        keys.addAll(more);
         return order(keys, savedOrder(context));
+    }
+
+    // Keys of the More keys group, which Send special keys lists on their own page
+    public static boolean isMoreKey(String id) {
+        BuiltInKeys.Def def = BuiltInKeys.isBuiltIn(id) ? BuiltInKeys.find(id) : null;
+        return def != null && def.more;
     }
 
     // Built-in keys the user hid, so the manager can offer to show them again

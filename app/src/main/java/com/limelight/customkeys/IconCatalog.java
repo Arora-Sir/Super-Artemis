@@ -81,7 +81,21 @@ public final class IconCatalog {
             new Icon("bookmark", R.drawable.ic_ck_bookmark),
             new Icon("rocket_launch", R.drawable.ic_ck_rocket_launch),
             new Icon("restart_alt", R.drawable.ic_ck_restart_alt),
-            new Icon("power_settings_new", R.drawable.ic_ck_power_settings_new)
+            new Icon("power_settings_new", R.drawable.ic_ck_power_settings_new),
+            new Icon("select_all", R.drawable.ic_ck_select_all),
+            new Icon("content_cut", R.drawable.ic_ck_content_cut),
+            new Icon("content_paste_search", R.drawable.ic_ck_content_paste_search),
+            new Icon("screenshot_region", R.drawable.ic_ck_screenshot_region),
+            new Icon("monitoring", R.drawable.ic_ck_monitoring),
+            new Icon("tab_close", R.drawable.ic_ck_tab_close),
+            new Icon("history", R.drawable.ic_ck_history),
+            new Icon("folder_open", R.drawable.ic_ck_folder_open),
+            new Icon("first_page", R.drawable.ic_ck_first_page),
+            new Icon("last_page", R.drawable.ic_ck_last_page),
+            new Icon("keyboard_double_arrow_up", R.drawable.ic_ck_keyboard_double_arrow_up),
+            new Icon("keyboard_double_arrow_down", R.drawable.ic_ck_keyboard_double_arrow_down),
+            new Icon("backspace", R.drawable.ic_ck_backspace),
+            new Icon("flip_to_front", R.drawable.ic_ck_flip_to_front)
     ));
 
     private IconCatalog() {

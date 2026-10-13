@@ -188,9 +188,19 @@ public class GameMenu implements Game.GameMenuCallbacks {
         } catch (CustomKeyStore.FormatException e) {
             Toast.makeText(game,getString(R.string.wrong_import_format),Toast.LENGTH_SHORT).show();
         }
+        List<CustomKey> more = new ArrayList<>();
         for (CustomKey key : SpecialKeys.visible(game)) {
+            if (SpecialKeys.isMoreKey(key.id)) {
+                more.add(key);
+                continue;
+            }
             options.add(new MenuOption(key.name, key.icon != null ? IconCatalog.drawableFor(key.icon) : 0, false,
                     () -> game.runKey(key)));
+        }
+        // Everyday shortcuts get their own page, so the keys used most stay one tap away
+        if (!more.isEmpty()) {
+            options.add(new MenuOption(getString(R.string.special_keys_more), R.drawable.ic_sa_more_horiz, false,
+                    () -> showMoreKeysMenu(more)));
         }
 
         // Recording a key opens on top of the stream, and the list reopens with the new key when it is saved
@@ -208,6 +218,18 @@ public class GameMenu implements Game.GameMenuCallbacks {
         options.add(cancelEntry());
 
         showMenuDialog(getString(R.string.game_menu_send_keys), options);
+    }
+
+    private void showMoreKeysMenu(List<CustomKey> keys) {
+        List<MenuEntry> options = new ArrayList<>();
+        for (CustomKey key : keys) {
+            options.add(new MenuOption(key.name, key.icon != null ? IconCatalog.drawableFor(key.icon) : 0, false,
+                    () -> game.runKey(key)));
+        }
+        options.add(new MenuOption(getString(R.string.game_menu_send_keys), R.drawable.ic_ck_arrow_back, false,
+                this::showSpecialKeysMenu));
+        options.add(cancelEntry());
+        showMenuDialog(getString(R.string.special_keys_more), options);
     }
 
     private SharedPreferences prefs() {

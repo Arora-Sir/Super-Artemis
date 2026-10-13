@@ -22,7 +22,7 @@ Artemis already improves a lot on Moonlight. These are the things you lose if yo
 | Quick Menu you reorder, in list, grid or compact style with a live preview | No | Fixed menu | Yes |
 | Quick-action bars in any screen corner, as a row or a column | No | No | Yes |
 | Special keys you hide, reorder and give icons | No | No | Yes |
-| Record your own key shortcuts on the built-in keyboard, with 61 icons | No | JSON file only | Yes |
+| Record your own key shortcuts on the built-in keyboard, with 75 icons | No | JSON file only | Yes |
 | Choose what 3, 4 and 5-finger taps, double taps, holds and swipes do | No | Fixed taps | Yes |
 | Gestures that also work in pan and zoom and the other touch modes | No | No | Yes |
 | Windows touchpad swipes (task view, desktops, app switch) in one tap | No | No | Yes |
@@ -65,7 +65,7 @@ Everything else from Artemis stays: custom virtual buttons, custom resolutions a
 | Feature | What it does |
 | :--- | :--- |
 | Special keys | Hide, reorder and give icons to the built-in keys, or reset them. |
-| Recorded keys | Tap a combination on the built-in keyboard or a physical one, name it and pick one of 61 icons. Sticky keys stay pressed until tapped again. |
+| Recorded keys | Tap a combination on the built-in keyboard or a physical one, name it and pick one of 75 icons. Sticky keys stay pressed until tapped again. |
 | Keys everywhere | Recorded keys work in Send special keys, quick-action bars and gestures. |
 | Release on close | Keys held on the built-in keyboard are released when it closes. |
 | Keyboard fixes | Print Screen, the Samsung keyboard screenshot key and vendor keyboards with unusual key codes. |

@@ -1101,4 +1101,30 @@
 
     <string name="title_checkbox_full_screen">Enable Full Screen</string>
     <string name="summary_checkbox_full_screen">Hide system bars with immersive mode</string>
+    <!-- More keys: everyday Windows shortcuts -->
+    <string name="special_keys_more">More keys</string>
+    <string name="more_key_ctrl_a">Ctrl + A (Select all)</string>
+    <string name="more_key_ctrl_c">Ctrl + C (Copy)</string>
+    <string name="more_key_ctrl_x">Ctrl + X (Cut)</string>
+    <string name="more_key_ctrl_z">Ctrl + Z (Undo)</string>
+    <string name="more_key_ctrl_y">Ctrl + Y (Redo)</string>
+    <string name="more_key_ctrl_s">Ctrl + S (Save)</string>
+    <string name="more_key_ctrl_f">Ctrl + F (Find)</string>
+    <string name="more_key_win_v">Win + V (Clipboard history)</string>
+    <string name="more_key_win_shift_s">Win + Shift + S (Snip)</string>
+    <string name="more_key_alt_tab">Alt + Tab</string>
+    <string name="more_key_ctrl_shift_esc">Ctrl + Shift + Esc (Task Manager)</string>
+    <string name="more_key_ctrl_w">Ctrl + W (Close tab)</string>
+    <string name="more_key_ctrl_t">Ctrl + T (New tab)</string>
+    <string name="more_key_ctrl_shift_t">Ctrl + Shift + T (Reopen tab)</string>
+    <string name="more_key_win_e">Win + E (File Explorer)</string>
+    <string name="more_key_win_l">Win + L (Lock)</string>
+    <string name="more_key_win_r">Win + R (Run)</string>
+    <string name="more_key_home">Home</string>
+    <string name="more_key_end">End</string>
+    <string name="more_key_page_up">Page Up</string>
+    <string name="more_key_page_down">Page Down</string>
+    <string name="more_key_delete">Delete</string>
+    <string name="more_key_tab">Tab</string>
+    <string name="more_key_enter">Enter</string>
 </resources>
