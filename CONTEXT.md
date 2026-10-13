@@ -7,8 +7,10 @@ This is the handoff file for anyone (human or AI) resuming work on Super Artemis
 - Branch `unified-main` is based on Artemis `moonlight-noir` (commit `c5cf27f`). Nothing in this repository is published yet. The native core branch `super-artemis` is pushed to `Arora-Sir/moonlight-common-c`, and the common-c fixes from W17 are applied in the submodule working tree but not committed or pushed yet.
 - Every planned feature for 1.0.0 is implemented. Workstreams after the backup commit (`6f810d67`) are prepared as one cumulative patch per workstream and wait for the commit review.
 - Version `1.0.0` (versionCode 1) is set but not released. The package IDs are `com.mohitarora.superartemis` (release) and `com.mohitarora.superartemis.debug` (debug). Earlier test installs used `com.limelight.superartemisdebug`, which can be uninstalled.
-- Debug builds pass, and the unit suite has 157 tests with only the five known upstream failures (BUGS.md, BUG-009).
+- Debug builds pass, and the unit suite has 185 tests with only the five known upstream failures (BUGS.md, BUG-009).
 - Round 2 (the owner's 19 points from testing on the Tab, plus two later requests) is implemented: design foundation, settings, About, special keys, quick-action bars per corner, gestures and keyboard. It waits for device checks and the commit review.
+- Round 2 follow-ups are implemented and checked on the Tab: encrypted `.sabackup` backups with share and selective restore (Tab to S24 restore verified), phone layouts, hold gestures and the multi-finger right click fix, crash reports and diagnostic logs, quick-action bar long press menu, and an audit of crash risks.
+- Round 3 (the owner's 13 points from 2026-10-13: step flows, More keys, grid bars with sets, color schemes, Recents option and more) is planned as commits 29 to 41 on top of the local commits 01 to 28.
 
 ## What works (verified on a Galaxy Tab S10 Ultra, Android 16)
 

@@ -17,8 +17,13 @@ The first Super Artemis release, not published yet. The date is set when the `v1
 - Mute and unmute from the in-stream Quick Menu and Advanced Menu. Muting stops the microphone hardware and the Opus encoder, so the privacy indicator turns off and no battery is spent on audio capture.
 - "Network drop grace period" setting (10 to 60 seconds, default 30) so short Wi-Fi drops do not end the session, from @MikalaiKryvusha's KAST.
 - Settings search from a bar that stays at the top of Settings, with results inside collapsed sections and everyday words ("three finger", "pip", "upi") that find the right setting.
-- Backup and restore of all settings, profiles and the PC list to a single JSON file through the system file picker. Pairing keys are an explicit opt-in with a clear caution.
-- Restore shows a preview first (date, app version, settings and PC counts, what happens to your PCs). A backup without pairing keys keeps the PCs already on the device and only adds new ones.
+- Backup and restore of all settings, layouts, profiles and the PC list to one `.sabackup` file, saved on the device or shared to another app or device. The file opens in the app from a file manager or the share sheet.
+- Password protected backups (AES-256-GCM, PBKDF2-HMAC-SHA256 with 310,000 iterations). Pairing keys are an explicit opt-in with a clear caution and always need a password.
+- Restore shows a preview first and lets you tick which parts to restore (settings, layouts, profiles, PCs, pairing keys). On another device it lists the settings that device cannot use (resolution, frame rate, HDR, motion sensors, vibration, microphone) and keeps its own value unless you tick them. A backup without pairing keys keeps the PCs already on the device and only adds new ones.
+- 3, 4 and 5-finger holds as gestures, with the hold time (0.5, 1 or 2 seconds) chosen in the gesture editor.
+- Crash reports: after a crash the next launch offers a report, and Settings > More > Share diagnostic log sends the app log at any time, without root, Shizuku or a PC. Both open one list: a new bug report on GitHub with the device filled in, an existing issue, a file in Downloads, any app, or the clipboard.
+- Long press on a quick-action bar button opens a menu for that corner: record a new key straight onto the bar, pin an existing special key, edit the bar, or manage special keys.
+- Backups stay compatible across versions: a newer backup opens in an older version when its minimum reader version allows it, and unknown values are skipped.
 - Customizable in-stream Quick Menu: choose and reorder actions in an editor, with List, Grid with icons and Compact styles picked right in the editor next to a live preview. "Customize menu" sits right in the Quick Menu.
 - The Quick Menu is split into Actions, Session and Menu sections. Disconnect and Quit are always in the Session section, drawn in red. The Advanced Menu has "Back to Quick Menu".
 - Quick-action bars: pin actions (such as Pan/Zoom or the microphone) and special keys as small buttons over the stream, in any screen corners, each corner with its own buttons and its own direction (a row along the edge or a column down the side). Switched-on toggles show green, and the bars fade while idle. The editor previews all four corners. Set them up in Settings > In-stream controls or from the Advanced Menu during a stream.
@@ -46,8 +51,19 @@ The first Super Artemis release, not published yet. The date is set when the `v1
 - Settings sections are regrouped and renamed: In-stream controls, Starting and leaving a stream, Appearance, Built-in keyboard and Virtual keys on screen are new, and rarely used items moved to More. Tablets show a section list beside the settings.
 - Duplicate settings are gone: the menu style lives in the menu editor, "Disable default special keys" became per-key hiding (the old switch carries over), and the overlay zoom button became a Pan/Zoom pin on the top right quick-action bar (also carried over).
 - The Support dialog has no GitHub button any more, since About has one "Source code on GitHub" entry.
+- "Enable multi-touch gestures" moved from Mouse and touch into the Multi-finger gestures dialog as "Gestures in multi-touch mode", next to the gestures it switches on. The saved choice carries over.
+- SETUP.md shows how Apollo's Do and Undo commands make Steam Streaming Microphone the default PC microphone only while a stream runs.
 
 ### Fixed
+- A 3, 4 or 5-finger tap no longer also sends a right click to the PC in the mouse and trackpad modes. The touch modes track two fingers, so the gesture now takes the touch at the first lift, before they can read it as a two-finger tap.
+- Opening the quick-action bar editor no longer closes the app, and it can be opened from the Quick Menu during a stream.
+- Toggles run from a gesture (Pan/Zoom, microphone) now also update their quick-action bar button.
+- Crash fixes from an audit of the new features: multi-finger gestures with touch input disabled, changing the app style after the system recreated Settings, colors on Android 5 and 6, credit links on devices without a browser, custom key files with empty entries, dialogs left open after a fold or display change, and backups shared from apps that send something other than a file.
+- "Report an issue" opens in the default browser instead of the GitHub app, which cannot show the issue form chooser.
+- "Show more" replaces "Advanced" on collapsed settings groups for English in every region.
+- Dialogs on phones: the support card stacks its QR above the UPI details, the menu style buttons no longer clip their labels, the recorder keyboard keeps every key label on one line, and dialogs with password fields resize above the keyboard.
+- Scrolling dialog content shows a thin divider on the edge that hides more content, instead of cutting the next card in half or dimming the last row.
+- Cancel in Send special keys has its icon like every other menu.
 
 - Turning off Back Menu no longer disables the five-finger menu tap.
 - A three-finger tap in trackpad mode no longer sends a middle click and toggles the keyboard at the same time. Middle click is now a gesture action you can choose.

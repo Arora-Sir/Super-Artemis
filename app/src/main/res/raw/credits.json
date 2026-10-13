@@ -57,6 +57,14 @@
       ]
     },
     {
+      "feature": "Windows touchpad swipes on 3 and 4 fingers (Task View, desktop, app and desktop switching)",
+      "role": "prior-art",
+      "people": [{ "handle": "Lian-CrescentMoon" }],
+      "links": [
+        { "label": "ClassicOldSong/moonlight-android#608", "url": "https://github.com/ClassicOldSong/moonlight-android/pull/608" }
+      ]
+    },
+    {
       "feature": "Microphone redirection in Moonlight V+",
       "role": "prior-art",
       "people": [{ "handle": "qiin2333" }],
@@ -169,10 +177,9 @@
     {
       "feature": "Configurable 3, 4 and 5-finger taps and double taps, with Nothing passing taps to the PC",
       "role": "report",
-      "people": [{ "handle": "funkholio" }, { "handle": "nightshadecf" }, { "handle": "junoxxx67" }],
+      "people": [{ "handle": "funkholio" }, { "handle": "junoxxx67" }],
       "links": [
         { "label": "ClassicOldSong/moonlight-android#540", "url": "https://github.com/ClassicOldSong/moonlight-android/issues/540" },
-        { "label": "ClassicOldSong/moonlight-android#504", "url": "https://github.com/ClassicOldSong/moonlight-android/issues/504" },
         { "label": "ClassicOldSong/moonlight-android#470", "url": "https://github.com/ClassicOldSong/moonlight-android/issues/470" }
       ]
     },
@@ -183,6 +190,14 @@
       "links": [
         { "label": "ClassicOldSong/moonlight-android#409", "url": "https://github.com/ClassicOldSong/moonlight-android/pull/409" },
         { "label": "ClassicOldSong/moonlight-android@16d218341", "url": "https://github.com/ClassicOldSong/moonlight-android/commit/16d218341663c5ce1e61e742a96e695ba39db523" }
+      ]
+    },
+    {
+      "feature": "On-screen control layouts carried in the backup file and restored on any device",
+      "role": "request",
+      "people": [{ "handle": "bonelag" }],
+      "links": [
+        { "label": "ClassicOldSong/moonlight-android#238", "url": "https://github.com/ClassicOldSong/moonlight-android/issues/238" }
       ]
     },
     {

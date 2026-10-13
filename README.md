@@ -1,50 +1,144 @@
 # Super Artemis
 
-Stream games, apps or your whole desktop from a PC running [Apollo](https://github.com/ClassicOldSong/Apollo) to your Android phone or tablet, with your microphone, your own menu and your own controls.
+**Stream games, apps or your whole desktop from your PC to your Android phone or tablet, with your voice, your own menu and your own controls.**
 
-Super Artemis is a fork of [Artemis](https://github.com/ClassicOldSong/moonlight-android) by ClassicOldSong, itself a fork of [Moonlight](https://github.com/moonlight-stream/moonlight-android). It keeps everything Artemis does and adds the features its community kept asking for, plus proven fixes from upstream Moonlight and other forks, with credit to everyone involved.
+[![Latest release](https://img.shields.io/github/v/release/Arora-Sir/Super-Artemis?label=release)](https://github.com/Arora-Sir/Super-Artemis/releases/latest)
+[![License: GPL v3](https://img.shields.io/badge/license-GPLv3-blue)](LICENSE.txt)
+![Android 5.0+](https://img.shields.io/badge/Android-5.0%2B-3ddc84)
+![Host: Apollo](https://img.shields.io/badge/host-Apollo-8a2be2)
 
-[Download the latest release](https://github.com/Arora-Sir/Super-Artemis/releases/latest) · [Get updates with Obtainium](https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22com.mohitarora.superartemis%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2FArora-Sir%2FSuper-Artemis%22%2C%22author%22%3A%22Arora-Sir%22%2C%22name%22%3A%22Super%20Artemis%22%2C%22additionalSettings%22%3A%22%7B%5C%22apkFilterRegEx%5C%22%3A%5C%22arm64-v8a%5C%22%2C%5C%22versionExtractionRegEx%5C%22%3A%5C%22v%28.%2B%29%5C%22%2C%5C%22matchGroupToUse%5C%22%3A%5C%22%241%5C%22%7D%22%7D) · [Report an issue](https://github.com/Arora-Sir/Super-Artemis/issues/new/choose)
+Super Artemis is a fork of [Artemis](https://github.com/ClassicOldSong/moonlight-android) by ClassicOldSong, which is a fork of [Moonlight](https://github.com/moonlight-stream/moonlight-android). It keeps everything Artemis does, adds the features its community kept asking for, and brings in proven fixes from Moonlight and other forks, with credit to everyone involved.
 
-## Why Super Artemis
+**[Download](https://github.com/Arora-Sir/Super-Artemis/releases/latest)** · **[Get updates with Obtainium](https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22com.mohitarora.superartemis%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2FArora-Sir%2FSuper-Artemis%22%2C%22author%22%3A%22Arora-Sir%22%2C%22name%22%3A%22Super%20Artemis%22%2C%22additionalSettings%22%3A%22%7B%5C%22apkFilterRegEx%5C%22%3A%5C%22arm64-v8a%5C%22%2C%5C%22versionExtractionRegEx%5C%22%3A%5C%22v%28.%2B%29%5C%22%2C%5C%22matchGroupToUse%5C%22%3A%5C%22%241%5C%22%7D%22%7D)** · **[Report an issue](https://github.com/Arora-Sir/Super-Artemis/issues/new/choose)**
 
-- **Talk while you play.** Your microphone streams to Apollo, and it stays off (no battery, no privacy indicator) until you unmute it from the menu.
-- **Your menu, your way.** Pick and reorder Quick Menu actions, choose list, grid or compact, and see the result live while editing. Disconnect and Quit always sit in their own red section.
-- **One tap, always on screen.** Pin actions and keys to small quick-action bars in any screen corner, each as a row or a column. Toggles show green while on, and the bars fade when idle.
-- **Special keys your way.** Hide, reorder and re-icon the built-in keys, and record your own shortcuts on the built-in keyboard with a name and one of 61 icons.
-- **Gestures you choose.** Decide what 3, 4 and 5-finger taps and double taps and 3 and 4-finger swipes do, in every touch mode including pan and zoom, or let them reach the PC. One tap sets the Windows touchpad swipes.
-- **Leave and come back.** Disconnect, resume the same app when you return, or keep it in picture-in-picture, including on a quick app switch.
-- **Settings you never lose.** Back up every setting to one file and restore it with a preview that keeps the PCs already on your device.
-- **Smoother video.** The frame pacing setting works again, a renderer loop that dropped frames is gone, and native core fixes improve recovery after packet loss.
-- **Find anything, on a modern look.** A search bar that stays at the top of Settings, a section list on tablets, rounded dialogs everywhere and an optional Material You style on Android 12 and later.
+## What you would miss going back
+
+Artemis already improves a lot on Moonlight. These are the things you lose if you switch from Super Artemis back to Artemis or Moonlight.
+
+| Feature | Moonlight | Artemis | Super Artemis |
+| :--- | :---: | :---: | :---: |
+| Microphone streaming to the PC, off until you unmute it | No | No | Yes |
+| Microphone state at stream start (off, on or last state, per PC) | No | No | Yes |
+| Quick Menu you reorder, in list, grid or compact style with a live preview | No | Fixed menu | Yes |
+| Quick-action bars in any screen corner, as a row or a column | No | No | Yes |
+| Special keys you hide, reorder and give icons | No | No | Yes |
+| Record your own key shortcuts on the built-in keyboard, with 61 icons | No | JSON file only | Yes |
+| Choose what 3, 4 and 5-finger taps, double taps, holds and swipes do | No | Fixed taps | Yes |
+| Gestures that also work in pan and zoom and the other touch modes | No | No | Yes |
+| Windows touchpad swipes (task view, desktops, app switch) in one tap | No | No | Yes |
+| Held keys released when the built-in keyboard closes | No | No | Yes |
+| When you leave: disconnect, resume when you return, or picture-in-picture | Partial | Partial | Yes |
+| Connect to the last PC when the app starts | No | No | Yes |
+| Network drop grace period for short Wi-Fi drops | No | No | Yes |
+| Frame pacing setting honoured, frame-dropping drain loop removed | Yes | No | Yes |
+| Encrypted backup file you save or share, with selective restore | No | No | Yes |
+| Restore on another device with warnings for what it cannot use | No | No | Yes |
+| Crash report and diagnostic log you can share without root, Shizuku or a PC | No | No | Yes |
+| Settings search that stays on top and understands everyday words | No | No | Yes |
+| Rounded centered dialogs and an optional Material You style | No | No | Yes |
+| Installs next to Artemis and Moonlight | Yes | Yes | Yes |
+
+Everything else from Artemis stays: custom virtual buttons, custom resolutions and bitrates, mouse modes, gamepad skins, external display mode, Apollo virtual display, server commands and clipboard sync.
 
 ## Features
 
-| Area | What you get |
-| :--- | :--- |
-| Voice | Microphone streaming to Apollo, "Microphone at stream start" (always off, always on, follow last state, remembered per PC), mute and unmute from the menu or the quick-action bar |
-| Menus | Sectioned Quick Menu, Advanced Menu with Back to Quick Menu, list, grid and compact styles picked in the editor with a live preview, quick-action bars in any corners as rows or columns |
-| Input | Special keys (built-in and recorded, 61 icons), configurable multi-finger taps, double taps and swipes that work in every touch mode, S Pen strokes reach the PC on Android 13+, Print Screen and Samsung keyboard cover screenshot key, held keys released when the built-in keyboard closes |
-| Sessions | When you leave the stream: disconnect, resume when reopened (within 30 minutes) or picture-in-picture, optional connect to the last PC on app start, network drop grace period for short Wi-Fi drops |
-| Performance | Honoured frame pacing, no frame-dropping drain loop, refresh rate tracking, post-start low latency on Android 11+, decoder setup that cannot hang |
-| Backup | One JSON file through the system file picker, settings only by default, pairing keys as an explicit opt-in, restore preview that keeps existing PCs |
-| Look | Search bar that stays on screen, search by everyday words, a section list on tablets, rounded centered dialogs, optional Material You (wallpaper colors, switches, rounded sections) chosen from live previews |
-| About | Support development (UPI card with QR, PayPal), developer links with their icons and in-app credits with links to every contributor |
+### Voice
 
-Everything from Artemis is still there: custom virtual buttons, custom resolutions and bitrates, multiple mouse modes, virtual gamepad skins, external display mode, Apollo virtual display, server commands and clipboard sync.
+| Feature | What it does |
+| :--- | :--- |
+| Microphone streaming | Sends your microphone to Apollo, so you can talk in games and calls on the PC. |
+| Microphone at stream start | Always off, always on, or the state you left it in, remembered per PC. Off keeps the microphone hardware and the privacy indicator off. |
+| Mute and unmute anywhere | From the Quick Menu, a quick-action bar or a gesture. |
+| Input device and preview | Pick which microphone to use and check its level before you stream. |
+
+### Menus and quick-action bars
+
+| Feature | What it does |
+| :--- | :--- |
+| Quick Menu editor | Choose the actions, drag to reorder, and pick list, grid or compact with a live preview. |
+| Sections | Actions and session controls are separate, and Disconnect and Quit sit in their own red section. |
+| Quick-action bars | Small bars in any corner, each with its own items, as a row or a column. Toggles show when they are on and the bars fade when idle. Edit them from the Quick Menu during a stream. |
+| Floating menu button | Opens the Quick Menu even with the Back menu turned off. |
+
+### Keys and keyboard
+
+| Feature | What it does |
+| :--- | :--- |
+| Special keys | Hide, reorder and give icons to the built-in keys, or reset them. |
+| Recorded keys | Tap a combination on the built-in keyboard or a physical one, name it and pick one of 61 icons. Sticky keys stay pressed until tapped again. |
+| Keys everywhere | Recorded keys work in Send special keys, quick-action bars and gestures. |
+| Release on close | Keys held on the built-in keyboard are released when it closes. |
+| Keyboard fixes | Print Screen, the Samsung keyboard screenshot key and vendor keyboards with unusual key codes. |
+
+### Gestures
+
+| Feature | What it does |
+| :--- | :--- |
+| Taps and double taps | Choose what 3, 4 and 5-finger taps and double taps do, or set Nothing so the touch reaches the PC. A gesture tap never also clicks on the PC. |
+| Holds | Hold 3, 4 or 5 fingers still for 0.5, 1 or 2 seconds to run another action. |
+| Swipes | Up, down, left and right with 3 and 4 fingers, mapped to an action or a key combination. |
+| Windows preset | One tap maps the swipes to the Windows touchpad gestures. |
+| Every touch mode | Gestures work in multi-touch, trackpad, mouse and pan and zoom, so a 3-finger double tap can always leave pan and zoom. |
+
+### Sessions and video
+
+| Feature | What it does |
+| :--- | :--- |
+| When you leave the stream | Disconnect, resume the same app when you come back within 30 minutes, or keep it playing in picture-in-picture. |
+| Connect on app start | Opening the app from the launcher starts your last stream. |
+| Network drop grace period | Keeps the session alive through short Wi-Fi drops. |
+| Smoother video | Frame pacing works again, the frame-dropping drain loop is gone, the refresh rate is tracked, and native core fixes recover faster from packet loss. |
+
+### Backup and restore
+
+| Feature | What it does |
+| :--- | :--- |
+| One backup file | Every setting, layout, profile and PC in a `.sabackup` file that opens in the app from a file manager or the share sheet. |
+| Save or share | Save it on the device or share it straight to another app or device. |
+| Password protection | AES-256-GCM encryption with your password, required when the file includes pairing keys. |
+| Pairing keys (opt-in) | Restore on a new device and connect to your PCs without pairing again. |
+| Choose what to restore | Tick settings, layouts, profiles, PCs and pairing keys separately. |
+| Device checks | Warns about settings the new device cannot use (resolution, frame rate, HDR, motion sensors, vibration, microphone) and keeps its own value unless you tick them. |
+| Old and new versions | Newer backups open in older versions when they can, and unknown values are skipped instead of failing the restore. |
+
+### Look and settings
+
+| Feature | What it does |
+| :--- | :--- |
+| Settings search | A search bar that stays on top, finds settings by everyday words and jumps straight to the result. |
+| Clear sections | Settings grouped by what you want to do, with a section list on tablets. |
+| Modern dialogs | Rounded, centered dialogs with switches, rounded text fields and layouts that fit phones and tablets. |
+| Material You | An optional style with your wallpaper colors on Android 12 and later, chosen from live previews. |
+| About | Support development (UPI QR and PayPal), developer links and in-app credits for every contributor. |
 
 ## Get started
 
 1. Install [Apollo](https://github.com/ClassicOldSong/Apollo/releases) on your Windows PC and finish its first-time setup in the web UI.
-2. Install Super Artemis from [Releases](https://github.com/Arora-Sir/Super-Artemis/releases/latest) (or follow it with Obtainium). It installs as `com.mohitarora.superartemis`, next to Artemis and Moonlight.
+2. Install Super Artemis from [Releases](https://github.com/Arora-Sir/Super-Artemis/releases/latest), or follow it with Obtainium. It installs as `com.mohitarora.superartemis`, next to Artemis and Moonlight.
 3. Tap your PC in the app and enter the PIN in the Apollo web UI.
 4. Start streaming. Open the menu with the Back key, a five-finger tap or the floating button.
 
 ### Host setup
 
-- **Microphone:** in Apollo's `sunshine.conf` set `stream_mic = enabled` and `mic_backend = steam_streaming_microphone`, then turn on "Enable microphone streaming" in the app.
-- **Network drop grace period:** set Apollo's ping timeout at least as long as the grace period chosen in the app, or the host ends the session first.
-- **Actions on connect and disconnect:** Apollo's per-client Do and Undo commands run on every session start and stop. SETUP.md has a ready mouse speed example.
+| Goal | What to set |
+| :--- | :--- |
+| Microphone | In Apollo's `sunshine.conf` set `stream_mic = enabled` and `mic_backend = steam_streaming_microphone`, then turn on "Enable microphone streaming" in the app. |
+| Network drop grace period | Set Apollo's ping timeout at least as long as the grace period chosen in the app, or the host ends the session first. |
+| Actions on connect and disconnect | Apollo's per-client Do and Undo commands run on every session start and stop. SETUP.md has examples for mouse speed and for making Steam Streaming Microphone the default PC microphone only while you stream. |
+
+## If something goes wrong
+
+| Situation | What to do |
+| :--- | :--- |
+| The app closed unexpectedly | The next launch offers the saved report. Tap Share report and attach it to a [new issue](https://github.com/Arora-Sir/Super-Artemis/issues/new/choose). |
+| Something misbehaves without a crash | Settings > More > Share diagnostic log sends the app log, the last crash and the last native crash or freeze (Android 11 and later). |
+| The app does not even start | Turn on USB debugging, connect the device to a PC with [platform tools](https://developer.android.com/tools/releases/platform-tools) and run the commands below, then attach `super-artemis-log.txt` to the issue. |
+
+```
+adb logcat -c
+adb shell monkey -p com.mohitarora.superartemis -c android.intent.category.LAUNCHER 1
+adb logcat -d -b main,crash -v threadtime > super-artemis-log.txt
+```
 
 ## Building
 
@@ -62,7 +156,7 @@ The APK lands in `app/build/outputs/apk/nonRoot_game/debug/`. SETUP.md covers de
 
 Super Artemis is free, open source and has no ads. If it makes your streaming better:
 
-- Star this repository, it helps other people find it.
+- Star this repository. It helps other people find it.
 - Support development in the app (Settings > About > Support development), with [PayPal](https://paypal.me/arorasir) or by UPI (`mohit1998arora@yescred`).
 
 ## Credits and thanks
@@ -91,6 +185,7 @@ Super Artemis stands on the work of these people and projects. The table is gene
 | Video loss recovery, RTT and leak fixes and RTSP hardening in moonlight-common-c | [@cgutman](https://github.com/cgutman), [@foxirain](https://github.com/foxirain), [@JustinZeus](https://github.com/JustinZeus) | Code ported | [ClassicOldSong/moonlight-common-c#2](https://github.com/ClassicOldSong/moonlight-common-c/pull/2), [moonlight-stream/moonlight-common-c@d85371cd8](https://github.com/moonlight-stream/moonlight-common-c/commit/d85371cd8cb6304e66ef90a02e2e1609a8621906), [moonlight-stream/moonlight-common-c@20c05eda6](https://github.com/moonlight-stream/moonlight-common-c/commit/20c05eda6a0d410d84fe97a3a79d04fb70609d48), [moonlight-stream/moonlight-common-c@7b026e77b](https://github.com/moonlight-stream/moonlight-common-c/commit/7b026e77be62175104640e7e722b758df6d3d0d7) |
 | Microphone state at stream start (off, on, follow last state) | [@Yundi339](https://github.com/Yundi339) | Design adapted | [qiin2333/moonlight-vplus#639](https://github.com/qiin2333/moonlight-vplus/pull/639) |
 | In-stream microphone toggle action | [@ShadowLemoon](https://github.com/ShadowLemoon) | Design adapted | [qiin2333/moonlight-vplus#314](https://github.com/qiin2333/moonlight-vplus/pull/314) |
+| Windows touchpad swipes on 3 and 4 fingers (Task View, desktop, app and desktop switching) | [@Lian-CrescentMoon](https://github.com/Lian-CrescentMoon) | Prior art | [ClassicOldSong/moonlight-android#608](https://github.com/ClassicOldSong/moonlight-android/pull/608) |
 | Microphone redirection in Moonlight V+ | [@qiin2333](https://github.com/qiin2333) | Prior art | [qiin2333/moonlight-vplus#20](https://github.com/qiin2333/moonlight-vplus/pull/20) |
 | Settings search | [@ByteHamster](https://github.com/ByteHamster) | Library | [ByteHamster/SearchPreference](https://github.com/ByteHamster/SearchPreference) |
 | Menu and action icons (Material Symbols, Apache License 2.0) | Google | Assets | [google/material-design-icons](https://github.com/google/material-design-icons) |
@@ -102,9 +197,10 @@ Super Artemis stands on the work of these people and projects. The table is gene
 | Microphone support | [@jackson00w](https://github.com/jackson00w), [@Moby812](https://github.com/Moby812) | Requested | [ClassicOldSong/moonlight-android#582](https://github.com/ClassicOldSong/moonlight-android/issues/582), [ClassicOldSong/moonlight-android#403](https://github.com/ClassicOldSong/moonlight-android/issues/403) |
 | Custom keys recorded in the app, with names and icons | [@Senjar](https://github.com/Senjar), [@Sx1Fl0NdqlkM6N4s2pswXKUI0k9FKTaOckLbNXu](https://github.com/Sx1Fl0NdqlkM6N4s2pswXKUI0k9FKTaOckLbNXu), [@loudcricketts](https://github.com/loudcricketts) | Requested | [ClassicOldSong/moonlight-android#348](https://github.com/ClassicOldSong/moonlight-android/issues/348), [ClassicOldSong/moonlight-android#243](https://github.com/ClassicOldSong/moonlight-android/issues/243), [ClassicOldSong/moonlight-android#239](https://github.com/ClassicOldSong/moonlight-android/issues/239) |
 | Duplicate keys as separate custom keys | [@voguelike](https://github.com/voguelike) | Requested | [ClassicOldSong/moonlight-android#521](https://github.com/ClassicOldSong/moonlight-android/issues/521) |
+| On-screen control layouts carried in the backup file and restored on any device | [@bonelag](https://github.com/bonelag) | Requested | [ClassicOldSong/moonlight-android#238](https://github.com/ClassicOldSong/moonlight-android/issues/238) |
 | Resume when reopened and connect to the last PC on app start | [@webibi](https://github.com/webibi) | Requested | [ClassicOldSong/moonlight-android#159](https://github.com/ClassicOldSong/moonlight-android/issues/159) |
 | Opt-in Material You app style | [@xDoge26](https://github.com/xDoge26) | Requested | [ClassicOldSong/moonlight-android#358](https://github.com/ClassicOldSong/moonlight-android/issues/358), [ClassicOldSong/moonlight-android#394](https://github.com/ClassicOldSong/moonlight-android/issues/394) |
-| Configurable 3, 4 and 5-finger taps and double taps, with Nothing passing taps to the PC | [@funkholio](https://github.com/funkholio), [@nightshadecf](https://github.com/nightshadecf), [@junoxxx67](https://github.com/junoxxx67) | Reported | [ClassicOldSong/moonlight-android#540](https://github.com/ClassicOldSong/moonlight-android/issues/540), [ClassicOldSong/moonlight-android#504](https://github.com/ClassicOldSong/moonlight-android/issues/504), [ClassicOldSong/moonlight-android#470](https://github.com/ClassicOldSong/moonlight-android/issues/470) |
+| Configurable 3, 4 and 5-finger taps and double taps, with Nothing passing taps to the PC | [@funkholio](https://github.com/funkholio), [@junoxxx67](https://github.com/junoxxx67) | Reported | [ClassicOldSong/moonlight-android#540](https://github.com/ClassicOldSong/moonlight-android/issues/540), [ClassicOldSong/moonlight-android#470](https://github.com/ClassicOldSong/moonlight-android/issues/470) |
 
 <!-- credits:end -->
 

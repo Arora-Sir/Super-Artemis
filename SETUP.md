@@ -61,6 +61,35 @@ $user32::SystemParametersInfo(0x71, 0, [IntPtr]$Speed, 3) | Out-Null
 
 Windows mouse speed ranges from 1 to 20, and 10 is the default.
 
+Example: make Steam Streaming Microphone the default Windows microphone while a stream runs, so voice chat apps on the PC hear the tablet, and put the previous microphone back on Disconnect or Quit. It needs the AudioDeviceCmdlets module once (`Install-Module AudioDeviceCmdlets -Scope CurrentUser`). Save this as `stream-mic.ps1` on the PC:
+
+```powershell
+param([switch]$Restore)
+$state = Join-Path $env:LOCALAPPDATA 'SuperArtemis\default-mic.txt'
+if ($Restore) {
+    # Put back the microphone that was the default before the stream started
+    if (Test-Path $state) {
+        Set-AudioDevice -ID (Get-Content $state) | Out-Null
+        Remove-Item $state
+    }
+    return
+}
+$current = Get-AudioDevice -Recording
+if ($current.Name -notlike '*Steam Streaming Microphone*') {
+    New-Item -ItemType Directory -Force (Split-Path $state) | Out-Null
+    Set-Content $state $current.ID
+}
+$steam = Get-AudioDevice -List | Where-Object { $_.Type -eq 'Recording' -and $_.Name -like '*Steam Streaming Microphone*' } | Select-Object -First 1
+if ($steam) {
+    Set-AudioDevice -ID $steam.ID | Out-Null
+}
+```
+
+- Do: `powershell -NoProfile -ExecutionPolicy Bypass -File C:\Scripts\stream-mic.ps1`
+- Undo: `powershell -NoProfile -ExecutionPolicy Bypass -File C:\Scripts\stream-mic.ps1 -Restore`
+
+Leave "Run as administrator" off, because the default microphone belongs to your Windows user. The Steam microphone stays silent until the microphone is unmuted in the app, so keeping it as the default for the whole session is harmless. Apollo only creates it when `mic_backend = steam_streaming_microphone` is set.
+
 ## Keeping up with upstream
 
 Follow UPSTREAM.md. The weekly "Upstream watch" issue lists new commits, releases and security advisories from every project the fork builds on, and `python scripts/upstream_watch.py` produces the same report locally.

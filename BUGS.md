@@ -130,3 +130,59 @@ Each entry records a problem that was fixed in a way a future change could silen
 - **Verification:** `StyleLayoutsTest` and screenshots on the Tab in both styles.
 - **Status:** Fixed.
 
+## BUG-017: Backup dialog crashed in Material You
+
+- **Symptom:** Tapping "Back up settings" closed the app on the Tab with Material You on.
+- **Root Cause:** `Theme.SuperArtemis.AppCompatDialog` set `android:textColorPrimary` to `?attr/saOnSurface`, a nested attr chain that `DialogTitle` cannot resolve, so inflation threw `UnsupportedOperationException: Failed to resolve attribute`.
+- **Fix Applied:** The androidx dialog theme no longer overrides framework text colors with app roles, and its buttons use `?attr/colorPrimary`. `StyleDialogsTest` opens a framework and an androidx dialog in both styles.
+- **Verification:** `StyleDialogsTest`, and the dialog opening on the Tab and the S24 in both styles.
+- **Status:** Fixed.
+
+## BUG-018: "Report an issue" opened the GitHub app home screen
+
+- **Symptom:** The bug report link opened the GitHub app, which showed its home screen and then an "Open with" sheet across work profiles.
+- **Root Cause:** The GitHub app claims every github.com link but cannot render `/issues/new/choose`. The fork also had Issues turned off on GitHub, so the page returned 404 in a browser.
+- **Fix Applied:** `Links.openInBrowser` resolves the default browser and opens the page there, with a `<queries>` entry for browsable https links. Issues must be enabled on the repository.
+- **Verification:** Brave opened the page on the S24.
+- **Status:** Fixed in the app. Enabling Issues on GitHub is pending.
+
+## BUG-019: Collapsed settings groups still said "Advanced"
+
+- **Symptom:** The expand row of collapsed groups showed "Advanced" on an English (India) device although the app overrides it with "Show more".
+- **Root Cause:** androidx Preference ships `expand_button_title` in `values-en-rAU`, `rCA`, `rGB`, `rIN` and `rXC`. A region folder in a library outranks the app's default `values`.
+- **Fix Applied:** The override is repeated in those five folders.
+- **Verification:** The Tab and the S24 show "Show more".
+- **Status:** Fixed.
+
+## BUG-020: Phone layouts clipped labels and keys
+
+- **Symptom:** On the S24 with a large font, "Grid with icons" wrapped and clipped, the UPI ID was cut in half, F10, Home and PgUp wrapped on the recorder keyboard, and the password fields hid behind the keyboard.
+- **Root Cause:** Fixed 40 dp segment height, side by side UPI details on a narrow card, selectable text that ignores ellipsize, fixed 12 sp key labels, and dialogs without a resize input mode.
+- **Fix Applied:** Segments grow with their text on one line, compact screens stack the UPI card, key labels autosize on one line on a taller keyboard, and input dialogs use `SOFT_INPUT_ADJUST_RESIZE`.
+- **Verification:** Screenshots on the S24 and the Tab.
+- **Status:** Fixed.
+
+## BUG-021: Multi-finger taps also sent a right click
+
+- **Symptom:** In the mouse and trackpad modes, every 3, 4 or 5-finger tap ran its action and also right clicked on the PC.
+- **Root Cause:** The touch contexts only track two fingers. Events of the third finger return before `setPointerCount`, so context 1 believed the gesture had two fingers and its `isTap` sent `BUTTON_RIGHT` when its finger lifted. The recognizer only claimed a tap at the last lift, after that click.
+- **Fix Applied:** `MultiFingerGestureRecognizer` claims a qualifying tap at the first lift and cancels the touch modes before any of them sees a lift. Finger counts with a hold or a swipe bound are claimed when the fingers land.
+- **Verification:** `GestureRecognizerTest.firstLiftOfATapNeverReachesTheTouchModes`, and injected 3-finger taps on the Tab in trackpad mode with no context menu on the PC.
+- **Status:** Fixed.
+
+## BUG-022: Quick-action bar editor closed the app
+
+- **Symptom:** Opening "Quick-action bars" in Settings or from the in-stream menu closed the app on the Tab.
+- **Root Cause:** The editor rows reuse the menu editor row, whose checkbox became a switch, while `QuickBarEditor` still cast it to `CheckBox`. The `ClassCastException` happened while the list was laid out, after `show()` returned.
+- **Fix Applied:** The holder uses `CompoundButton`. `scripts/check_view_casts.py` compares every `findViewById` type with the layouts, and `EditorsSmokeTest` opens and lays out every dialog in both styles.
+- **Verification:** The smoke test fails with the old cast and passes with the fix. The editor opens in Settings and in a stream on the Tab.
+- **Status:** Fixed.
+
+## BUG-023: Gesture toggles did not update the quick-action bar
+
+- **Symptom:** After Pan/Zoom was turned on by a gesture, its bar button stayed grey.
+- **Root Cause:** Only menu taps refreshed the bar states, and gestures run actions through `GameMenu.runAction`.
+- **Fix Applied:** `runAction` refreshes the bars after every action.
+- **Verification:** The bar button turns green after a 4-finger hold on the Tab.
+- **Status:** Fixed.
+
