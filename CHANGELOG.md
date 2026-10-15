@@ -63,6 +63,8 @@ The first Super Artemis release, not published yet. The date is set when the `v1
 - SETUP.md shows how Apollo's Do and Undo commands make Steam Streaming Microphone the default PC microphone only while a stream runs.
 
 ### Fixed
+- With "Keep streaming in picture-in-picture", switching apps in any way now keeps the stream in picture-in-picture. Before, an app switch without a Home or Recents gesture, such as One Hand Operation+ opening the previous app, ended the stream. Screen off, the lock screen, split screen and the app's own screens still pause it normally.
+- The "resume when reopened" choice is named "Keep in Recents, resume when reopened" and says that the stream's card stays in Recents and reconnects to the same app within 30 minutes.
 - Settings search shows every match instead of the first 10, so "mouse" finds Touchscreen Mode, Remember mouse mode and Remote desktop mouse mode. Titles rank first, then the section name, then descriptions, and everyday words find their settings too ("cursor" and "pointer" for mouse settings, "touchpad" for trackpad, "sound" for audio and more).
 - Dragging a row to the top or bottom of a list (special keys, menu editor, quick-action bar editor) keeps scrolling at a useful speed instead of crawling, and a fast drag over several rows saves exactly the order shown on screen.
 - The mouse mode picker, the quit confirmation, connection errors and the connecting spinner now follow the app style (Material You or Classic) like every other dialog. The mouse mode picker also has a Cancel button.

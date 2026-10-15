@@ -312,6 +312,8 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
     private boolean cancellingGestureTouch;
     // Set when the user leaves with Home, Recents or a quick switch, as opposed to Disconnect, Quit or Back
     private boolean leftByUser;
+    // Set while this app opens one of its own screens over the stream, cleared when the stream is back in front
+    private boolean openingOwnScreen;
     private ImageButton overlayToggleButton;
     private float floatingButtonDX, floatingButtonDY;
     private boolean isButtonMoving = false;
@@ -1767,10 +1769,46 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
         super.onResume();
         // Coming back to the stream cancels a Home or Recents gesture that did not end up leaving it
         leftByUser = false;
+        openingOwnScreen = false;
+    }
+
+    // A screen this app opens on top of the stream (help, a crash report, a link) pauses the stream too, and must not shrink it into picture-in-picture
+    @Override
+    public void startActivityForResult(Intent intent, int requestCode, Bundle options) {
+        openingOwnScreen = true;
+        super.startActivityForResult(intent, requestCode, options);
+    }
+
+    // NOTE: Home and Recents gestures enter picture-in-picture through auto-enter (Android 12+) or onUserLeaveHint.
+    // NOTE: Switching apps another way, such as One Hand Operation+ opening the previous app, gives no leave hint, so the stream only paused and then disconnected in onStop.
+    // NOTE: Entering from onPause is allowed while the activity is still pausing, so any app switch now keeps the stream in picture-in-picture.
+    // NOTE: Screen off, the lock screen, split screen, this app's own screens and a USB permission prompt also pause the stream, and none of them should shrink it.
+    boolean shouldEnterPipOnPause() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O || !prefConfig.enablePip || !connected) {
+            return false;
+        }
+        if (isFinishing() || isChangingConfigurations() || isInPictureInPictureMode() || isInMultiWindowMode()) {
+            return false;
+        }
+        if (isOnExternalDisplay() || suppressPipRefCount > 0 || openingOwnScreen) {
+            return false;
+        }
+        android.os.PowerManager power = (android.os.PowerManager) getSystemService(Context.POWER_SERVICE);
+        android.app.KeyguardManager keyguard = (android.app.KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
+        return (power == null || power.isInteractive()) && (keyguard == null || !keyguard.isKeyguardLocked());
     }
 
     @Override
     protected void onPause() {
+        if (shouldEnterPipOnPause()) {
+            try {
+                enterPictureInPictureMode(getPictureInPictureParams(false));
+            }
+            catch (IllegalStateException | IllegalArgumentException e) {
+                // Auto-enter or the leave hint may have started the same transition a moment earlier
+                LimeLog.warning("PiP from onPause failed: " + e.getMessage());
+            }
+        }
         if (isFinishing()) {
             // Stop any further input device notifications before we lose focus (and pointer capture)
             if (controllerHandler != null) {

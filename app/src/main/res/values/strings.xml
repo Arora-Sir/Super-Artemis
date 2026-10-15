@@ -433,11 +433,11 @@
     <string name="preview_setting_equalizer">Equalizer</string>
     <string name="title_background_policy">When you leave the stream</string>
     <string name="background_policy_disconnect">Disconnect</string>
-    <string name="background_policy_resume">Disconnect, resume when reopened</string>
+    <string name="background_policy_resume">Keep in Recents, resume when reopened</string>
     <string name="background_policy_pip">Keep streaming in picture-in-picture</string>
     <string name="summary_background_disconnect">Going Home or switching apps ends the stream. Nothing keeps running.</string>
-    <string name="summary_background_resume">Going Home or switching apps ends the stream, and coming back within 30 minutes (Recents or the app icon) reconnects to the same app. The app keeps running on the PC meanwhile, and the device uses no battery for the stream while you are away.</string>
-    <string name="summary_background_pip">The stream keeps playing in a small window you can watch but not control. Video decoding and the network stay active, so it uses about as much battery as streaming.</string>
+    <string name="summary_background_resume">Going Home or switching apps ends the stream and leaves its card in Recents. Coming back within 30 minutes (the Recents card or the app icon) reconnects to the same app. The app keeps running on the PC meanwhile, and the device uses no battery for the stream while you are away.</string>
+    <string name="summary_background_pip">Going Home or switching apps in any way, including One Hand Operation+ gestures, keeps the stream playing in a small window you can watch but not control. Video decoding and the network stay active, so it uses about as much battery as streaming.</string>
     <string name="title_auto_connect_last">Connect to the last PC on app start</string>
     <string name="summary_auto_connect_last">Opening the app from the launcher starts your last stream right away</string>
     <string name="title_gestures">Multi-finger gestures</string>
