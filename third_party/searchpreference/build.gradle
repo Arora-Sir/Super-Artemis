@@ -1,0 +1,26 @@
+// SearchPreference by ByteHamster (MIT, see LICENSE), vendored from tag v2.5.1 and patched as described in README.md
+apply plugin: 'com.android.library'
+
+android {
+    namespace 'com.bytehamster.lib.preferencesearch'
+    compileSdk = 36
+
+    defaultConfig {
+        minSdk 21
+        vectorDrawables.useSupportLibrary = true
+    }
+
+    compileOptions {
+        encoding "UTF-8"
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+}
+
+dependencies {
+    implementation 'androidx.appcompat:appcompat:1.7.1'
+    implementation 'androidx.cardview:cardview:1.0.0'
+    implementation 'androidx.recyclerview:recyclerview:1.4.0'
+    implementation 'androidx.preference:preference:1.2.1'
+    implementation 'org.apache.commons:commons-text:1.3'
+}

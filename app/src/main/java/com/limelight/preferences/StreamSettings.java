@@ -86,6 +86,23 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
     // Set by BackupOpenActivity: the intent data is a backup file to restore
     public static final String EXTRA_RESTORE_BACKUP = "com.limelight.RESTORE_BACKUP";
 
+    // NOTE: Words people use for the same settings. Searching any word of a group also finds what the other words find, ranked after direct matches.
+    // NOTE: Groups stay small and specific, since every extra word widens the results of every query in its group.
+    static final java.util.List<java.util.List<String>> SEARCH_SYNONYMS = java.util.Arrays.asList(
+            java.util.Arrays.asList("mouse", "cursor", "pointer"),
+            java.util.Arrays.asList("trackpad", "touchpad"),
+            java.util.Arrays.asList("touch", "touchscreen", "finger"),
+            java.util.Arrays.asList("keyboard", "keys", "typing"),
+            java.util.Arrays.asList("controller", "gamepad", "joystick"),
+            java.util.Arrays.asList("mic", "microphone"),
+            java.util.Arrays.asList("audio", "sound", "volume"),
+            java.util.Arrays.asList("fps", "frame rate", "refresh rate"),
+            java.util.Arrays.asList("bitrate", "quality"),
+            java.util.Arrays.asList("latency", "lag", "delay"),
+            java.util.Arrays.asList("pip", "picture-in-picture", "background"),
+            java.util.Arrays.asList("theme", "style", "color", "colour"),
+            java.util.Arrays.asList("backup", "restore", "export", "import"));
+
     // Settings this fork hides are left out of search results too
     private static final String[] HIDDEN_FROM_SEARCH = {"share_performance_logs", "option_view_shared_pref_logs"};
 
@@ -172,6 +189,7 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
         if (!ThemeManager.isSupported()) {
             searchConfiguration.ignorePreference(ThemeManager.PREF_KEY);
         }
+        SearchConfiguration.setSynonyms(SEARCH_SYNONYMS);
         searchConfiguration.index(R.xml.preferences);
         findViewById(R.id.settings_search_bar).setOnClickListener(v -> searchConfiguration.showSearchFragment());
     }

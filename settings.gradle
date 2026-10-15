@@ -1,1 +1,4 @@
 include ':app'
+// SearchPreference, vendored and patched (third_party/searchpreference/README.md)
+include ':searchpreference'
+project(':searchpreference').projectDir = file('third_party/searchpreference')

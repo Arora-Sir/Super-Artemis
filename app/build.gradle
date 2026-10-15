@@ -205,7 +205,8 @@ dependencies {
     implementation 'androidx.preference:preference:1.2.1'
     implementation 'androidx.recyclerview:recyclerview:1.4.0'
     implementation 'com.google.android.material:material:1.13.0'
-    implementation 'com.github.ByteHamster:SearchPreference:v2.5.1'
+    // Vendored so search can return every match, ranked by title and section (third_party/searchpreference/README.md)
+    implementation project(':searchpreference')
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
     implementation 'com.google.ai.edge.litert:litert:1.4.0'
     implementation 'com.google.ai.edge.litert:litert-gpu:1.4.0'
