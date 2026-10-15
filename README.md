@@ -23,11 +23,13 @@ Artemis already improves a lot on Moonlight. These are the things you lose if yo
 | Quick-action bars anywhere on screen, as grids, in switchable sets | No | No | Yes |
 | Special keys you hide, reorder and give icons | No | No | Yes |
 | Record your own key shortcuts on the built-in keyboard, with 75 icons | No | JSON file only | Yes |
+| Special keys as step flows: shortcuts, typed text in any language, waits, holds and repeats | No | No | Yes |
+| 24 everyday Windows shortcuts ready in More keys | No | No | Yes |
 | Choose what 3, 4 and 5-finger taps, double taps, holds and swipes do | No | Fixed taps | Yes |
 | Gestures that also work in pan and zoom and the other touch modes | No | No | Yes |
 | Windows touchpad swipes (task view, desktops, app switch) in one tap | No | No | Yes |
 | Held keys released when the built-in keyboard closes | No | No | Yes |
-| When you leave: disconnect, resume when you return, or picture-in-picture | Partial | Partial | Yes |
+| When you leave: disconnect, keep in Recents and resume, or picture-in-picture on any app switch | Partial | Partial | Yes |
 | Connect to the last PC when the app starts | No | No | Yes |
 | Network drop grace period for short Wi-Fi drops | No | No | Yes |
 | Frame pacing setting honoured, frame-dropping drain loop removed | Yes | No | Yes |

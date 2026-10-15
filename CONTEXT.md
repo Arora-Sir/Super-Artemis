@@ -7,10 +7,10 @@ This is the handoff file for anyone (human or AI) resuming work on Super Artemis
 - Branch `unified-main` is based on Artemis `moonlight-noir` (commit `c5cf27f`). Nothing in this repository is published yet. The native core branch `super-artemis` is pushed to `Arora-Sir/moonlight-common-c`, and the common-c fixes from W17 are applied in the submodule working tree but not committed or pushed yet.
 - Every planned feature for 1.0.0 is implemented. Workstreams after the backup commit (`6f810d67`) are prepared as one cumulative patch per workstream and wait for the commit review.
 - Version `1.0.0` (versionCode 1) is set but not released. The package IDs are `com.mohitarora.superartemis` (release) and `com.mohitarora.superartemis.debug` (debug). Earlier test installs used `com.limelight.superartemisdebug`, which can be uninstalled.
-- Debug builds pass, and the unit suite has 185 tests with only the five known upstream failures (BUGS.md, BUG-009).
+- Debug builds pass, and the unit suite has 225 tests with only the five known upstream failures (BUGS.md, BUG-009).
 - Round 2 (the owner's 19 points from testing on the Tab, plus two later requests) is implemented: design foundation, settings, About, special keys, quick-action bars per corner, gestures and keyboard. It waits for device checks and the commit review.
 - Round 2 follow-ups are implemented and checked on the Tab: encrypted `.sabackup` backups with share and selective restore (Tab to S24 restore verified), phone layouts, hold gestures and the multi-finger right click fix, crash reports and diagnostic logs, quick-action bar long press menu, and an audit of crash risks.
-- Round 3 (the owner's 13 points from 2026-10-13: step flows, More keys, grid bars with sets, color schemes, Recents option and more) is planned as commits 29 to 41 on top of the local commits 01 to 28.
+- Round 3 (the owner's 13 points from 2026-10-13) is committed locally as commits 29 to 41 plus a pre-commit hook fix: step flows, More keys, Add key or flow everywhere, hidden Advanced Menu actions, grid bars with sets, sets per profile and profile copies, themed in-stream dialogs, Material You by default with color schemes, the gestures switch row, the drag fixes, the search fix and picture-in-picture on any app switch. Nothing is pushed.
 
 ## What works (verified on a Galaxy Tab S10 Ultra, Android 16)
 
@@ -38,6 +38,8 @@ Everything below is implemented with unit tests and needs the Tab and the S24, w
 - Frame pacing at 120 FPS: render and discard FPS on both devices, compared with Artemis-mic.
 - S Pen strokes reach the PC, Print Screen key, Samsung keyboard cover screenshot key.
 - New store screenshots for fastlane, taken from the Tab.
+- Round 3 in a stream: a flow with text, a hold and a repeat, More keys, a key pinned to the Quick Menu, hidden Advanced Menu actions, grid bars at every anchor with offsets, set switching from the Quick Menu, the mouse mode picker and quit dialog in both styles and in a color scheme, picture-in-picture through One Hand Operation+ and an `am start` app switch, and the Recents card resuming the stream.
+- Round 3 outside a stream: profile Duplicate and Copy settings into (needs a test profile), search for "mouse" and "pointer" on the S24.
 
 ## Workstreams to 1.0.0
 
@@ -69,6 +71,7 @@ Everything below is implemented with unit tests and needs the Tab and the S24, w
 | W26 | App style picker with live previews, menu style only in the editor | Done, device check pending |
 | W27 | Attribution comments at every ported code site | Done |
 | W28 | Release held keys when the built-in keyboard closes | Done, in-stream check pending |
+| W29 | Round 3: flows, More keys, Add key or flow, hidden Advanced Menu actions, grid bars and sets, profile copies, themed dialogs, color schemes, gestures switch row, drag, search, picture-in-picture on any switch | Done, editors checked on the Tab, in-stream checks pending |
 | W14 | In-stream verification on the Tab and the S24 | Waiting (list above) |
 | W15 | Commit review, push, signing secrets, `v1.0.0` tag, CI draft release, install on both devices | Waiting for the owner |
 | W16 | Small upstream bug-fix PRs after release | After release |
@@ -80,7 +83,7 @@ Everything below is implemented with unit tests and needs the Tab and the S24, w
 
 ## Known unknowns
 
-- Whether a quick switch to the previous app enters picture-in-picture on One UI with Android 16 without the fallback in `onUserLeaveHint`.
+- Whether One Hand Operation+ app switches now enter picture-in-picture through `onPause` on both devices (Android 16 on the Tab, One UI on the S24).
 - Whether the Android 16 trackpad tap issue (ClassicOldSong/moonlight-android#594) reproduces on the Tab.
 - How much the frame pacing fixes change render FPS on the S24 and the Tab at 120 FPS.
 
@@ -88,7 +91,7 @@ Everything below is implemented with unit tests and needs the Tab and the S24, w
 
 1. ARCHITECTURE.md for layers, modules and design decisions.
 2. `app/src/main/java/com/limelight/Game.java` for the stream activity (search for `applyMicrophoneInitialState`, `handleMultiTouchGesture`, `initQuickActionBar` and `onUserLeaveHint`).
-3. `actions/StreamActionRegistry.java` for every stream action, then `GameMenu.java` and the `menu/` package for the in-stream menu, the editor and the quick-action bars.
+3. `actions/StreamActionRegistry.java` for every stream action, then `GameMenu.java` and the `menu/` package for the in-stream menu, the editor and the quick-action bars (start at `BarSets`).
 4. `ui/Dialogs.java` and `res/values/styles.xml` for the shared dialog, type scale and color roles that every new screen uses.
 5. `customkeys/` (start at `SpecialKeys`), `gestures/` (start at `MultiFingerGestureRecognizer`), `session/`, `theme/` and `about/` for the features of the same names.
 6. `preferences/StreamSettings.java` for settings and search, and the `backup/` package (start at `BackupRestoreController` and `RestoreStrategy`) for backup and restore.

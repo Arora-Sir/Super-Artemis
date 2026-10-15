@@ -186,3 +186,34 @@ Each entry records a problem that was fixed in a way a future change could silen
 - **Verification:** The bar button turns green after a 4-finger hold on the Tab.
 - **Status:** Fixed.
 
+## BUG-024: An app switch without a Home gesture ended the stream instead of entering picture-in-picture
+
+- **Symptom:** With picture-in-picture as the leave policy, switching to the previous app with One Hand Operation+ disconnected the stream.
+- **Root Cause:** Picture-in-picture started only from auto-enter (Home and Recents gestures) or `onUserLeaveHint`, and an app opened over the stream gives neither. The stream paused, stopped and `onStop` disconnected it.
+- **Fix Applied:** `Game.onPause` enters picture-in-picture when the policy asks for it, guarded against screen off, the lock screen, split screen, finishing, USB prompts and the app's own screens.
+- **Verification:** Pending on both devices with One Hand Operation+ and an `am start` switch during a stream.
+- **Status:** Fixed, device check pending.
+
+## BUG-025: In-stream dialogs ignored the app style
+
+- **Symptom:** The mouse mode picker, the quit confirmation, connection errors and the connecting spinner kept the plain platform look under Material You and Classic.
+- **Root Cause:** They were built with `new AlertDialog.Builder(activity)` or `new ProgressDialog(activity)` on the stream activity, whose theme is the stream theme.
+- **Fix Applied:** `ui/ThemedDialogs` wraps the context with the app style, and `StreamDialogsTest` fails on any dialog in the stream sources built without it.
+- **Verification:** Unit test, in-stream look pending.
+- **Status:** Fixed.
+
+## BUG-026: Dragging to the end of a list stalled and fast drags saved a different order
+
+- **Symptom:** Holding a dragged row at the top or bottom of the special keys, menu editor or bar editor list barely scrolled, and after a fast drag the saved order differed from the screen.
+- **Root Cause:** ItemTouchHelper's default edge scroll grows with the fifth power of time over two seconds (about 3% speed after one second), and the lists used `Collections.swap` while the adapter drew `notifyItemMoved`, which only match for neighbouring rows.
+- **Fix Applied:** `ui/DragReorder` with a distance and time based edge scroll that starts at a third of full speed, and a real move of the item.
+- **Verification:** On the Tab a 1.3 second hold moved a row about 29 places instead of 1.5, and a drag down and back up restored the exact saved order.
+- **Status:** Fixed.
+
+## BUG-027: Settings search missed settings for broad words
+
+- **Symptom:** Searching "mouse" did not show Touchscreen Mode, Remember mouse mode or Remote desktop mouse mode.
+- **Root Cause:** SearchPreference returns at most 10 results ranked by a greedy fuzzy score that favors titles starting with the query. The limit is a private constant up to version 2.7.3.
+- **Fix Applied:** SearchPreference v2.5.1 is vendored in `third_party/searchpreference` and returns every match ranked by title, section, details and synonyms.
+- **Verification:** `SettingsSearchTest` indexes the real settings screen. Reproduced on the Tab before the fix (exactly 10 results), device check of the fix pending.
+- **Status:** Fixed.
