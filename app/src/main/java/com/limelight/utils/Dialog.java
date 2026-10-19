@@ -14,6 +14,9 @@ public class Dialog implements Runnable {
     private final String message;
     private final Activity activity;
     private final Runnable runOnDismiss;
+    // Optional second action, such as Reconnect after the connection ended. Null shows only OK and Help.
+    private String extraLabel;
+    private Runnable extraAction;
 
     private AlertDialog alert;
 
@@ -57,6 +60,16 @@ public class Dialog implements Runnable {
         activity.runOnUiThread(new Dialog(activity, title, message, runOnDismiss));
     }
 
+    // NOTE: The same dialog with one more button, for example Reconnect after a stream ended unexpectedly.
+    // NOTE: The extra action takes the positive button and OK moves to the negative side, so the default focus lands on the action the user most likely wants.
+    public static void displayDialog(Activity activity, String title, String message, Runnable runOnDismiss, String extraLabel, Runnable extraAction)
+    {
+        Dialog dialog = new Dialog(activity, title, message, runOnDismiss);
+        dialog.extraLabel = extraLabel;
+        dialog.extraAction = extraAction;
+        activity.runOnUiThread(dialog);
+    }
+
     @Override
     public void run() {
         // If we're dying, don't bother creating a dialog
@@ -70,7 +83,18 @@ public class Dialog implements Runnable {
         alert.setCancelable(false);
         alert.setCanceledOnTouchOutside(false);
  
-        alert.setButton(AlertDialog.BUTTON_POSITIVE, activity.getResources().getText(android.R.string.ok), new DialogInterface.OnClickListener() {
+        if (extraAction != null) {
+            alert.setButton(AlertDialog.BUTTON_POSITIVE, extraLabel, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    synchronized (rundownDialogs) {
+                        rundownDialogs.remove(Dialog.this);
+                        alert.dismiss();
+                    }
+                    extraAction.run();
+                }
+            });
+        }
+        alert.setButton(extraAction != null ? AlertDialog.BUTTON_NEGATIVE : AlertDialog.BUTTON_POSITIVE, activity.getResources().getText(android.R.string.ok), new DialogInterface.OnClickListener() {
               public void onClick(DialogInterface dialog, int which) {
                   synchronized (rundownDialogs) {
                       rundownDialogs.remove(Dialog.this);

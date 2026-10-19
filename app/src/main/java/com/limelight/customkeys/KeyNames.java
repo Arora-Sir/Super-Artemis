@@ -60,6 +60,10 @@ public final class KeyNames {
         return 0;
     }
 
+    // Windows virtual key codes of F13 to F24, which no Android key code maps to (upstream ClassicOldSong/moonlight-android#574)
+    public static final int VK_F13 = 0x7C;
+    public static final int VK_F24 = 0x87;
+
     // 0 means the key has no Windows equivalent and cannot be recorded
     public int virtualKeyFor(int androidKeyCode) {
         if (androidKeyCode <= 0) {
@@ -69,6 +73,9 @@ public final class KeyNames {
     }
 
     public String label(int vk) {
+        if (vk >= VK_F13 && vk <= VK_F24) {
+            return "F" + (13 + vk - VK_F13);
+        }
         String name = names.get(vk);
         return name != null ? name : String.format(Locale.US, "0x%02X", vk);
     }

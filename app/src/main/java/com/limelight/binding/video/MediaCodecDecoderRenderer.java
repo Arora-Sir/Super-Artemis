@@ -193,6 +193,16 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
     private int numVpsIn;
     private int numFramesIn;
     private int numFramesOut;
+    // Runs once on the decoder thread when the first decoded frame comes out, so the stream can drop its "Starting video" status
+    private volatile Runnable firstFrameListener;
+
+    public void setFirstFrameListener(Runnable listener) {
+        firstFrameListener = listener;
+    }
+
+    public int getFramesOut() {
+        return numFramesOut;
+    }
 
     private int targetFps = 0;
 
@@ -1256,7 +1266,7 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
                         int outIndex = videoDecoder.dequeueOutputBuffer(info, getOutputDequeueTimeoutUs());
 
                         if (outIndex == MediaCodec.INFO_TRY_AGAIN_LATER) {
-                            // reduced backoff 0–500 µs
+                            // reduced backoff 0: 500 µs
                             tryAgainStreak++;
                             int backoffUs = (tryAgainStreak <= 2) ? 250 : 500;
                             outIndex = videoDecoder.dequeueOutputBuffer(info, backoffUs);
@@ -1273,6 +1283,11 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
                             int lastIndex = outIndex;
 
                             numFramesOut++;
+                            Runnable firstFrame = firstFrameListener;
+                            if (firstFrame != null) {
+                                firstFrameListener = null;
+                                firstFrame.run();
+                            }
 
                             // aggiorna inter-arrival
                             if (lastDecoderPtsUs != 0L) {

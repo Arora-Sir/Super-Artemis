@@ -52,8 +52,8 @@ public class EditorsSmokeTest {
         return controller.setup().get();
     }
 
-    // A phone like the S24 Ultra and a tablet like the Tab S10 Ultra, so compact and wide layouts both run
-    private static final String[] SCREENS = {"w411dp-h891dp-xxhdpi", "w1480dp-h924dp-xhdpi"};
+    // The S24 Ultra in portrait and in landscape (wide but short), and a tablet like the Tab S10 Ultra, so compact, short and wide layouts all run
+    private static final String[] SCREENS = {"w411dp-h891dp-xxhdpi", "w832dp-h384dp-land-xxhdpi", "w1480dp-h924dp-xhdpi"};
 
     private static void openInBothStyles(Opener opener) {
         for (String screen : SCREENS) {
@@ -79,6 +79,22 @@ public class EditorsSmokeTest {
             decor.layout(0, 0, decor.getMeasuredWidth(), decor.getMeasuredHeight());
             dialog.dismiss();
         }
+    }
+
+    // On a phone in landscape the menu editor keeps both panes but scrolls as one page, so the preview is never cut off at the bottom
+    @Test
+    public void menuEditorScrollsOnAPhoneInLandscape() {
+        org.robolectric.RuntimeEnvironment.setQualifiers("w832dp-h384dp-land-xxhdpi");
+        AppCompatActivity activity = activity(true);
+        GameMenuEditor.show(activity, PreferenceManager.getDefaultSharedPreferences(activity), () -> { });
+        ShadowLooper.idleMainLooper();
+        android.view.View panes = ShadowDialog.getLatestDialog().findViewById(R.id.game_menu_editor_panes);
+        boolean scrolls = false;
+        for (android.view.ViewParent parent = panes.getParent(); parent != null; parent = parent.getParent()) {
+            scrolls |= parent instanceof PageFirstScrollView;
+        }
+        assertTrue(scrolls);
+        ShadowDialog.getLatestDialog().dismiss();
     }
 
     @Test
@@ -137,8 +153,8 @@ public class EditorsSmokeTest {
         openInBothStyles((activity, prefs) -> {
             com.limelight.menu.BarSets.save(prefs, new com.limelight.menu.BarSets.State(java.util.Arrays.asList(
                     new com.limelight.menu.BarSets.Set("Desktop", java.util.Arrays.asList(
-                            new com.limelight.menu.BarSets.Bar(com.limelight.menu.BarSets.TOP_LEFT, 1, 3, 0, 0, java.util.Arrays.asList("microphone", "zoom")),
-                            new com.limelight.menu.BarSets.Bar(com.limelight.menu.BarSets.BOTTOM_RIGHT, 3, 2, -40, 20, java.util.Arrays.asList("key:builtin_esc")))),
+                            new com.limelight.menu.BarSets.Bar(com.limelight.menu.BarSets.TOP_LEFT, 3, false, 0, 0, java.util.Arrays.asList("microphone", "zoom")),
+                            new com.limelight.menu.BarSets.Bar(com.limelight.menu.BarSets.BOTTOM_RIGHT, 2, true, -40, 20, java.util.Arrays.asList("key:builtin_esc")))),
                     new com.limelight.menu.BarSets.Set("Game", new java.util.ArrayList<>())), 0));
             QuickBarEditor.show(activity, prefs, () -> { }, 1);
             android.view.View controls = ShadowDialog.getLatestDialog().findViewById(R.id.quick_bar_bar_controls);

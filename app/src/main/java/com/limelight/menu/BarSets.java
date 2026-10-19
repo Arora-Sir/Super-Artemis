@@ -18,7 +18,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-// NOTE: Quick-action bars as named sets. A set holds any number of bars, and each bar has an anchor, a grid of rows and columns, an offset and its items.
+// NOTE: Quick-action bars as named sets. A set holds any number of bars, and each bar has an anchor, a line length, a fill direction, an offset and its items.
+// NOTE: A bar never hides a button: it shows "per line" buttons in each line and starts a new line for the rest, across in rows or down in columns.
 // NOTE: One set is active at a time and the Quick Menu switches between sets, so a game layout and a desktop layout can each keep their own bars.
 // NOTE: The first load turns the four corner bars of earlier versions into a "Default" set. Their old keys stay untouched, so an older version still reads them.
 // NOTE: Sets belong to the active settings profile. Reads go through the profile overlay and saves go into the profile, so each profile keeps its own sets.
@@ -40,50 +41,62 @@ public final class BarSets {
     public static final List<String> ANCHORS = Collections.unmodifiableList(Arrays.asList(
             TOP_LEFT, TOP_CENTER, TOP_RIGHT, CENTER_LEFT, CENTER, CENTER_RIGHT, BOTTOM_LEFT, BOTTOM_CENTER, BOTTOM_RIGHT));
 
+    // Most buttons in one line of a bar
     public static final int GRID_MAX = 20;
     // Far enough to cross a phone screen from any anchor, near enough that a bar never gets lost off screen
     public static final int OFFSET_MAX_DP = 400;
 
     public static final class Bar {
         public String anchor;
-        public int rows;
-        public int columns;
+        // Buttons in one line before the next line starts
+        public int perLine;
+        // False fills rows across the screen, true fills columns down the screen
+        public boolean down;
         public int offsetXDp;
         public int offsetYDp;
         public final List<String> items;
 
-        public Bar(String anchor, int rows, int columns, int offsetXDp, int offsetYDp, List<String> items) {
+        public Bar(String anchor, int perLine, boolean down, int offsetXDp, int offsetYDp, List<String> items) {
             this.anchor = ANCHORS.contains(anchor) ? anchor : TOP_LEFT;
-            this.rows = clamp(rows, 1, GRID_MAX);
-            this.columns = clamp(columns, 1, GRID_MAX);
+            this.perLine = clamp(perLine, 1, GRID_MAX);
+            this.down = down;
             this.offsetXDp = clamp(offsetXDp, -OFFSET_MAX_DP, OFFSET_MAX_DP);
             this.offsetYDp = clamp(offsetYDp, -OFFSET_MAX_DP, OFFSET_MAX_DP);
             this.items = new ArrayList<>(QuickBarLayout.parse(String.join(",", items)));
         }
 
-        // Adds an item once and grows the grid when it is full, along the side the bar already runs
+        // NOTE: Reads a bar saved by earlier versions as a grid of rows and columns.
+        // NOTE: A single row fills across and a single column fills down, keeping its length. A larger grid fills across at its column count, so every saved button shows.
+        static Bar fromGrid(String anchor, int rows, int columns, int offsetXDp, int offsetYDp, List<String> items) {
+            rows = clamp(rows, 1, GRID_MAX);
+            columns = clamp(columns, 1, GRID_MAX);
+            boolean down = columns == 1 && rows > 1;
+            return new Bar(anchor, down ? rows : columns, down, offsetXDp, offsetYDp, items);
+        }
+
+        // Adds an item once. A new line starts by itself when the current one is full.
         public void add(String item) {
-            if (items.contains(item)) {
-                return;
-            }
-            items.add(item);
-            if (items.size() > capacity()) {
-                if (rows == 1 || (columns != 1 && columns <= rows)) {
-                    columns = Math.min(GRID_MAX, columns + 1);
-                }
-                else {
-                    rows = Math.min(GRID_MAX, rows + 1);
-                }
+            if (!items.contains(item)) {
+                items.add(item);
             }
         }
 
         public Bar copy() {
-            return new Bar(anchor, rows, columns, offsetXDp, offsetYDp, items);
+            return new Bar(anchor, perLine, down, offsetXDp, offsetYDp, items);
         }
 
-        // How many buttons the grid has room for, extra items stay saved but are not drawn
-        public int capacity() {
-            return rows * columns;
+        // Lines the bar needs for its buttons, at least one
+        public int lines() {
+            return Math.max(1, (items.size() + perLine - 1) / perLine);
+        }
+
+        // Rows and columns of the drawn grid, also saved so older versions still show every button
+        public int rows() {
+            return down ? Math.min(Math.max(1, items.size()), perLine) : lines();
+        }
+
+        public int columns() {
+            return down ? lines() : Math.min(Math.max(1, items.size()), perLine);
         }
 
         public boolean isTop() {
@@ -196,7 +209,7 @@ public final class BarSets {
             }
             int count = clamp(items.size(), 1, GRID_MAX);
             boolean column = QuickBarLayout.DIRECTION_COLUMN.equals(QuickBarLayout.getDirection(prefs, corner));
-            bars.add(new Bar(corner, column ? count : 1, column ? 1 : count, 0, 0, items));
+            bars.add(new Bar(corner, count, column, 0, 0, items));
         }
         return new Set(DEFAULT_NAME, bars);
     }
@@ -217,8 +230,15 @@ public final class BarSets {
                     for (int it = 0; itemArray != null && it < itemArray.length(); it++) {
                         items.add(itemArray.optString(it, ""));
                     }
-                    bars.add(new Bar(bar.optString("anchor", TOP_LEFT), bar.optInt("rows", 1), bar.optInt("columns", 1),
-                            bar.optInt("x", 0), bar.optInt("y", 0), items));
+                    // Bars saved before the single "per line" setting only have rows and columns
+                    if (bar.has("perLine")) {
+                        bars.add(new Bar(bar.optString("anchor", TOP_LEFT), bar.optInt("perLine", GRID_MAX),
+                                "down".equals(bar.optString("fill", "across")), bar.optInt("x", 0), bar.optInt("y", 0), items));
+                    }
+                    else {
+                        bars.add(Bar.fromGrid(bar.optString("anchor", TOP_LEFT), bar.optInt("rows", 1), bar.optInt("columns", 1),
+                                bar.optInt("x", 0), bar.optInt("y", 0), items));
+                    }
                 }
                 sets.add(new Set(set.optString("name", DEFAULT_NAME), bars));
             }
@@ -237,8 +257,11 @@ public final class BarSets {
                 for (Bar bar : set.bars) {
                     bars.put(new JSONObject()
                             .put("anchor", bar.anchor)
-                            .put("rows", bar.rows)
-                            .put("columns", bar.columns)
+                            .put("perLine", bar.perLine)
+                            .put("fill", bar.down ? "down" : "across")
+                            // Older versions read these, sized so they draw every button
+                            .put("rows", bar.rows())
+                            .put("columns", bar.columns())
                             .put("x", bar.offsetXDp)
                             .put("y", bar.offsetYDp)
                             .put("items", new JSONArray(bar.items)));
@@ -252,19 +275,24 @@ public final class BarSets {
         return array.toString();
     }
 
-    // NOTE: Items fill the grid row by row starting in the anchor's corner, so the first item always sits nearest the anchor.
-    // NOTE: Right anchors fill each row from the right, bottom anchors fill rows from the bottom up, and center anchors fill from the top left.
+    // NOTE: Items fill line by line starting in the anchor's corner, so the first item always sits nearest the anchor, and every item is shown.
+    // NOTE: Across fills rows of "per line" items, down fills columns. Right anchors fill from the right, bottom anchors from the bottom up.
     // NOTE: Returns the grid as rows of items from the top row down, each row from left to right, with null for an empty cell.
     public static List<List<String>> grid(Bar bar, List<String> items) {
-        int shown = Math.min(items.size(), bar.capacity());
-        int usedRows = shown == 0 ? 0 : (shown + bar.columns - 1) / bar.columns;
-        // A grid with one used row is only as wide as its items, so a short bar does not reserve empty cells
-        int usedColumns = usedRows == 1 ? shown : bar.columns;
+        int shown = items.size();
+        if (shown == 0) {
+            return new ArrayList<>();
+        }
+        int lines = (shown + bar.perLine - 1) / bar.perLine;
+        // A single line is only as long as its items, so a short bar does not reserve empty cells
+        int lineLength = Math.min(shown, bar.perLine);
+        int usedRows = bar.down ? lineLength : lines;
+        int usedColumns = bar.down ? lines : lineLength;
         List<List<String>> rows = new ArrayList<>();
         for (int r = 0; r < usedRows; r++) {
             List<String> row = new ArrayList<>();
             for (int c = 0; c < usedColumns; c++) {
-                int index = r * bar.columns + c;
+                int index = bar.down ? c * bar.perLine + r : r * bar.perLine + c;
                 row.add(index < shown ? items.get(index) : null);
             }
             if (bar.isRight()) {

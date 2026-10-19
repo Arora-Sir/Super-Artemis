@@ -114,8 +114,9 @@ public final class CustomKeyStore {
             String id = TextUtils.isEmpty(shortcut.id) ? Integer.toString(i) : shortcut.id;
             String name = shortcut.name != null ? shortcut.name : "";
             List<KeyStep> steps = parseSteps(shortcut.steps);
-            keys.add(steps.isEmpty() ? new CustomKey(id, name, shortcut.sticky, shortcut.icon, codes)
-                    : CustomKey.withSteps(id, name, shortcut.sticky, shortcut.icon, steps));
+            CustomKey key = steps.isEmpty() ? new CustomKey(id, name, shortcut.sticky, shortcut.icon, codes)
+                    : CustomKey.withSteps(id, name, shortcut.sticky, shortcut.icon, steps);
+            keys.add(key.withHotkey(parseHotkey(shortcut)));
         }
         return keys;
     }
@@ -132,9 +133,33 @@ public final class CustomKeyStore {
             if (!key.isSingleCombo()) {
                 shortcut.steps = stepsJson(key.steps);
             }
+            if (key.hotkey != null) {
+                shortcut.hotkey = new ArrayList<>();
+                for (int vk : key.hotkey.virtualKeys()) {
+                    shortcut.hotkey.add(String.format(Locale.US, "0x%02X", vk));
+                }
+                shortcut.hotkeyToPc = key.hotkey.toPc ? Boolean.TRUE : null;
+            }
             shortcuts.add(shortcut);
         }
         return new Gson().toJson(new KeyConfigHelper.ShortcutFile(shortcuts));
+    }
+
+    // A hotkey that cannot be read is dropped instead of refusing the whole file, since the key itself still works from the menu and bars
+    static Hotkey parseHotkey(KeyConfigHelper.Shortcut shortcut) {
+        if (shortcut.hotkey == null || shortcut.hotkey.isEmpty()) {
+            return null;
+        }
+        List<Integer> vks = new ArrayList<>();
+        for (String code : shortcut.hotkey) {
+            try {
+                vks.add(parseKeyCode(code));
+            }
+            catch (FormatException | RuntimeException e) {
+                return null;
+            }
+        }
+        return Hotkey.fromVirtualKeys(vks, Boolean.TRUE.equals(shortcut.hotkeyToPc));
     }
 
     // NOTE: Steps of a newer version that this one does not know are skipped, so the rest of the key still runs.

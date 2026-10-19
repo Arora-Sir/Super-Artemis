@@ -74,7 +74,7 @@ import javax.microedition.khronos.opengles.GL10;
 
 public class PcView extends AppCompatActivity implements AdapterFragmentCallbacks {
     private String appliedStyle;
-    private RelativeLayout noPcFoundLayout;
+    private View noPcFoundLayout;
     private PcGridAdapter pcGridAdapter;
     private ShortcutHelper shortcutHelper;
     private ComputerManagerService.ComputerManagerBinder managerBinder;
@@ -398,7 +398,10 @@ public class PcView extends AppCompatActivity implements AdapterFragmentCallback
         startComputerUpdates();
 
         // Returning from Recents or the launcher after leaving a stream under "Resume when reopened"
-        SessionResumer.maybeResume(this);
+        // A stream closed from its picture-in-picture window offers a reconnect, otherwise the leave policy may resume it
+        if (!SessionResumer.maybeOfferReconnectAfterPipClose(this)) {
+            SessionResumer.maybeResume(this);
+        }
     }
 
     @Override

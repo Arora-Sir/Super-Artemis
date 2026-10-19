@@ -28,7 +28,7 @@ import java.util.Map;
 
 // NOTE: On wide screens a list of the settings sections sits left of the settings, and tapping a section jumps straight to it.
 // NOTE: The list follows scrolling, so the section at the top of the settings stays highlighted. Phones show only the settings.
-final class SettingsSections {
+public final class SettingsSections {
     // Material 3 "expanded" window width, where a side list leaves enough room for the settings themselves
     static final int MIN_WIDTH_DP = 840;
 
@@ -62,7 +62,12 @@ final class SettingsSections {
     private RecyclerView list;
     private int selected = -1;
 
-    SettingsSections(Activity activity, RecyclerView rail) {
+    // Screens that show the settings list (Settings, the profile editor) give it their section list here once the list is built
+    public interface Host {
+        void onSettingsListReady(PreferenceFragmentCompat fragment);
+    }
+
+    public SettingsSections(Activity activity, RecyclerView rail) {
         this.activity = activity;
         this.rail = rail;
         DisplayMetrics metrics = activity.getResources().getDisplayMetrics();
@@ -71,7 +76,7 @@ final class SettingsSections {
     }
 
     // Called for every new settings list, since search results rebuild the settings fragment
-    void attach(PreferenceFragmentCompat fragment) {
+    public void attach(PreferenceFragmentCompat fragment) {
         if (!visible) {
             return;
         }
@@ -106,13 +111,18 @@ final class SettingsSections {
         select(index);
     }
 
-    // Highlights the section owning the first visible row. Near the end of the list, a tapped section that cannot reach the top keeps its highlight.
+    // NOTE: Highlights the section owning the row 72dp below the top. Near the end of the list, a tapped section that cannot reach the top keeps its highlight.
+    // NOTE: The first visible row is often the last sliver of the section above, which a search jump leaves on screen on purpose so the result keeps its header.
     @SuppressLint("RestrictedApi")
     private void followScroll() {
         if (!(list.getLayoutManager() instanceof LinearLayoutManager) || !(list.getAdapter() instanceof PreferenceGroupAdapter)) {
             return;
         }
         int first = ((LinearLayoutManager) list.getLayoutManager()).findFirstVisibleItemPosition();
+        View probe = list.findChildViewUnder(list.getWidth() / 2f, 72 * list.getResources().getDisplayMetrics().density);
+        if (probe != null && list.getChildAdapterPosition(probe) != RecyclerView.NO_POSITION) {
+            first = list.getChildAdapterPosition(probe);
+        }
         PreferenceGroupAdapter adapter = (PreferenceGroupAdapter) list.getAdapter();
         for (int position = first; position >= 0 && position < adapter.getItemCount(); position--) {
             int index = sections.indexOf(topLevelSection(adapter.getItem(position)));

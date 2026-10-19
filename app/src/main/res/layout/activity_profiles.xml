@@ -1,55 +1,96 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Profiles: a title bar with back, the explanation, one card per profile and the add button. Colors come from the app style roles. -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="?attr/saBackground">
+
+    <LinearLayout
+        android:id="@+id/profilesHeader"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="8dp"
+        android:paddingEnd="16dp">
+
+        <ImageButton
+            android:id="@+id/profilesBack"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_button_text"
+            android:contentDescription="@string/profile_manager_back"
+            android:src="@drawable/ic_ck_arrow_back"
+            android:tint="?attr/saOnSurface" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:text="@string/profile_manager_title"
+            android:textAppearance="@style/TextAppearance.SuperArtemis.Headline"
+            android:textColor="?attr/saOnSurface" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/profilesDescription"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
+        android:layout_below="@id/profilesHeader"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
         android:layout_marginBottom="8dp"
         android:text="@string/profile_manager_profiles_description"
-        android:textColor="#CCCCCC"
-        android:textSize="14sp" />
+        android:textAppearance="@style/TextAppearance.SuperArtemis.BodyMedium"
+        android:textColor="?attr/saOnSurfaceVariant" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/profilesRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/profilesDescription"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="16dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp" />
+        android:clipToPadding="false"
+        android:paddingStart="16dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="96dp" />
 
     <LinearLayout
         android:id="@+id/emptyState"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:orientation="vertical"
         android:gravity="center"
+        android:orientation="vertical"
+        android:padding="24dp"
         android:visibility="gone">
+
+        <ImageView
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:background="@drawable/bg_icon_circle"
+            android:importantForAccessibility="no"
+            android:padding="14dp"
+            android:src="@drawable/ic_sa_groups"
+            android:tint="?attr/saOnSecondaryContainer" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
             android:text="@string/profile_manager_no_profiles_yet"
-            android:textColor="#FFFFFF"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            android:textAppearance="@style/TextAppearance.SuperArtemis.TitleMedium"
+            android:textColor="?attr/saOnSurface" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
+            android:gravity="center"
             android:text="@string/profile_manager_tap_create_profile"
-            android:textColor="#CCCCCC"
-            android:textSize="14sp" />
-
+            android:textAppearance="@style/TextAppearance.SuperArtemis.BodyMedium"
+            android:textColor="?attr/saOnSurfaceVariant" />
     </LinearLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -58,7 +99,6 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_margin="16dp"
         android:layout_marginEnd="24dp"
         android:layout_marginBottom="24dp"
         android:contentDescription="@string/profile_manager_new_profile"

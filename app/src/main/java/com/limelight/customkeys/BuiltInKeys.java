@@ -89,7 +89,9 @@ public final class BuiltInKeys {
             more("page_down", R.string.more_key_page_down, "keyboard_double_arrow_down", 0x22),
             more("delete", R.string.more_key_delete, "backspace", 0x2E),
             more("tab", R.string.more_key_tab, "keyboard_tab", KeyboardTranslator.VK_TAB),
-            more("enter", R.string.more_key_enter, "keyboard_return", KeyboardTranslator.VK_RETURN)
+            more("enter", R.string.more_key_enter, "keyboard_return", KeyboardTranslator.VK_RETURN),
+            // VK_SNAPSHOT: Windows copies the screen or opens Snipping Tool, depending on its own setting
+            more("print_screen", R.string.more_key_print_screen, "screenshot_monitor", 0x2C)
     ));
 
     private BuiltInKeys() {

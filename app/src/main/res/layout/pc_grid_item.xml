@@ -37,6 +37,10 @@
         android:layout_marginTop="10dp"
         android:layout_centerHorizontal="true"
         android:gravity="center"
+        android:breakStrategy="balanced"
+        android:hyphenationFrequency="none"
+        android:maxLines="2"
+        android:ellipsize="end"
         android:textSize="18sp" >
     </TextView>
 </RelativeLayout>

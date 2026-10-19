@@ -42,6 +42,7 @@ import java.util.Map;
 public final class GameMenuEditor {
     // Screens at least this wide show the list and the preview side by side
     private static final int TWO_PANE_MIN_WIDTH_DP = 600;
+    private static final int SHORT_SCREEN_MAX_DP = 480;
     private static final int[] STYLE_IDS = {
             R.id.game_menu_editor_style_list, R.id.game_menu_editor_style_grid, R.id.game_menu_editor_style_compact};
 
@@ -52,25 +53,28 @@ public final class GameMenuEditor {
         final StreamAction action;
         final int iconRes;
         final String label;
+        // What the real Quick Menu shows: the action name, or the key name without the "Key:" prefix of the list
+        final String menuLabel;
         boolean inQuickMenu;
         // Left out of the Advanced Menu. Only matters for an action that is not in the Quick Menu.
         boolean hidden;
 
         Row(StreamAction action, String label, boolean inQuickMenu) {
-            this(action.id, action, action.iconRes, label, inQuickMenu);
+            this(action.id, action, action.iconRes, label, label, inQuickMenu);
         }
 
-        Row(String item, StreamAction action, int iconRes, String label, boolean inQuickMenu) {
+        Row(String item, StreamAction action, int iconRes, String label, String menuLabel, boolean inQuickMenu) {
             this.item = item;
             this.action = action;
             this.iconRes = iconRes;
             this.label = label;
+            this.menuLabel = menuLabel;
             this.inQuickMenu = inQuickMenu;
         }
 
         static Row forKey(Context context, CustomKey key, boolean inQuickMenu) {
             return new Row(GameMenuLayout.keyItem(key.id), null, IconCatalog.drawableFor(key.icon),
-                    context.getString(R.string.quick_bar_custom_key, key.name), inQuickMenu);
+                    context.getString(R.string.quick_bar_custom_key, key.name), key.name, inQuickMenu);
         }
     }
 
@@ -99,11 +103,11 @@ public final class GameMenuEditor {
                 continue;
             }
             StreamAction action = StreamActionRegistry.find(id);
-            if (action != null && !action.destructive) {
+            if (action != null && !action.destructive && !GameMenuLayout.isMenuNavigation(action.id)) {
                 rows.add(new Row(action, res.getString(action.nameRes), true));
             }
         }
-        for (StreamAction action : GameMenuLayout.configurableActions()) {
+        for (StreamAction action : GameMenuLayout.menuActions()) {
             if (!quickItems.contains(action.id)) {
                 Row row = new Row(action, res.getString(action.nameRes), false);
                 row.hidden = hiddenItems.contains(action.id);
@@ -123,7 +127,7 @@ public final class GameMenuEditor {
         List<MenuEntry> actions = new ArrayList<>();
         for (Row row : rows) {
             if (row.inQuickMenu) {
-                actions.add(new MenuEntry(row.action != null ? res.getString(row.action.nameRes) : row.label, row.iconRes, false, false, null));
+                actions.add(new MenuEntry(row.action != null ? res.getString(row.action.nameRes) : row.menuLabel, row.iconRes, false, false, null));
             }
         }
         List<MenuEntry> session = new ArrayList<>();
@@ -133,6 +137,7 @@ public final class GameMenuEditor {
         List<MenuEntry> navigation = new ArrayList<>();
         navigation.add(new MenuEntry(res.getString(R.string.game_menu_advanced), R.drawable.ic_gm_more, false, false, null));
         navigation.add(new MenuEntry(res.getString(R.string.game_menu_customize), R.drawable.ic_gm_customize_menu, false, false, null));
+        navigation.add(new MenuEntry(res.getString(R.string.game_menu_settings), R.drawable.ic_ck_settings, false, false, null));
         navigation.add(new MenuEntry(res.getString(R.string.game_menu_customize_quick_bar), R.drawable.ic_gm_toggle_floating_button, false, false, null));
         navigation.add(new MenuEntry(res.getString(R.string.game_menu_cancel), R.drawable.ic_gm_cancel, false, false, null));
 
@@ -177,8 +182,11 @@ public final class GameMenuEditor {
         LinearLayout panes = body.findViewById(R.id.game_menu_editor_panes);
 
         // NOTE: Dialogs only give custom views the space they ask for, so both panes get explicit heights from the screen size.
-        // NOTE: Narrow screens stack the preview under the list and give it a little less room.
-        int paneHeight = (int) (metrics.heightPixels * (twoPane ? 0.55f : 0.3f));
+        // NOTE: Narrow screens stack the preview under the list. The list gets the same 40 percent of the screen as the bar editor list, so a phone shows about seven rows.
+        // NOTE: A phone in landscape (under 480dp tall) cannot fit both panes at a share of its height, so the panes get a fixed 240dp and the whole body scrolls, page first and then the list.
+        final boolean shortScreen = metrics.heightPixels / metrics.density < SHORT_SCREEN_MAX_DP;
+        int paneHeight = shortScreen ? (int) (240 * metrics.density) : (int) (metrics.heightPixels * (twoPane ? 0.55f : 0.3f));
+        int listHeight = twoPane || shortScreen ? paneHeight : (int) (metrics.heightPixels * 0.4f);
         panes.setOrientation(twoPane ? LinearLayout.HORIZONTAL : LinearLayout.VERTICAL);
         View previewPane = body.findViewById(R.id.game_menu_editor_preview_pane);
         if (!twoPane) {
@@ -193,7 +201,7 @@ public final class GameMenuEditor {
         list.setLayoutManager(new LinearLayoutManager(dialogContext));
         LinearLayout listColumn = new LinearLayout(dialogContext);
         listColumn.setOrientation(LinearLayout.VERTICAL);
-        listColumn.addView(list, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, paneHeight));
+        listColumn.addView(list, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, listHeight));
         listContainer.addView(listColumn, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
         final String[] style = {GameMenuLayout.getStyle(prefs)};
@@ -228,7 +236,7 @@ public final class GameMenuEditor {
         final RowAdapter adapter = new RowAdapter(rows, holder -> touchHelper[0].startDrag(holder), refreshPreview);
         list.setAdapter(adapter);
         // A key or flow made here is pinned straight away, after the rows already in the Quick Menu
-        listColumn.addView(KeyPicker.addButton(dialogContext, key -> {
+        listColumn.addView(KeyPicker.addButton(dialogContext, context, key -> {
             int at = 0;
             while (at < rows.size() && rows.get(at).inQuickMenu) {
                 at++;
@@ -246,8 +254,14 @@ public final class GameMenuEditor {
             return true;
         }, null);
 
-        builder.setTitle(R.string.title_customize_game_menu)
-                .setView(body)
+        View content = body;
+        if (shortScreen) {
+            com.limelight.ui.PageFirstScrollView scroll = new com.limelight.ui.PageFirstScrollView(dialogContext);
+            scroll.addView(body);
+            content = scroll;
+        }
+        builder.setCustomTitle(Dialogs.compactTitle(dialogContext, R.drawable.ic_gm_customize_menu, context.getString(R.string.title_customize_game_menu)))
+                .setView(content)
                 .setPositiveButton(R.string.game_menu_editor_save, (dialog, which) -> {
                     List<String> ids = new ArrayList<>();
                     List<String> hiddenIds = new ArrayList<>();

@@ -92,14 +92,23 @@ public class GameMenu implements Game.GameMenuCallbacks {
     }
 
 
+    // Gestures, bars and flows wait here too, so an action that never gets focus back (an editor left open) is dropped instead of firing much later
+    private static final long GAME_FOCUS_TIMEOUT_MS = 2000;
+
     private void runWithGameFocus(Runnable runnable) {
+        runWithGameFocus(runnable, android.os.SystemClock.uptimeMillis() + GAME_FOCUS_TIMEOUT_MS);
+    }
+
+    private void runWithGameFocus(Runnable runnable, long deadline) {
         // Ensure that the Game activity is still active (not finished)
         if (game.isFinishing()) {
             return;
         }
         // Check if the game window has focus again, if not try again after delay
         if (!game.hasWindowFocus() && dialogScreenContext instanceof Game) {
-            new Handler().postDelayed(() -> runWithGameFocus(runnable), TEST_GAME_FOCUS_DELAY);
+            if (android.os.SystemClock.uptimeMillis() < deadline) {
+                new Handler().postDelayed(() -> runWithGameFocus(runnable, deadline), TEST_GAME_FOCUS_DELAY);
+            }
             return;
         }
         // Game Activity has focus, run runnable
@@ -162,6 +171,11 @@ public class GameMenu implements Game.GameMenuCallbacks {
         currentDialog = builder.show();
 
         Window window = currentDialog.getWindow();
+        // NOTE: A phone in landscape is wide but only about 380dp tall, so the default dialog width fit four columns and pushed the Menu section below the fold.
+        // NOTE: There the menus take up to 760dp of width, so six columns fit. Every menu also gets the scroll divider of the other dialogs, which shows when more is below.
+        android.util.DisplayMetrics metrics = game.getResources().getDisplayMetrics();
+        boolean shortAndWide = metrics.heightPixels / metrics.density < 480 && metrics.widthPixels / metrics.density >= 600;
+        com.limelight.ui.Dialogs.fitWidth(currentDialog, shortAndWide ? 760 : com.limelight.ui.Dialogs.WIDTH_STANDARD_DP);
 
         if (window != null) {
             View decorView = window.getDecorView();
@@ -180,8 +194,10 @@ public class GameMenu implements Game.GameMenuCallbacks {
         }
     }
 
+    // Keys first, then a Menu section with the More keys page, adding and managing keys, and Cancel
     private void showSpecialKeysMenu() {
         List<MenuEntry> options = new ArrayList<>();
+        List<MenuEntry> navigation = new ArrayList<>();
 
         // Built-in and custom keys in the user's order, each with its icon. Hidden built-in keys stay out.
         try {
@@ -195,35 +211,40 @@ public class GameMenu implements Game.GameMenuCallbacks {
                 more.add(key);
                 continue;
             }
-            options.add(new MenuOption(key.name, key.icon != null ? IconCatalog.drawableFor(key.icon) : 0, false,
-                    () -> game.runKey(key)));
+            options.add(keyEntry(key, () -> game.runKey(key)));
         }
         // Everyday shortcuts get their own page, so the keys used most stay one tap away
         if (!more.isEmpty()) {
-            options.add(new MenuOption(getString(R.string.special_keys_more), R.drawable.ic_sa_more_horiz, false,
+            navigation.add(new MenuOption(getString(R.string.special_keys_more), R.drawable.ic_sa_more_horiz, false,
                     () -> showMoreKeysMenu(more)));
         }
 
         // Recording a key opens on top of the stream, and the list reopens with the new key when it is saved
-        options.add(new MenuOption(getString(R.string.game_menu_add_custom_key), R.drawable.ic_gm_add, false,
+        navigation.add(new MenuOption(getString(R.string.game_menu_add_custom_key), R.drawable.ic_gm_add, false,
                 () -> KeyPicker.createKey(themedContext(), key -> showSpecialKeysMenu())));
-        options.add(new MenuOption(getString(R.string.game_menu_manage_custom_keys), R.drawable.ic_gm_edit, false,
+        navigation.add(new MenuOption(getString(R.string.game_menu_manage_custom_keys), R.drawable.ic_gm_edit, false,
                 () -> SpecialKeysManager.show(themedContext(), this::showSpecialKeysMenu)));
-        options.add(cancelEntry());
+        navigation.add(cancelEntry());
 
-        showMenuDialog(getString(R.string.game_menu_send_keys), options);
+        showMenuDialog(getString(R.string.game_menu_send_keys), new MenuSections(game.getResources())
+                .add(R.string.game_menu_section_keys, options)
+                .add(R.string.game_menu_section_menu, navigation)
+                .build());
     }
 
     private void showMoreKeysMenu(List<CustomKey> keys) {
         List<MenuEntry> options = new ArrayList<>();
         for (CustomKey key : keys) {
-            options.add(new MenuOption(key.name, key.icon != null ? IconCatalog.drawableFor(key.icon) : 0, false,
-                    () -> game.runKey(key)));
+            options.add(keyEntry(key, () -> game.runKey(key)));
         }
-        options.add(new MenuOption(getString(R.string.game_menu_send_keys), R.drawable.ic_ck_arrow_back, false,
+        List<MenuEntry> navigation = new ArrayList<>();
+        navigation.add(new MenuOption(getString(R.string.game_menu_send_keys), R.drawable.ic_ck_arrow_back, false,
                 this::showSpecialKeysMenu));
-        options.add(cancelEntry());
-        showMenuDialog(getString(R.string.special_keys_more), options);
+        navigation.add(cancelEntry());
+        showMenuDialog(getString(R.string.special_keys_more), new MenuSections(game.getResources())
+                .add(R.string.game_menu_section_keys, options)
+                .add(R.string.game_menu_section_menu, navigation)
+                .build());
     }
 
     private SharedPreferences prefs() {
@@ -233,6 +254,11 @@ public class GameMenu implements Game.GameMenuCallbacks {
     private MenuEntry entryFor(StreamAction action) {
         return new MenuEntry(getString(action.labelRes(actionHost)), action.iconRes, action.destructive,
                 action.needsGameFocus, () -> action.run(actionHost));
+    }
+
+    // A special key as a menu entry, with its icon when it has one
+    private MenuEntry keyEntry(CustomKey key, Runnable runnable) {
+        return new MenuOption(key.name, key.icon != null ? IconCatalog.drawableFor(key.icon) : 0, false, runnable);
     }
 
     private MenuEntry cancelEntry() {
@@ -264,7 +290,7 @@ public class GameMenu implements Game.GameMenuCallbacks {
         List<String> quickItems = GameMenuLayout.getQuickItems(prefs());
         java.util.Set<String> hidden = GameMenuLayout.getHiddenItems(prefs());
         List<MenuEntry> actions = new ArrayList<>();
-        for (StreamAction action : GameMenuLayout.configurableActions()) {
+        for (StreamAction action : GameMenuLayout.menuActions()) {
             if (!quickItems.contains(action.id) && !hidden.contains(action.id) && action.isAvailable(actionHost)) {
                 actions.add(entryFor(action));
             }
@@ -320,8 +346,7 @@ public class GameMenu implements Game.GameMenuCallbacks {
         for (CustomKey key : SpecialKeys.visible(game)) {
             String item = QuickBarLayout.customKeyItem(key.id);
             if (!items.contains(item)) {
-                entries.add(new MenuOption(key.name, key.icon != null ? IconCatalog.drawableFor(key.icon) : 0, false,
-                        () -> pinToBar(barIndex, item)));
+                entries.add(keyEntry(key, () -> pinToBar(barIndex, item)));
             }
         }
         entries.add(cancelEntry());
@@ -396,13 +421,12 @@ public class GameMenu implements Game.GameMenuCallbacks {
             if (keyId != null) {
                 CustomKey key = SpecialKeys.find(game, keyId);
                 if (key != null) {
-                    actions.add(new MenuOption(key.name, key.icon != null ? IconCatalog.drawableFor(key.icon) : 0, false,
-                            () -> game.runKey(key)));
+                    actions.add(keyEntry(key, () -> game.runKey(key)));
                 }
                 continue;
             }
             StreamAction action = StreamActionRegistry.find(id);
-            if (action != null && action.isAvailable(actionHost)) {
+            if (action != null && !GameMenuLayout.isMenuNavigation(id) && action.isAvailable(actionHost)) {
                 actions.add(entryFor(action));
             }
         }
@@ -419,6 +443,9 @@ public class GameMenu implements Game.GameMenuCallbacks {
                 () -> showAdvancedMenu(device)));
         navigation.add(new MenuEntry(getString(R.string.game_menu_customize), R.drawable.ic_gm_customize_menu, false, false,
                 () -> showMenuEditor(device)));
+        // Settings is always one tap away from the Quick Menu, and the stream reconnects when it closes
+        navigation.add(new MenuEntry(getString(R.string.game_menu_settings), R.drawable.ic_ck_settings, false, false,
+                () -> actionHost.openSettings()));
         // The bars are edited and switched from here too, so changing them never needs the Advanced Menu or Settings
         navigation.add(quickBarEditorEntry());
         MenuEntry switchSet = switchBarSetEntry();

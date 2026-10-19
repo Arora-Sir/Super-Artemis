@@ -48,6 +48,8 @@ public class ProfilesActivity extends AppCompatActivity implements ProfilesManag
         // Setup empty state
         emptyState = findViewById(R.id.emptyState);
 
+        findViewById(R.id.profilesBack).setOnClickListener(v -> finish());
+
         // Setup FloatingActionButton
         FloatingActionButton fab = findViewById(R.id.addProfileFab);
         fab.setOnClickListener(v -> {

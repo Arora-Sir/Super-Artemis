@@ -50,4 +50,7 @@ public interface StreamActionHost {
     void openSpecialKeys();
 
     void switchTouchSensitivity();
+
+    // Opens Settings and reconnects to the same app when Settings closes
+    void openSettings();
 }

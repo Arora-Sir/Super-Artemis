@@ -126,6 +126,18 @@ public class SpecialKeysTest {
     }
 
     @Test
+    public void aKeyAddedAfterASavedOrderGoesBeforeMoreKeys() {
+        SpecialKeys.saveOrder(context, SpecialKeys.visible(context));
+        CustomKeyStore.save(context, Collections.singletonList(
+                new CustomKey("k9", "Later key", false, null, Arrays.asList(0x5B, 0x09))));
+        List<String> ids = ids(SpecialKeys.visible(context));
+        int later = ids.indexOf("k9");
+        assertTrue(later > 0);
+        assertFalse(SpecialKeys.isMoreKey(ids.get(later - 1)));
+        assertTrue(SpecialKeys.isMoreKey(ids.get(later + 1)));
+    }
+
+    @Test
     public void moreKeysCoverEverydayShortcutsWithTheirOwnIcons() {
         BuiltInKeys.Def copy = BuiltInKeys.find("builtin_ctrl_c");
         assertTrue(copy.more);

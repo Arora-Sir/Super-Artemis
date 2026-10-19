@@ -1,11 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- One profile as a rounded card: name and last change, then the active radio and the copy, edit and delete buttons -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    android:background="@drawable/bg_card_clickable"
+    android:gravity="center_vertical"
+    android:minHeight="72dp"
     android:orientation="horizontal"
-    android:padding="16dp"
-    android:background="?android:attr/selectableItemBackground"
-    android:gravity="center_vertical">
+    android:paddingStart="20dp"
+    android:paddingTop="8dp"
+    android:paddingEnd="8dp"
+    android:paddingBottom="8dp">
 
     <LinearLayout
         android:layout_width="0dp"
@@ -17,54 +23,52 @@
             android:id="@+id/profileName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="#FFFFFF"
-            android:textSize="16sp"
-            android:textStyle="bold"
+            android:ellipsize="end"
             android:singleLine="true"
-            android:ellipsize="end" />
+            android:textAppearance="@style/TextAppearance.SuperArtemis.TitleMedium"
+            android:textColor="?attr/saOnSurface" />
 
         <TextView
             android:id="@+id/profileTimestamp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:textColor="#CCCCCC"
-            android:textSize="12sp" />
-
+            android:layout_marginTop="2dp"
+            android:textAppearance="@style/TextAppearance.SuperArtemis.BodySmall"
+            android:textColor="?attr/saOnSurfaceVariant" />
     </LinearLayout>
 
     <RadioButton
         android:id="@+id/profileActive"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp" />
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:buttonTint="?attr/saPrimary"
+        android:contentDescription="@string/profile_manager_set_active" />
 
     <ImageButton
         android:id="@+id/copyProfile"
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:background="?android:attr/selectableItemBackgroundBorderless"
+        android:background="@drawable/bg_button_text"
         android:contentDescription="@string/profile_manager_copy"
         android:src="@drawable/ic_sa_content_copy"
-        android:tint="#FFFFFF" />
+        android:tint="?attr/saOnSurfaceVariant" />
 
     <ImageButton
         android:id="@+id/editProfile"
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:background="?android:attr/selectableItemBackgroundBorderless"
-        android:contentDescription="Edit profile"
-        android:src="@drawable/ic_edit" />
+        android:background="@drawable/bg_button_text"
+        android:contentDescription="@string/profile_manager_edit"
+        android:src="@drawable/ic_sa_edit"
+        android:tint="?attr/saOnSurfaceVariant" />
 
     <ImageButton
         android:id="@+id/deleteProfile"
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:background="?android:attr/selectableItemBackgroundBorderless"
-        android:contentDescription="Delete profile"
-        android:src="@drawable/ic_delete" />
+        android:background="@drawable/bg_button_text"
+        android:contentDescription="@string/profile_manager_delete_profile"
+        android:src="@drawable/ic_sa_delete"
+        android:tint="?attr/saOnSurfaceVariant" />
 
 </LinearLayout>

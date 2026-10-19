@@ -307,6 +307,8 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
     private GestureDispatcher gestureDispatcher;
     // Runs special keys made of several steps, created on first use
     private com.limelight.customkeys.FlowRunner flowRunner;
+    private com.limelight.customkeys.HotkeyDispatcher hotkeys;
+    private String hotkeysSource;
     // The view the current gesture started on, and a guard so the cancel sent for a gesture is not read as a new touch
     private View gestureTouchView;
     private boolean cancellingGestureTouch;
@@ -1140,7 +1142,7 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
             }
 
             if (desiredOrientation == Configuration.ORIENTATION_LANDSCAPE) {
-                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE);
+                setRequestedOrientation(landscapeOrientation());
             }
             else if (desiredOrientation == Configuration.ORIENTATION_PORTRAIT) {
                 setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT);
@@ -1153,7 +1155,7 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
         else {
             // Lock to current orientation
             if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
-                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE);
+                setRequestedOrientation(landscapeOrientation());
             } else {
                 setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT);
             }
@@ -1219,12 +1221,16 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
                 notificationOverlayView.setVisibility(View.GONE);
 
                 // Disable sensors while in PiP mode
-                controllerHandler.disableSensors();
+                if (controllerHandler != null) {
+                    controllerHandler.disableSensors();
+                }
 
                 // Update GameManager state to indicate we're in PiP (still gaming, but interruptible)
                 UiHelper.notifyStreamEnteringPiP(this);
             }
-            else {
+            // NOTE: Only leaving picture-in-picture restores the overlays. A rotation, dark mode or font change also lands here and has nothing to restore.
+            // NOTE: Running this on the rotation to landscape at stream start reached the controller before onCreate created it, and crashed (seen on the S24, Android 17).
+            else if (isHidingOverlays) {
                 isHidingOverlays = false;
 
                 if (floatingButtonShown) {
@@ -1260,7 +1266,9 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
                 notificationOverlayView.setVisibility(requestedNotificationOverlayVisibility);
 
                 // Enable sensors again after exiting PiP
-                controllerHandler.enableSensors();
+                if (controllerHandler != null) {
+                    controllerHandler.enableSensors();
+                }
 
                 // Update GameManager state to indicate we're out of PiP (gaming, non-interruptible)
                 UiHelper.notifyStreamExitingPiP(this);
@@ -1321,8 +1329,11 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
 
         boolean autoEnter = connected && suppressPipRefCount == 0;
 
+        // NOTE: Android 12 auto-enter is left off on purpose. With it on, a switch through startActivityFromRecents (One Hand Operation+ "previous app")
+        // NOTE: hid the stream window before pausing it, so the surface and the connection were gone before picture-in-picture could start.
+        // NOTE: Without it Android pauses the stream first, and onUserLeaveHint (Home, Recents) or onPause (any other switch) enters picture-in-picture by hand.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            setPictureInPictureParams(getPictureInPictureParams(autoEnter));
+            setPictureInPictureParams(getPictureInPictureParams(false));
         }
         else {
             autoEnterPip = autoEnter;
@@ -1372,8 +1383,8 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
         super.onUserLeaveHint();
         leftByUser = true;
 
-        // NOTE: Android 12+ auto-enters picture-in-picture on Home and Recents, but some launchers skip it for a quick switch to the previous app.
-        // NOTE: Entering by hand right after the hint covers that case, and does nothing when auto-enter already started.
+        // NOTE: Home and Recents give this hint, and picture-in-picture is entered by hand right after it (auto-enter stays off, see updatePipAutoEnter).
+        // NOTE: Other app switches give no hint, and onPause enters picture-in-picture for them.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && prefConfig.enablePip && connected && !isOnExternalDisplay()) {
             getWindow().getDecorView().post(() -> {
                 if (!isInPictureInPictureMode() && !isFinishing() && connected) {
@@ -1718,6 +1729,8 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
 
     @Override
     protected void onDestroy() {
+        // An open menu would leak the window and keep this activity alive after the stream ends
+        hideGameMenu();
         stopMicrophoneCapture();
         if (flowRunner != null) {
             flowRunner.shutdown();
@@ -1762,6 +1775,33 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
         // Destroy the capture provider
         inputCaptureProvider.destroy();
         streamContainer.onDestroy();
+    }
+
+    // A stream that starts again after the screen was off (picture-in-picture stops then too) was not closed, so its close mark is dropped
+    @Override
+    protected void onStart() {
+        super.onStart();
+        ResumeStore.clearClosedFromPip(this);
+    }
+
+    // How long after picture-in-picture ends a stop still counts as closing the window
+    private static final long PIP_CLOSE_WINDOW_MS = 1000;
+    private long pipEndedAtMs;
+    private boolean stoppedWhileConnected;
+
+    // NOTE: Expanding the window ends picture-in-picture while the stream is still started, closing it with X ends it once the stream is stopped.
+    // NOTE: Android versions differ in which of the two callbacks comes first, so both this callback and onStop check for a close.
+    @Override
+    public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode, Configuration newConfig) {
+        super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig);
+        if (isInPictureInPictureMode) {
+            pipEndedAtMs = 0;
+            return;
+        }
+        pipEndedAtMs = android.os.SystemClock.uptimeMillis();
+        if (!getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.STARTED) && stoppedWhileConnected) {
+            ResumeStore.markClosedFromPip(this, System.currentTimeMillis());
+        }
     }
 
     @Override
@@ -1838,6 +1878,15 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
 
         if(keyBoardLayoutController!=null){
             keyBoardLayoutController.hide();
+        }
+
+        // NOTE: Stopping while in picture-in-picture, or right after it ended without coming back to the front, means the window was closed with its X.
+        // NOTE: The app lists offer to reconnect next time, because one tap on X ends the stream without asking.
+        // The connected flag is already cleared when picture-in-picture is dismissed, so a stream that exists and showed no error counts
+        stoppedWhileConnected = conn != null && !displayedFailureDialog;
+        boolean justLeftPip = pipEndedAtMs > 0 && android.os.SystemClock.uptimeMillis() - pipEndedAtMs < PIP_CLOSE_WINDOW_MS;
+        if (stoppedWhileConnected && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && (isInPictureInPictureMode() || justLeftPip)) {
+            ResumeStore.markClosedFromPip(this, System.currentTimeMillis());
         }
 
         if (conn != null) {
@@ -2165,6 +2214,10 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
 
         // Try the keyboard handler if it wasn't handled as a game controller
         if (!handled) {
+            if (hotkeyDown(event)) {
+                return true;
+            }
+
             // Let this method take duplicate key down events
             if (handleSpecialKeys(event.getKeyCode(), true)) {
                 return true;
@@ -2254,6 +2307,10 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
 
         // Try the keyboard handler if it wasn't handled as a game controller
         if (!handled) {
+            if (hotkeys != null && hotkeys.onKeyUp(event.getKeyCode())) {
+                return true;
+            }
+
             if (handleSpecialKeys(event.getKeyCode(), false)) {
                 return true;
             }
@@ -2304,17 +2361,50 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
         return true;
     }
 
+    // NOTE: Phone-side hotkeys from a keyboard connected to the phone. The key list is read again only when the saved keys change, so a key edited during the stream works at once.
+    private boolean hotkeyDown(KeyEvent event) {
+        if (conn == null || keyboardTranslator == null) {
+            return false;
+        }
+        String source = getSharedPreferences(GameMenu.PREF_NAME, MODE_PRIVATE).getString(GameMenu.KEY_NAME, "");
+        if (hotkeys == null) {
+            hotkeys = new com.limelight.customkeys.HotkeyDispatcher(new com.limelight.customkeys.HotkeyDispatcher.Sink() {
+                @Override
+                public void releaseModifier(int vk) {
+                    NvConnection connection = conn;
+                    if (connection != null) {
+                        connection.sendKeyboardInput((short) vk, KeyboardPacket.KEY_UP, (byte) 0, (byte) 0);
+                    }
+                }
+
+                @Override
+                public void run(com.limelight.customkeys.CustomKey key) {
+                    runKey(key);
+                }
+            });
+        }
+        if (!source.equals(hotkeysSource)) {
+            hotkeysSource = source;
+            hotkeys.setKeys(com.limelight.customkeys.CustomKeyStore.loadOrEmpty(this));
+        }
+        if (!hotkeys.hasHotkeys()) {
+            return false;
+        }
+        int vk = keyboardTranslator.translate(event.getKeyCode(), event.getScanCode(), event.getDeviceId()) & 0xFF;
+        return hotkeys.onKeyDown(event.getKeyCode(), vk, event.getMetaState(), event.getRepeatCount());
+    }
+
     // NOTE: Every special key from the menu, a quick-action bar or a gesture runs here. A single shortcut keeps the original
     // NOTE: sendKeys timing, and a key with several steps runs them one after another on the flow runner.
     public void runKey(com.limelight.customkeys.CustomKey key) {
         if (key == null) {
             return;
         }
-        if (key.isSingleCombo()) {
-            sendKeys(key.keyCodes());
+        if (conn == null) {
             return;
         }
-        if (conn == null) {
+        if (key.isSingleCombo()) {
+            sendKeys(key.keyCodes());
             return;
         }
         if (flowRunner == null) {
@@ -2365,6 +2455,10 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
                 @Override
                 public void action(String actionId) {
                     runOnUiThread(() -> {
+                        // The stream may have ended while earlier steps ran
+                        if (isFinishing() || !connected) {
+                            return;
+                        }
                         StreamAction action = com.limelight.actions.StreamActionRegistry.find(actionId);
                         if (action != null && !action.destructive && gameMenuCallbacks instanceof GameMenu) {
                             ((GameMenu) gameMenuCallbacks).runAction(action);
@@ -3668,6 +3762,8 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
         if (!MicrophoneCaptureManager.hasRecordAudioPermission(this)) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 // Capture resumes in onRequestPermissionsResult once granted
+                // requestPermissions bypasses the startActivityForResult override, so the prompt is marked as our own screen here or it would shrink the stream into picture-in-picture
+                openingOwnScreen = true;
                 requestPermissions(new String[] {android.Manifest.permission.RECORD_AUDIO},
                         RECORD_AUDIO_PERMISSION_REQUEST);
             }
@@ -3804,6 +3900,8 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
                 if (!displayedFailureDialog) {
                     displayedFailureDialog = true;
                     LimeLog.severe("Connection terminated: " + errorCode);
+                    // Reconnect is offered only when a stream was running, not when the first connection failed
+                    final boolean wasStreaming = connected;
                     stopConnection();
 
                     // Display the error dialog if it was an unexpected termination.
@@ -3854,8 +3952,18 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
                                     MoonBridge.stringifyPortFlags(portFlags, "\n");
                         }
 
-                        Dialog.displayDialog(Game.this, getResources().getString(R.string.conn_terminated_title),
-                                message, true);
+                        // A stream that was running can start again from here, without going back to the PC and app lists
+                        if (wasStreaming) {
+                            Dialog.displayDialog(Game.this, getResources().getString(R.string.conn_terminated_title), message,
+                                    Game.this::finish, getString(R.string.conn_terminated_reconnect), () -> {
+                                        com.limelight.session.SessionResumer.reconnectLast(Game.this);
+                                        finish();
+                                    });
+                        }
+                        else {
+                            Dialog.displayDialog(Game.this, getResources().getString(R.string.conn_terminated_title),
+                                    message, true);
+                        }
                     }
                     else {
                         finish();
@@ -3897,12 +4005,24 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
 
     @Override
     public void connectionStarted() {
+        // NOTE: The connection is up, but the PC can take a few seconds to send its first full frame, which left a plain black screen.
+        // NOTE: A small status shows until the decoder outputs that frame, then the decoder thread hides it.
+        decoderRenderer.setFirstFrameListener(() -> runOnUiThread(() -> {
+            View starting = findViewById(R.id.streamStartingOverlay);
+            if (starting != null) {
+                starting.setVisibility(View.GONE);
+            }
+        }));
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 if (spinner != null) {
                     spinner.dismiss();
                     spinner = null;
+                }
+                View starting = findViewById(R.id.streamStartingOverlay);
+                if (starting != null && decoderRenderer.getFramesOut() == 0) {
+                    starting.setVisibility(View.VISIBLE);
                 }
 
                 connected = true;
@@ -4251,8 +4371,20 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT);
         } else {
             currentOrientation = Configuration.ORIENTATION_LANDSCAPE;
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE);
+            setRequestedOrientation(landscapeOrientation());
         }
+    }
+
+    // NOTE: The landscape lock the user picked. Follow keeps both sides with the sensor when auto-rotate is on, as before.
+    // NOTE: Normal and upside down pin one side, for a stand or a dock that holds the device one way up (upstream #492).
+    private int landscapeOrientation() {
+        if (PreferenceConfiguration.LANDSCAPE_NORMAL.equals(prefConfig.landscapeSide)) {
+            return ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+        }
+        if (PreferenceConfiguration.LANDSCAPE_REVERSE.equals(prefConfig.landscapeSide)) {
+            return ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE;
+        }
+        return ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE;
     }
 
     /**
@@ -4330,6 +4462,19 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
      *
      * @param context The context to use to decide where to show the dialog.
      */
+    // Mode in use, so the picker can mark it
+    private int currentMouseMode = -1;
+
+    // Icon per entry of mouse_mode_names, in the same order (MouseModeIconsTest checks the count)
+    static final int[] MOUSE_MODE_ICONS = {
+            R.drawable.ic_sa_touch_app,
+            R.drawable.ic_sa_mouse,
+            R.drawable.ic_sa_trackpad_input,
+            R.drawable.ic_sa_sports_esports,
+            R.drawable.ic_sa_do_not_touch,
+            R.drawable.ic_ck_swap_horiz,
+    };
+
     public void selectMouseMode(Context context){
         String[] allModes = getResources().getStringArray(R.array.mouse_mode_names);
 
@@ -4351,31 +4496,29 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
 
         options.add(new MouseModeOption(-1, getString(R.string.toggle_local_mouse_cursor)));
 
-        String[] labels = new String[options.size()];
-        for (int i = 0; i < options.size(); i++) {
-            labels[i] = options.get(i).label;
-        }
-        final MouseModeOption[] optionArray = options.toArray(new MouseModeOption[0]);
-
-        android.app.AlertDialog.Builder mouseModes = com.limelight.ui.ThemedDialogs.builder(context)
-                .setTitle(getString(R.string.game_menu_select_mouse_mode))
-                .setItems(labels, (dialog, which) -> {
-                    dialog.dismiss();
-                    MouseModeOption selected = optionArray[which];
-                    if (selected.index == -1) {
-                        toggleMouseLocalCursor();
-                    } else {
-                        applyMouseMode(selected.index);
-                        if (prefConfig.rememberMouseMode) {
-                            ProfilesManager.getInstance().getOverlayingSharedPreferences(this)
-                                    .edit()
-                                    .putString("mouse_mode_list", String.valueOf(selected.index))
-                                    .apply();
-                        }
+        // NOTE: Each mode is a choice row with its icon, and the check marks the mode in use.
+        // NOTE: The local cursor row is a toggle, so its check shows whether the cursor is visible now.
+        com.limelight.ui.ChoiceList mouseModes = new com.limelight.ui.ChoiceList(com.limelight.ui.ThemedDialogs.builder(context),
+                R.drawable.ic_gm_mouse_mode, getString(R.string.game_menu_select_mouse_mode), R.string.game_menu_cancel);
+        for (MouseModeOption option : options) {
+            int icon = option.index == -1 ? R.drawable.ic_sa_arrow_selector_tool
+                    : option.index < MOUSE_MODE_ICONS.length ? MOUSE_MODE_ICONS[option.index] : R.drawable.ic_sa_mouse;
+            boolean checked = option.index == -1 ? cursorVisible : option.index == currentMouseMode;
+            mouseModes.add(icon, option.label, checked, () -> {
+                if (option.index == -1) {
+                    toggleMouseLocalCursor();
+                } else {
+                    applyMouseMode(option.index);
+                    if (prefConfig.rememberMouseMode) {
+                        ProfilesManager.getInstance().getOverlayingSharedPreferences(this)
+                                .edit()
+                                .putString("mouse_mode_list", String.valueOf(option.index))
+                                .apply();
                     }
-                })
-                .setNegativeButton(R.string.game_menu_cancel, null);
-        com.limelight.ui.ThemedDialogs.show(mouseModes);
+                }
+            });
+        }
+        mouseModes.show();
     }
 
     //本地鼠标光标切换
@@ -4393,6 +4536,7 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
     }
 
     private void applyMouseMode(int mode) {
+        currentMouseMode = mode;
         switch (mode) {
             case 0: // Multi-touch
                 prefConfig.enableMultiTouchScreen = true;
@@ -4458,6 +4602,17 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
             getClipboard(-1);
         }
         finish();
+    }
+
+    // NOTE: Settings cannot sit on top of a running stream, because the stream disconnects in onStop once another screen covers it.
+    // NOTE: Most stream settings (resolution, bitrate, codec) also apply only when a stream connects.
+    // NOTE: So the session is marked for resume, Settings opens, and closing Settings reconnects to the same PC and app with the new settings.
+    public void openSettingsAndResume() {
+        if (connected) {
+            ResumeStore.markLeft(this, System.currentTimeMillis());
+        }
+        startActivity(new Intent(this, com.limelight.preferences.StreamSettings.class).putExtra(com.limelight.preferences.StreamSettings.EXTRA_RESUME_STREAM, true));
+        Toast.makeText(this, R.string.toast_settings_resume, Toast.LENGTH_LONG).show();
     }
 
     public void quit() {

@@ -69,9 +69,10 @@ public class ProfilesAdapter extends RecyclerView.Adapter<ProfilesAdapter.Profil
         });
 
         holder.deleteProfile.setOnClickListener(v -> {
-            new AlertDialog.Builder(context)
-                .setTitle(R.string.profile_manager_delete_profile)
-                .setMessage(context.getString(R.string.profile_manager_confirm_profile_deleteion, profile.getName()))
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            builder.setCustomTitle(com.limelight.ui.Dialogs.header(builder.getContext(), R.drawable.ic_sa_delete,
+                    context.getString(R.string.profile_manager_delete_profile),
+                    context.getString(R.string.profile_manager_confirm_profile_deleteion, profile.getName())))
                 .setPositiveButton(R.string.profile_manager_delete, (dialog, which) -> {
                     profilesManager.delete(profile.getUuid());
                     profilesManager.save(context);
@@ -110,24 +111,23 @@ public class ProfilesAdapter extends RecyclerView.Adapter<ProfilesAdapter.Profil
                 }
                 return true;
             }
-            String[] names = new String[others.size()];
-            for (int i = 0; i < names.length; i++) {
-                names[i] = others.get(i).getName();
+            // Same picker look as every other Super Artemis choice list: header with icon, one row per profile
+            com.limelight.ui.ChoiceList choices = new com.limelight.ui.ChoiceList(new AlertDialog.Builder(context), R.drawable.ic_sa_content_copy,
+                    context.getString(R.string.profile_manager_copy_into_title, profile.getName()), R.string.cancel);
+            for (SettingsProfile other : others) {
+                choices.add(R.drawable.ic_sa_person, other.getName(), false, () -> confirmCopyInto(profile, other));
             }
-            new AlertDialog.Builder(context)
-                    .setTitle(context.getString(R.string.profile_manager_copy_into_title, profile.getName()))
-                    .setItems(names, (dialog, which) -> confirmCopyInto(profile, others.get(which)))
-                    .setNegativeButton(R.string.cancel, null)
-                    .show();
+            choices.show();
             return true;
         });
         popup.show();
     }
 
     private void confirmCopyInto(SettingsProfile from, SettingsProfile to) {
-        new AlertDialog.Builder(context)
-                .setTitle(R.string.profile_manager_copy_into)
-                .setMessage(context.getString(R.string.profile_manager_copy_into_confirm, from.getName(), to.getName()))
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setCustomTitle(com.limelight.ui.Dialogs.header(builder.getContext(), R.drawable.ic_sa_content_copy,
+                        context.getString(R.string.profile_manager_copy_into),
+                        context.getString(R.string.profile_manager_copy_into_confirm, from.getName(), to.getName())))
                 .setPositiveButton(R.string.profile_manager_copy_into_action, (dialog, which) -> {
                     if (profilesManager.copyOptionsInto(from.getUuid(), to.getUuid())) {
                         profilesManager.save(context);

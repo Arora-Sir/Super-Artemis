@@ -21,6 +21,7 @@ import com.limelight.customkeys.IconCatalog;
 import com.limelight.customkeys.KeyNames;
 import com.limelight.customkeys.SpecialKeys;
 import com.limelight.menu.GameMenuLayout;
+import com.limelight.ui.ChoiceList;
 import com.limelight.ui.Dialogs;
 
 import java.util.ArrayList;
@@ -261,32 +262,16 @@ public final class GestureEditor {
     }
 
     private static void chooseHoldDuration(Context context, SharedPreferences prefs, Runnable onChosen) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        Context dialogContext = builder.getContext();
         long current = GestureBindingStore.holdDurationMs(prefs);
-        LinearLayout list = new LinearLayout(dialogContext);
-        list.setOrientation(LinearLayout.VERTICAL);
-        int side = (int) Dialogs.dp(dialogContext, 8);
-        list.setPadding(side, 0, side, side);
-        builder.setCustomTitle(Dialogs.header(dialogContext, R.drawable.ic_ck_timer, context.getString(R.string.gesture_hold_duration), null))
-                .setView(list)
-                .setNegativeButton(R.string.game_menu_cancel, null);
-        AlertDialog[] dialog = new AlertDialog[1];
+        ChoiceList choices = new ChoiceList(new AlertDialog.Builder(context), R.drawable.ic_ck_timer,
+                context.getString(R.string.gesture_hold_duration), R.string.game_menu_cancel);
         for (long duration : GestureBindingStore.HOLD_DURATIONS_MS) {
-            View row = LayoutInflater.from(dialogContext).inflate(R.layout.sa_choice_row, list, false);
-            ((ImageView) row.findViewById(R.id.sa_choice_icon)).setImageResource(R.drawable.ic_ck_timer);
-            ((TextView) row.findViewById(R.id.sa_choice_label)).setText(holdDurationLabel(context, duration));
-            row.findViewById(R.id.sa_choice_check).setVisibility(duration == current ? View.VISIBLE : View.INVISIBLE);
-            row.setOnClickListener(v -> {
+            choices.add(R.drawable.ic_ck_timer, holdDurationLabel(context, duration), duration == current, () -> {
                 GestureBindingStore.setHoldDurationMs(prefs, duration);
                 onChosen.run();
-                if (dialog[0] != null) {
-                    dialog[0].dismiss();
-                }
             });
-            list.addView(row);
         }
-        dialog[0] = Dialogs.show(builder, Dialogs.WIDTH_STANDARD_DP);
+        choices.show();
     }
 
     private static void refreshAll(List<Runnable> refreshers) {
@@ -297,49 +282,28 @@ public final class GestureEditor {
 
     // Picker with the options grouped under headings, each with its icon, and a check on the current choice
     private static void choose(Context context, SharedPreferences prefs, GestureBindingStore.Slot slot, List<Option> options, Runnable onChosen) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        Context dialogContext = builder.getContext();
         String current = GestureBindingStore.get(prefs, slot);
-        LinearLayout list = new LinearLayout(dialogContext);
-        list.setOrientation(LinearLayout.VERTICAL);
-        int side = (int) Dialogs.dp(dialogContext, 8);
-        list.setPadding(side, 0, side, side);
-        ScrollView scroll = new ScrollView(dialogContext);
-        scroll.addView(list);
-        builder.setCustomTitle(Dialogs.header(dialogContext, slotIcon(slot), slotTitle(context, slot), null))
-                .setView(scroll)
-                .setNegativeButton(R.string.game_menu_cancel, null);
-        AlertDialog[] dialog = new AlertDialog[1];
+        ChoiceList choices = new ChoiceList(new AlertDialog.Builder(context), slotIcon(slot), slotTitle(context, slot), R.string.game_menu_cancel);
 
         int group = -1;
         for (Option option : options) {
             if (option.groupRes != group) {
                 group = option.groupRes;
                 if (group != 0) {
-                    addSection(list, group);
+                    addSection(choices.list(), group);
                 }
             }
-            View row = LayoutInflater.from(dialogContext).inflate(R.layout.sa_choice_row, list, false);
-            ((ImageView) row.findViewById(R.id.sa_choice_icon)).setImageResource(option.iconRes);
-            ((TextView) row.findViewById(R.id.sa_choice_label)).setText(option.label);
-            row.findViewById(R.id.sa_choice_check).setVisibility(option.binding.equals(current) ? View.VISIBLE : View.INVISIBLE);
-            row.setOnClickListener(v -> {
+            choices.add(option.iconRes, option.label, option.binding.equals(current), () -> {
                 GestureBindingStore.set(prefs, slot, option.binding);
                 onChosen.run();
-                if (dialog[0] != null) {
-                    dialog[0].dismiss();
-                }
             });
-            list.addView(row);
         }
         // A key or flow made here is bound to this gesture straight away
-        list.addView(com.limelight.customkeys.KeyPicker.addButton(dialogContext, key -> {
+        choices.list().addView(com.limelight.customkeys.KeyPicker.addButton(choices.context(), context, key -> {
             GestureBindingStore.set(prefs, slot, GestureBindingStore.customKeyBinding(key.id));
             onChosen.run();
-            if (dialog[0] != null) {
-                dialog[0].dismiss();
-            }
+            choices.dismiss();
         }));
-        dialog[0] = Dialogs.show(builder, Dialogs.WIDTH_STANDARD_DP);
+        choices.show();
     }
 }

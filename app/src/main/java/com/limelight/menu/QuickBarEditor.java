@@ -49,6 +49,7 @@ import java.util.Map;
 public final class QuickBarEditor {
     // Screens at least this wide show the controls beside the list instead of above it
     private static final int TWO_PANE_MIN_WIDTH_DP = 720;
+    private static final int TWO_PANE_MIN_HEIGHT_DP = 480;
     // Offset sliders move in steps of this many dp, which keeps 200 slider steps across the full range
     private static final int OFFSET_STEP_DP = BarSets.OFFSET_MAX_DP * 2 / 200;
     private static final int[] ANCHOR_LABELS = {
@@ -200,17 +201,29 @@ public final class QuickBarEditor {
             dialogContext = builder.getContext();
             body = LayoutInflater.from(dialogContext).inflate(R.layout.dialog_quick_bar_editor, null);
             DisplayMetrics metrics = context.getResources().getDisplayMetrics();
-            boolean twoPane = metrics.widthPixels / metrics.density >= TWO_PANE_MIN_WIDTH_DP;
-            arrangePanes(twoPane);
+            // A phone in landscape is wide enough for two panes but too short for them, so it keeps the single scrolling page
+            boolean twoPane = metrics.widthPixels / metrics.density >= TWO_PANE_MIN_WIDTH_DP
+                    && metrics.heightPixels / metrics.density >= TWO_PANE_MIN_HEIGHT_DP;
+            arrangePanes(twoPane, metrics);
+            // NOTE: A phone in landscape is about 380dp tall, so the 168dp preview filled the whole visible page and hid every control.
+            // NOTE: Short screens get a smaller preview and a list of fixed height, so the bar settings start on the first page.
+            boolean shortScreen = metrics.heightPixels / metrics.density < TWO_PANE_MIN_HEIGHT_DP;
+            if (shortScreen) {
+                body.findViewById(R.id.quick_bar_preview).getLayoutParams().height = (int) (112 * metrics.density);
+            }
 
             RecyclerView list = new RecyclerView(dialogContext);
             list.setLayoutManager(new LinearLayoutManager(dialogContext));
-            int listHeight = (int) (metrics.heightPixels * (twoPane ? 0.5f : 0.4f));
             LinearLayout listColumn = new LinearLayout(dialogContext);
             listColumn.setOrientation(LinearLayout.VERTICAL);
-            listColumn.addView(list, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, listHeight));
+            // Two panes: the list takes whatever height the right pane has left. One page: the list has a bounded height inside the page scroll.
+            listColumn.addView(list, twoPane
+                    ? new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f)
+                    : new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                            shortScreen ? (int) (220 * metrics.density) : (int) (metrics.heightPixels * 0.4f)));
             ((FrameLayout) body.findViewById(R.id.quick_bar_list)).addView(listColumn,
-                    new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                    new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                            twoPane ? ViewGroup.LayoutParams.MATCH_PARENT : ViewGroup.LayoutParams.WRAP_CONTENT));
 
             adapter = new Adapter(this::drawPreview);
             list.setAdapter(adapter);
@@ -224,7 +237,7 @@ public final class QuickBarEditor {
             }, null);
 
             // A key or flow made here is pinned to the selected bar and offered to the other bars
-            listColumn.addView(KeyPicker.addButton(dialogContext, key -> {
+            listColumn.addView(KeyPicker.addButton(dialogContext, context, key -> {
                 if (selected < 0) {
                     addBar();
                 }
@@ -275,8 +288,8 @@ public final class QuickBarEditor {
 
             // With a profile active the bars belong to it, so the title names the profile being edited
             String profile = com.limelight.profiles.ProfilesManager.getInstance().getActiveName();
-            builder.setTitle(profile.isEmpty() ? context.getString(R.string.title_quick_bar)
-                    : context.getString(R.string.title_quick_bar_profile, profile))
+            builder.setCustomTitle(Dialogs.compactTitle(dialogContext, R.drawable.ic_sa_dashboard_customize, profile.isEmpty()
+                    ? context.getString(R.string.title_quick_bar) : context.getString(R.string.title_quick_bar_profile, profile)))
                     .setView(body)
                     .setPositiveButton(R.string.game_menu_editor_save, (dialog, which) -> {
                         storeRows();
@@ -292,31 +305,50 @@ public final class QuickBarEditor {
 
         void addBar() {
             storeRows();
-            BarSets.Bar bar = new BarSets.Bar(freeAnchor(set()), 1, 4, 0, 0, new ArrayList<>());
+            BarSets.Bar bar = new BarSets.Bar(freeAnchor(set()), 4, false, 0, 0, new ArrayList<>());
             set().bars.add(bar);
             rowsByBar.add(buildRows(context, bar.items, keys));
             selected = set().bars.size() - 1;
         }
 
-        // Wide screens put the controls on the left and the item list on the right
-        void arrangePanes(boolean twoPane) {
+        // NOTE: Wide screens get two panes of one fixed height instead of one page that scrolls as a whole.
+        // NOTE: The left pane (preview, bars, position, grid and offset) scrolls on its own, and the right pane is the header, the item list filling the rest and Add key or flow at the bottom.
+        // NOTE: One page made the list a fixed half of the screen, so on a tablet it ended halfway down next to a much taller left column.
+        void arrangePanes(boolean twoPane, DisplayMetrics metrics) {
             if (!twoPane) {
                 return;
             }
             LinearLayout panes = body.findViewById(R.id.quick_bar_panes);
-            panes.setOrientation(LinearLayout.HORIZONTAL);
             View controls = body.findViewById(R.id.quick_bar_controls);
-            LinearLayout.LayoutParams controlsParams = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
-            controlsParams.rightMargin = (int) Dialogs.dp(context, 24);
-            controls.setLayoutParams(controlsParams);
-            body.findViewById(R.id.quick_bar_items_pane).setLayoutParams(
-                    new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+            LinearLayout items = body.findViewById(R.id.quick_bar_items_pane);
+            panes.removeAllViews();
+
+            int side = (int) Dialogs.dp(context, 24);
+            // Leaves room for the dialog title, the buttons and the window insets
+            int height = Math.max((int) Dialogs.dp(context, 360), metrics.heightPixels - (int) Dialogs.dp(context, 210));
+            LinearLayout row = new LinearLayout(dialogContext);
+            row.setOrientation(LinearLayout.HORIZONTAL);
+            row.setPadding(side, 0, side, 0);
+            row.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height));
+
+            androidx.core.widget.NestedScrollView left = new androidx.core.widget.NestedScrollView(dialogContext);
+            left.setVerticalScrollBarEnabled(true);
+            left.addView(controls, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            LinearLayout.LayoutParams leftParams = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f);
+            leftParams.rightMargin = side;
+            row.addView(left, leftParams);
+
+            items.findViewById(R.id.quick_bar_list).setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
+            row.addView(items, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f));
+            body = row;
         }
 
         // Nine segments in three rows, laid out like the screen, so picking an anchor reads as picking a spot
         void buildAnchorPicker() {
             LinearLayout picker = body.findViewById(R.id.quick_bar_anchor);
             int gap = (int) Dialogs.dp(context, 6);
+            int sidePad = (int) Dialogs.dp(context, 4);
+            List<TextView> cells = new ArrayList<>();
             for (int r = 0; r < 3; r++) {
                 LinearLayout row = new LinearLayout(dialogContext);
                 row.setOrientation(LinearLayout.HORIZONTAL);
@@ -326,7 +358,10 @@ public final class QuickBarEditor {
                     cell.setText(ANCHOR_LABELS[r * 3 + c]);
                     cell.setTag(anchor);
                     cell.setMaxLines(1);
+                    // Narrow side padding lets "Bottom right" fit a phone-width cell at full size
+                    cell.setPadding(sidePad, cell.getPaddingTop(), sidePad, cell.getPaddingBottom());
                     TextViewCompat.setAutoSizeTextTypeUniformWithConfiguration(cell, 9, 14, 1, android.util.TypedValue.COMPLEX_UNIT_SP);
+                    cells.add(cell);
                     cell.setOnClickListener(v -> {
                         if (bar() != null) {
                             bar().anchor = anchor;
@@ -345,11 +380,40 @@ public final class QuickBarEditor {
                 }
                 picker.addView(row, rowParams);
             }
+            // NOTE: Each label shrinks on its own to fit its cell, which left "Bottom right" smaller than its neighbours.
+            // NOTE: After the first layout every label takes the smallest size, so the nine segments read as one set.
+            picker.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+                @Override
+                public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                    picker.removeOnLayoutChangeListener(this);
+                    float smallest = Float.MAX_VALUE;
+                    for (TextView cell : cells) {
+                        smallest = Math.min(smallest, cell.getTextSize());
+                    }
+                    float size = smallest;
+                    picker.post(() -> {
+                        for (TextView cell : cells) {
+                            TextViewCompat.setAutoSizeTextTypeWithDefaults(cell, TextViewCompat.AUTO_SIZE_TEXT_TYPE_NONE);
+                            cell.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, size);
+                        }
+                    });
+                }
+            });
         }
 
         void wireSliders() {
             ColorStateList tint = ColorStateList.valueOf(Dialogs.color(dialogContext, R.attr.saPrimary));
-            int[] ids = {R.id.quick_bar_rows, R.id.quick_bar_columns, R.id.quick_bar_offset_x, R.id.quick_bar_offset_y};
+            // Fill across or down works as one segmented button next to the "per line" slider
+            for (int fillId : new int[] {R.id.quick_bar_fill_across, R.id.quick_bar_fill_down}) {
+                body.findViewById(fillId).setOnClickListener(v -> {
+                    BarSets.Bar bar = bar();
+                    if (bar != null) {
+                        bar.down = fillId == R.id.quick_bar_fill_down;
+                        refresh();
+                    }
+                });
+            }
+            int[] ids = {R.id.quick_bar_rows, R.id.quick_bar_offset_x, R.id.quick_bar_offset_y};
             for (int id : ids) {
                 SeekBar slider = body.findViewById(id);
                 slider.setProgressTintList(tint);
@@ -362,10 +426,7 @@ public final class QuickBarEditor {
                             return;
                         }
                         if (id == R.id.quick_bar_rows) {
-                            bar.rows = progress + 1;
-                        }
-                        else if (id == R.id.quick_bar_columns) {
-                            bar.columns = progress + 1;
+                            bar.perLine = progress + 1;
                         }
                         else if (id == R.id.quick_bar_offset_x) {
                             bar.offsetXDp = (progress - 100) * OFFSET_STEP_DP;
@@ -393,8 +454,7 @@ public final class QuickBarEditor {
             if (bar == null) {
                 return;
             }
-            ((TextView) body.findViewById(R.id.quick_bar_rows_label)).setText(context.getString(R.string.quick_bar_rows, bar.rows));
-            ((TextView) body.findViewById(R.id.quick_bar_columns_label)).setText(context.getString(R.string.quick_bar_columns, bar.columns));
+            ((TextView) body.findViewById(R.id.quick_bar_rows_label)).setText(context.getString(R.string.quick_bar_per_line, bar.perLine));
             ((TextView) body.findViewById(R.id.quick_bar_offset_x_label)).setText(context.getString(R.string.quick_bar_offset_x, bar.offsetXDp));
             ((TextView) body.findViewById(R.id.quick_bar_offset_y_label)).setText(context.getString(R.string.quick_bar_offset_y, bar.offsetYDp));
         }
@@ -415,8 +475,9 @@ public final class QuickBarEditor {
                     }
                 }
                 binding = true;
-                ((SeekBar) body.findViewById(R.id.quick_bar_rows)).setProgress(bar.rows - 1);
-                ((SeekBar) body.findViewById(R.id.quick_bar_columns)).setProgress(bar.columns - 1);
+                ((SeekBar) body.findViewById(R.id.quick_bar_rows)).setProgress(bar.perLine - 1);
+                body.findViewById(R.id.quick_bar_fill_across).setSelected(!bar.down);
+                body.findViewById(R.id.quick_bar_fill_down).setSelected(bar.down);
                 ((SeekBar) body.findViewById(R.id.quick_bar_offset_x)).setProgress(bar.offsetXDp / OFFSET_STEP_DP + 100);
                 ((SeekBar) body.findViewById(R.id.quick_bar_offset_y)).setProgress(bar.offsetYDp / OFFSET_STEP_DP + 100);
                 binding = false;
@@ -651,7 +712,7 @@ public final class QuickBarEditor {
                     })
                     .setNegativeButton(R.string.game_menu_cancel, null);
             Dialogs.show(builder, Dialogs.WIDTH_STANDARD_DP);
-            field.requestFocus();
+            Dialogs.openKeyboard(field);
         }
     }
 

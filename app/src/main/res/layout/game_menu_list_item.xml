@@ -3,7 +3,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="?android:attr/selectableItemBackground"
+    android:background="@drawable/bg_pressable_rounded"
     android:gravity="center_vertical"
     android:minHeight="48dp"
     android:orientation="horizontal"
@@ -24,5 +24,5 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:textColor="?android:attr/textColorPrimary"
-        android:textSize="16sp" />
+        android:textAppearance="@style/TextAppearance.SuperArtemis.BodyLarge" />
 </LinearLayout>

@@ -82,9 +82,12 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 
-public class StreamSettings extends AppCompatActivity implements SearchPreferenceResultListener {
+public class StreamSettings extends AppCompatActivity implements SearchPreferenceResultListener, SettingsSections.Host {
     // Set by BackupOpenActivity: the intent data is a backup file to restore
     public static final String EXTRA_RESTORE_BACKUP = "com.limelight.RESTORE_BACKUP";
+    // Set when Settings was opened from a running stream, which reconnects when Settings closes
+    public static final String EXTRA_RESUME_STREAM = "com.limelight.RESUME_STREAM";
+    private boolean streamResumed;
 
     // NOTE: Words people use for the same settings. Searching any word of a group also finds what the other words find, ranked after direct matches.
     // NOTE: Groups stay small and specific, since every extra word widens the results of every query in its group.
@@ -116,6 +119,16 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
 
     // HACK for Android 9
     static DisplayCutout displayCutoutP;
+
+    // Closing Settings that a stream opened goes straight back to that stream, once, even if the leave policy is not Resume
+    @Override
+    public void finish() {
+        if (!streamResumed && getIntent() != null && getIntent().getBooleanExtra(EXTRA_RESUME_STREAM, false)) {
+            streamResumed = true;
+            com.limelight.session.SessionResumer.resumeNow(this);
+        }
+        super.finish();
+    }
 
     void reloadSettings() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -195,7 +208,8 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
     }
 
     // Called once the settings list exists, so the section list can follow its scrolling
-    void onSettingsListReady(SettingsFragment fragment) {
+    @Override
+    public void onSettingsListReady(androidx.preference.PreferenceFragmentCompat fragment) {
         if (sections != null) {
             sections.attach(fragment);
         }
@@ -284,6 +298,11 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
         }
 
         public SettingsFragment(PreferenceConfiguration prefCfg) {
+            prevPrefConfig = prefCfg;
+        }
+
+        // A subclass rebuilt by the system (the profile editor) supplies the settings it edits before the screen is built
+        protected void setPrevPrefConfig(PreferenceConfiguration prefCfg) {
             prevPrefConfig = prefCfg;
         }
 
@@ -1386,6 +1405,8 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
         }
 
         private void setupCustomKeys() {
+            bindKeyboardService();
+
             Preference customKeys = findPreference("pref_custom_keys");
             if (customKeys != null) {
                 customKeys.setOnPreferenceClickListener(preference -> {
@@ -1412,6 +1433,28 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
             }
         }
 
+        // NOTE: Android keeps Alt+Tab, the Windows key and some other shortcuts of a physical keyboard for itself unless the keyboard service is on (upstream #556).
+        // NOTE: The row says whether the service is on and opens Android's accessibility page, because only the user can turn a service on.
+        private void bindKeyboardService() {
+            Preference service = findPreference("pref_keyboard_service");
+            if (service == null) {
+                return;
+            }
+            service.setSummary(isKeyboardServiceOn(requireContext()) ? R.string.summary_keyboard_service_on : R.string.summary_keyboard_service_off);
+            service.setOnPreferenceClickListener(preference -> {
+                com.limelight.ui.SafeRun.run(requireContext(), preference.getKey(), () ->
+                        startActivity(new Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS)));
+                return true;
+            });
+        }
+
+        static boolean isKeyboardServiceOn(Context context) {
+            String enabled = android.provider.Settings.Secure.getString(context.getContentResolver(),
+                    android.provider.Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES);
+            String service = new android.content.ComponentName(context, com.limelight.KeyboardAccessibilityService.class).flattenToString();
+            return enabled != null && enabled.contains(service);
+        }
+
         private void scrollToTop(String key) {
             Preference target = findPreference(key);
             RecyclerView list = getListView();
@@ -1421,7 +1464,8 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
             }
             int position = ((PreferenceGroup.PreferencePositionCallback) list.getAdapter()).getPreferenceAdapterPosition(target);
             if (position >= 0) {
-                ((LinearLayoutManager) list.getLayoutManager()).scrollToPositionWithOffset(position, (int) (16 * getResources().getDisplayMetrics().density));
+                // 64dp leaves room for the section header above the result, which a 16dp offset pushed under the search bar
+                ((LinearLayoutManager) list.getLayoutManager()).scrollToPositionWithOffset(position, (int) (64 * getResources().getDisplayMetrics().density));
             }
         }
 
@@ -1447,8 +1491,8 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
                 // The library only scrolls the result into view somewhere, so it is brought to the top once the list has settled
                 getListView().postDelayed(() -> scrollToTop(targetKey), 350);
             }
-            if (getActivity() instanceof StreamSettings) {
-                ((StreamSettings) getActivity()).onSettingsListReady(this);
+            if (getActivity() instanceof SettingsSections.Host) {
+                ((SettingsSections.Host) getActivity()).onSettingsListReady(this);
             }
             // A backup opened from another app goes straight to the password prompt or restore preview, once
             Intent intent = requireActivity().getIntent();
@@ -1462,6 +1506,8 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
         public void onResume() {
             super.onResume();
             refreshMicrophonePreview();
+            // The user may come back from the accessibility page with the keyboard service turned on or off
+            bindKeyboardService();
         }
 
         @Override

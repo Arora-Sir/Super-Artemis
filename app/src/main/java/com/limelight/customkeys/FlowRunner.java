@@ -7,6 +7,8 @@ import java.util.Deque;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 // NOTE: Runs the steps of a special key one after another on one background thread, so a shortcut, typed text and waits never overlap.
@@ -42,6 +44,7 @@ public final class FlowRunner {
     private final AtomicBoolean running = new AtomicBoolean();
     private final Deque<Short> held = new ArrayDeque<>();
     private volatile boolean cancelled;
+    private volatile Future<?> current;
 
     public FlowRunner(Sink sink) {
         this(sink, Thread::sleep, Executors.newSingleThreadExecutor(r -> {
@@ -63,18 +66,25 @@ public final class FlowRunner {
             return false;
         }
         cancelled = false;
-        executor.execute(() -> {
-            try {
-                runSteps(key.steps);
-            }
-            catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-            finally {
-                releaseHeld();
-                running.set(false);
-            }
-        });
+        try {
+            current = executor.submit(() -> {
+                try {
+                    runSteps(key.steps);
+                }
+                catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+                finally {
+                    releaseHeld();
+                    running.set(false);
+                }
+            });
+        }
+        catch (RejectedExecutionException e) {
+            // The stream already ended and shut the runner down
+            running.set(false);
+            return false;
+        }
         return true;
     }
 
@@ -82,14 +92,19 @@ public final class FlowRunner {
         return running.get();
     }
 
-    // Stops after the current step and lets go of every held key, for example when the stream ends
+    // NOTE: Stops the running key and lets go of every held key, for example when the stream ends.
+    // NOTE: The interrupt ends a Wait step at once, so a 60 second wait never keeps the thread and the stream activity alive.
     public void cancel() {
         cancelled = true;
+        Future<?> running = current;
+        if (running != null) {
+            running.cancel(true);
+        }
     }
 
     public void shutdown() {
         cancel();
-        executor.shutdown();
+        executor.shutdownNow();
     }
 
     void runSteps(List<KeyStep> steps) throws InterruptedException {

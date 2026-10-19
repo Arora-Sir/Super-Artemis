@@ -129,4 +129,74 @@ public class CustomKeysTest {
             assertEquals(true, ids.add(icon.id));
         }
     }
+    // The F13 to F24 row must share the keyboard height with the other rows. Copying the row params without the weight once made it fill the whole keyboard.
+    @Test
+    public void highFunctionRowIsOneRowTall() {
+        Context context = new android.view.ContextThemeWrapper(ApplicationProvider.getApplicationContext(), com.limelight.R.style.AppTheme);
+        android.view.ViewGroup keyboard = (android.view.ViewGroup) android.view.LayoutInflater.from(context).inflate(com.limelight.R.layout.layout_axixi_keyboard, null);
+        int rowsBefore = keyboard.getChildCount();
+        List<Integer> recorded = new ArrayList<>();
+        CustomKeyEditor.addHighFunctionKeys(context, keyboard, recorded::add);
+        assertEquals(rowsBefore + 1, keyboard.getChildCount());
+        keyboard.measure(android.view.View.MeasureSpec.makeMeasureSpec(1200, android.view.View.MeasureSpec.EXACTLY),
+                android.view.View.MeasureSpec.makeMeasureSpec(800, android.view.View.MeasureSpec.EXACTLY));
+        keyboard.layout(0, 0, 1200, 800);
+        int fRow = keyboard.getChildAt(1).getHeight();
+        int firstRow = keyboard.getChildAt(0).getHeight();
+        assertTrue("F row " + fRow + " vs first row " + firstRow, fRow > 0 && Math.abs(fRow - firstRow) <= 2);
+        android.view.ViewGroup row = (android.view.ViewGroup) keyboard.getChildAt(1);
+        assertEquals(12, row.getChildCount());
+        row.getChildAt(11).performClick();
+        assertEquals(Arrays.asList(KeyNames.VK_F24), recorded);
+    }
+    @Test
+    @Config(qualifiers = "w411dp-h891dp-port-xxhdpi")
+    public void recorderKeyboardIsTallOnAPhoneInPortrait() {
+        Context context = ApplicationProvider.getApplicationContext();
+        assertEquals((int) (320 * context.getResources().getDisplayMetrics().density), CustomKeyEditor.recorderKeyboardHeight(context));
+    }
+
+    // A phone in landscape has about 384dp of height, so the keyboard keeps its minimum and the dialog still shows the key box and buttons
+    @Test
+    @Config(qualifiers = "w832dp-h384dp-land-xxhdpi")
+    public void recorderKeyboardFitsAPhoneInLandscape() {
+        Context context = ApplicationProvider.getApplicationContext();
+        assertEquals((int) (184 * context.getResources().getDisplayMetrics().density), CustomKeyEditor.recorderKeyboardHeight(context));
+    }
+
+    @Test
+    public void recorderKeyLabelsShareOneSize() {
+        Context context = new android.view.ContextThemeWrapper(ApplicationProvider.getApplicationContext(), com.limelight.R.style.AppTheme);
+        android.view.ViewGroup keyboard = (android.view.ViewGroup) android.view.LayoutInflater.from(context).inflate(com.limelight.R.layout.layout_axixi_keyboard, null);
+        CustomKeyEditor.addHighFunctionKeys(context, keyboard, vk -> { });
+        keyboard.measure(android.view.View.MeasureSpec.makeMeasureSpec(1080, android.view.View.MeasureSpec.EXACTLY),
+                android.view.View.MeasureSpec.makeMeasureSpec(900, android.view.View.MeasureSpec.EXACTLY));
+        keyboard.layout(0, 0, 1080, 900);
+        CustomKeyEditor.unifyKeyLabels(keyboard);
+        java.util.Set<Float> shortSizes = new java.util.HashSet<>();
+        collectShortSizes(keyboard, shortSizes);
+        assertEquals(shortSizes.toString(), 1, shortSizes.size());
+    }
+
+    private static void collectShortSizes(android.view.View view, java.util.Set<Float> sizes) {
+        if (view instanceof android.view.ViewGroup) {
+            for (int i = 0; i < ((android.view.ViewGroup) view).getChildCount(); i++) {
+                collectShortSizes(((android.view.ViewGroup) view).getChildAt(i), sizes);
+            }
+        }
+        else if (view instanceof android.widget.TextView && view.getVisibility() == android.view.View.VISIBLE) {
+            CharSequence text = ((android.widget.TextView) view).getText();
+            if (text.length() > 0 && text.length() <= 3) {
+                sizes.add(((android.widget.TextView) view).getTextSize());
+            }
+        }
+    }
+    // Keys tapped in the recorder but not confirmed with Done must not be saveable
+    @Test
+    public void saveWaitsForDoneAndANameAndAStep() {
+        assertFalse(CustomKeyEditor.canSave(0, "Ctrl + F13", false));
+        assertFalse(CustomKeyEditor.canSave(1, "  ", false));
+        assertFalse("keys tapped but not confirmed with Done", CustomKeyEditor.canSave(1, "Ctrl + F13", true));
+        assertTrue(CustomKeyEditor.canSave(1, "Ctrl + F13", false));
+    }
 }

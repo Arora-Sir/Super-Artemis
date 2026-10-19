@@ -126,6 +126,11 @@ public class PreferenceConfiguration {
 
     //竖屏模式
     private static final String CHECKBOX_AUTO_ORIENTATION = "checkbox_auto_orientation";
+    // Which landscape side the stream uses: follow the sensor, normal, or upside down (upstream ClassicOldSong/moonlight-android#492)
+    public static final String LIST_LANDSCAPE_SIDE = "list_landscape_side";
+    public static final String LANDSCAPE_FOLLOW = "follow";
+    public static final String LANDSCAPE_NORMAL = "normal";
+    public static final String LANDSCAPE_REVERSE = "reverse";
     //屏幕特殊按键
     private static final String CHECKBOX_ENABLE_KEYBOARD = "checkbox_enable_keyboard";
 
@@ -306,6 +311,7 @@ public class PreferenceConfiguration {
     public boolean resumeWithoutConfirm;
     //竖屏模式
     public boolean autoOrientation;
+    public String landscapeSide;
     //虚拟屏幕键盘按键
     public boolean enableKeyboard;
     //修复JoyCon十字键
@@ -984,6 +990,7 @@ private static int getFramePacingValue(Context context) {
         config.enableFloatingButton = prefs.getBoolean(CHECKBOX_ENABLE_FLOATING_BUTTON,DEFAULT_ENABLE_FLOATING_BUTTON);
         config.showOverlayZoomToggleButton = prefs.getBoolean(CHECKBOX_SHOW_OVERLAY_ZOOM_TOGGLE_BUTTON, DEFAULT_SHOW_OVERLAY_TOGGLE_BUTTON);
         config.autoOrientation = prefs.getBoolean(CHECKBOX_AUTO_ORIENTATION,false);
+        config.landscapeSide = prefs.getString(LIST_LANDSCAPE_SIDE, LANDSCAPE_FOLLOW);
         config.autoInvertVideoResolution = prefs.getBoolean(AUTO_INVERT_VIDEO_RESOLUTION_PREF_STRING, DEFAULT_AUTO_INVERT_VIDEO_RESOLUTION);
         config.resolutionScaleFactor = prefs.getInt(RESOLUTION_SCALE_FACTOR_PREF_STRING, DEFAULT_RESOLUTION_SCALE_FACTOR);
 

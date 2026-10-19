@@ -33,8 +33,9 @@ public final class KeyPicker {
         });
     }
 
-    // The "Add key or flow" button that sits under a picker list
-    public static Button addButton(Context context, OnCreated onCreated) {
+    // NOTE: The "Add key or flow" button that sits under a picker list.
+    // NOTE: The button lives in the picker's dialog, but the key editor opens from the activity context, because a dialog theme drops the chip and segment styles of a nested dialog.
+    public static Button addButton(Context context, Context editorContext, OnCreated onCreated) {
         Button button = new Button(context, null, 0, R.style.Widget_SuperArtemis_Button_Tonal);
         button.setText(R.string.key_picker_add);
         button.setGravity(Gravity.CENTER);
@@ -46,7 +47,7 @@ public final class KeyPicker {
             button.setCompoundDrawablesRelative(icon, null, null, null);
             button.setCompoundDrawablePadding((int) Dialogs.dp(context, 8));
         }
-        button.setOnClickListener(v -> createKey(context, onCreated));
+        button.setOnClickListener(v -> createKey(editorContext, onCreated));
         return button;
     }
 }

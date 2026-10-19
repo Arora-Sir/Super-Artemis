@@ -66,7 +66,8 @@ public class PcGridAdapter extends GenericGridAdapter<PcView.ComputerObject> {
             prgView.setVisibility(View.INVISIBLE);
         }
 
-        txtView.setText(obj.details.name);
+        // A zero-width space after each hyphen lets "Predator-Helios-300" wrap at the hyphen instead of mid-word
+        txtView.setText(obj.details.name == null ? null : obj.details.name.replace("-", "-\u200B"));
         if (obj.details.state == ComputerDetails.State.ONLINE) {
             txtView.setAlpha(1.0f);
         }

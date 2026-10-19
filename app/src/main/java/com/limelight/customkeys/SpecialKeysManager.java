@@ -193,13 +193,15 @@ public final class SpecialKeysManager {
 
             holder.icon.setImageResource(IconCatalog.drawableFor(key.icon));
             holder.name.setText(key.name);
-            String combo = names.describe(key.keys);
+            // A flow shows its steps, a shortcut shows its keys
+            String combo = key.isSingleCombo() ? names.describe(key.keys) : CustomKeyEditor.summary(context, names, key);
             holder.combo.setText(builtIn ? context.getString(R.string.special_key_built_in, combo) : combo);
             holder.itemView.setAlpha(isHidden ? 0.6f : 1f);
             holder.handle.setVisibility(isHidden ? View.INVISIBLE : View.VISIBLE);
 
+            // The eye shows the key's state like the menu editor: open while it is shown, crossed while it is hidden
             if (isHidden) {
-                holder.action.setImageResource(R.drawable.ic_sa_visibility);
+                holder.action.setImageResource(R.drawable.ic_sa_visibility_off);
                 holder.action.setContentDescription(context.getString(R.string.special_key_show));
                 holder.action.setOnClickListener(v -> {
                     SpecialKeys.setHidden(context, key.id, false);
@@ -211,7 +213,7 @@ public final class SpecialKeysManager {
             }
 
             if (builtIn) {
-                holder.action.setImageResource(R.drawable.ic_sa_visibility_off);
+                holder.action.setImageResource(R.drawable.ic_sa_visibility);
                 holder.action.setContentDescription(context.getString(R.string.special_key_hide));
                 holder.action.setOnClickListener(v -> {
                     SpecialKeys.setHidden(context, key.id, true);
@@ -226,7 +228,8 @@ public final class SpecialKeysManager {
                 holder.action.setImageResource(R.drawable.ic_sa_delete);
                 holder.action.setContentDescription(context.getString(R.string.custom_key_delete));
                 holder.action.setOnClickListener(v -> new AlertDialog.Builder(context)
-                        .setMessage(context.getString(R.string.custom_key_delete_confirm, key.name))
+                        .setCustomTitle(Dialogs.header(context, R.drawable.ic_sa_delete,
+                                context.getString(R.string.custom_key_delete_confirm, key.name), null))
                         .setPositiveButton(R.string.custom_key_delete, (d, which) -> {
                             List<CustomKey> custom = CustomKeyStore.loadOrEmpty(context);
                             for (int i = 0; i < custom.size(); i++) {

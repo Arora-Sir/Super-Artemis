@@ -74,7 +74,7 @@ public final class AppStylePicker {
         dialog[0] = Dialogs.show(builder, Dialogs.WIDTH_STANDARD_DP + 120);
     }
 
-    // A round swatch in the scheme's primary color with its name below, ringed when it is the scheme in use
+    // A round swatch in the scheme's primary color with its name below, ringed and checked when it is the scheme in use
     private static View swatch(Context context, Context dialogContext, String scheme, int nameRes, boolean selected, Runnable onTap) {
         float density = context.getResources().getDisplayMetrics().density;
         LinearLayout item = new LinearLayout(dialogContext);
@@ -84,12 +84,18 @@ public final class AppStylePicker {
         item.setPadding(pad, pad, pad, pad);
         item.setMinimumWidth((int) (64 * density));
         item.setBackgroundResource(R.drawable.bg_button_text);
-        View dot = new View(dialogContext);
+        android.widget.ImageView dot = new android.widget.ImageView(dialogContext);
+        Context schemeContext = ThemeManager.materialYouContext(context, scheme);
         GradientDrawable circle = new GradientDrawable();
         circle.setShape(GradientDrawable.OVAL);
-        circle.setColor(Dialogs.color(ThemeManager.materialYouContext(context, scheme), R.attr.saPrimary));
+        circle.setColor(Dialogs.color(schemeContext, R.attr.saPrimary));
         if (selected) {
+            // A ring alone is hard to see on light swatches, so the swatch in use also carries a check in its own on-primary color
             circle.setStroke((int) (3 * density), Dialogs.color(dialogContext, R.attr.saOnSurface));
+            dot.setImageResource(R.drawable.ic_sa_check);
+            dot.setImageTintList(android.content.res.ColorStateList.valueOf(Dialogs.color(schemeContext, R.attr.saOnPrimary)));
+            int inset = (int) (8 * density);
+            dot.setPadding(inset, inset, inset, inset);
         }
         dot.setBackground(circle);
         int size = (int) (36 * density);
@@ -98,6 +104,10 @@ public final class AppStylePicker {
         name.setText(nameRes);
         TextViewCompat.setTextAppearance(name, R.style.TextAppearance_SuperArtemis_BodySmall);
         name.setGravity(Gravity.CENTER);
+        if (selected) {
+            name.setTextColor(Dialogs.color(dialogContext, R.attr.saPrimary));
+            name.setTypeface(name.getTypeface(), android.graphics.Typeface.BOLD);
+        }
         LinearLayout.LayoutParams nameParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         nameParams.topMargin = (int) (4 * density);
         item.addView(name, nameParams);

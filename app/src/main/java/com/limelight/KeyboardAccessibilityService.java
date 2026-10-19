@@ -56,7 +56,8 @@ public class KeyboardAccessibilityService extends AccessibilityService {
         info.eventTypes = AccessibilityEvent.TYPES_ALL_MASK;
         info.notificationTimeout = 100;
         info.flags = AccessibilityServiceInfo.FLAG_REQUEST_FILTER_KEY_EVENTS;
-        info.feedbackType = AccessibilityServiceInfo.FEEDBACK_SPOKEN;
+        // Generic feedback: spoken feedback marks the service as a screen reader, and apps such as YouTube then read their UI aloud (upstream #609)
+        info.feedbackType = AccessibilityServiceInfo.FEEDBACK_GENERIC;
         setServiceInfo(info);
     }
 

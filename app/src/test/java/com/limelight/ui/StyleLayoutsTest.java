@@ -22,7 +22,7 @@ import org.robolectric.annotation.Config;
 @Config(sdk = 33, shadows = {ShadowMoonBridge.class})
 public class StyleLayoutsTest {
     private static final int[] LAYOUTS = {
-            R.layout.sa_dialog_header, R.layout.dialog_support, R.layout.sa_link_row, R.layout.credit_card, R.layout.sa_chip,
+            R.layout.sa_dialog_header, R.layout.row_profile, R.layout.activity_profiles, R.layout.dialog_support, R.layout.sa_link_row, R.layout.credit_card, R.layout.sa_chip,
             R.layout.settings_section_item, R.layout.activity_stream_settings, R.layout.dialog_quick_bar_editor,
             R.layout.custom_key_row, R.layout.special_keys_header, R.layout.dialog_icon_picker, R.layout.custom_key_icon_item,
             R.layout.gesture_row, R.layout.sa_choice_row, R.layout.dialog_app_style, R.layout.app_style_card,

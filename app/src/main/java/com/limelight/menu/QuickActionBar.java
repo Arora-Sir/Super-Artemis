@@ -158,7 +158,8 @@ public final class QuickActionBar {
                 }
                 ImageButton button = buttons.get(items.indexOf(item));
                 button.setOnLongClickListener(v -> {
-                    host.showBarMenu(index, String.valueOf(v.getContentDescription()));
+                    String name = String.valueOf(v.getContentDescription());
+                    com.limelight.ui.SafeRun.run(context, name, () -> host.showBarMenu(index, name));
                     return true;
                 });
                 row.addView(button, params);
@@ -258,7 +259,7 @@ public final class QuickActionBar {
         // The menu button owns the top left corner, so a wide bar there starts right of it and a tall one starts under it
         if (BarSets.TOP_LEFT.equals(spec.anchor) && host.isFloatingMenuButtonVisible()) {
             int step = (int) ((BUTTON_DP + GAP_DP) * density);
-            if (spec.rows > spec.columns) {
+            if (spec.rows() > spec.columns()) {
                 edgeMargin += step;
                 sideMargin = 0;
             }

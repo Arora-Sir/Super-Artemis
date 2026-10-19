@@ -14,20 +14,23 @@ public final class CustomKey {
     public final String icon;
     public final List<Integer> keys;
     public final List<KeyStep> steps;
+    // Phone-side hotkey that runs this key during a stream, or null
+    public final Hotkey hotkey;
 
     // A plain shortcut: one step that presses the keys in order and releases them in reverse
     public CustomKey(String id, String name, boolean sticky, String icon, List<Integer> keys) {
-        this(id, name, sticky, icon, Collections.singletonList(KeyStep.combo(keys)), true);
+        this(id, name, sticky, icon, Collections.singletonList(KeyStep.combo(keys)), null);
     }
 
     public static CustomKey withSteps(String id, String name, boolean sticky, String icon, List<KeyStep> steps) {
-        return new CustomKey(id, name, sticky, icon, steps, true);
+        return new CustomKey(id, name, sticky, icon, steps, null);
     }
 
-    private CustomKey(String id, String name, boolean sticky, String icon, List<KeyStep> steps, boolean unused) {
+    private CustomKey(String id, String name, boolean sticky, String icon, List<KeyStep> steps, Hotkey hotkey) {
         this.id = id;
         this.name = name;
         this.icon = icon;
+        this.hotkey = hotkey;
         this.steps = Collections.unmodifiableList(new ArrayList<>(steps));
         List<Integer> first = new ArrayList<>();
         for (KeyStep step : steps) {
@@ -47,7 +50,11 @@ public final class CustomKey {
     }
 
     public CustomKey withId(String newId) {
-        return new CustomKey(newId, name, sticky, icon, steps, true);
+        return new CustomKey(newId, name, sticky, icon, steps, hotkey);
+    }
+
+    public CustomKey withHotkey(Hotkey value) {
+        return new CustomKey(id, name, sticky, icon, steps, value);
     }
 
     public short[] keyCodes() {

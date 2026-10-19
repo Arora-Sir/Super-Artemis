@@ -25,15 +25,20 @@ public class LayoutInflationTest {
     @Test
     public void allLayoutsInflateSuccessfully() throws IllegalAccessException {
         Context base = ApplicationProvider.getApplicationContext();
-        Context context = new androidx.appcompat.view.ContextThemeWrapper(base,
-                androidx.appcompat.R.style.Theme_AppCompat);
-        for (int layoutId : getAllLayoutResourceIds()) {
-            try {
-                LayoutInflater.from(context).inflate(layoutId, null);
-            } catch (android.view.InflateException e) {
-                // Retry with a dummy FrameLayout for <merge> root layouts
-                android.widget.FrameLayout dummyRoot = new android.widget.FrameLayout(context);
-                LayoutInflater.from(context).inflate(layoutId, dummyRoot, true);
+        // NOTE: The app theme with each app style, as the activities apply them: Material buttons need a MaterialComponents theme.
+        // NOTE: Super Artemis layouts read color roles (saBackground and friends) that only an app style defines, so both styles are inflated.
+        Context classic = new androidx.appcompat.view.ContextThemeWrapper(
+                new androidx.appcompat.view.ContextThemeWrapper(base, R.style.AppTheme), R.style.ThemeOverlay_SuperArtemis_Classic);
+        Context materialYou = new androidx.appcompat.view.ContextThemeWrapper(base, R.style.AppTheme_MaterialYou);
+        for (Context context : new Context[] {classic, materialYou}) {
+            for (int layoutId : getAllLayoutResourceIds()) {
+                try {
+                    LayoutInflater.from(context).inflate(layoutId, null);
+                } catch (android.view.InflateException e) {
+                    // Retry with a dummy FrameLayout for <merge> root layouts
+                    android.widget.FrameLayout dummyRoot = new android.widget.FrameLayout(context);
+                    LayoutInflater.from(context).inflate(layoutId, dummyRoot, true);
+                }
             }
         }
     }

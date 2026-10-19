@@ -143,11 +143,22 @@
             android:text="F12"
             android:textSize="12sp" />
 
+        <!-- Print Screen: SysRq on Android, sent to the PC as VK_SNAPSHOT by KeyboardTranslator -->
         <TextView
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="100"
             android:layout_marginLeft="5dp"
+            android:background="@drawable/bg_ax_keyboard_button"
+            android:gravity="center"
+            android:tag="120"
+            android:text="PrtSc"
+            android:textSize="12sp" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="100"
             android:background="@drawable/bg_ax_keyboard_button"
             android:gravity="center"
             android:tag="124"

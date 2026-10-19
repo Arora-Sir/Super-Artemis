@@ -146,7 +146,8 @@ public final class SpecialKeys {
         prefs(context).edit().remove(PREF_HIDDEN).remove(PREF_ICONS).remove(PREF_ORDER).apply();
     }
 
-    // Keys named in the saved order come first in that order, any others keep their natural order after them
+    // NOTE: Keys named in the saved order come first in that order, and any others keep their natural order.
+    // NOTE: A key missing from the saved order (a key added later, a built-in key shown again) goes before the first More key, so it is not buried under the More keys group.
     static List<CustomKey> order(List<CustomKey> keys, List<String> order) {
         Map<String, CustomKey> byId = new LinkedHashMap<>();
         for (CustomKey key : keys) {
@@ -159,7 +160,21 @@ public final class SpecialKeys {
                 ordered.add(key);
             }
         }
-        ordered.addAll(byId.values());
+        for (CustomKey key : byId.values()) {
+            int firstMore = -1;
+            for (int i = 0; i < ordered.size() && !isMoreKey(key.id); i++) {
+                if (isMoreKey(ordered.get(i).id)) {
+                    firstMore = i;
+                    break;
+                }
+            }
+            if (firstMore < 0) {
+                ordered.add(key);
+            }
+            else {
+                ordered.add(firstMore, key);
+            }
+        }
         return ordered;
     }
 

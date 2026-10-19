@@ -92,6 +92,14 @@
             android:summary="@string/summary_auto_orientation"
             android:title="@string/title_auto_orientation"
             app:iconSpaceReserved="false" />
+        <ListPreference
+            android:defaultValue="follow"
+            android:entries="@array/landscape_side_names"
+            android:entryValues="@array/landscape_side_values"
+            android:key="list_landscape_side"
+            android:title="@string/title_landscape_side"
+            app:iconSpaceReserved="false"
+            app:useSimpleSummaryProvider="true" />
         <CheckBoxPreference
             android:defaultValue="true"
             android:dependency="checkbox_auto_orientation"
@@ -461,6 +469,11 @@
             android:key="checkbox_force_qwerty"
             android:summary="@string/summary_checkbox_force_qwerty"
             android:title="@string/title_checkbox_force_qwerty"
+            app:iconSpaceReserved="false" />
+        <!-- Opens Android's accessibility page for the keyboard service, which passes Alt+Tab, the Windows key and other system shortcuts to the PC -->
+        <Preference
+            android:key="pref_keyboard_service"
+            android:title="@string/title_keyboard_service"
             app:iconSpaceReserved="false" />
         <CheckBoxPreference
             android:defaultValue="false"

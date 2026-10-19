@@ -73,6 +73,32 @@ public final class ResumeStore {
         prefs(context).edit().putLong(KEY_LEFT_AT, nowMs).commit();
     }
 
+    // NOTE: Set when the picture-in-picture window is closed with its X, which ends the stream without asking.
+    // NOTE: The PC and app lists then offer to reconnect once, so a mistaken tap on X is one tap to undo.
+    private static final String KEY_CLOSED_FROM_PIP_AT = "closed_from_pip_at";
+
+    public static void markClosedFromPip(Context context, long nowMs) {
+        prefs(context).edit().putLong(KEY_CLOSED_FROM_PIP_AT, nowMs).commit();
+    }
+
+    public static void clearClosedFromPip(Context context) {
+        prefs(context).edit().remove(KEY_CLOSED_FROM_PIP_AT).apply();
+    }
+
+    // Returns the stream closed from picture-in-picture at most once, and nothing after the resume window
+    public static Session takeClosedFromPip(Context context, long nowMs) {
+        SharedPreferences prefs = prefs(context);
+        long closedAt = prefs.getLong(KEY_CLOSED_FROM_PIP_AT, 0);
+        if (closedAt <= 0) {
+            return null;
+        }
+        prefs.edit().remove(KEY_CLOSED_FROM_PIP_AT).commit();
+        if (nowMs < closedAt || nowMs - closedAt > RESUME_WINDOW_MS) {
+            return null;
+        }
+        return last(context);
+    }
+
     public static void clearPending(Context context) {
         prefs(context).edit().remove(KEY_LEFT_AT).apply();
     }

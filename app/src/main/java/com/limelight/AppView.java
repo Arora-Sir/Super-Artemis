@@ -406,7 +406,10 @@ public class AppView extends AppCompatActivity implements AdapterFragmentCallbac
         UiHelper.showDecoderCrashDialog(this);
 
         // The app list is what Recents shows after leaving a stream started from it, so it resumes too
-        SessionResumer.maybeResume(this);
+        // A stream closed from its picture-in-picture window offers a reconnect, otherwise the leave policy may resume it
+        if (!SessionResumer.maybeOfferReconnectAfterPipClose(this)) {
+            SessionResumer.maybeResume(this);
+        }
 
         inForeground = true;
         startComputerUpdates();

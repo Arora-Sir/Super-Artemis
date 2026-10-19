@@ -80,6 +80,15 @@ public class StreamActionRegistryTest {
         assertEquals(Arrays.asList("disconnect", "keys:3"), host.calls);
     }
 
+    @Test
+    public void settingsRunsThroughTheHostAndIsNotASessionEnder() {
+        FakeHost host = new FakeHost();
+        StreamAction settings = StreamActionRegistry.find(StreamActionRegistry.ID_SETTINGS);
+        settings.run(host);
+        assertEquals(java.util.Collections.singletonList("settings"), host.calls);
+        org.junit.Assert.assertFalse(settings.destructive);
+    }
+
     private static final class FakeHost implements StreamActionHost {
         final List<String> calls = new ArrayList<>();
         boolean zoom;
@@ -111,5 +120,6 @@ public class StreamActionRegistryTest {
         @Override public void sendKeys(short[] keys) { calls.add("keys:" + keys.length); }
         @Override public void openSpecialKeys() { calls.add("specialkeys"); }
         @Override public void switchTouchSensitivity() { calls.add("sensitivity"); }
+        @Override public void openSettings() { calls.add("settings"); }
     }
 }

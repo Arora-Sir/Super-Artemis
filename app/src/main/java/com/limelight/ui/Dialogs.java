@@ -45,6 +45,24 @@ public final class Dialogs {
         int max = (int) ((maxWidthDp + BACKGROUND_INSET_DP) * metrics.density);
         window.setLayout(Math.min(metrics.widthPixels, max), WindowManager.LayoutParams.WRAP_CONTENT);
         softenScrollEdges(window.getDecorView(), (int) (FADE_EDGE_DP * metrics.density));
+        if (dialog instanceof AlertDialog) {
+            for (int which : new int[] {AlertDialog.BUTTON_POSITIVE, AlertDialog.BUTTON_NEGATIVE, AlertDialog.BUTTON_NEUTRAL}) {
+                fadeWhenDisabled(((AlertDialog) dialog).getButton(which));
+            }
+        }
+    }
+
+    // NOTE: The dialog button style uses one accent color, so a disabled Save looked the same as an enabled one.
+    // NOTE: This gives the label the Material 3 disabled look (38 percent of its color) while keeping the enabled color. Android 5 and 6 cannot read theme colors in a color list file, so it is built here.
+    public static void fadeWhenDisabled(android.widget.Button button) {
+        if (button == null) {
+            return;
+        }
+        int color = button.getTextColors().getDefaultColor();
+        int faded = (color & 0x00FFFFFF) | (Math.round(0.38f * android.graphics.Color.alpha(color)) << 24);
+        button.setTextColor(new android.content.res.ColorStateList(
+                new int[][] {new int[] {-android.R.attr.state_enabled}, new int[] {}},
+                new int[] {faded, color}));
     }
 
     // NOTE: Every scrolling area in a dialog shows a thin divider on an edge that hides more content, as Material 3 dialogs do.
@@ -104,6 +122,15 @@ public final class Dialogs {
         return header;
     }
 
+    // NOTE: One-line title with a small tonal icon, for the large editors (bars, menu, keys).
+    // NOTE: The tall centered header of the smaller dialogs would cost too much height there, above all on a phone in landscape.
+    public static View compactTitle(Context context, int iconRes, CharSequence title) {
+        View view = LayoutInflater.from(context).inflate(R.layout.sa_dialog_compact_title, null);
+        ((ImageView) view.findViewById(R.id.sa_dialog_compact_icon)).setImageResource(iconRes);
+        ((TextView) view.findViewById(R.id.sa_dialog_compact_title)).setText(title);
+        return view;
+    }
+
     // Resolves a color role such as R.attr.saPrimary in the context's theme
     public static int color(Context context, int attr) {
         TypedValue value = new TypedValue();
@@ -126,6 +153,19 @@ public final class Dialogs {
         androidx.core.graphics.drawable.DrawableCompat.setTintList(icon, button.getTextColors());
         button.setCompoundDrawablesRelative(icon, null, null, null);
         button.setCompoundDrawablePadding((int) dp(button.getContext(), 8));
+    }
+
+    // NOTE: Focuses the only field of a dialog and opens the keyboard, called after the dialog is shown.
+    // NOTE: The window soft input state alone does not open the keyboard when focus arrives after show(), so the field asks the input method itself once it is attached.
+    public static void openKeyboard(android.widget.EditText field) {
+        field.requestFocus();
+        field.postDelayed(() -> {
+            android.view.inputmethod.InputMethodManager input =
+                    (android.view.inputmethod.InputMethodManager) field.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (input != null && field.isAttachedToWindow() && field.hasFocus()) {
+                input.showSoftInput(field, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT);
+            }
+        }, 150);
     }
 
     public static float dp(Context context, float value) {

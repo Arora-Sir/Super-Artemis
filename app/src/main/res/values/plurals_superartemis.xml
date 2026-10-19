@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Counted strings for Super Artemis screens -->
+<resources>
+    <plurals name="special_key_flow_summary">
+        <item quantity="one">%1$d step: %2$s</item>
+        <item quantity="other">%1$d steps: %2$s</item>
+    </plurals>
+</resources>

@@ -57,10 +57,11 @@ public class GameMenuEditorTest {
         // A pinned key that no longer exists is left out, and unpinned keys come last
         assertEquals("key:k2", rows.get(rows.size() - 1).item);
         assertFalse(rows.get(rows.size() - 1).inQuickMenu);
-        assertEquals(GameMenuLayout.configurableActions().size() + 2, rows.size());
+        assertEquals(GameMenuLayout.menuActions().size() + 2, rows.size());
 
         List<MenuEntry> preview = GameMenuEditor.buildPreview(res, rows);
-        assertEquals(res.getString(R.string.quick_bar_custom_key, "Copy"), preview.get(1).label);
+        // The preview shows the key name like the real Quick Menu, without the "Key:" prefix of the editor list
+        assertEquals("Copy", preview.get(1).label);
     }
 
     @Test
@@ -72,10 +73,24 @@ public class GameMenuEditorTest {
         assertEquals(StreamActionRegistry.ID_ZOOM, rows.get(1).action.id);
         assertTrue(rows.get(1).inQuickMenu);
         assertFalse(rows.get(2).inQuickMenu);
-        assertEquals(GameMenuLayout.configurableActions().size(), rows.size());
+        assertEquals(GameMenuLayout.menuActions().size(), rows.size());
         for (GameMenuEditor.Row row : rows) {
             assertFalse(row.action.destructive);
         }
+    }
+
+    @Test
+    public void settingsStaysOutOfTheMenuListsButNotOutOfBarsAndGestures() {
+        // The Quick Menu always shows Settings in its Menu section, so the editor and the Advanced Menu never list it again
+        List<GameMenuEditor.Row> rows = GameMenuEditor.buildRows(context, Arrays.asList(StreamActionRegistry.ID_SETTINGS), NO_KEYS);
+        for (GameMenuEditor.Row row : rows) {
+            assertFalse(StreamActionRegistry.ID_SETTINGS.equals(row.item));
+        }
+        boolean inConfigurable = false;
+        for (com.limelight.actions.StreamAction action : GameMenuLayout.configurableActions()) {
+            inConfigurable |= StreamActionRegistry.ID_SETTINGS.equals(action.id);
+        }
+        assertTrue(inConfigurable);
     }
 
     @Test
@@ -96,6 +111,7 @@ public class GameMenuEditorTest {
                 "#" + res.getString(R.string.game_menu_section_menu),
                 res.getString(R.string.game_menu_advanced),
                 res.getString(R.string.game_menu_customize),
+                res.getString(R.string.game_menu_settings),
                 res.getString(R.string.game_menu_customize_quick_bar),
                 res.getString(R.string.game_menu_cancel)), labels);
     }

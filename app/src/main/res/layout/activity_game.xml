@@ -36,6 +36,22 @@
 <!--        app:aperture_middle_color="#6CD2F8">-->
 <!--    </com.limelight.ui.ApertureViewGroup>-->
 
+    <!-- Shown between the connection and the first picture, which can take a few seconds while the PC starts its encoder -->
+    <TextView
+        android:id="@+id/streamStartingOverlay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@drawable/bg_stream_status"
+        android:paddingLeft="20dp"
+        android:paddingTop="10dp"
+        android:paddingRight="20dp"
+        android:paddingBottom="10dp"
+        android:text="@string/stream_starting_video"
+        android:textAppearance="@style/TextAppearance.SuperArtemis.BodyLarge"
+        android:textColor="#FFFFFFFF"
+        android:visibility="gone" />
+
     <TextView
         android:id="@+id/notificationOverlay"
         android:layout_width="wrap_content"

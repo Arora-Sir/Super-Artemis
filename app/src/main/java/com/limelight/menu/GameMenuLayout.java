@@ -48,6 +48,22 @@ public final class GameMenuLayout {
         return actions;
     }
 
+    // NOTE: Actions the menu editor, the Quick Menu actions and the Advanced Menu list.
+    // NOTE: Settings is left out because the Quick Menu always shows it in its Menu section, so it would appear twice. Bars, gestures and flows still offer it.
+    public static List<StreamAction> menuActions() {
+        List<StreamAction> actions = configurableActions();
+        for (int i = actions.size() - 1; i >= 0; i--) {
+            if (isMenuNavigation(actions.get(i).id)) {
+                actions.remove(i);
+            }
+        }
+        return actions;
+    }
+
+    public static boolean isMenuNavigation(String id) {
+        return StreamActionRegistry.ID_SETTINGS.equals(id);
+    }
+
     public static boolean isConfigurable(String id) {
         StreamAction action = StreamActionRegistry.find(id);
         return action != null && !action.destructive;

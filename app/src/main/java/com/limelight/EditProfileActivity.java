@@ -29,13 +29,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public class EditProfileActivity extends AppCompatActivity {
+public class EditProfileActivity extends AppCompatActivity implements com.limelight.preferences.SettingsSections.Host {
     private String appliedStyle;
     private String profileUuid;
     private SettingsProfile currentProfile;
     private InMemorySharedPreferences inMemoryPrefs;
     private ProfilePreferenceFragment prefsFragment;
     private String pendingProfileName; // Holds new name for unsaved profiles
+    // The same section list as Settings on wide screens
+    private com.limelight.preferences.SettingsSections sections;
+
+    @Override
+    public void onSettingsListReady(androidx.preference.PreferenceFragmentCompat fragment) {
+        if (sections != null) {
+            sections.attach(fragment);
+        }
+    }
 
     @Override
     protected void onResume() {
@@ -52,6 +61,7 @@ public class EditProfileActivity extends AppCompatActivity {
         appliedStyle = ThemeManager.apply(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_profile);
+        sections = new com.limelight.preferences.SettingsSections(this, findViewById(R.id.settings_sections));
 
         UiHelper.setLocale(this);
 
@@ -60,40 +70,28 @@ public class EditProfileActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        // Get profile UUID from intent
-        profileUuid = getIntent().getStringExtra("profileUuid");
-
-        if (profileUuid != null) {
-            // Editing existing profile
-            List<SettingsProfile> profiles = ProfilesManager.getInstance().getProfiles();
-            for (SettingsProfile profile : profiles) {
-                if (profile.getUuid().toString().equals(profileUuid)) {
-                    currentProfile = profile;
-                    break;
-                }
-            }
-
-            if (currentProfile != null) {
-                setTitle(getString(R.string.profile_manager_edit_profile) + currentProfile.getName());
-                inMemoryPrefs = new InMemorySharedPreferences(currentProfile.getOptions());
-            } else {
-                Toast.makeText(this, R.string.profile_manager_profile_not_found, Toast.LENGTH_SHORT).show();
-                finish();
-                return;
-            }
-        } else {
-            // Creating new profile
-            setTitle(getString(R.string.profile_manager_new_profile));
-            inMemoryPrefs = new InMemorySharedPreferences(PreferenceManager.getDefaultSharedPreferences(this).getAll());
+        loadProfile();
+        if (profileUuid != null && currentProfile == null) {
+            Toast.makeText(this, R.string.profile_manager_profile_not_found, Toast.LENGTH_SHORT).show();
+            finish();
+            return;
         }
+        setTitle(currentProfile != null
+                ? getString(R.string.profile_manager_edit_profile) + currentProfile.getName()
+                : getString(R.string.profile_manager_new_profile));
 
-        prefsFragment = new ProfilePreferenceFragment(this, inMemoryPrefs);
-
-        // Load preference fragment
-        getSupportFragmentManager()
-            .beginTransaction()
-            .replace(R.id.preferences_container, prefsFragment)
-            .commit();
+        // A fragment the system rebuilt (theme switch, rotation, process death) is kept, a fresh start adds a new one
+        androidx.fragment.app.Fragment restored = getSupportFragmentManager().findFragmentById(R.id.preferences_container);
+        if (restored instanceof ProfilePreferenceFragment) {
+            prefsFragment = (ProfilePreferenceFragment) restored;
+        }
+        else {
+            prefsFragment = new ProfilePreferenceFragment(this, inMemoryPrefs);
+            getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.preferences_container, prefsFragment)
+                .commit();
+        }
 
         UiHelper.notifyNewRootView(this);
     }
@@ -201,7 +199,31 @@ public class EditProfileActivity extends AppCompatActivity {
                 .show();
     }
 
+    // NOTE: Finds the edited profile from the intent and copies its options into memory, once.
+    // NOTE: It runs on first use, because a fragment rebuilt by the system asks for the settings during super.onCreate, before onCreate reaches this point.
+    private void loadProfile() {
+        if (inMemoryPrefs != null) {
+            return;
+        }
+        profileUuid = getIntent().getStringExtra("profileUuid");
+        if (profileUuid != null) {
+            for (SettingsProfile profile : ProfilesManager.getInstance().getProfiles()) {
+                if (profile.getUuid().toString().equals(profileUuid)) {
+                    currentProfile = profile;
+                    break;
+                }
+            }
+            // A missing profile edits an empty copy only until onCreate closes the screen
+            inMemoryPrefs = new InMemorySharedPreferences(currentProfile != null ? currentProfile.getOptions() : new HashMap<>());
+        }
+        else {
+            // A new profile starts from the current settings
+            inMemoryPrefs = new InMemorySharedPreferences(PreferenceManager.getDefaultSharedPreferences(this).getAll());
+        }
+    }
+
     public SharedPreferences getInMemoryPrefs() {
+        loadProfile();
         return inMemoryPrefs;
     }
 
@@ -269,6 +291,12 @@ public class EditProfileActivity extends AppCompatActivity {
             super(PreferenceConfiguration.readPreferences(context, prefs));
         }
 
+        // NOTE: The system rebuilds fragments by class name after a theme switch, a rotation or process death, which needs a public constructor without arguments.
+        // NOTE: Without it the profile editor crashed with "could not find Fragment constructor". The rebuilt fragment reads the profile's settings from the activity in onCreatePreferences.
+        public ProfilePreferenceFragment() {
+            super();
+        }
+
         @NonNull
         @Override
         public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -279,6 +307,8 @@ public class EditProfileActivity extends AppCompatActivity {
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             EditProfileActivity act = (EditProfileActivity) requireActivity();
             SharedPreferences memPrefs = act.getInMemoryPrefs();
+            // Read the profile's own values, not the default settings, when the system rebuilt this fragment
+            setPrevPrefConfig(PreferenceConfiguration.readPreferences(act, memPrefs));
             // Route preference storage to in-memory prefs
             getPreferenceManager().setPreferenceDataStore(new InMemoryPreferenceDataStore(memPrefs));
 
@@ -286,73 +316,8 @@ public class EditProfileActivity extends AppCompatActivity {
 
             Preference prefScreen = getPreferenceScreen();
 
-            // FIXME:
-            // We can't separate keyboard files and special button files in profiles
-            // Shitty code written by previous implementations, too much to fix
-            // Hide the import options for now
-            Preference _pref = findPreference("option_reset_osc_preference");
-            if (_pref != null) {
-                _pref.setVisible(false);
-            }
-            // Search and backup act on the whole app, not on a single profile
-            _pref = findPreference("searchPreference");
-            if (_pref != null) {
-                _pref.setVisible(false);
-            }
-            _pref = findPreference("category_about");
-            if (_pref != null) {
-                _pref.setVisible(false);
-            }
-            _pref = findPreference("category_backup_restore");
-            if (_pref != null) {
-                _pref.setVisible(false);
-            }
-            _pref = findPreference("pref_customize_game_menu");
-            if (_pref != null) {
-                _pref.setVisible(false);
-            }
-            // Custom keys are shared by every profile, so they are managed from the main settings only
-            // App style, leaving and reconnecting behaviour apply to the whole app
-            _pref = findPreference("list_app_style");
-            if (_pref != null) {
-                _pref.setVisible(false);
-            }
-            _pref = findPreference("list_background_policy");
-            if (_pref != null) {
-                _pref.setVisible(false);
-            }
-            _pref = findPreference("checkbox_auto_connect_last");
-            if (_pref != null) {
-                _pref.setVisible(false);
-            }
-            _pref = findPreference(com.limelight.gestures.GestureEditor.ENABLED_PREF);
-            if (_pref != null) {
-                _pref.setVisible(false);
-            }
-            _pref = findPreference("pref_quick_bar");
-            if (_pref != null) {
-                _pref.setVisible(false);
-            }
-            _pref = findPreference("pref_custom_keys");
-            if (_pref != null) {
-                _pref.setVisible(false);
-            }
-            _pref = findPreference("import_keyboard_file");
-            if (_pref != null) {
-                _pref.setVisible(false);
-            }
-            _pref = findPreference("export_keyboard_file");
-            if (_pref != null) {
-                _pref.setVisible(false);
-            }
-            _pref = findPreference("import_special_button_file");
-            if (_pref != null) {
-                _pref.setVisible(false);
-            }
-            _pref = findPreference("option_help_custom_keys");
-            if (_pref != null) {
-                _pref.setVisible(false);
-            }
+            // Same screen as Settings: app-wide settings stay visible with a note, and only the app sections (backup, About) are hidden
+            com.limelight.profiles.ProfileScope.applyToProfileEditor(this);
 
             // Highlight changed preferences
             java.util.Map<String, ?> patch = diff(

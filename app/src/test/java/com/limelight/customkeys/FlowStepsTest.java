@@ -103,6 +103,31 @@ public class FlowStepsTest {
         return CustomKey.withSteps("f", "Flow", false, null, Arrays.asList(steps));
     }
 
+    // F13 to F24 have no Android key code, so the recorder records their Windows codes directly and names them (upstream #574)
+    @Test
+    public void highFunctionKeysHaveReadableNames() {
+        KeyNames names = new KeyNames(androidx.test.core.app.ApplicationProvider.getApplicationContext());
+        assertEquals("F13", names.label(KeyNames.VK_F13));
+        assertEquals("F24", names.label(KeyNames.VK_F24));
+        assertEquals("Ctrl + F13", names.describe(Arrays.asList((int) com.limelight.binding.input.KeyboardTranslator.VK_LCONTROL, KeyNames.VK_F13)));
+    }
+
+    @Test
+    public void automaticNameFitsTheNameFieldAndCountsSteps() {
+        android.content.Context context = androidx.test.core.app.ApplicationProvider.getApplicationContext();
+        KeyNames names = new KeyNames(context);
+        List<KeyStep> flow = Arrays.asList(KeyStep.combo(Arrays.asList(CTRL, KEY_C)), KeyStep.text("hello"), KeyStep.waitMs(200),
+                KeyStep.hold(CTRL), KeyStep.action("zoom"), KeyStep.release(CTRL));
+        String name = CustomKeyEditor.autoName(context, names, flow);
+        assertTrue(name, name.length() <= CustomKeyEditor.NAME_MAX);
+        assertTrue(name, name.endsWith("(+5)"));
+        assertEquals(names.describe(Arrays.asList(CTRL, KEY_C)), CustomKeyEditor.autoName(context, names, flow.subList(0, 1)));
+
+        String longText = CustomKeyEditor.autoName(context, names, Arrays.asList(KeyStep.text("a very long sentence to type"), KeyStep.waitMs(100)));
+        assertTrue(longText, longText.length() <= CustomKeyEditor.NAME_MAX);
+        assertTrue(longText, longText.contains("...") && longText.endsWith("(+1)"));
+    }
+
     @Test
     public void stepsRoundTripThroughJson() throws Exception {
         CustomKey key = flow(KeyStep.combo(Arrays.asList(CTRL, KEY_C)), KeyStep.text("héllo 👋"), KeyStep.waitMs(250),
@@ -217,6 +242,28 @@ public class FlowStepsTest {
 
         assertFalse(recorder.events.contains("text never typed"));
         assertEquals("up A0 m0", recorder.events.get(recorder.events.size() - 1));
+    }
+
+    @Test
+    public void cancelEndsALongWaitAtOnceAndShutdownRefusesNewKeys() throws InterruptedException {
+        // A real thread and real sleeps: the stream ending must not wait out a 60 second step
+        Recorder recorder = new Recorder();
+        FlowRunner runner = new FlowRunner(recorder, Thread::sleep, java.util.concurrent.Executors.newSingleThreadExecutor());
+        assertTrue(runner.run(flow(KeyStep.hold(SHIFT), KeyStep.waitMs(KeyStep.WAIT_MAX_MS))));
+        Thread.sleep(200);
+
+        runner.shutdown();
+        long deadline = System.currentTimeMillis() + 2000;
+        while (runner.isRunning() && System.currentTimeMillis() < deadline) {
+            Thread.sleep(20);
+        }
+
+        assertFalse(runner.isRunning());
+        synchronized (recorder.events) {
+            assertEquals("up A0 m0", recorder.events.get(recorder.events.size() - 1));
+        }
+        assertFalse(runner.run(flow(KeyStep.text("after the stream"))));
+        assertFalse(runner.isRunning());
     }
 
     @Test

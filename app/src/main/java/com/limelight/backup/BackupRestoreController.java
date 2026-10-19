@@ -364,7 +364,7 @@ public final class BackupRestoreController {
             }
             return false;
         });
-        field.requestFocus();
+        Dialogs.openKeyboard(field);
         if (dialog.getWindow() != null) {
             dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         }

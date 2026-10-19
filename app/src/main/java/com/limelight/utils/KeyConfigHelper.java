@@ -35,6 +35,9 @@ public class KeyConfigHelper {
         public String icon;
         // Optional steps run one after another. Absent for a plain shortcut, and older versions read only keys.
         public List<Step> steps;
+        // Phone-side hotkey as virtual key codes ("0xA2", "0x31"), and whether the key also reaches the PC. Older versions ignore both.
+        public List<String> hotkey;
+        public Boolean hotkeyToPc;
 
         // Default constructor for Gson
         public Shortcut() {

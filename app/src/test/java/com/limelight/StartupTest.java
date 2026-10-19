@@ -51,7 +51,8 @@ public class StartupTest {
     @Test
     public void testApplicationStartup() {
         // Test ArtemisApplication creation and initialization
-        ArtemisApplication app = new ArtemisApplication();
+        // The application the test framework built from the manifest has its base context attached, unlike a plain new ArtemisApplication()
+        ArtemisApplication app = (ArtemisApplication) androidx.test.core.app.ApplicationProvider.getApplicationContext();
         app.onCreate();
 
         // Verify ProfilesManager was initialized
@@ -151,7 +152,7 @@ public class StartupTest {
 
     @Test
     public void testNullContextHandling() {
-        // Test ProfilesManager with null context – should be handled gracefully
+        // Test ProfilesManager with null context: should be handled gracefully
         ProfilesManager manager = ProfilesManager.getInstance();
 
         try {

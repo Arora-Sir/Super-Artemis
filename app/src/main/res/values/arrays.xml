@@ -208,6 +208,17 @@
         <item>1</item>
         <item>2</item>
     </string-array>
+    <string-array name="landscape_side_names">
+        <item>@string/landscape_side_follow</item>
+        <item>@string/landscape_side_normal</item>
+        <item>@string/landscape_side_reverse</item>
+    </string-array>
+    <string-array name="landscape_side_values" translatable="false">
+        <item>follow</item>
+        <item>normal</item>
+        <item>reverse</item>
+    </string-array>
+
     <string-array name="mouse_mode_names">
         <item>@string/mouse_mode_multi_touch</item>
         <item>@string/mouse_mode_absolute_touch</item>

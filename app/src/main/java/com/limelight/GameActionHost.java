@@ -26,6 +26,11 @@ final class GameActionHost implements StreamActionHost {
     }
 
     @Override
+    public void openSettings() {
+        game.openSettingsAndResume();
+    }
+
+    @Override
     public void quit() {
         ResumeStore.clearPending(game);
         game.quit();

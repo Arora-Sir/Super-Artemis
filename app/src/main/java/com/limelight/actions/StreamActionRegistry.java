@@ -29,6 +29,7 @@ public final class StreamActionRegistry {
     public static final String ID_TASK_MANAGER = "task_manager";
     public static final String ID_SEND_KEYS = "send_keys";
     public static final String ID_TOUCH_SENSITIVITY = "touch_sensitivity";
+    public static final String ID_SETTINGS = "settings";
 
     public static final List<StreamAction> ALL = Collections.unmodifiableList(Arrays.asList(
             StreamAction.builder(ID_DISCONNECT, R.string.game_menu_disconnect, R.drawable.ic_gm_disconnect,
@@ -73,7 +74,10 @@ public final class StreamActionRegistry {
             StreamAction.builder(ID_SEND_KEYS, R.string.game_menu_send_keys, R.drawable.ic_gm_send_keys,
                     StreamActionHost::openSpecialKeys).withoutGameFocus().build(),
             StreamAction.builder(ID_TOUCH_SENSITIVITY, R.string.game_menu_switch_touch_sensitivity_model, R.drawable.ic_gm_touch_sensitivity,
-                    StreamActionHost::switchTouchSensitivity).build()
+                    StreamActionHost::switchTouchSensitivity).build(),
+            // Leaves the stream for Settings and comes back by itself, so it is not a session ender like Disconnect
+            StreamAction.builder(ID_SETTINGS, R.string.game_menu_settings, R.drawable.ic_ck_settings,
+                    StreamActionHost::openSettings).withoutGameFocus().build()
     ));
 
     private StreamActionRegistry() {
