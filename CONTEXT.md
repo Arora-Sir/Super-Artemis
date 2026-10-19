@@ -4,13 +4,18 @@ This is the handoff file for anyone (human or AI) resuming work on Super Artemis
 
 ## Current state
 
-- Branch `unified-main` is based on Artemis `moonlight-noir` (commit `c5cf27f`). Nothing in this repository is published yet. The native core branch `super-artemis` is pushed to `Arora-Sir/moonlight-common-c`, and the common-c fixes from W17 are applied in the submodule working tree but not committed or pushed yet.
+- Branch `unified-main` is based on Artemis `moonlight-noir` (commit `c5cf27f`). Nothing in this repository is published yet. The native core branch `super-artemis` is pushed to `Arora-Sir/moonlight-common-c`, and the common-c fixes from W17 are committed there as `8c83fe9` but not pushed yet.
 - Every planned feature for 1.0.0 is implemented. Workstreams after the backup commit (`6f810d67`) are prepared as one cumulative patch per workstream and wait for the commit review.
 - Version `1.0.0` (versionCode 1) is set but not released. The package IDs are `com.mohitarora.superartemis` (release) and `com.mohitarora.superartemis.debug` (debug). Earlier test installs used `com.limelight.superartemisdebug`, which can be uninstalled.
-- Debug builds pass, and the unit suite has 225 tests with only the five known upstream failures (BUGS.md, BUG-009).
+- Debug builds pass, and all 233 unit tests pass. The five upstream failures of BUG-009 were test setup bugs and are fixed.
 - Round 2 (the owner's 19 points from testing on the Tab, plus two later requests) is implemented: design foundation, settings, About, special keys, quick-action bars per corner, gestures and keyboard. It waits for device checks and the commit review.
 - Round 2 follow-ups are implemented and checked on the Tab: encrypted `.sabackup` backups with share and selective restore (Tab to S24 restore verified), phone layouts, hold gestures and the multi-finger right click fix, crash reports and diagnostic logs, quick-action bar long press menu, and an audit of crash risks.
 - Round 3 (the owner's 13 points from 2026-10-13) is committed locally as commits 29 to 41 plus a pre-commit hook fix: step flows, More keys, Add key or flow everywhere, hidden Advanced Menu actions, grid bars with sets, sets per profile and profile copies, themed in-stream dialogs, Material You by default with color schemes, the gestures switch row, the drag fixes, the search fix and picture-in-picture on any app switch. Nothing is pushed.
+- Round 4 (Tab test pass and UI audit, 2026-10-15) is implemented and uncommitted: text fields that open the keyboard, Settings from a stream, the two-pane bar editor on tablets, the Profiles restyle, key flow naming and summaries, sections in Send special keys and More keys, the mouse mode picker with icons, and smaller fixes (BUG-028 to BUG-030).
+- Round 5 (release pass on both devices, 2026-10-15) is implemented and uncommitted: the keyboard service no longer claims to be a screen reader, the microphone prompt no longer enters picture-in-picture, flows stop at once with the stream, menus close with the stream, Settings appears once in the in-stream menus, layout and wording fixes from the screenshot audit, and the BUG-009 test fixes (BUG-031 to BUG-033). Both rounds wait for the owner's commit approval.
+- Round 6 (owner decisions, 2026-10-18) is implemented and uncommitted: the single "per line" bar slider, the profile editor as Settings in profile mode (`ProfileScope`), Reconnect after the connection ends and after closing picture-in-picture, the "Starting video" status, Print Screen, the landscape side setting, the keyboard service row, picture-in-picture on One Hand Operation+ app switches, two crash fixes, the home screen and search card restyle, and phone landscape layouts (BUG-034 to BUG-036). Unit suite 239 tests, all passing.
+- Round 7 (2026-10-19) is implemented and uncommitted: rounded press ripples on dialog buttons, menu tiles and grids (BUG-037), F13 to F24 in the key recorder, and the shared `ui/ChoiceList` picker replacing five copies. The device pass on the S24 and the Tab is done, with two fixes from it (BUG-038 and BUG-039) and data restored on both.
+- Round 9 (2026-10-19) is implemented and uncommitted: phone hotkeys (`customkeys/Hotkey`, `customkeys/HotkeyDispatcher`, wired into `Game.handleKeyDown`), the sectioned recorder for phones in portrait (`customkeys/RecorderKeyboard`, layout D3 chosen by the owner), Save waiting for Done, and faded disabled buttons (BUG-040). Versions follow MAJOR.MINOR.PATCH: 1.0.0 first, 1.0.x for fixes, 1.1.0 for features. Controller hotkeys are planned for 1.1.0.
 
 ## What works (verified on a Galaxy Tab S10 Ultra, Android 16)
 
@@ -19,6 +24,8 @@ This is the handoff file for anyone (human or AI) resuming work on Super Artemis
 - Backup through the system file picker (settings-only by default, pairing keys as one opt-in card with a red caution) and restore with a preview that keeps existing PCs, brings back settings, then restarts the app. The pairing-keys preview shows its red warning.
 - Menu editor in Settings: style picker, side by side list and live preview, Session section in red, Cancel keeps the saved layout.
 - Custom keys in Settings: empty state, the keyboard recorder (Ctrl + Shift + ESC recorded, duplicates ignored, name filled in), icon choice, the saved JSON (`0xA2`, `0xA0`, `0x1B` with the icon ID) and delete with confirmation.
+- In a stream (2026-10-15): Quick Menu sections, Settings from a stream with reconnect on Back, Send special keys and More keys sections, the mouse mode picker with the current mode checked, Settings only once in the menus, the 3-finger tap keyboard toggle, picture-in-picture on Home and expanding it back, and Disconnect.
+- Phone width on the S24 (2026-10-15): bar editor, key editor, gesture editor, App style cards, Profiles and search.
 - Streaming at native 2960x1848 with Fit fills the screen, and native costs about 2.5% more battery than 1080p on the Tab (1,022 mA against 996 mA at 55 Mbps).
 
 ## Waiting for device checks
@@ -40,6 +47,7 @@ Everything below is implemented with unit tests and needs the Tab and the S24, w
 - New store screenshots for fastlane, taken from the Tab.
 - Round 3 in a stream: a flow with text, a hold and a repeat, More keys, a key pinned to the Quick Menu, hidden Advanced Menu actions, grid bars at every anchor with offsets, set switching from the Quick Menu, the mouse mode picker and quit dialog in both styles and in a color scheme, picture-in-picture through One Hand Operation+ and an `am start` app switch, and the Recents card resuming the stream.
 - Round 3 outside a stream: profile Duplicate and Copy settings into (needs a test profile), search for "mouse" and "pointer" on the S24.
+- Round 5: the microphone permission prompt during a stream (needs the permission revoked first), the keyboard service feedback type in `dumpsys accessibility` (needs the service enabled), and the taller menu editor list on the S24.
 
 ## Workstreams to 1.0.0
 
@@ -65,7 +73,7 @@ Everything below is implemented with unit tests and needs the Tab and the S24, w
 | W20 | Design foundation: color roles, one rounded centered dialog theme for both styles, type scale, dialog helpers | Done, device look pending |
 | W21 | Settings: sticky search, search keywords, regrouped sections, duplicates removed, floating button fix, Material You sections, tablet section list | Done, device check pending |
 | W22 | About redesign: Support card, developer links with icons, credits cards | Done, device check pending |
-| W23 | Special keys: built-in keys with icons, hide, re-icon, reorder, reset, 61 icons | Done, in-stream check pending |
+| W23 | Special keys: built-in keys with icons, hide, re-icon, reorder, reset, 75 icons | Done, in-stream check pending |
 | W24 | Quick-action bars per corner, row or column, editor preview, migrations | Done, in-stream check pending |
 | W25 | Gestures before every touch mode, 3 and 4-finger swipes, Windows preset, editor redesign | Done, in-stream check pending |
 | W26 | App style picker with live previews, menu style only in the editor | Done, device check pending |
@@ -78,7 +86,7 @@ Everything below is implemented with unit tests and needs the Tab and the S24, w
 
 ## Open problems
 
-- The common-c fixes must be committed in the submodule (with `git am`, so each keeps its author) and pushed to `Arora-Sir/moonlight-common-c` before the superproject commit that points at them.
+- The common-c fixes are committed in the submodule (`8c83fe9` on `super-artemis`) and must be pushed to `Arora-Sir/moonlight-common-c` before the superproject is pushed.
 - The fastlane screenshots still show upstream Moonlight until new ones are taken.
 
 ## Known unknowns

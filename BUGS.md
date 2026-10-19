@@ -70,9 +70,9 @@ Each entry records a problem that was fixed in a way a future change could silen
 
 - **Symptom:** `LayoutInflationTest.allLayoutsInflateSuccessfully`, both `ProfilesNavigationTest` cases, `SimpleStartupTest.testApplicationOnCreate` and `StartupTest.testApplicationStartup` fail.
 - **Root Cause:** They fail identically on untouched upstream commit `c5cf27f` (Robolectric class casts and a null base context), so they are not caused by this fork.
-- **Fix Applied:** None. The gate for every change is "no failures beyond these five".
-- **Verification:** Running the same test classes on an upstream worktree gives the same 5 failures.
-- **Status:** Known.
+- **Fix Applied:** The tests click the profiles button as a `View` (it is an extended floating action button), inflate every layout with the app theme in both app styles instead of `Theme.AppCompat`, and run `onCreate()` on the application the test framework builds from the manifest instead of a bare `new ArtemisApplication()` without a base context.
+- **Verification:** All 233 unit tests pass.
+- **Status:** Fixed.
 
 ## BUG-010: Restore preview called unpaired PCs paired
 
@@ -215,5 +215,109 @@ Each entry records a problem that was fixed in a way a future change could silen
 - **Symptom:** Searching "mouse" did not show Touchscreen Mode, Remember mouse mode or Remote desktop mouse mode.
 - **Root Cause:** SearchPreference returns at most 10 results ranked by a greedy fuzzy score that favors titles starting with the query. The limit is a private constant up to version 2.7.3.
 - **Fix Applied:** SearchPreference v2.5.1 is vendored in `third_party/searchpreference` and returns every match ranked by title, section, details and synonyms.
-- **Verification:** `SettingsSearchTest` indexes the real settings screen. Reproduced on the Tab before the fix (exactly 10 results), device check of the fix pending.
+- **Verification:** `SettingsSearchTest` indexes the real settings screen. Reproduced on the Tab before the fix (exactly 10 results). After the fix "mouse" lists every mouse setting and "pointer" finds them through synonyms on the Tab.
+- **Status:** Fixed.
+
+## BUG-028: Text fields built in code never opened the keyboard
+
+- **Symptom:** Tapping the field in the restore password prompt, a key step value dialog or the set name dialog showed a cursor but no keyboard, so nothing could be typed.
+- **Root Cause:** Those fields were built with `new EditText(context, null, 0, R.style.Widget_SuperArtemis_TextField)`. A default style attribute of 0 drops the platform `editTextStyle`, and the text field style had an empty parent, so the field was not focusable in touch mode and a tap never started input. Fields declared in XML kept `editTextStyle` and worked.
+- **Fix Applied:** `Widget.SuperArtemis.TextField` has `android:Widget.Material.EditText` as its parent.
+- **Verification:** `TextFieldsTest` checks focusable in touch mode, clickable and text editor in both styles. Reproduced on the S24 (cursor, `mInputShown=false`). On the Tab the Type text step and Rename set fields now show the keyboard (`mInputShown=true`).
+- **Status:** Fixed.
+
+## BUG-029: A new key landed after all the More keys
+
+- **Symptom:** After the special keys had been reordered once, a newly recorded key appeared at the very end of the list, under the 24 More keys, instead of with the other everyday keys.
+- **Root Cause:** `SpecialKeys.order` placed keys named in the saved order first and appended every other key at the end, and the More keys are part of the saved order.
+- **Fix Applied:** A key missing from the saved order goes before the first More key.
+- **Verification:** `SpecialKeysTest.aKeyAddedAfterASavedOrderGoesBeforeMoreKeys`, and on the Tab a new key showed right above the More keys entry.
+- **Status:** Fixed.
+
+## BUG-030: The key editor lost its chip styles when opened from another editor
+
+- **Symptom:** Opening Add key or flow from the bar, menu or gesture editor showed the step chips and segments without their outline and fill.
+- **Root Cause:** `KeyPicker` opened the key editor from the picker dialog's own context. A dialog theme does not carry the chip and segment styles, so the nested dialog fell back to plain buttons.
+- **Fix Applied:** `KeyPicker.addButton` takes the activity context for the editor and the dialog context only for the button itself.
+- **Verification:** On the Tab the editor opened from the bar editor shows the same chips as the one opened from Settings.
+- **Status:** Fixed.
+
+## BUG-031: The keyboard accessibility service claimed to be a screen reader
+
+- **Symptom:** With the physical keyboard service enabled, apps that look for a screen reader (YouTube and others) read their screens aloud although TalkBack was off. Reported upstream as ClassicOldSong/moonlight-android#609.
+- **Root Cause:** `KeyboardAccessibilityService.onServiceConnected` set `FEEDBACK_SPOKEN`, and `res/xml/keyboard_accessibility_service.xml` declared `feedbackAllMask`, which includes spoken feedback.
+- **Fix Applied:** Both declare generic feedback. The service only filters key events and gives no feedback of its own.
+- **Verification:** `KeyboardServiceFeedbackTest` reads the service XML. The device check needs the service enabled in Accessibility settings, which neither test device has.
+- **Status:** Fixed.
+
+## BUG-032: The microphone permission prompt shrank the stream into picture-in-picture
+
+- **Symptom:** Unmuting the microphone for the first time showed the permission prompt and the stream went into picture-in-picture behind it.
+- **Root Cause:** `Activity.requestPermissions` starts the prompt through a hidden `startActivityForResult` overload, so `Game`'s override never marked it as the app's own screen, and `onPause` entered picture-in-picture.
+- **Fix Applied:** `Game` marks the prompt as its own screen right before `requestPermissions`. `onResume` clears the mark as before.
+- **Verification:** Found in the release code review. The device check needs the microphone permission revoked first, since both devices already granted it.
+- **Status:** Fixed.
+
+## BUG-033: A key flow kept running after the stream ended
+
+- **Symptom:** A flow in a long Wait step kept its thread and the stream activity alive for up to a minute after the stream ended, then sent its key releases to a closed connection.
+- **Root Cause:** `FlowRunner.cancel` only set a flag that is read between steps, and `shutdown` let the running task finish. A run after shutdown threw and left the runner marked as busy.
+- **Fix Applied:** The runner keeps the running task, cancels it with an interrupt that ends a wait at once, stops its thread with `shutdownNow`, and refuses new keys after shutdown. Flow actions check that the stream is still connected, and the stream closes its open menus when it is destroyed.
+- **Verification:** `FlowStepsTest.cancelEndsALongWaitAtOnceAndShutdownRefusesNewKeys` runs a 60 second wait on a real thread and stops it within 2 seconds with the held key released.
+- **Status:** Fixed.
+
+## BUG-034: The profile editor crashed when Android rebuilt it
+
+- **Symptom:** "Unable to start activity EditProfileActivity: could not find Fragment constructor", reported from the S24 after the editor was in the background.
+- **Root Cause:** `EditProfileActivity.ProfilePreferenceFragment` only had a constructor with arguments. Android rebuilds fragments by class name after a theme change, a rotation or process death, which needs one without arguments. The rebuilt fragment also asked for the profile during `super.onCreate`, before the activity had loaded it.
+- **Fix Applied:** A public constructor without arguments, the profile settings read in `onCreatePreferences`, the profile loaded on first use, and the rebuilt fragment kept instead of replaced.
+- **Verification:** `EditProfileRecreateTest` recreates the editor and checks the fragment and its settings.
+- **Status:** Fixed.
+
+## BUG-035: Rotating at stream start crashed in onConfigurationChanged
+
+- **Symptom:** NullPointerException on `ControllerHandler.enableSensors()` in `Game.onConfigurationChanged`, seen on the S24 when a stream started from portrait.
+- **Root Cause:** The branch meant for leaving picture-in-picture ran on every configuration change that was not picture-in-picture, including the rotation to landscape before the controller handler existed.
+- **Fix Applied:** Overlays are restored only when leaving picture-in-picture, and both sensor calls check the handler.
+- **Verification:** Code path review. Device check on the S24 starting a stream from portrait.
+- **Status:** Fixed.
+
+## BUG-036: One Hand Operation+ ended the stream instead of shrinking it into picture-in-picture
+
+- **Symptom:** With picture-in-picture on, "previous app" through One Hand Operation+ switched apps and ended the stream, while YouTube went into picture-in-picture with the same gesture.
+- **Root Cause:** One Hand Operation+ uses `startActivityFromRecents`. With Android 12 auto-enter set, the system hid the stream window before pausing it, so `surfaceDestroyed` stopped the connection and `onPause` found nothing to shrink. A screen without picture-in-picture (the PC list) was paused normally on the same gesture.
+- **Fix Applied:** Auto-enter stays off. `onUserLeaveHint` (Home, Recents) and `onPause` (any other switch) enter picture-in-picture by hand, the way YouTube does.
+- **Verification:** On the Tab the One Hand Operation+ swipe and hold now leaves the stream in picture-in-picture over YouTube, expanding returns to the same stream, and Home still enters picture-in-picture.
+- **Status:** Fixed.
+
+## BUG-037: Dialog buttons and menu tiles pressed as a sharp box
+
+- **Symptom:** Tapping Reconnect or OK on the "Connection terminated" dialog, and tiles in the Quick Menu, showed a square ripple that did not match the rounded Material 3 look.
+- **Root Cause:** Dialog buttons used the platform borderless button background, and the tiles and grids used `selectableItemBackground`. Both draw an unmasked rectangular ripple.
+- **Fix Applied:** Dialog buttons use the rounded `bg_button_text` ripple with a pill shape. Tiles and grid items use `bg_pressable_rounded`, a ripple masked to 16dp corners.
+- **Verification:** `DialogButtonShapeTest` builds the stream dialogs in both app styles and checks every button ripple has a rounded mask. Seen on the Tab in the backup dialog, the PC and app grids and the Quick Menu.
+- **Status:** Fixed.
+
+## BUG-038: The F13 to F24 row filled the whole key recorder
+
+- **Symptom:** In the key recorder on the Tab, the new F13 to F24 row took the full keyboard height and pushed every other key out of view.
+- **Root Cause:** `CustomKeyEditor.addHighFunctionKeys` copied the first row's layout params through the `LinearLayout.LayoutParams(ViewGroup.LayoutParams)` constructor, which drops `layout_weight`. The row kept `match_parent` height without the weight that shares the height between rows.
+- **Fix Applied:** The params are copied through the `LinearLayout.LayoutParams` overload, which keeps the weight.
+- **Verification:** `CustomKeysTest.highFunctionRowIsOneRowTall` measures the keyboard and fails without the fix. On the Tab the recorder shows all rows, and Ctrl + F13 recorded there reached the PC as Left Ctrl (0xA2) and F13 (0x7C).
+- **Status:** Fixed.
+
+## BUG-039: The menu editor showed two rows on a phone in landscape
+
+- **Symptom:** On the S24 in landscape the menu editor showed about two action rows under the style buttons and the hint, and dragging the list scrolled only the list.
+- **Root Cause:** The short-screen body is a `NestedScrollView`, but the action list handles the drag first, so the page with the header never scrolled out of the way.
+- **Fix Applied:** `ui/PageFirstScrollView` scrolls the page first when the list is dragged up, then the list. A drag down returns the list to its top first and then the page.
+- **Verification:** `PageFirstScrollViewTest` and `EditorsSmokeTest.menuEditorScrollsOnAPhoneInLandscape`. On the S24 one drag on the list moves the header away and the list and preview fill the dialog.
+- **Status:** Fixed.
+
+## BUG-040: Disabled dialog buttons looked the same as enabled ones
+
+- **Symptom:** In the key editor, Save looked tappable before any key was confirmed, and Clear on the hotkey row looked tappable with no hotkey set.
+- **Root Cause:** The dialog and text button styles set one fixed accent color as the text color, with no disabled state, so `setEnabled(false)` changed nothing visible.
+- **Fix Applied:** `Dialogs.fitWidth` gives every dialog button a color list with the Material 3 disabled look (38 percent of its color), and the same helper fades in-layout text buttons such as Clear. The list is built in code, since Android 5 and 6 cannot read theme colors from a color list file.
+- **Verification:** `DialogButtonShapeTest.disabledDialogButtonsLookDisabled`. On the S24, Save and Clear fade until they can be used.
 - **Status:** Fixed.

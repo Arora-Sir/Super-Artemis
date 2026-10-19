@@ -61,6 +61,7 @@ Everything else from Artemis stays: custom virtual buttons, custom resolutions a
 | Sections | Actions and session controls are separate, and Disconnect and Quit sit in their own red section. |
 | Quick-action bars | Any number of bars, each at one of nine positions with a nudge, as a grid of 1 to 20 rows and columns. Bars live in named sets (game, desktop and so on) that you switch from the Quick Menu, and each settings profile keeps its own sets. Toggles show when they are on and the bars fade when idle. Edit them from the Quick Menu during a stream. |
 | Floating menu button | Opens the Quick Menu even with the Back menu turned off. |
+| Settings from a stream | Settings in the Quick Menu (or on a bar or gesture) opens Settings and reconnects to the same app when you close it, with the new settings. |
 | Profile copies | Duplicate a settings profile, or copy all of its settings into another profile, from the copy button in Profiles. |
 
 ### Keys and keyboard
@@ -70,6 +71,8 @@ Everything else from Artemis stays: custom virtual buttons, custom resolutions a
 | Special keys | Hide, reorder and give icons to the built-in keys, or reset them. |
 | Recorded keys | Tap a combination on the built-in keyboard or a physical one, name it and pick one of 75 icons. Sticky keys stay pressed until tapped again. |
 | Keys everywhere | Recorded keys work in Send special keys, quick-action bars and gestures. |
+| Phone hotkeys | Give a key or flow a hotkey such as Ctrl + Alt + 1. During a stream that combo on a keyboard connected to the phone runs it instead of reaching the PC, with an option to send it to the PC as well. |
+| F13 to F24 | The recorder offers F13 to F24, free keys for PC hotkeys in AHK, OBS or Discord. |
 | Release on close | Keys held on the built-in keyboard are released when it closes. |
 | Keyboard fixes | Print Screen, the Samsung keyboard screenshot key and vendor keyboards with unusual key codes. |
 

@@ -26,7 +26,7 @@ The first Super Artemis release, not published yet. The date is set when the `v1
 - Backups stay compatible across versions: a newer backup opens in an older version when its minimum reader version allows it, and unknown values are skipped.
 - Customizable in-stream Quick Menu: choose and reorder actions in an editor, with List, Grid with icons and Compact styles picked right in the editor next to a live preview. "Customize menu" sits right in the Quick Menu.
 - The Quick Menu is split into Actions, Session and Menu sections. Disconnect and Quit are always in the Session section, drawn in red. The Advanced Menu has "Back to Quick Menu".
-- Quick-action bars: pin actions (such as Pan/Zoom or the microphone) and special keys as small buttons over the stream. Each bar sits at one of nine positions (corners, edge centers or the center), can be nudged sideways and up or down, and is a grid of 1 to 20 rows and columns filled from its corner. Switched-on toggles show green, and the bars fade while idle. The editor draws every bar to scale on a screen preview. Set them up in Settings > In-stream controls or from the Quick Menu during a stream.
+- Quick-action bars: pin actions (such as Pan/Zoom or the microphone) and special keys as small buttons over the stream. Each bar sits at one of nine positions (corners, edge centers or the center), can be nudged sideways and up or down, and shows its buttons in lines of 1 to 20, across in rows or down in columns, starting a new line instead of hiding a button. Switched-on toggles show green, and the bars fade while idle. The editor draws every bar to scale on a screen preview. Set them up in Settings > In-stream controls or from the Quick Menu during a stream.
 - Quick-action bar sets: keep several named sets of bars, such as one for games and one for the desktop, and switch between them from the Quick Menu. Sets can be added, renamed, duplicated and deleted, and a bar can be copied into another set. Bars from earlier test builds become the Default set.
 - Each settings profile keeps its own quick-action bar sets, and the bar editor names the profile it edits. Profiles can be duplicated, or all of one profile's settings copied into another after a confirmation.
 - Special keys without JSON: the built-in keys can be hidden, reordered, given another icon or reset, and your own keys are recorded on the built-in keyboard or a physical keyboard with a name, a sticky option and one of 75 icons. Manage them in Settings > In-stream controls > Special keys, or during a stream from Send special keys. Any key can be pinned to a quick-action bar or bound to a gesture, and custom keys keep working with import, export, backup and the on-screen key layer.
@@ -34,6 +34,15 @@ The first Super Artemis release, not published yet. The date is set when the `v1
 - More keys: 24 everyday Windows shortcuts on their own page in Send special keys, each with an icon (select all, copy, cut, undo, redo, save, find, clipboard history, snip, Alt + Tab, Task Manager, tabs, File Explorer, lock, Run, Home, End, Page Up, Page Down, Delete, Tab and Enter). They can be hidden, reordered, pinned to a bar or bound to a gesture like any special key.
 - "Add key or flow" in every place that picks a key: the quick-action bar editor and its long-press menu, the gesture editor, the menu editor and Send special keys. The new key is pinned or bound right there and shows up everywhere else too.
 - Special keys and flows can be pinned to the Quick Menu next to actions, from the menu editor.
+- Settings from a stream: the Quick Menu has Settings next to Customize menu, and it can be pinned to a bar or bound to a gesture. Closing Settings reconnects to the same app, so changed stream settings apply right away.
+- Reconnect after the connection ends: the "Connection terminated" dialog has a Reconnect button that starts the same stream again.
+- Reconnect after closing picture-in-picture: closing the small stream window with its X offers to reconnect the next time the app opens.
+- "Starting video" status between the connection and the first picture, instead of a plain black screen while the PC starts its encoder.
+- Print Screen as a built-in More key and a PrtSc key on the built-in keyboard and the key recorder.
+- F13 to F24 in the key recorder, for macro and streaming hotkeys that no Android keyboard has (requested in ClassicOldSong/moonlight-android#574).
+- Phone hotkeys: a key or flow can have a hotkey such as Ctrl + Alt + 1. During a stream, that combo on a keyboard connected to the phone runs the key instead of reaching the PC, or reaches the PC as well when "Also send the hotkey to the PC" is on. The editor warns about shortcuts the PC uses all the time and refuses a hotkey another key already has. Hotkeys are part of the key file, so backups keep them.
+- "Landscape side" setting: follow the sensor, normal, or upside down for a stand or a dock (requested in ClassicOldSong/moonlight-android#492).
+- "System key capture" in the keyboard settings shows whether the keyboard service is on and opens the Accessibility page, so Alt+Tab and the Windows key reach the PC (as proposed in ClassicOldSong/moonlight-android#556).
 - Hide actions you never use from the Advanced Menu with the eye in the menu editor. Gestures and quick-action bars can still run them, and Disconnect and Quit always stay.
 - "Material You" app style, the default on Android 12+, chosen from two live preview cards: switches instead of checkboxes and each settings section in one rounded container, including the in-stream menus. Classic stays available and is kept for anyone who picks it, and Android 11 and older use Classic.
 - Color schemes for Material You: Wallpaper or a fixed Blue, Teal, Green, Purple, Orange, Rose or Mono palette, picked from swatches drawn in each scheme's real color. A change applies right away.
@@ -61,8 +70,44 @@ The first Super Artemis release, not published yet. The date is set when the `v1
 - The Support dialog has no GitHub button any more, since About has one "Source code on GitHub" entry.
 - "Enable multi-touch gestures" became one switch on the Multi-finger gestures row in Settings, after a divider: the row opens the gesture editor and the switch turns every multi-finger gesture on or off in every touch mode, multi-touch included. It is on by default. With it off, every touch reaches the touch mode as it would without Super Artemis.
 - SETUP.md shows how Apollo's Do and Undo commands make Steam Streaming Microphone the default PC microphone only while a stream runs.
+- The quick-action bar editor uses two panes on tablets: the preview and bar settings scroll on the left, and the button list fills the right side down to its Add key or flow button.
+- Profiles has a title bar with back, each profile is a rounded card with tinted copy, edit and delete buttons, and its dialogs use the same icon headers as the rest of the app.
+- Send special keys and More keys list the keys and the menu entries (More keys, Add key or flow, Manage special keys, Cancel) in separate sections.
+- The mouse mode picker shows each mode with an icon and a check on the mode in use.
+- Every entry that creates a key is named "Add key or flow", and the editor is titled "New key or flow".
+- The automatic name of a flow is its first step plus the number of further steps, such as "Ctrl + C (+2)", and the special keys list shows a flow's step count and first steps.
+- The color scheme in use carries a check on its swatch.
+- Settings appears once in the in-stream menus, in the Quick Menu's Menu section. It no longer also shows in the Advanced Menu and the menu editor list, and it can still go on a quick-action bar or a gesture.
+- The eye in the Special keys list shows each key's state like the menu editor: open while the key is shown, crossed while it is hidden.
+- The menu editor action list is taller on phones.
+- The Touchscreen Mode summary is rewritten, since it had a typo and old mode names.
+- Quick-action bars have one "Buttons per line" slider and a Fill across or down choice instead of separate rows and columns, so a button is never cut off. Bars from earlier versions convert by themselves.
+- The profile editor is the Settings screen in profile mode: the same sections, with the section list on tablets, and settings that apply to the whole app stay on screen greyed out with a note instead of vanishing.
+- The home screen has a title bar with round tonal buttons, search results show as cards, and the bar, menu and key editors have an icon title.
+- On a phone in landscape the menu and bar editors scroll as one page with a smaller preview (dragging the menu editor list moves the header away first), and the in-stream menus use more of the width.
+- Rough setting descriptions left from earlier versions are rewritten in plain words.
+- Dialog buttons, Quick Menu tiles and the PC and app grids show a rounded Material 3 ripple when pressed or focused, instead of a sharp box.
+- Every picker (mouse mode, gesture actions, hold time, app action step, copy profile) is built by one shared choice list, so they all look and behave the same.
+- The key recorder on a phone in portrait has its own layout in sections: Function keys with an F1 to F12 and F13 to F24 switch, Typing laid out like a phone keyboard, Symbols, and Navigation with an arrow cluster. Keys in a row share one width and every label one size. Landscape and tablets keep the full PC keyboard, now with even gaps, one label size and a height that fits a phone in landscape.
+- Save in the key editor stays off while the recorder holds keys not yet confirmed with Done.
 
 ### Fixed
+- Text fields in the restore password prompt, the key step values (text, wait, repeat) and set names open the keyboard again when tapped. They took focus only from code, so the keyboard never showed.
+- Dialogs with one text field open the keyboard by themselves.
+- The key recorder scrolls into view when a key already has several steps.
+- A key added after the keys were reordered goes before the More keys instead of after all of them.
+- The key editor opened from the bar, menu or gesture editor keeps its chip and segment styles.
+- The menu editor preview names pinned keys the way the Quick Menu does, without the "Key:" prefix.
+- The physical keyboard accessibility service declared itself a screen reader, so apps such as YouTube read their screens aloud while it was on. It now declares generic feedback, as reported in ClassicOldSong/moonlight-android#609.
+- The microphone permission prompt no longer shrinks the stream into picture-in-picture.
+- A running key flow stops at once when the stream ends, even in a long wait, and lets go of held keys. Actions from a flow no longer run after the stream closed, and open in-stream menus close with the stream.
+- Gestures, bars and flows that wait for the stream to get focus back give up after 2 seconds instead of firing much later.
+- PC names on the home screen wrap at a hyphen instead of mid-word.
+- A search result keeps its section header in view below the search bar, and the section list on tablets marks the section you are in.
+- The "Bottom right" position in the bar editor has the same text size as the other eight on phones.
+- One Hand Operation+ "previous app" and other app switches without a Home gesture keep the stream in picture-in-picture. Android 12 auto-enter made the system hide the stream window before pausing it, which ended the stream first.
+- The profile editor no longer crashes when Android rebuilds it after a theme change, a rotation or the app being closed in the background.
+- Starting a stream while the phone turns from portrait to landscape no longer crashes.
 - With "Keep streaming in picture-in-picture", switching apps in any way now keeps the stream in picture-in-picture. Before, an app switch without a Home or Recents gesture, such as One Hand Operation+ opening the previous app, ended the stream. Screen off, the lock screen, split screen and the app's own screens still pause it normally.
 - The "resume when reopened" choice is named "Keep in Recents, resume when reopened" and says that the stream's card stays in Recents and reconnects to the same app within 30 minutes.
 - Settings search shows every match instead of the first 10, so "mouse" finds Touchscreen Mode, Remember mouse mode and Remote desktop mouse mode. Titles rank first, then the section name, then descriptions, and everyday words find their settings too ("cursor" and "pointer" for mouse settings, "touchpad" for trackpad, "sound" for audio and more).
@@ -77,7 +122,6 @@ The first Super Artemis release, not published yet. The date is set when the `v1
 - Dialogs on phones: the support card stacks its QR above the UPI details, the menu style buttons no longer clip their labels, the recorder keyboard keeps every key label on one line, and dialogs with password fields resize above the keyboard.
 - Scrolling dialog content shows a thin divider on the edge that hides more content, instead of cutting the next card in half or dimming the last row.
 - Cancel in Send special keys has its icon like every other menu.
-
 - Turning off Back Menu no longer disables the five-finger menu tap.
 - A three-finger tap in trackpad mode no longer sends a middle click and toggles the keyboard at the same time. Middle click is now a gesture action you can choose.
 - Microphone capture falls back to the next audio source on devices that reject the first one instead of failing.
