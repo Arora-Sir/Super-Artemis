@@ -24,6 +24,18 @@ if [ -n "${COMPUTERNAME:-}" ] && [ "${#COMPUTERNAME}" -ge 3 ] && echo "$ADDED_AL
     FAILED=1
 fi
 
+# 1b. Block secrets: signing passwords written as literals, known token formats, private keys and env or keystore files.
+CRED_RE='(-(storepass|keypass)[ =]+["'"'"']?[^"'"'"'<$%{ ]|(storePassword|keyPassword)[ =]+["'"'"'][^"'"'"'<$%{]|gh secret set [A-Z_]*(PASS|SECRET|TOKEN|PWD)[A-Z_]* +(-b|--body)[ =]*["'"'"']?[^"'"'"'<$%{ ])'
+TOKEN_RE='(ghp_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{30,}|sk-ant-[A-Za-z0-9_-]{20,}|sk-proj-[A-Za-z0-9_-]{20,}|AKIA[0-9A-Z]{16}|AIza[0-9A-Za-z_-]{35}|-----BEGIN [A-Z ]*PRIVATE KEY)'
+if echo "$ADDED_ALL" | grep -qE "$CRED_RE|$TOKEN_RE"; then
+    echo "BLOCKED: an added line contains a password or token. Use a placeholder such as <KEYSTORE_PASSWORD> or an environment variable." >&2
+    FAILED=1
+fi
+if echo "$STAGED_FILES" | grep -qiE '(^|/)\.env($|\.)|\.(jks|keystore|p12|pem)$|keystore\.properties$'; then
+    echo "BLOCKED: an env, keystore or key file is staged. Keep it out of git." >&2
+    FAILED=1
+fi
+
 # 2. Block em dashes, en dashes and double hyphens in added lines of code comments and documentation.
 DASH_PATTERN='—|–|[[:space:]]--[[:space:]]|[[:alnum:]]--[[:alnum:]]|[[:space:]]--$'
 for f in $STAGED_FILES; do
