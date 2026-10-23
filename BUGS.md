@@ -286,7 +286,7 @@ Each entry records a problem that was fixed in a way a future change could silen
 
 - **Symptom:** With picture-in-picture on, "previous app" through One Hand Operation+ switched apps and ended the stream, while YouTube went into picture-in-picture with the same gesture.
 - **Root Cause:** One Hand Operation+ uses `startActivityFromRecents`. With Android 12 auto-enter set, the system hid the stream window before pausing it, so `surfaceDestroyed` stopped the connection and `onPause` found nothing to shrink. A screen without picture-in-picture (the PC list) was paused normally on the same gesture.
-- **Fix Applied:** Auto-enter stays off. `onUserLeaveHint` (Home, Recents) and `onPause` (any other switch) enter picture-in-picture by hand, the way YouTube does.
+- **Fix Applied:** First turned auto-enter off and entered picture-in-picture by hand. That broke the Home swipe (BUG-041), so the final fix keeps auto-enter on and enters by hand in `onTopResumedActivityChanged(false)` for switches auto-enter does not cover, while the stream window is still visible.
 - **Verification:** On the Tab the One Hand Operation+ swipe and hold now leaves the stream in picture-in-picture over YouTube, expanding returns to the same stream, and Home still enters picture-in-picture.
 - **Status:** Fixed.
 
@@ -320,4 +320,20 @@ Each entry records a problem that was fixed in a way a future change could silen
 - **Root Cause:** The dialog and text button styles set one fixed accent color as the text color, with no disabled state, so `setEnabled(false)` changed nothing visible.
 - **Fix Applied:** `Dialogs.fitWidth` gives every dialog button a color list with the Material 3 disabled look (38 percent of its color), and the same helper fades in-layout text buttons such as Clear. The list is built in code, since Android 5 and 6 cannot read theme colors from a color list file.
 - **Verification:** `DialogButtonShapeTest.disabledDialogButtonsLookDisabled`. On the S24, Save and Clear fade until they can be used.
+- **Status:** Fixed.
+
+## BUG-041: The Home swipe paused the stream and the move into picture-in-picture was abrupt
+
+- **Symptom:** Reported on the S24 and the Tab: with picture-in-picture on, swiping up to Home stopped the stream, and when it did shrink it jumped into the small window instead of sliding.
+- **Root Cause:** The BUG-036 fix turned Android 12 auto-enter off. A gesture Home then had no swipe-to-picture-in-picture animation and relied on a manual request one frame after `onUserLeaveHint`, which came after the launcher animation (abrupt) or after the window was hidden (stream stopped).
+- **Fix Applied:** Auto-enter is on while streaming, so the launcher runs its own swipe animation. `onTopResumedActivityChanged(false)` enters by hand for switches without auto-enter, `onUserLeaveHint` keeps a one-frame fallback, and both use the same checks as `onPause` (screen off, lock screen, split screen, this app's own screens).
+- **Verification:** Debug lifecycle logs (`PIPDBG`) on both devices: the Home swipe runs `onSwipePipToHomeAnimationStart` and is already in picture-in-picture when the activity pauses, an app switch enters picture-in-picture, Settings from a stream does not, closing the window with X offers Reconnect, and expanding returns to the same stream.
+- **Status:** Fixed.
+
+## BUG-042: Opening Recents ended a picture-in-picture stream for good
+
+- **Symptom:** On the Tab, the Recents gesture showed the stream as a card, and tapping the card went back to the PC list instead of the stream.
+- **Root Cause:** Android refuses picture-in-picture while the Recents overview shows the task (every request returned false, with auto-enter on or off), so the hidden surface stopped the connection. The resume mark was only written under the "Resume when reopened" policy and only in `onStop`, after the connection was already gone.
+- **Fix Applied:** Under the picture-in-picture policy, `surfaceDestroyed` marks a stream the user left and that could not shrink for resume, and `SessionResumer.maybeResume` now reconnects for every policy except "End the stream" (`BackgroundPolicy.resumesWhenReopened`).
+- **Verification:** `SessionTest.onlyTheDisconnectPolicyNeverReconnects`. On the Tab, Recents then tapping the card reconnects to the same app.
 - **Status:** Fixed.

@@ -20,7 +20,7 @@ public final class SessionResumer {
     // Called when the PC or app list comes back to the front, which is where Recents and the launcher return to after a stream
     public static boolean maybeResume(Activity activity) {
         ResumeStore.Session session = ResumeStore.takePending(activity, System.currentTimeMillis());
-        if (session == null || !BackgroundPolicy.isResume(PreferenceManager.getDefaultSharedPreferences(activity))) {
+        if (session == null || !BackgroundPolicy.resumesWhenReopened(PreferenceManager.getDefaultSharedPreferences(activity))) {
             return false;
         }
         activity.startActivity(intentFor(activity, session));

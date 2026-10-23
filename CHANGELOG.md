@@ -105,7 +105,8 @@ The first Super Artemis release, not published yet. The date is set when the `v1
 - PC names on the home screen wrap at a hyphen instead of mid-word.
 - A search result keeps its section header in view below the search bar, and the section list on tablets marks the section you are in.
 - The "Bottom right" position in the bar editor has the same text size as the other eight on phones.
-- One Hand Operation+ "previous app" and other app switches without a Home gesture keep the stream in picture-in-picture. Android 12 auto-enter made the system hide the stream window before pausing it, which ended the stream first.
+- One Hand Operation+ "previous app" and other app switches without a Home gesture keep the stream in picture-in-picture, and the Home swipe slides smoothly into the small window.
+- Opening Recents with a picture-in-picture stream no longer ends it for good: Android cannot shrink a stream shown as a Recents card, so tapping the card reconnects to the same app.
 - The profile editor no longer crashes when Android rebuilds it after a theme change, a rotation or the app being closed in the background.
 - Starting a stream while the phone turns from portrait to landscape no longer crashes.
 - With "Keep streaming in picture-in-picture", switching apps in any way now keeps the stream in picture-in-picture. Before, an app switch without a Home or Recents gesture, such as One Hand Operation+ opening the previous app, ended the stream. Screen off, the lock screen, split screen and the app's own screens still pause it normally.

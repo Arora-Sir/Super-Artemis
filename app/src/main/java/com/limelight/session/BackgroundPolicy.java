@@ -35,4 +35,10 @@ public final class BackgroundPolicy {
     public static boolean isResume(SharedPreferences prefs) {
         return RESUME.equals(get(prefs));
     }
+
+    // NOTE: Under picture-in-picture, Android refuses the small window while the Recents overview shows the stream as a card, so the stream ends there.
+    // NOTE: Those streams get the resume behavior instead, so coming back to the card or the app reconnects. Only "End the stream" never reconnects.
+    public static boolean resumesWhenReopened(SharedPreferences prefs) {
+        return !DISCONNECT.equals(get(prefs));
+    }
 }

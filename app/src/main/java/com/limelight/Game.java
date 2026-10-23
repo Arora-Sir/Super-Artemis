@@ -1329,11 +1329,11 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
 
         boolean autoEnter = connected && suppressPipRefCount == 0;
 
-        // NOTE: Android 12 auto-enter is left off on purpose. With it on, a switch through startActivityFromRecents (One Hand Operation+ "previous app")
-        // NOTE: hid the stream window before pausing it, so the surface and the connection were gone before picture-in-picture could start.
-        // NOTE: Without it Android pauses the stream first, and onUserLeaveHint (Home, Recents) or onPause (any other switch) enters picture-in-picture by hand.
+        // NOTE: Android 12 auto-enter gives the smooth swipe from full screen into the small window on a Home or Recents gesture, so it stays on while streaming.
+        // NOTE: Switches that auto-enter does not cover (One Hand Operation+ "previous app" through startActivityFromRecents) hide the stream window before pausing it.
+        // NOTE: Those enter picture-in-picture in onTopResumedActivityChanged, which runs while the window is still visible, and onPause stays as the last fallback.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            setPictureInPictureParams(getPictureInPictureParams(false));
+            setPictureInPictureParams(getPictureInPictureParams(autoEnter));
         }
         else {
             autoEnterPip = autoEnter;
@@ -1383,15 +1383,19 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
         super.onUserLeaveHint();
         leftByUser = true;
 
-        // NOTE: Home and Recents give this hint, and picture-in-picture is entered by hand right after it (auto-enter stays off, see updatePipAutoEnter).
-        // NOTE: Other app switches give no hint, and onPause enters picture-in-picture for them.
+        pipDebug("onUserLeaveHint");
+
+        // NOTE: The Recents gesture gives this hint but no auto-enter, and Android refuses picture-in-picture while the Recents transition runs.
+        // NOTE: One frame later the request is accepted, so the stream shrinks instead of stopping when its window is hidden. A Home swipe is already in picture-in-picture by then and is left alone.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && prefConfig.enablePip && connected && !isOnExternalDisplay()) {
             getWindow().getDecorView().post(() -> {
-                if (!isInPictureInPictureMode() && !isFinishing() && connected) {
+                if (shouldEnterPipOnPause()) {
                     try {
-                        enterPictureInPictureMode(getPictureInPictureParams(false));
-                    } catch (Exception e) {
-                        LimeLog.warning("Picture-in-picture fallback failed: " + e);
+                        boolean entered = enterPictureInPictureMode(getPictureInPictureParams(true));
+                        pipDebug("leave hint fallback entered=" + entered);
+                    }
+                    catch (IllegalStateException | IllegalArgumentException e) {
+                        LimeLog.warning("PiP from the leave hint failed: " + e.getMessage());
                     }
                 }
             });
@@ -1410,6 +1414,32 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
                     e.printStackTrace();
                 }
             }
+        }
+    }
+
+    // NOTE: Another app came to the front. On a Home or Recents gesture, auto-enter has already started the smooth transition, so nothing happens here.
+    // NOTE: An app switch without a gesture (One Hand Operation+, a notification, an app shortcut) gets no auto-enter, and the stream window is hidden right after this call.
+    // NOTE: Entering here, while the window is still visible and the activity still resumed, keeps the surface and the connection alive.
+    @Override
+    public void onTopResumedActivityChanged(boolean isTopResumedActivity) {
+        super.onTopResumedActivityChanged(isTopResumedActivity);
+        pipDebug("onTopResumedActivityChanged " + isTopResumedActivity);
+        if (!isTopResumedActivity && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && shouldEnterPipOnPause()) {
+            try {
+                boolean entered = enterPictureInPictureMode(getPictureInPictureParams(true));
+                pipDebug("top resumed change entered=" + entered);
+            }
+            catch (IllegalStateException | IllegalArgumentException e) {
+                LimeLog.warning("PiP on top resumed change failed: " + e.getMessage());
+            }
+        }
+    }
+
+    // Lifecycle order around picture-in-picture, written to the log in debug builds only
+    private void pipDebug(String event) {
+        if (BuildConfig.DEBUG) {
+            LimeLog.info("PIPDBG " + event + " connected=" + connected + " inPip=" + (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && isInPictureInPictureMode())
+                    + " resumed=" + getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED));
         }
     }
 
@@ -1794,6 +1824,7 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
     @Override
     public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode, Configuration newConfig) {
         super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig);
+        pipDebug("onPictureInPictureModeChanged " + isInPictureInPictureMode);
         if (isInPictureInPictureMode) {
             pipEndedAtMs = 0;
             return;
@@ -1840,6 +1871,7 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
 
     @Override
     protected void onPause() {
+        pipDebug("onPause");
         if (shouldEnterPipOnPause()) {
             try {
                 enterPictureInPictureMode(getPictureInPictureParams(false));
@@ -4192,8 +4224,15 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
+        pipDebug("surfaceDestroyed");
         if (!surfaceCreated) {
             throw new IllegalStateException("Surface destroyed before creation!");
+        }
+
+        // A stream the user left that could not shrink into picture-in-picture (the Recents overview) reconnects when the user comes back
+        if (connected && leftByUser && !isFinishing() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && !isInPictureInPictureMode()
+                && BackgroundPolicy.isPip(PreferenceManager.getDefaultSharedPreferences(this))) {
+            ResumeStore.markLeft(this, System.currentTimeMillis());
         }
 
         if (attemptedConnection) {

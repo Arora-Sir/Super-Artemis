@@ -59,6 +59,16 @@ public class SessionTest {
         assertFalse(PreferenceConfiguration.readPreferences(context).enablePip);
     }
 
+    // Picture-in-picture streams that Android could not shrink (Recents overview) reconnect too, only "End the stream" never does
+    @Test
+    public void onlyTheDisconnectPolicyNeverReconnects() {
+        assertFalse(BackgroundPolicy.resumesWhenReopened(prefs));
+        prefs.edit().putString(BackgroundPolicy.PREF_KEY, BackgroundPolicy.PIP).commit();
+        assertTrue(BackgroundPolicy.resumesWhenReopened(prefs));
+        prefs.edit().putString(BackgroundPolicy.PREF_KEY, BackgroundPolicy.RESUME).commit();
+        assertTrue(BackgroundPolicy.resumesWhenReopened(prefs));
+    }
+
     @Test
     public void pendingResumeIsTakenOnceWithinTheWindow() {
         ResumeStore.remember(context, session());
