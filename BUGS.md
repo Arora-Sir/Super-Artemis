@@ -337,3 +337,117 @@ Each entry records a problem that was fixed in a way a future change could silen
 - **Fix Applied:** Under the picture-in-picture policy, `surfaceDestroyed` marks a stream the user left and that could not shrink for resume, and `SessionResumer.maybeResume` now reconnects for every policy except "End the stream" (`BackgroundPolicy.resumesWhenReopened`).
 - **Verification:** `SessionTest.onlyTheDisconnectPolicyNeverReconnects`. On the Tab, Recents then tapping the card reconnects to the same app.
 - **Status:** Fixed.
+
+## BUG-043: A stray network packet aborted debug builds in the audio thread
+
+- **Symptom:** The debug app on the Tab ended with a native crash (signal 6, thread `AudioRecv`) twice in two days, on 2026-10-21 and 2026-10-23. Release builds were not affected.
+- **Root Cause:** The audio socket is bound to a random local port and is not connected, so it accepts any datagram sent to that port, including late packets of an earlier session on a reused port. A datagram whose RTP packet type is neither 97 (audio) nor 127 (FEC) reached `LC_ASSERT_VT(false)` in `RtpAudioQueue.c`, which aborts in debug builds and is compiled out in release builds.
+- **Fix Applied:** The audio receive loop drops datagrams of any other type before the queue sees them and logs the first one every second with its length and first eight bytes. `RtpAudioQueue` counts and drops too short packets, bad shard indexes and mismatching FEC headers instead of asserting, and a failed decryption no longer asserts. The submodule `moonlight-common-c` carries the change.
+- **Verification:** `scripts/native_tests/audio_queue_foreign_packet.c` aborts with the exact message of the crash report on the old code and passes on the new code (run on the Tab with `run_audio_queue_test.sh`). The log line shows which sender and packet type caused it the next time.
+- **Status:** Fixed. The sender of the stray packets is still unknown, and the new log line records it.
+
+## BUG-044: Back needed one extra press after every settings search
+
+- **Symptom:** After tapping a search result in Settings, Back first showed the same Settings again, and every further search added another press before Super Artemis closed.
+- **Root Cause:** The search page is added with `addToBackStack`, and `closeSearchPage` only removed the fragment, so each search left one empty back stack entry. Android 13 and later run those entries before the activity finishes.
+- **Fix Applied:** `closeSearchPage` pops the search page from the back stack, and `StreamSettings.onBackPressed` lets Back close an open search page on Android 12 and older, which used to end Settings instead.
+- **Verification:** `SearchBackStackTest` runs five search cycles and expects an empty back stack.
+- **Status:** Fixed.
+
+## BUG-045: The microphone input preview row slid from the bottom of Settings
+
+- **Symptom:** After picking a search result such as Stream, the "Microphone input preview" row appeared at the bottom of the list and moved to its place within a second or two. No other row did.
+- **Root Cause:** The level meter rebound its row about 20 times per second, and the default item animator slid any row whose position changed during the two scrolls that bring a search result to the top. The row was always the one in a pending change.
+- **Fix Applied:** The settings list has no item animator, the level bar updates in place and only a new status text rebinds the row, and the second scroll follows the first in the same frame.
+- **Verification:** `MicrophonePreviewListTest` checks the list has no animator and 100 level updates rebind nothing. The device check is a search for "stream" on the Tab.
+- **Status:** Fixed, device check pending.
+
+## BUG-046: Done and Set buttons in the key editor were hard to read
+
+- **Symptom:** The round Done and Set buttons showed a light label on a light fill in every style and color scheme.
+- **Root Cause:** A layout `Button` inflated through an AppCompat activity becomes a `MaterialButton`, which tints its own background with the primary color unless `backgroundTint` is cleared. The label color stayed the tonal on-container color.
+- **Fix Applied:** `Widget.SuperArtemis.Button` sets `backgroundTint` to null, so the tonal and filled fills keep the roles they were designed with.
+- **Verification:** `EditorsSmokeTest.tonalEditorButtonsKeepTheirFillAndStayReadable` failed with the tint `#D0BCFF` before the fix and checks a 4.5 to 1 label contrast in Classic and Material You.
+- **Status:** Fixed.
+
+## BUG-047: A key made in the quick bar editor vanished after switching sets
+
+- **Symptom:** Adding a key or flow in the bar editor pinned it, but switching to another set and back, or adding a bar, rebuilt the rows without it, and Save then removed it from the bar.
+- **Root Cause:** The editor kept a snapshot of the special keys that was never updated when a key was made. The gesture editor had the same snapshot, so a new key showed as "Deleted custom key" until the editor was reopened.
+- **Fix Applied:** A new key joins the editor's own list before rows are rebuilt, the list scrolls to it, and the gesture editor adds it to its options.
+- **Verification:** `QuickBarEditorKeysTest` pins a key, switches sets twice and expects it pinned.
+- **Status:** Fixed.
+
+## BUG-048: A bar with 20 buttons per line ran off a phone screen
+
+- **Symptom:** The per-line slider allowed 20, which needs 712dp, so buttons past the screen edge were clipped and could not be tapped.
+- **Root Cause:** Buttons are a fixed 36dp and the line never wrapped to the screen width. Bars at different anchors were not checked against each other either.
+- **Fix Applied:** `BarFit` works out how many buttons fit and the bar wraps there, in the live bars and in the editor preview. The saved number stays as the intent, so a wider screen shows the whole line. The editor says what fits on this screen and offers presets.
+- **Verification:** `BarFitTest` and `QuickActionBarFitTest` build a 20 per line bar on a 360dp phone, a landscape phone and a tablet.
+- **Status:** Fixed.
+
+## BUG-049: The Lock key (Windows + L) did nothing on the PC
+
+- **Symptom:** The built-in Lock key from a bar did not lock Windows, while Win + L typed on a keyboard did.
+- **Root Cause:** Not proven on the host yet. A button held Win and L for 25 ms and sent the Windows key without its own modifier flag, while a keyboard holds the keys for a human length of time and marks the Windows key.
+- **Fix Applied:** Shortcuts with a Windows key hold their keys 120 ms and send the Windows key with its modifier flag (`KeyTiming`), for buttons and flows alike. All other shortcuts keep the 25 ms hold.
+- **Verification:** `FlowStepsTest` checks the order, the flag and the hold. The device check is the Lock key on the Tab with the PC in front of you.
+- **Status:** Fixed, device check pending. If Windows still ignores the injected shortcut, use the Apollo server command in SETUP.md.
+
+## BUG-050: Picture-in-picture started for calls and the Gemini overlay
+
+- **Symptom:** With the picture-in-picture policy, a ringing or answered phone call and the Gemini overlay moved the stream into the small window. The resume policy stayed full screen.
+- **Root Cause:** Not fully proven. `onTopResumedActivityChanged(false)`, the leave hint and Android 12 auto-enter all start the window, and none of them checked whether a call was running.
+- **Fix Applied:** `PipGuard` refuses the window while the audio mode is a ringtone, a call or a voice chat, and auto-enter is switched off while one runs (`CallModeWatcher`). `PIPDBG` now logs window focus, the audio mode and the screen state to settle the Gemini overlay.
+- **Verification:** `PipGuardTest`. The device check is the call and the overlay with `adb logcat | grep PIPDBG`.
+- **Status:** Calls are fixed pending the device check. The Gemini overlay is guarded through the assist request that announces it (log of 2026-10-24: `FloatyActivity` opens from the power button, then auto-enter shrinks the stream), and needs one more device check.
+
+## BUG-051: Unlocking the screen did not bring the stream back
+
+- **Symptom:** After the screen turned off and was unlocked, the home screen showed and the stream was gone.
+- **Root Cause:** Screen off stops the stream, and only a Home, Recents or app switch marked it for resume.
+- **Fix Applied:** A stream that stops while the screen is off is marked for resume under the picture-in-picture and resume policies, so unlocking reconnects it. "End the stream" never reconnects.
+- **Verification:** `PipGuardTest.aScreenThatTurnedOffResumesOnlyUnderAResumePolicy`. The device check is power off, wait five seconds, power on and unlock.
+- **Status:** Fixed, device check pending.
+
+## BUG-052: The stream screen crashed on open with "Aspect ratio is too extreme"
+
+- **Symptom:** On the Tab, opening a stream ended the app twice with an IllegalArgumentException from `setPictureInPictureParams`, so no stream could start (2026-10-24, debug build with the call guard).
+- **Root Cause:** The call guard made `onResume` refresh the picture-in-picture params, and before the first layout the stream view is 0 by 0. Android rejects that ratio, and the exception ended the activity.
+- **Fix Applied:** `PipGuard.aspectRatioFor` returns no ratio until the view has a size and keeps any ratio inside 0.43 to 2.38, and `updatePipAutoEnter` catches a rejected value instead of ending the stream.
+- **Verification:** `PipGuardTest.aspectRatioStaysInsideWhatAndroidAccepts`. The device check is opening a stream on the Tab.
+- **Status:** Fixed, device check pending.
+
+## BUG-053: One Hand Operation+ on the Tab ended the stream with no way back
+
+- **Symptom:** The "previous app" edge swipe moved YouTube to the front and the stream ended, and returning to Super Artemis did not reconnect.
+- **Root Cause:** Android hides the stream window and destroys its surface about 1.3 seconds before it calls `onTopResumedActivityChanged`, `onPause` or `onWindowFocusChanged` (log of 2026-10-24, after `startActivityFromRecents`). No leave hint comes either. No app callback runs while the window is still visible, so the stream cannot enter picture-in-picture, and only a leave hint marked a stream for resume.
+- **Fix Applied:** A stream whose surface is lost while the screen is on, outside a rotation, Settings or the app's own prompts, and under a policy other than "End the stream", is marked for resume in `surfaceDestroyed` (`PipGuard.shouldResumeAfterSurfaceLoss`), so coming back reconnects as it does after Recents.
+- **Verification:** `PipGuardTest.aStreamLostToAnotherAppReconnectsOnReturn`. The device check is the edge swipe, then the Super Artemis card.
+- **Status:** Fixed for the way back. Picture-in-picture for this gesture is not possible from the app, and the Home swipe, the Gemini overlay and normal app switches are covered.
+
+## BUG-054: A stream that ended with the screen off was not reconnected on unlock
+
+- **Symptom:** After the screen turned off and was unlocked, the PC list showed instead of the stream (Tab, 2026-10-24).
+- **Root Cause:** The stream ending brought the PC list to the front while the screen was still off, and its resume check took the saved mark and started the reconnect 35 ms after the screen went off. The reconnect had nobody to show it to, and nothing was left to resume at unlock.
+- **Fix Applied:** `SessionResumer.maybeResume` keeps the mark while the screen is off or locked, and the lists resume again at unlock, which reconnects the stream.
+- **Verification:** `SessionTest.aMarkWaitsUntilTheScreenIsOnAndUnlocked`. The device check is power off, wait five seconds, power on, unlock.
+- **Status:** Fixed, device check pending.
+
+### BUG-055: Gemini share dialogs shrink the stream
+
+The Gemini share button opens an account picker over the stream, 5 seconds after the assistant call, and the manual picture-in-picture entry shrank the stream. The assistant hold now lasts until the stream is the top app again, up to 120 seconds (`PipGuard.ASSISTANT_HOLD_MS`). Dialogs from other apps that appear with no assistant call are not covered yet, because a Recents gesture and a dialog look the same in the log (no leave hint, focus lost). Needs a device check.
+
+Device check, 2026-10-26: the stream stayed full screen on the account picker. An incoming call on the Tab (10:15, ringing for 5 seconds, then a leave hint) shrank the stream with the audio mode still normal, because Samsung does not set a call mode while the phone rings. Detecting that needs the READ_PHONE_STATE permission, so it is left as is until the owner decides.
+
+### BUG-056: Dialogs of other apps and a locked screen
+
+Entering picture-in-picture from onTopResumedActivityChanged and onPause shrank the stream for any overlay, and the screen-off mark was skipped when the display still reported interactive behind the lock screen (Tab log, 2026-10-26). Android 12 and later now shrink only through auto-enter and the leave hint, and the screen-off mark also counts a locked keyguard. Recents without a leave hint is the case to re-check on a device. A debug-only KEYDBG log in NvConnection.sendKeyboardInput traces Win+L from the on-screen keyboard.
+
+### BUG-057: Win+L from a stream does nothing on Windows
+
+The Tab sends Win down, L down, L up and Win up with the Windows modifier (KEYDBG log), and Windows still does not lock, because it ignores an injected Win+L. A local `keybd_event` test on the host gave the same result, and an AutoHotkey `#l` hotkey locks for the injected keys. Options and sources are in docs/lock-key-options.md. The Settings row Lock key does nothing? shows the script.
+
+### BUG-058: Unit tests failed at random and a full run took up to 50 minutes
+
+The test JVM ran with Gradle's default 512 MB heap. Robolectric with this many layouts and the 235 icon catalogue filled it, the JVM thrashed in garbage collection and finally died with an OutOfMemoryError, so single tests such as the quick bar editor, the style dialogs and the stream view tests appeared to fail depending on the run. Setting `unitTests.all { maxHeapSize = "2g" }` in `app/build.gradle` fixed it. The full suite now runs 345 tests in about 5 minutes with no failures.

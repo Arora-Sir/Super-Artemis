@@ -1,0 +1,21 @@
+# Permissions the release APK may request. A new one fails scripts/release/verify_release.py until it is added here on purpose.
+# A leading dot means the permission is prefixed with the package id.
+android.permission.INTERNET
+android.permission.ACCESS_NETWORK_STATE
+android.permission.ACCESS_WIFI_STATE
+android.permission.CHANGE_WIFI_MULTICAST_STATE
+android.permission.WAKE_LOCK
+android.permission.VIBRATE
+android.permission.POST_NOTIFICATIONS
+android.permission.REORDER_TASKS
+android.permission.RECORD_AUDIO
+# Optional, asked once while streaming, so a ringing phone keeps the stream full screen
+android.permission.READ_PHONE_STATE
+# Android TV channel access that upstream Moonlight declares
+com.android.providers.tv.permission.READ_EPG_DATA
+com.android.providers.tv.permission.WRITE_EPG_DATA
+# Added by a library for older Android versions
+android.permission.READ_EXTERNAL_STORAGE
+android.permission.WRITE_EXTERNAL_STORAGE
+# Added by the AndroidX core library for non exported receivers
+.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION

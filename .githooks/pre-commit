@@ -1,5 +1,16 @@
 #!/bin/sh
 # Pre-commit hook for Super Artemis. Enable once per clone with: git config core.hooksPath .githooks
+# Mechanical Shield Core Git Gate
+if [ "$ALLOW_AUTONOMOUS_GIT" != "1" ]; then
+  echo ""
+  echo "======================================================================"
+  echo "[SECURITY HALT] git commit blocked by mechanical Shield Core Gate."
+  echo "Automated agents are prohibited from committing code."
+  echo "To proceed manually, execute: ALLOW_AUTONOMOUS_GIT=1 git commit"
+  echo "======================================================================"
+  echo ""
+  exit 1
+fi
 # This repository is a fork, so only lines added by the commit are checked and upstream text is never forced to change.
 
 export LC_ALL=C.UTF-8

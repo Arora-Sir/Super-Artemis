@@ -18,6 +18,8 @@ This is the handoff file for anyone (human or AI) resuming work on Super Artemis
 - Round 9 (2026-10-19) is implemented and uncommitted: phone hotkeys (`customkeys/Hotkey`, `customkeys/HotkeyDispatcher`, wired into `Game.handleKeyDown`), the sectioned recorder for phones in portrait (`customkeys/RecorderKeyboard`, layout D3 chosen by the owner), Save waiting for Done, and faded disabled buttons (BUG-040). Versions follow MAJOR.MINOR.PATCH: 1.0.0 first, 1.0.x for fixes, 1.1.0 for features. Controller hotkeys are planned for 1.1.0.
 - Round 10 (2026-10-23): the Home swipe regression (BUG-041) and Recents ending a picture-in-picture stream (BUG-042) are fixed and checked on both devices. `PIPDBG` lifecycle logs stay in debug builds only.
 
+- Round 11 (2026-10-23) is implemented and uncommitted: the native audio crash in debug builds (BUG-043), Settings Back after search and the microphone preview slide (BUG-044 and BUG-045), readable tonal buttons, 48dp chips, a sectioned icon picker with 235 icons and search, optional key names with "Key:" and "Flow:" labels, in-place key editing from every editor and the bar long press menu (BUG-046 and BUG-047), bars that fit the screen (BUG-048), Lock key timing (BUG-049), call and screen off rules for picture-in-picture (BUG-050 and BUG-051), performance presets, pure black, a custom color, GitHub Sponsors and a manual update check. Device checks are pending on the Tab and the S24, and the unit suite has 331 tests, all passing.
+
 ## What works (verified on a Galaxy Tab S10 Ultra, Android 16)
 
 - Side-by-side install next to Artemis, Artemis-mic and Moonlight.
@@ -49,6 +51,7 @@ Everything below is implemented with unit tests and needs the Tab and the S24, w
 - Round 3 in a stream: a flow with text, a hold and a repeat, More keys, a key pinned to the Quick Menu, hidden Advanced Menu actions, grid bars at every anchor with offsets, set switching from the Quick Menu, the mouse mode picker and quit dialog in both styles and in a color scheme, picture-in-picture through One Hand Operation+ and an `am start` app switch, and the Recents card resuming the stream.
 - Round 3 outside a stream: profile Duplicate and Copy settings into (needs a test profile), search for "mouse" and "pointer" on the S24.
 - Round 5: the microphone permission prompt during a stream (needs the permission revoked first), the keyboard service feedback type in `dumpsys accessibility` (needs the service enabled), and the taller menu editor list on the S24.
+- Round 10 (2026-10-26): the app style picker previews on a tap and applies on the Apply button, with one line of dots (rows on a phone), the last custom color as its own dot and the chosen name in the section label. The Support row with the beating red heart. Settings, Host, Lock key does nothing? (the script and a Copy button). The call check with the phone state permission (asked once, optional). Pure black, the update check and Sponsors on the Tab, and the stricter picture-in-picture rule on Home, Recents, the assistant overlay with its share picker, a call, and screen off.
 
 ## Workstreams to 1.0.0
 

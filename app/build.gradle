@@ -188,6 +188,10 @@ android {
 
     testOptions {
         unitTests.includeAndroidResources = true
+        unitTests.all {
+            // The default 512 MB test heap fills up with Robolectric, the layouts and the icon catalogue, and the test JVM then thrashes and dies with an OutOfMemoryError (full run of 2026-10-28)
+            maxHeapSize = "2g"
+        }
     }
 }
 

@@ -50,3 +50,10 @@ AGENTS.md
 # Release signing keys (never commit)
 *.jks
 *.keystore
+
+# local working notes (handoffs, roadmaps, scratch), never published
+HANDOFF.md
+FUTURE_WORK.md
+PROJECT_TRACKER.md
+*.local.md
+.claude/

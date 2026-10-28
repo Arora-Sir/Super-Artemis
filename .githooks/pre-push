@@ -1,0 +1,14 @@
+#!/bin/sh
+# Pre-push hook for Super Artemis.
+# Mechanical Shield Core Git Gate
+if [ "$ALLOW_AUTONOMOUS_GIT" != "1" ]; then
+  echo ""
+  echo "======================================================================"
+  echo "[SECURITY HALT] git push blocked by mechanical Shield Core Gate."
+  echo "Automated agents are prohibited from pushing to remote."
+  echo "To proceed manually, execute: ALLOW_AUTONOMOUS_GIT=1 git push"
+  echo "======================================================================"
+  echo ""
+  exit 1
+fi
+exit 0

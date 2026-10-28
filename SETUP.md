@@ -90,6 +90,18 @@ if ($steam) {
 
 Leave "Run as administrator" off, because the default microphone belongs to your Windows user. The Steam microphone stays silent until the microphone is unmuted in the app, so keeping it as the default for the whole session is harmless. Apollo only creates it when `mic_backend = steam_streaming_microphone` is set.
 
+## Lock the PC from a button
+
+The built-in Lock key sends Windows + L. Windows treats that shortcut specially, and some hosts ignore it when it is injected, so a reliable way is an Apollo command that locks the session. In the Apollo web UI add a command to the client (Clients > this device > Do, or an application entry) with:
+
+```
+rundll32.exe user32.dll,LockWorkStation
+```
+
+Leave "Run as administrator" off, since the lock belongs to your Windows user. The Lock key keeps working as a shortcut on hosts that accept it.
+
+Windows ignores a Win+L that a remote session injects, even though the Lock key sends the right keys. The simplest fix is an AutoHotkey v2 script on the PC. The repository has it as `scripts/host/SuperArtemisLock.ahk`, and Settings > Host > "Lock key does nothing?" shows the same two lines with a copy button. Save the script, run it, and put it in the Startup folder (Win+R, then `shell:startup`).
+
 ## Keeping up with upstream
 
 Follow UPSTREAM.md. The weekly "Upstream watch" issue lists new commits, releases and security advisories from every project the fork builds on, and `python scripts/upstream_watch.py` produces the same report locally.
@@ -102,8 +114,9 @@ Follow UPSTREAM.md. The weekly "Upstream watch" issue lists new commits, release
 ## Release builds and signing
 
 - Release builds are signed only when `KEYSTORE_FILE`, `KEYSTORE_PASSWORD`, `KEY_ALIAS` and `KEY_PASSWORD` are set. Without them the release APK stays unsigned.
-- Run `scripts/setup-release-signing.ps1` once (PowerShell 7). It creates the keystore outside the repository and stores the four GitHub Actions secrets. The password is read as a secure string and never echoed.
+- Follow RELEASING.md: run `python scripts/release/generate_keystore.py --out-dir <folder outside the repo>` once, then store the four secrets in the protected `release` environment. The password is read with a hidden prompt and never printed.
 - Keep the keystore and its password backed up. Losing either blocks updates of the installed app.
+- [RELEASING.md](RELEASING.md) has the full step-by-step guide: keystore, protected environment, certificate check, checksums and each release.
 - Pushing a `v*` tag runs `.github/workflows/build-unified.yml`, which builds, verifies the signature, the package and that the tag equals `v<versionName>`, and creates a draft release with `SuperArtemis-v<version>-arm64-v8a.apk`.
 
 ## Documentation checks

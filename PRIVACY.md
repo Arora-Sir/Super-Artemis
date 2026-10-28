@@ -1,6 +1,6 @@
 # Privacy policy for Super Artemis
 
-**Effective date:** 2026-10-08
+**Effective date:** 2026-10-23
 
 Super Artemis is an open source game streaming client. It has no accounts, no ads, no analytics and no tracking, and the developer runs no server that the app talks to.
 
@@ -15,6 +15,7 @@ Super Artemis is an open source game streaming client. It has no accounts, no ad
 
 - **Your PCs.** Pairing, the app list, streaming video and audio, input and the optional microphone stream go directly between your device and the PCs you add.
 - **Moonlight STUN and connection test servers.** Inherited from Moonlight, the app may contact `stun.moonlight-stream.org` to find your public address for streaming over the Internet, and `android.conntest.moonlight-stream.org` when you run the network test. These requests carry no personal data.
+- **GitHub, only when you tap Check for updates.** Settings > About > Check for updates sends one anonymous request to `api.github.com` for the newest release of Super Artemis, after a one time explanation. It carries a plain user agent and no account, device ID or app version, and nothing is saved from the answer. The app never checks by itself, never during a stream, and never downloads or installs anything.
 - **Links you open.** Links in Settings and About (GitHub, PayPal, UPI apps, profile pages) open in your browser or the matching app, which has its own privacy policy.
 
 ## Microphone
@@ -28,3 +29,7 @@ Performance logging, when you turn it on, writes its log files into the app's st
 ## Changes
 
 Changes to this policy are published in this file in the [Super Artemis repository](https://github.com/Arora-Sir/Super-Artemis). For questions, open an issue there.
+
+## Phone state
+
+Super Artemis asks once for the phone state permission while streaming. The app reads only whether the phone is idle, ringing or in a call, so a call keeps the stream full screen instead of shrinking it. The value stays on the device and the app works the same if you decline.

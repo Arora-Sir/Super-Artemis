@@ -24,4 +24,4 @@ jobs:
         run: python scripts/render_credits.py --check
 
       - name: Project docs have no em dashes or double hyphens
-        run: python scripts/clean_dashes.py --check ARCHITECTURE.md BUGS.md SETUP.md CHANGELOG.md CONTEXT.md UPSTREAM.md PRIVACY.md CLAUDE.md .github/CONTRIBUTING.md
+        run: python scripts/clean_dashes.py --check ARCHITECTURE.md BUGS.md SETUP.md CHANGELOG.md CONTEXT.md UPSTREAM.md PRIVACY.md RELEASING.md docs/lock-key-options.md CLAUDE.md .github/CONTRIBUTING.md

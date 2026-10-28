@@ -4,7 +4,43 @@ All notable changes to Super Artemis are listed here. The format follows [Keep a
 
 ## [Unreleased]
 
-Nothing yet.
+- The app style picker previews a tap and applies on the Apply button, shows one line of dots that wraps on a phone, keeps the last custom color as its own dot and puts the chosen name in the section label.
+- The Support row has a filled red heart with a soft heartbeat that stops when animations are off. The Support dialog keeps its plain header.
+- Settings, Host has "Lock key does nothing?" with the AutoHotkey script, a Copy button and a link to the guide, because Windows ignores a Win+L that a stream injects.
+- The release process now follows DualClone: a keystore helper, a protected `release` environment, a verifier with a permission allow-list and certificate check, checksums, and a build and test workflow. See RELEASING.md.
+- The Blue scheme seed is `2196F3` and the custom color default is `00BCD4`, matching the shared accent list.
+- The stream shrinks into picture-in-picture only through the system auto-enter and the leave hint, so dialogs and overlays of other apps no longer shrink it.
+- A stream lost behind the lock screen reconnects after unlock even when the display still reported interactive.
+- A ringing phone and a running call keep the stream full screen once the phone state permission is granted (asked once, optional).
+- The color scheme picker is one line of dots with the last custom color and a plus, and the Support dialog opens with a red banner.
+- The on-screen controller now takes its pressed color from the accent chosen in Settings, and keeps its own colors for the Wallpaper scheme.
+- The Gemini share account picker no longer shrinks the stream into picture-in-picture.
+
+### Added
+
+- Performance presets (Lowest latency, Balanced, Best quality, Battery saver) in Settings. A preset shows the settings it changes before you apply it, saves your current values as a "Before" profile, and "Use my own settings" switches it off again. "Save my settings as a profile" keeps a hand tuned combination.
+- Pure black switch for OLED screens, in Classic and Material You, and a Custom color scheme with a color picker (drag or type a hex code).
+- Check for updates in Settings > About, a manual request to GitHub with a one time explanation, and GitHub Sponsors in the Support dialog.
+- A sectioned icon picker with a search field and 235 icons, including the microphone and voice family, window layout, media, capture and more.
+- Pencil buttons to edit a key or flow in place from the bar editor, the menu editor and the gesture editor (hold a gesture row), and "Edit this key or flow" and "Change icon" in the long press menu of a bar button, also over a stream.
+- A key or flow name is optional. A shortcut reads "Ctrl + M" or "Ctrl + M (Gemini Talk)", and pickers say "Key:" for one shortcut and "Flow:" for a sequence.
+- The quick bar editor says how many buttons fit per line on this screen and offers 4, 6, 10 and Fit screen.
+- `scripts/native_tests/` with a test for stray audio packets, and a Native crash fix note in BUGS.md.
+
+### Changed
+
+- Bars wrap at what fits on the screen, so no button is cut off on a phone, and the preview shows the bar the way the stream draws it.
+- The Add key or flow button of the bar editor moved into the header of the button list, the add step chips are 48dp touch targets and the key editor chips fade at 30 steps.
+- Screen off ends a stream under the picture-in-picture and resume policies the way Recents does, and unlocking reconnects it.
+- Lock (Windows + L) and other Windows key shortcuts hold their keys longer and mark the Windows key like a keyboard does.
+- Local files that are not meant for GitHub (`HANDOFF.md`, `FUTURE_WORK.md`) are ignored by git.
+
+### Fixed
+
+- A native crash in the audio thread of debug builds on a stray network packet (BUG-043).
+- Back needing extra presses after Settings search (BUG-044) and the microphone preview row sliding into place (BUG-045).
+- Unreadable Done and Set buttons in the key editor (BUG-046), a new key vanishing from a bar after switching sets (BUG-047) and bars running off a phone screen (BUG-048).
+- Picture-in-picture starting during a call (BUG-050, the Gemini overlay is still open) and the Lock key doing nothing (BUG-049, device check pending).
 
 ## [1.0.0]
 
