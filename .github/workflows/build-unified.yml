@@ -51,11 +51,12 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407 # v3
-
-      - name: Install NDK
-        run: sdkmanager --install "ndk;${NDK_VERSION}"
+      - name: Install the NDK with the SDK of the runner
+        run: |
+          # NOTE: The runner image already has the Android SDK. The setup-android action ran `sdkmanager tools`, which the current command line tools no longer have, and failed the job.
+          SDKMANAGER=$(ls -d "$ANDROID_HOME"/cmdline-tools/*/bin/sdkmanager | sort -V | tail -1)
+          yes | "$SDKMANAGER" --licenses > /dev/null || true
+          "$SDKMANAGER" --install "ndk;${NDK_VERSION}"
 
       - name: Tag must equal v plus versionName
         run: python scripts/release/check_version.py --tag "$TAG"
