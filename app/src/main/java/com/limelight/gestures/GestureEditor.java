@@ -67,7 +67,7 @@ public final class GestureEditor {
             options.add(new Option(action.id, context.getString(action.nameRes), action.iconRes, R.string.gesture_group_actions));
         }
         for (CustomKey key : keys) {
-            options.add(new Option(GestureBindingStore.customKeyBinding(key.id), key.name,
+            options.add(new Option(GestureBindingStore.customKeyBinding(key.id), com.limelight.customkeys.KeyLabels.pickerLabel(context, key),
                     IconCatalog.drawableFor(key.icon), R.string.gesture_group_keys));
         }
         return options;
@@ -238,6 +238,24 @@ public final class GestureEditor {
         refresh.run();
         refreshers.add(refresh);
         row.setOnClickListener(v -> choose(context, prefs, slot, options, refresh));
+        // NOTE: Holding a row that runs a key or flow edits that key in place, so a forgotten name or icon is fixed without leaving the editor.
+        row.setOnLongClickListener(v -> {
+            String keyId = GestureBindingStore.customKeyId(GestureBindingStore.get(prefs, slot));
+            if (keyId == null || com.limelight.customkeys.KeyEditActions.kindOf(context, keyId) == com.limelight.customkeys.KeyEditActions.Kind.NONE) {
+                return false;
+            }
+            com.limelight.customkeys.KeyEditActions.edit(context, keyId, () -> {
+                CustomKey changed = SpecialKeys.find(context, keyId);
+                for (int i = 0; i < options.size() && changed != null; i++) {
+                    if (options.get(i).binding.equals(GestureBindingStore.customKeyBinding(keyId))) {
+                        options.set(i, new Option(options.get(i).binding, com.limelight.customkeys.KeyLabels.pickerLabel(context, changed),
+                                IconCatalog.drawableFor(changed.icon), R.string.gesture_group_keys));
+                    }
+                }
+                refreshAll(refreshers);
+            });
+            return true;
+        });
         parent.addView(row);
     }
 
@@ -300,6 +318,9 @@ public final class GestureEditor {
         }
         // A key or flow made here is bound to this gesture straight away
         choices.list().addView(com.limelight.customkeys.KeyPicker.addButton(choices.context(), context, key -> {
+            // The new key joins the editor's own options, or its row would read "Deleted custom key" until the editor is reopened
+            options.add(new Option(GestureBindingStore.customKeyBinding(key.id), com.limelight.customkeys.KeyLabels.pickerLabel(context, key),
+                    IconCatalog.drawableFor(key.icon), R.string.gesture_group_keys));
             GestureBindingStore.set(prefs, slot, GestureBindingStore.customKeyBinding(key.id));
             onChosen.run();
             choices.dismiss();

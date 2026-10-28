@@ -409,6 +409,7 @@ public class VirtualControllerConfigurationLoader {
         }
 
         controller.setOpacity(config.oscOpacity);
+        controller.applyAccent(com.limelight.theme.ThemeManager.streamAccent(context));
     }
 
     public static void saveProfile(final VirtualController controller,

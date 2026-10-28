@@ -137,7 +137,8 @@ public final class CustomKeyEditor {
         final List<KeyStep> steps = new ArrayList<>(existing != null ? existing.steps : new ArrayList<>());
         final String[] icon = {existing != null ? existing.icon : null};
         // The name follows the steps until the user types a name of their own
-        final boolean[] nameEdited = {existing != null};
+        // An existing name that is just the automatic one keeps following the steps, so changing the shortcut does not leave a stale name behind
+        final boolean[] nameEdited = {existing != null && existing.name != null && !existing.name.equals(autoName(context, names, existing.steps))};
         final boolean[] settingName = {false};
         // Recorder state: the keys being recorded, which step they replace (-1 adds a new one) and what kind of step it is
         final List<Integer> recording = new ArrayList<>();
@@ -161,7 +162,9 @@ public final class CustomKeyEditor {
         bindHotkeyRow(context, body, names, existing != null ? existing.id : null, hotkey);
 
         if (existing != null) {
-            nameField.setText(existing.name);
+            if (nameEdited[0]) {
+                nameField.setText(existing.name);
+            }
             sticky.setChecked(existing.sticky);
         }
 
@@ -173,6 +176,10 @@ public final class CustomKeyEditor {
                 .setPositiveButton(R.string.game_menu_editor_save, (d, which) -> {
                     String id = existing != null ? existing.id : null;
                     String name = nameField.getText().toString().trim();
+                    // The name is optional, an empty one saves as the automatic name such as "Ctrl + M"
+                    if (name.isEmpty()) {
+                        name = autoName(context, names, steps);
+                    }
                     Hotkey chosen = hotkey[0] != null ? hotkey[0].withToPc(hotkeyToPc.isChecked()) : null;
                     onSaved.onSaved(CustomKey.withSteps(id, name, sticky.isChecked(), icon[0], steps).withHotkey(chosen));
                 })
@@ -207,16 +214,24 @@ public final class CustomKeyEditor {
             }
             stepList.setVisibility(steps.isEmpty() ? View.GONE : View.VISIBLE);
             stepsEmpty.setVisibility(steps.isEmpty() ? View.VISIBLE : View.GONE);
+            // At the step limit the chips fade instead of silently ignoring a tap
+            for (int c = 0; c < addStep.getChildCount(); c++) {
+                addStep.getChildAt(c).setEnabled(steps.size() < MAX_STEPS);
+                addStep.getChildAt(c).setAlpha(steps.size() < MAX_STEPS ? 1f : 0.38f);
+            }
             boolean single = steps.size() == 1 && steps.get(0).type == KeyStep.Type.COMBO;
             sticky.setEnabled(single);
             if (!single) {
                 sticky.setChecked(false);
             }
+            // The automatic name is the hint of the empty field, and a name typed by the user shows next to the keys in every list
+            settingName[0] = true;
             if (!nameEdited[0]) {
-                settingName[0] = true;
-                nameField.setText(autoName(context, names, steps));
-                settingName[0] = false;
+                nameField.setText("");
             }
+            String suggested = autoName(context, names, steps);
+            nameField.setHint(suggested.isEmpty() ? context.getString(R.string.custom_key_name_hint) : suggested);
+            settingName[0] = false;
             updateSave(dialog, steps, nameField.getText(), recorder, recording);
         };
 
@@ -306,11 +321,11 @@ public final class CustomKeyEditor {
                 R.string.step_type_release, R.string.step_type_repeat, R.string.step_type_action};
         for (int i = 0; i < types.length; i++) {
             KeyStep.Type type = types[i];
-            TextView chip = (TextView) LayoutInflater.from(context).inflate(R.layout.sa_chip, addStep, false);
+            TextView chip = (TextView) LayoutInflater.from(context).inflate(R.layout.sa_action_chip, addStep, false);
             chip.setText(labels[i]);
             android.graphics.drawable.Drawable chipIcon = context.getDrawable(iconFor(type));
             if (chipIcon != null) {
-                int size = (int) Dialogs.dp(context, 16);
+                int size = (int) Dialogs.dp(context, 20);
                 chipIcon.setBounds(0, 0, size, size);
                 chip.setCompoundDrawablesRelative(chipIcon, null, null, null);
             }
@@ -335,7 +350,7 @@ public final class CustomKeyEditor {
             addStep.addView(chip);
         }
 
-        IconPicker.attach(iconGrid, icon);
+        IconPicker.attach(iconGrid, body.findViewById(R.id.custom_key_icon_search), icon);
 
         // Physical keyboards record while the key box has focus, so typing the name still works
         dialog.setOnKeyListener((d, keyCode, event) -> {
@@ -411,9 +426,9 @@ public final class CustomKeyEditor {
     }
 
     // NOTE: Save stays off while the recorder holds keys not yet confirmed with Done, so they are never lost or saved half way.
-    // NOTE: It also needs at least one step and a name. Dialogs fade a disabled button, so the state is visible.
+    // NOTE: It needs at least one step. The name is optional and falls back to the automatic name. Dialogs fade a disabled button, so the state is visible.
     static boolean canSave(int stepCount, CharSequence name, boolean pendingKeys) {
-        return stepCount > 0 && !TextUtils.isEmpty(name == null ? null : name.toString().trim()) && !pendingKeys;
+        return stepCount > 0 && !pendingKeys;
     }
 
     private static void updateSave(AlertDialog dialog, List<KeyStep> steps, CharSequence name, View recorder, List<Integer> recording) {

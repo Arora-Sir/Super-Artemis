@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -29,7 +30,8 @@ public final class AppStylePicker {
 
     private static final int[] SCHEME_NAMES = {
             R.string.color_scheme_wallpaper, R.string.color_scheme_blue, R.string.color_scheme_teal, R.string.color_scheme_green,
-            R.string.color_scheme_purple, R.string.color_scheme_orange, R.string.color_scheme_rose, R.string.color_scheme_mono};
+            R.string.color_scheme_purple, R.string.color_scheme_orange, R.string.color_scheme_rose, R.string.color_scheme_mono,
+            R.string.color_scheme_custom};
 
     private AppStylePicker() {
     }
@@ -44,75 +46,112 @@ public final class AppStylePicker {
                 / context.getResources().getDisplayMetrics().density >= 600;
         cards.setOrientation(sideBySide ? LinearLayout.HORIZONTAL : LinearLayout.VERTICAL);
 
-        String scheme = ThemeManager.currentScheme(context);
-        AlertDialog[] dialog = new AlertDialog[1];
-        View classic = card(context, dialogContext, cards, ThemeManager.CLASSIC, current, scheme, sideBySide, () -> {
-            onPicked.onPicked(ThemeManager.CLASSIC, scheme);
-            dialog[0].dismiss();
-        });
-        View materialYou = card(context, dialogContext, cards, ThemeManager.MATERIAL_YOU, current, scheme, sideBySide, () -> {
-            onPicked.onPicked(ThemeManager.MATERIAL_YOU, scheme);
-            dialog[0].dismiss();
-        });
-        cards.addView(classic);
-        cards.addView(materialYou);
-
-        com.limelight.ui.FlowRow swatches = body.findViewById(R.id.app_style_schemes);
-        for (int i = 0; i < ThemeManager.SCHEMES.size(); i++) {
-            String option = ThemeManager.SCHEMES.get(i);
-            boolean selected = ThemeManager.MATERIAL_YOU.equals(current) && option.equals(scheme);
-            swatches.addView(swatch(context, dialogContext, option, SCHEME_NAMES[i], selected, () -> {
-                onPicked.onPicked(ThemeManager.MATERIAL_YOU, option);
-                dialog[0].dismiss();
-            }));
+        // NOTE: Taps only change what is shown. The two cards and the dots redraw with the pending choice, and Apply is what changes the app, so a mis-tap never recreates the screen.
+        String[] pendingStyle = {current};
+        String[] pendingScheme = {ThemeManager.currentScheme(context)};
+        // NOTE: A wide dialog keeps every dot on one line. A phone has no room for ten dots of 48dp, so the dots wrap into rows there and never scroll sideways.
+        boolean wrapDots = Dialogs.isCompact(dialogContext);
+        ViewGroup swatches = body.findViewById(R.id.app_style_schemes);
+        if (wrapDots) {
+            ViewGroup parent = (ViewGroup) swatches.getParent();
+            int at = parent.indexOfChild(swatches);
+            ViewGroup.LayoutParams oldParams = swatches.getLayoutParams();
+            parent.removeView(swatches);
+            com.limelight.ui.FlowRow flow = new com.limelight.ui.FlowRow(dialogContext);
+            flow.setId(R.id.app_style_schemes);
+            parent.addView(flow, at, oldParams);
+            swatches = flow;
         }
+        final ViewGroup dots = swatches;
+        TextView schemeLabel = body.findViewById(R.id.app_style_schemes_label);
+        Runnable[] render = new Runnable[1];
+        Runnable openPicker = () -> ColorPickerDialog.show(context, ThemeManager.customSeed(context), color -> {
+            ThemeManager.chooseCustomColor(context, color);
+            pendingStyle[0] = ThemeManager.MATERIAL_YOU;
+            pendingScheme[0] = ThemeManager.SCHEME_CUSTOM;
+            render[0].run();
+        });
+        render[0] = () -> {
+            cards.removeAllViews();
+            cards.addView(card(context, dialogContext, cards, ThemeManager.CLASSIC, pendingStyle[0], pendingScheme[0], sideBySide, () -> {
+                pendingStyle[0] = ThemeManager.CLASSIC;
+                render[0].run();
+            }));
+            cards.addView(card(context, dialogContext, cards, ThemeManager.MATERIAL_YOU, pendingStyle[0], pendingScheme[0], sideBySide, () -> {
+                pendingStyle[0] = ThemeManager.MATERIAL_YOU;
+                render[0].run();
+            }));
+
+            // NOTE: One line of dots like the accent row of DualClone: the fixed schemes, the last custom color when there is one, then a plus that opens the color picker.
+            // NOTE: The dots carry no names, because ten names do not fit one line. The chosen name sits in the section label, and every dot has its name for screen readers.
+            dots.removeAllViews();
+            boolean inUse = ThemeManager.MATERIAL_YOU.equals(pendingStyle[0]);
+            for (int i = 0; i < ThemeManager.SCHEMES.size(); i++) {
+                String option = ThemeManager.SCHEMES.get(i);
+                if (ThemeManager.SCHEME_CUSTOM.equals(option) && !ThemeManager.hasCustomColor(context)) {
+                    continue;
+                }
+                boolean selected = inUse && option.equals(pendingScheme[0]);
+                dots.addView(swatch(context, dialogContext, option, SCHEME_NAMES[i], selected, false, wrapDots, () -> {
+                    pendingStyle[0] = ThemeManager.MATERIAL_YOU;
+                    pendingScheme[0] = option;
+                    render[0].run();
+                }));
+            }
+            dots.addView(swatch(context, dialogContext, ThemeManager.SCHEME_CUSTOM, R.string.color_scheme_add, false, true, wrapDots, openPicker));
+            int shownName = SCHEME_NAMES[Math.max(0, ThemeManager.SCHEMES.indexOf(pendingScheme[0]))];
+            schemeLabel.setText(inUse
+                    ? context.getString(R.string.app_style_scheme_named, context.getString(shownName))
+                    : context.getString(R.string.app_style_scheme));
+        };
+        render[0].run();
 
         builder.setCustomTitle(Dialogs.header(dialogContext, R.drawable.ic_sa_palette,
                         context.getString(R.string.title_app_style), context.getString(R.string.app_style_picker_hint)))
                 .setView(body)
+                .setPositiveButton(R.string.app_style_apply, (d, which) -> onPicked.onPicked(pendingStyle[0], pendingScheme[0]))
                 .setNegativeButton(R.string.game_menu_cancel, null);
-        dialog[0] = Dialogs.show(builder, Dialogs.WIDTH_STANDARD_DP + 120);
+        Dialogs.show(builder, Dialogs.WIDTH_STANDARD_DP + 120);
     }
 
-    // A round swatch in the scheme's primary color with its name below, ringed and checked when it is the scheme in use
-    private static View swatch(Context context, Context dialogContext, String scheme, int nameRes, boolean selected, Runnable onTap) {
+    // A round dot in the scheme's primary color, ringed and checked when it is the scheme in use. The plus dot has no color and opens the picker.
+    private static View swatch(Context context, Context dialogContext, String scheme, int nameRes, boolean selected, boolean plus, boolean wrap, Runnable onTap) {
         float density = context.getResources().getDisplayMetrics().density;
-        LinearLayout item = new LinearLayout(dialogContext);
-        item.setOrientation(LinearLayout.VERTICAL);
-        item.setGravity(Gravity.CENTER_HORIZONTAL);
-        int pad = (int) (4 * density);
-        item.setPadding(pad, pad, pad, pad);
-        item.setMinimumWidth((int) (64 * density));
+        FrameLayout item = new FrameLayout(dialogContext);
         item.setBackgroundResource(R.drawable.bg_button_text);
         android.widget.ImageView dot = new android.widget.ImageView(dialogContext);
         Context schemeContext = ThemeManager.materialYouContext(context, scheme);
         GradientDrawable circle = new GradientDrawable();
         circle.setShape(GradientDrawable.OVAL);
-        circle.setColor(Dialogs.color(schemeContext, R.attr.saPrimary));
-        if (selected) {
-            // A ring alone is hard to see on light swatches, so the swatch in use also carries a check in its own on-primary color
-            circle.setStroke((int) (3 * density), Dialogs.color(dialogContext, R.attr.saOnSurface));
-            dot.setImageResource(R.drawable.ic_sa_check);
-            dot.setImageTintList(android.content.res.ColorStateList.valueOf(Dialogs.color(schemeContext, R.attr.saOnPrimary)));
-            int inset = (int) (8 * density);
+        int inset = (int) (6 * density);
+        if (plus) {
+            circle.setColor(Dialogs.color(dialogContext, R.attr.saSurfaceContainerHigh));
+            circle.setStroke((int) (1 * density), Dialogs.color(dialogContext, R.attr.saOutline));
+            dot.setImageResource(R.drawable.ic_sa_add);
+            dot.setImageTintList(android.content.res.ColorStateList.valueOf(Dialogs.color(dialogContext, R.attr.saOnSurface)));
             dot.setPadding(inset, inset, inset, inset);
         }
-        dot.setBackground(circle);
-        int size = (int) (36 * density);
-        item.addView(dot, new LinearLayout.LayoutParams(size, size));
-        TextView name = new TextView(dialogContext);
-        name.setText(nameRes);
-        TextViewCompat.setTextAppearance(name, R.style.TextAppearance_SuperArtemis_BodySmall);
-        name.setGravity(Gravity.CENTER);
-        if (selected) {
-            name.setTextColor(Dialogs.color(dialogContext, R.attr.saPrimary));
-            name.setTypeface(name.getTypeface(), android.graphics.Typeface.BOLD);
+        else {
+            circle.setColor(Dialogs.color(schemeContext, R.attr.saPrimary));
+            if (selected) {
+                // A ring alone is hard to see on light swatches, so the swatch in use also carries a check in its own on-primary color
+                circle.setStroke((int) (3 * density), Dialogs.color(dialogContext, R.attr.saOnSurface));
+                dot.setImageResource(R.drawable.ic_sa_check);
+                dot.setImageTintList(android.content.res.ColorStateList.valueOf(Dialogs.color(schemeContext, R.attr.saOnPrimary)));
+                dot.setPadding(inset, inset, inset, inset);
+            }
         }
-        LinearLayout.LayoutParams nameParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        nameParams.topMargin = (int) (4 * density);
-        item.addView(name, nameParams);
+        dot.setBackground(circle);
+        int size = (int) (32 * density);
+        item.addView(dot, new FrameLayout.LayoutParams(size, size, Gravity.CENTER));
         item.setContentDescription(context.getString(nameRes) + (selected ? ", " + context.getString(R.string.color_scheme_in_use) : ""));
         item.setOnClickListener(v -> onTap.run());
+        if (wrap) {
+            item.setLayoutParams(new ViewGroup.LayoutParams((int) (48 * density), (int) (48 * density)));
+        }
+        else {
+            item.setLayoutParams(new LinearLayout.LayoutParams(0, (int) (48 * density), 1f));
+        }
         return item;
     }
 

@@ -33,11 +33,13 @@ public final class SupportDialog {
         body.findViewById(R.id.support_upi_app).setOnClickListener(v -> payWithUpiApp(context));
         body.findViewById(R.id.support_copy_upi).setOnClickListener(v -> copyUpiId(context, R.string.support_upi_copied));
         body.findViewById(R.id.support_paypal).setOnClickListener(v -> Links.open(context, Links.PAYPAL));
+        // The GitHub app cannot show a sponsors page, so it opens in the default browser
+        body.findViewById(R.id.support_sponsors).setOnClickListener(v -> Links.openInBrowser(context, Links.SPONSORS));
         if (Dialogs.isCompact(dialogContext)) {
             stackUpiCard(body);
         }
 
-        builder.setCustomTitle(Dialogs.header(dialogContext, R.drawable.ic_sa_favorite,
+        builder.setCustomTitle(Dialogs.header(dialogContext, R.drawable.ic_sa_favorite_red,
                         context.getString(R.string.title_support), context.getString(R.string.support_intro)))
                 .setView(body);
         Dialogs.show(builder, Dialogs.WIDTH_STANDARD_DP);

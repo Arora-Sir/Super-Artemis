@@ -316,6 +316,14 @@ public abstract class VirtualControllerElement extends View {
     }
 
 
+    // Tints the pressed state with the app accent, and keeps the opacity already applied
+    public void setPressedAccent(int accent) {
+        if (accent != 0) {
+            this.pressedColor = (pressedColor & 0xFF000000) | (accent & 0x00FFFFFF);
+            invalidate();
+        }
+    }
+
     public void setOpacity(int opacity) {
         int hexOpacity = opacity * 255 / 100;
         this.normalColor = (hexOpacity << 24) | (normalColor & 0x00FFFFFF);

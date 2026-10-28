@@ -208,6 +208,28 @@ public class FlowStepsTest {
         assertFalse(runner.isRunning());
     }
 
+    // NOTE: Windows ignored the Lock key (Win+L) from a button. It now holds longer than a typed shortcut and marks the Windows key like a hardware keyboard does.
+    @Test
+    public void windowsKeyShortcutsHoldLongerAndCarryTheirOwnModifier() {
+        Recorder recorder = new Recorder();
+        FlowRunner runner = new FlowRunner(recorder, recorder, new DirectExecutor());
+        byte meta = KeyboardTranslator.getModifier((short) KeyboardTranslator.VK_LWIN);
+
+        assertTrue(runner.run(flow(KeyStep.combo(Arrays.asList(KeyboardTranslator.VK_LWIN, 0x4C)))));
+
+        assertEquals(Arrays.asList(
+                String.format("down 5B m%d", meta), String.format("down 4C m%d", meta), "sleep " + KeyTiming.WINDOWS_KEY_HOLD_MS,
+                String.format("up 4C m%d", meta), "up 5B m0", "sleep " + FlowRunner.STEP_GAP_MS), recorder.events);
+    }
+
+    @Test
+    public void otherShortcutsKeepTheirShortHold() {
+        assertEquals(KeyTiming.DEFAULT_HOLD_MS, KeyTiming.holdMs(new short[] {(short) CTRL, (short) KEY_V}));
+        assertEquals(KeyTiming.WINDOWS_KEY_HOLD_MS, KeyTiming.holdMs(new short[] {(short) KeyboardTranslator.VK_LWIN, 0x4C}));
+        assertEquals(KeyTiming.WINDOWS_KEY_HOLD_MS, KeyTiming.holdMs(new short[] {0x5C, 0x44}));
+        assertEquals(0, KeyTiming.downModifier((short) KEY_V, (byte) 0));
+    }
+
     @Test
     public void repeatRunsThePreviousStepAgain() {
         Recorder recorder = new Recorder();

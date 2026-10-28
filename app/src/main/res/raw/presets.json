@@ -1,0 +1,44 @@
+{
+  "presets": [
+    {
+      "id": "lowest_latency",
+      "values": {
+        "frame_pacing": "latency",
+        "pref_low_latency_frame_balance": true,
+        "checkbox_ultra_low_latency": true,
+        "checkbox_enable_hdr": false,
+        "seekbar_bitrate_kbps": 30000
+      }
+    },
+    {
+      "id": "balanced",
+      "values": {
+        "frame_pacing": "balanced",
+        "pref_low_latency_frame_balance": false,
+        "checkbox_ultra_low_latency": false,
+        "checkbox_enable_hdr": false,
+        "seekbar_bitrate_kbps": 50000
+      }
+    },
+    {
+      "id": "best_quality",
+      "values": {
+        "frame_pacing": "smoothness",
+        "pref_low_latency_frame_balance": false,
+        "checkbox_ultra_low_latency": false,
+        "seekbar_bitrate_kbps": 100000
+      }
+    },
+    {
+      "id": "battery_saver",
+      "values": {
+        "list_fps": "60",
+        "frame_pacing": "balanced",
+        "pref_low_latency_frame_balance": false,
+        "checkbox_ultra_low_latency": false,
+        "checkbox_enable_hdr": false,
+        "seekbar_bitrate_kbps": 20000
+      }
+    }
+  ]
+}

@@ -26,6 +26,7 @@ import com.limelight.actions.StreamAction;
 import com.limelight.actions.StreamActionRegistry;
 import com.limelight.customkeys.CustomKey;
 import com.limelight.customkeys.IconCatalog;
+import com.limelight.customkeys.KeyEditActions;
 import com.limelight.customkeys.KeyPicker;
 import com.limelight.customkeys.SpecialKeys;
 import com.limelight.ui.Dialogs;
@@ -51,10 +52,11 @@ public final class GameMenuEditor {
         final String item;
         // Null for a special key
         final StreamAction action;
-        final int iconRes;
-        final String label;
+        // Label, menu label and icon change when the key behind a row is edited
+        int iconRes;
+        String label;
         // What the real Quick Menu shows: the action name, or the key name without the "Key:" prefix of the list
-        final String menuLabel;
+        String menuLabel;
         boolean inQuickMenu;
         // Left out of the Advanced Menu. Only matters for an action that is not in the Quick Menu.
         boolean hidden;
@@ -74,7 +76,7 @@ public final class GameMenuEditor {
 
         static Row forKey(Context context, CustomKey key, boolean inQuickMenu) {
             return new Row(GameMenuLayout.keyItem(key.id), null, IconCatalog.drawableFor(key.icon),
-                    context.getString(R.string.quick_bar_custom_key, key.name), key.name, inQuickMenu);
+                    com.limelight.customkeys.KeyLabels.pickerLabel(context, key), com.limelight.customkeys.KeyLabels.displayLabel(context, key), inQuickMenu);
         }
     }
 
@@ -235,6 +237,20 @@ public final class GameMenuEditor {
         final ItemTouchHelper[] touchHelper = new ItemTouchHelper[1];
         final RowAdapter adapter = new RowAdapter(rows, holder -> touchHelper[0].startDrag(holder), refreshPreview);
         list.setAdapter(adapter);
+        // NOTE: The pencil of a key row edits that key in place, so a forgotten name or icon is fixed without leaving the editor.
+        adapter.editor = row -> KeyEditActions.editItem(context, row.item, () -> {
+            for (Row other : rows) {
+                String keyId = GameMenuLayout.keyId(other.item);
+                CustomKey changed = keyId != null ? SpecialKeys.find(context, keyId) : null;
+                if (changed != null) {
+                    other.iconRes = IconCatalog.drawableFor(changed.icon);
+                    other.label = com.limelight.customkeys.KeyLabels.pickerLabel(context, changed);
+                    other.menuLabel = com.limelight.customkeys.KeyLabels.displayLabel(context, changed);
+                }
+            }
+            adapter.notifyDataSetChanged();
+            refreshPreview.run();
+        });
         // A key or flow made here is pinned straight away, after the rows already in the Quick Menu
         listColumn.addView(KeyPicker.addButton(dialogContext, context, key -> {
             int at = 0;
@@ -294,10 +310,15 @@ public final class GameMenuEditor {
         void startDrag(RecyclerView.ViewHolder holder);
     }
 
+    private interface RowEditor {
+        void edit(Row row);
+    }
+
     private static final class RowAdapter extends RecyclerView.Adapter<RowAdapter.Holder> {
         private final List<Row> rows;
         private final DragStarter dragStarter;
         private final Runnable onRowsChanged;
+        RowEditor editor;
 
         RowAdapter(List<Row> rows, DragStarter dragStarter, Runnable onRowsChanged) {
             this.rows = rows;
@@ -311,9 +332,11 @@ public final class GameMenuEditor {
             final TextView label;
             final CompoundButton check;
             final ImageView visibility;
+            final ImageView edit;
 
             Holder(View itemView) {
                 super(itemView);
+                edit = itemView.findViewById(R.id.game_menu_editor_edit);
                 handle = itemView.findViewById(R.id.game_menu_editor_handle);
                 icon = itemView.findViewById(R.id.game_menu_item_icon);
                 label = itemView.findViewById(R.id.game_menu_item_label);
@@ -334,6 +357,9 @@ public final class GameMenuEditor {
             Row row = rows.get(position);
             holder.icon.setImageResource(row.iconRes);
             holder.label.setText(row.label);
+            boolean editable = editor != null && GameMenuLayout.keyId(row.item) != null;
+            holder.edit.setVisibility(editable ? View.VISIBLE : View.GONE);
+            holder.edit.setOnClickListener(editable ? v -> editor.edit(row) : null);
             holder.check.setOnCheckedChangeListener(null);
             holder.check.setChecked(row.inQuickMenu);
             bindVisibility(holder, row);

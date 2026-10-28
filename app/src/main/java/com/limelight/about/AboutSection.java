@@ -22,6 +22,7 @@ public final class AboutSection {
         onClick(fragment, "pref_about_issue", () -> Links.openInBrowser(context, Links.NEW_ISSUE));
         onClick(fragment, "pref_about_privacy", () -> Links.open(context, Links.PRIVACY));
         onClick(fragment, "pref_about_version", () -> Links.open(context, Links.RELEASES));
+        onClick(fragment, "pref_about_update_check", () -> UpdateDialogs.start(fragment.requireActivity()));
         onClick(fragment, "pref_share_diagnostics", () -> com.limelight.diagnostics.CrashReporter.shareDiagnostics(fragment.requireActivity()));
 
         Preference version = fragment.findPreference("pref_about_version");

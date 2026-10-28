@@ -5,10 +5,14 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.limelight.R;
+
 // NOTE: Lays out children left to right and wraps to a new line when a row is full, like a chip group.
 // NOTE: Kept independent of the Material chip classes so it works in every app style and on every Android version.
 public class FlowRow extends ViewGroup {
     private final int gap;
+    // The space between lines, which a chip with its own touch padding sets to 0
+    private final int rowGap;
 
     public FlowRow(Context context) {
         this(context, null);
@@ -17,6 +21,13 @@ public class FlowRow extends ViewGroup {
     public FlowRow(Context context, AttributeSet attrs) {
         super(context, attrs);
         gap = (int) Dialogs.dp(context, 8);
+        int lineGap = gap;
+        if (attrs != null) {
+            android.content.res.TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.FlowRow);
+            lineGap = a.getDimensionPixelSize(R.styleable.FlowRow_rowGap, gap);
+            a.recycle();
+        }
+        rowGap = lineGap;
     }
 
     @Override
@@ -38,7 +49,7 @@ public class FlowRow extends ViewGroup {
             int w = child.getMeasuredWidth();
             if (bounded && x > 0 && x + w > maxWidth) {
                 x = 0;
-                y += rowHeight + gap;
+                y += rowHeight + rowGap;
                 rowHeight = 0;
             }
             x += w + gap;
@@ -64,7 +75,7 @@ public class FlowRow extends ViewGroup {
             int h = child.getMeasuredHeight();
             if (x > 0 && x + w > maxWidth) {
                 x = 0;
-                y += rowHeight + gap;
+                y += rowHeight + rowGap;
                 rowHeight = 0;
             }
             int left = getPaddingLeft() + x;

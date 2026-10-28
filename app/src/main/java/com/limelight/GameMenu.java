@@ -22,6 +22,7 @@ import com.limelight.customkeys.CustomKeyStore;
 import com.limelight.customkeys.SpecialKeys;
 import com.limelight.customkeys.SpecialKeysManager;
 import com.limelight.customkeys.IconCatalog;
+import com.limelight.customkeys.KeyEditActions;
 import com.limelight.customkeys.KeyPicker;
 import com.limelight.menu.GameMenuEditor;
 import com.limelight.menu.GameMenuLayout;
@@ -258,7 +259,7 @@ public class GameMenu implements Game.GameMenuCallbacks {
 
     // A special key as a menu entry, with its icon when it has one
     private MenuEntry keyEntry(CustomKey key, Runnable runnable) {
-        return new MenuOption(key.name, key.icon != null ? IconCatalog.drawableFor(key.icon) : 0, false, runnable);
+        return new MenuOption(com.limelight.customkeys.KeyLabels.displayLabel(themedContext(), key), key.icon != null ? IconCatalog.drawableFor(key.icon) : 0, false, runnable);
     }
 
     private MenuEntry cancelEntry() {
@@ -316,13 +317,24 @@ public class GameMenu implements Game.GameMenuCallbacks {
 
     // NOTE: Opened by a long press on a quick-action bar button. Every entry works on that button's bar in the active set.
     // NOTE: A key recorded or pinned here goes straight onto this bar and into Send special keys, so it is ready in both places.
-    public void showQuickBarMenu(int barIndex, String buttonLabel) {
+    public void showQuickBarMenu(int barIndex, String item, String buttonLabel) {
         List<BarSets.Bar> bars = BarSets.load(game).activeSet().bars;
         if (barIndex < 0 || barIndex >= bars.size()) {
             return;
         }
         String barName = getString(QuickBarEditor.anchorNameFor(bars.get(barIndex).anchor));
         List<MenuEntry> entries = new ArrayList<>();
+        // NOTE: The pressed button's own key or flow can be fixed on the spot: its name, steps and icon for a custom key, its icon for a built-in key.
+        // NOTE: A flow that is running is cancelled first, so the editor never changes the steps of a flow that is still sending input.
+        KeyEditActions.Kind kind = item != null ? KeyEditActions.kindOfItem(themedContext(), item) : KeyEditActions.Kind.NONE;
+        if (kind != KeyEditActions.Kind.NONE) {
+            boolean custom = kind == KeyEditActions.Kind.CUSTOM;
+            entries.add(new MenuEntry(getString(custom ? R.string.quick_bar_menu_edit_key : R.string.quick_bar_menu_change_icon),
+                    R.drawable.ic_gm_edit, false, false, () -> {
+                        game.cancelRunningKey();
+                        KeyEditActions.editItem(themedContext(), item, game::reloadQuickActionBar);
+                    }));
+        }
         entries.add(new MenuEntry(getString(R.string.quick_bar_menu_add_key), R.drawable.ic_gm_add, false, false,
                 () -> KeyPicker.createKey(themedContext(), key -> pinToBar(barIndex, QuickBarLayout.customKeyItem(key.id)))));
         entries.add(new MenuEntry(getString(R.string.quick_bar_menu_pin_key), R.drawable.ic_gm_send_keys, false, false,

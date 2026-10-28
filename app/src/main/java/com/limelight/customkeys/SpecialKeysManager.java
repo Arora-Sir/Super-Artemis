@@ -88,13 +88,21 @@ public final class SpecialKeysManager {
         AlertDialog dialog = Dialogs.show(builder, Dialogs.WIDTH_STANDARD_DP);
         // Adding and resetting open on top, so the manager stays open instead of closing like a normal dialog button
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> CustomKeyEditor.show(context, null, key -> {
+            CustomKey saved;
             try {
-                CustomKeyStore.upsert(context, key);
+                saved = CustomKeyStore.upsert(context, key);
             }
             catch (CustomKeyStore.FormatException e) {
                 return;
             }
             reload.run();
+            // The new key is the last one, which is far below the visible part of a long list
+            for (int i = 0; i < visible.size(); i++) {
+                if (visible.get(i).id.equals(saved.id)) {
+                    list.scrollToPosition(i);
+                    break;
+                }
+            }
         }));
         dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener(v -> new AlertDialog.Builder(context)
                 .setMessage(R.string.special_keys_reset_confirm)
@@ -219,10 +227,7 @@ public final class SpecialKeysManager {
                     SpecialKeys.setHidden(context, key.id, true);
                     reload.run();
                 });
-                holder.itemView.setOnClickListener(v -> IconPicker.showForBuiltIn(context, key, icon -> {
-                    SpecialKeys.setBuiltInIcon(context, key.id, icon);
-                    reload.run();
-                }));
+                holder.itemView.setOnClickListener(v -> KeyEditActions.edit(context, key.id, reload));
             }
             else {
                 holder.action.setImageResource(R.drawable.ic_sa_delete);
@@ -243,15 +248,7 @@ public final class SpecialKeysManager {
                         })
                         .setNegativeButton(R.string.game_menu_cancel, null)
                         .show());
-                holder.itemView.setOnClickListener(v -> CustomKeyEditor.show(context, key, edited -> {
-                    try {
-                        CustomKeyStore.upsert(context, edited);
-                    }
-                    catch (CustomKeyStore.FormatException e) {
-                        return;
-                    }
-                    reload.run();
-                }));
+                holder.itemView.setOnClickListener(v -> KeyEditActions.edit(context, key.id, reload));
             }
             holder.handle.setOnTouchListener((v, event) -> {
                 if (event.getActionMasked() == MotionEvent.ACTION_DOWN && dragStarter != null) {

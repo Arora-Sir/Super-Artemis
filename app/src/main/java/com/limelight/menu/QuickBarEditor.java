@@ -31,6 +31,7 @@ import com.limelight.R;
 import com.limelight.actions.StreamAction;
 import com.limelight.customkeys.CustomKey;
 import com.limelight.customkeys.IconCatalog;
+import com.limelight.customkeys.KeyEditActions;
 import com.limelight.customkeys.KeyPicker;
 import com.limelight.customkeys.SpecialKeys;
 import com.limelight.ui.Dialogs;
@@ -59,8 +60,9 @@ public final class QuickBarEditor {
 
     static final class Row {
         final String item;
-        final int iconRes;
-        final String label;
+        // Label and icon change when the key behind a row is edited, the item never does
+        int iconRes;
+        String label;
         boolean pinned;
 
         Row(String item, int iconRes, String label, boolean pinned) {
@@ -83,7 +85,7 @@ public final class QuickBarEditor {
         for (CustomKey key : keys) {
             String item = QuickBarLayout.customKeyItem(key.id);
             available.put(item, new Row(item, IconCatalog.drawableFor(key.icon),
-                    context.getString(R.string.quick_bar_custom_key, key.name), false));
+                    com.limelight.customkeys.KeyLabels.pickerLabel(context, key), false));
         }
 
         List<Row> rows = new ArrayList<>();
@@ -137,12 +139,14 @@ public final class QuickBarEditor {
     }
 
     // All state of one open editor. Rows per bar hold the item choices until Save writes them back into the bars.
-    private static final class Session {
+    static final class Session {
         final Context context;
         final SharedPreferences prefs;
         final Runnable onChanged;
         final BarSets.State state;
+        // The special keys the rows are built from. A key made or edited here is added or replaced, so switching sets never loses it.
         final List<CustomKey> keys;
+        RecyclerView listView;
         final List<List<Row>> rowsByBar = new ArrayList<>();
         int shownSet;
         int selected;
@@ -157,7 +161,7 @@ public final class QuickBarEditor {
             this.prefs = prefs;
             this.onChanged = onChanged;
             this.state = BarSets.load(context);
-            this.keys = SpecialKeys.visible(context);
+            this.keys = new ArrayList<>(SpecialKeys.visible(context));
             this.shownSet = state.active;
             loadRows();
             List<BarSets.Bar> bars = set().bars;
@@ -213,6 +217,7 @@ public final class QuickBarEditor {
             }
 
             RecyclerView list = new RecyclerView(dialogContext);
+            listView = list;
             list.setLayoutManager(new LinearLayoutManager(dialogContext));
             LinearLayout listColumn = new LinearLayout(dialogContext);
             listColumn.setOrientation(LinearLayout.VERTICAL);
@@ -226,6 +231,7 @@ public final class QuickBarEditor {
                             twoPane ? ViewGroup.LayoutParams.MATCH_PARENT : ViewGroup.LayoutParams.WRAP_CONTENT));
 
             adapter = new Adapter(this::drawPreview);
+            adapter.editor = this::editKey;
             list.setAdapter(adapter);
             final ItemTouchHelper[] touchHelper = new ItemTouchHelper[1];
             adapter.dragStarter = holder -> touchHelper[0].startDrag(holder);
@@ -237,25 +243,8 @@ public final class QuickBarEditor {
             }, null);
 
             // A key or flow made here is pinned to the selected bar and offered to the other bars
-            listColumn.addView(KeyPicker.addButton(dialogContext, context, key -> {
-                if (selected < 0) {
-                    addBar();
-                }
-                String item = QuickBarLayout.customKeyItem(key.id);
-                for (int i = 0; i < rowsByBar.size(); i++) {
-                    List<Row> rows = rowsByBar.get(i);
-                    boolean here = i == selected;
-                    int at = rows.size();
-                    if (here) {
-                        at = 0;
-                        while (at < rows.size() && rows.get(at).pinned) {
-                            at++;
-                        }
-                    }
-                    rows.add(at, new Row(item, IconCatalog.drawableFor(key.icon), context.getString(R.string.quick_bar_custom_key, key.name), here));
-                }
-                refresh();
-            }), new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            ((LinearLayout) body.findViewById(R.id.quick_bar_items_header)).addView(KeyPicker.addButton(dialogContext, context, this::keyCreated),
+                    new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
             buildAnchorPicker();
             wireSliders();
@@ -301,6 +290,75 @@ public final class QuickBarEditor {
                     })
                     .setNegativeButton(R.string.game_menu_cancel, null);
             Dialogs.show(builder, twoPane ? Dialogs.WIDTH_WIDE_DP : Dialogs.WIDTH_STANDARD_DP);
+        }
+
+        // A key or flow made here is pinned to the selected bar and offered to the other bars
+        void keyCreated(CustomKey key) {
+            if (selected < 0) {
+                addBar();
+            }
+            // The key joins the editor's own list, because rebuilding the rows after a set switch would otherwise drop it and Save would unpin it
+            keys.removeIf(known -> known.id.equals(key.id));
+            keys.add(key);
+            String item = QuickBarLayout.customKeyItem(key.id);
+            for (int i = 0; i < rowsByBar.size(); i++) {
+                List<Row> rows = rowsByBar.get(i);
+                boolean here = i == selected;
+                int at = rows.size();
+                if (here) {
+                    at = 0;
+                    while (at < rows.size() && rows.get(at).pinned) {
+                        at++;
+                    }
+                }
+                rows.add(at, new Row(item, IconCatalog.drawableFor(key.icon), com.limelight.customkeys.KeyLabels.pickerLabel(context, key), here));
+            }
+            refresh();
+            scrollToItem(item);
+        }
+
+        // A key made on a phone sits below the visible part of the list, so the list scrolls to it
+        void scrollToItem(String item) {
+            if (listView == null || selected < 0) {
+                return;
+            }
+            List<Row> rows = rowsByBar.get(selected);
+            for (int i = 0; i < rows.size(); i++) {
+                if (rows.get(i).item.equals(item)) {
+                    listView.scrollToPosition(i);
+                    return;
+                }
+            }
+        }
+
+        // NOTE: The pencil of a key row edits that key in place, so a forgotten name or icon is fixed without leaving the editor.
+        // NOTE: Every row that points at the key takes the new label and icon, in every bar of every shown set.
+        void editKey(Row row) {
+            KeyEditActions.editItem(context, row.item, () -> {
+                keys.clear();
+                keys.addAll(SpecialKeys.visible(context));
+                for (List<Row> rows : rowsByBar) {
+                    for (Row other : rows) {
+                        CustomKey changed = findKey(other.item);
+                        if (changed != null) {
+                            other.iconRes = IconCatalog.drawableFor(changed.icon);
+                            other.label = com.limelight.customkeys.KeyLabels.pickerLabel(context, changed);
+                        }
+                    }
+                }
+                adapter.notifyDataSetChanged();
+                drawPreview();
+            });
+        }
+
+        CustomKey findKey(String item) {
+            String id = QuickBarLayout.customKeyId(item);
+            for (CustomKey key : keys) {
+                if (key.id.equals(id)) {
+                    return key;
+                }
+            }
+            return null;
         }
 
         void addBar() {
@@ -449,11 +507,62 @@ public final class QuickBarEditor {
             }
         }
 
+        // The stream runs in landscape, so what fits is worked out for the long side as width, however the editor is held
+        float[] screenDp() {
+            DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+            float width = metrics.widthPixels / metrics.density;
+            float height = metrics.heightPixels / metrics.density;
+            return new float[] {Math.max(width, height), Math.min(width, height)};
+        }
+
+        int fitFor(BarSets.Bar bar) {
+            float[] screen = screenDp();
+            return BarFit.maxPerLine(BarFit.spanDp(bar.down, screen[0], screen[1], 0));
+        }
+
+        // One tap choices next to the slider: a few common line lengths and the longest line that fits this screen
+        void buildFitPresets() {
+            FlowRow presets = body.findViewById(R.id.quick_bar_fit_presets);
+            presets.removeAllViews();
+            BarSets.Bar bar = bar();
+            if (bar == null) {
+                return;
+            }
+            int fit = fitFor(bar);
+            List<Integer> values = new ArrayList<>();
+            for (int value : new int[] {4, 6, 10}) {
+                if (value < fit) {
+                    values.add(value);
+                }
+            }
+            for (int value : values) {
+                TextView chip = (TextView) LayoutInflater.from(dialogContext).inflate(R.layout.sa_action_chip, presets, false);
+                chip.setText(context.getString(R.string.quick_bar_fit_preset, value));
+                chip.setOnClickListener(v -> setPerLine(value));
+                presets.addView(chip);
+            }
+            TextView best = (TextView) LayoutInflater.from(dialogContext).inflate(R.layout.sa_action_chip, presets, false);
+            best.setText(R.string.quick_bar_fit_best);
+            best.setOnClickListener(v -> setPerLine(fit));
+            presets.addView(best);
+        }
+
+        void setPerLine(int value) {
+            if (bar() != null) {
+                bar().perLine = Math.max(1, Math.min(BarSets.GRID_MAX, value));
+                refresh();
+            }
+        }
+
         void bindLabels() {
             BarSets.Bar bar = bar();
             if (bar == null) {
                 return;
             }
+            int fit = fitFor(bar);
+            ((TextView) body.findViewById(R.id.quick_bar_fit_note)).setText(bar.perLine > fit
+                    ? context.getString(R.string.quick_bar_fit_over, fit, bar.perLine)
+                    : context.getString(R.string.quick_bar_fit_ok, fit));
             ((TextView) body.findViewById(R.id.quick_bar_rows_label)).setText(context.getString(R.string.quick_bar_per_line, bar.perLine));
             ((TextView) body.findViewById(R.id.quick_bar_offset_x_label)).setText(context.getString(R.string.quick_bar_offset_x, bar.offsetXDp));
             ((TextView) body.findViewById(R.id.quick_bar_offset_y_label)).setText(context.getString(R.string.quick_bar_offset_y, bar.offsetYDp));
@@ -465,6 +574,7 @@ public final class QuickBarEditor {
             body.findViewById(R.id.quick_bar_bar_controls).setVisibility(bar != null ? View.VISIBLE : View.GONE);
             body.findViewById(R.id.quick_bar_items_pane).setVisibility(bar != null ? View.VISIBLE : View.GONE);
             buildBarChips();
+            buildFitPresets();
             if (bar != null) {
                 LinearLayout picker = body.findViewById(R.id.quick_bar_anchor);
                 for (int r = 0; r < picker.getChildCount(); r++) {
@@ -496,13 +606,13 @@ public final class QuickBarEditor {
             List<BarSets.Bar> bars = set().bars;
             for (int i = 0; i < bars.size(); i++) {
                 int index = i;
-                TextView chip = (TextView) LayoutInflater.from(dialogContext).inflate(R.layout.sa_chip, chips, false);
+                TextView chip = (TextView) LayoutInflater.from(dialogContext).inflate(R.layout.sa_action_chip, chips, false);
                 chip.setText(context.getString(anchorNameFor(bars.get(i).anchor)));
                 chip.setSelected(i == selected);
                 if (i == selected) {
                     android.graphics.drawable.Drawable check = dialogContext.getDrawable(R.drawable.ic_sa_check);
                     if (check != null) {
-                        int size = (int) Dialogs.dp(context, 16);
+                        int size = (int) Dialogs.dp(context, 20);
                         check.setBounds(0, 0, size, size);
                         check.setTint(Dialogs.color(dialogContext, R.attr.saPrimary));
                         chip.setCompoundDrawablesRelative(check, null, null, null);
@@ -515,11 +625,11 @@ public final class QuickBarEditor {
                 });
                 chips.addView(chip);
             }
-            TextView add = (TextView) LayoutInflater.from(dialogContext).inflate(R.layout.sa_chip, chips, false);
+            TextView add = (TextView) LayoutInflater.from(dialogContext).inflate(R.layout.sa_action_chip, chips, false);
             add.setText(R.string.quick_bar_add_bar);
             android.graphics.drawable.Drawable icon = dialogContext.getDrawable(R.drawable.ic_sa_add);
             if (icon != null) {
-                int size = (int) Dialogs.dp(context, 16);
+                int size = (int) Dialogs.dp(context, 20);
                 icon.setBounds(0, 0, size, size);
                 icon.setTint(add.getCurrentTextColor());
                 add.setCompoundDrawablesRelative(icon, null, null, null);
@@ -545,11 +655,13 @@ public final class QuickBarEditor {
             float scale = width / (float) Math.max(metrics.widthPixels, metrics.heightPixels);
             float density = metrics.density;
             // True scale makes icons a few pixels wide on a tablet preview, so they never shrink below a readable size
-            int button = Math.max((int) Dialogs.dp(context, 12), Math.round(36 * density * scale));
-            int gap = Math.max(1, Math.round(8 * density * scale));
+            int button = Math.max((int) Dialogs.dp(context, 12), Math.round(BarFit.BUTTON_DP * density * scale));
+            int gap = Math.max(1, Math.round(BarFit.GAP_DP * density * scale));
             List<BarSets.Bar> bars = set().bars;
+            float[] screen = screenDp();
             for (int i = 0; i < bars.size(); i++) {
-                BarSets.Bar bar = bars.get(i);
+                // The preview shows the bar as the stream draws it on this screen, with a line that is too long wrapped where it fits
+                BarSets.Bar bar = BarFit.fitted(bars.get(i), screen[0], screen[1], 0);
                 List<String> items = pinnedItems(rowsByBar.get(i));
                 LinearLayout grid = new LinearLayout(dialogContext);
                 grid.setOrientation(LinearLayout.VERTICAL);
@@ -720,10 +832,15 @@ public final class QuickBarEditor {
         void startDrag(RecyclerView.ViewHolder holder);
     }
 
+    private interface RowEditor {
+        void edit(Row row);
+    }
+
     private static final class Adapter extends RecyclerView.Adapter<Adapter.Holder> {
         private final Runnable onChanged;
         List<Row> rows = new ArrayList<>();
         DragStarter dragStarter;
+        RowEditor editor;
 
         Adapter(Runnable onChanged) {
             this.onChanged = onChanged;
@@ -740,9 +857,11 @@ public final class QuickBarEditor {
             final ImageView icon;
             final TextView label;
             final CompoundButton check;
+            final ImageView edit;
 
             Holder(View itemView) {
                 super(itemView);
+                edit = itemView.findViewById(R.id.game_menu_editor_edit);
                 handle = itemView.findViewById(R.id.game_menu_editor_handle);
                 icon = itemView.findViewById(R.id.game_menu_item_icon);
                 label = itemView.findViewById(R.id.game_menu_item_label);
@@ -762,6 +881,10 @@ public final class QuickBarEditor {
             Row row = rows.get(position);
             holder.icon.setImageResource(row.iconRes);
             holder.label.setText(row.label);
+            // Only keys made or built in can be edited, an action row has no pencil
+            boolean editable = editor != null && QuickBarLayout.customKeyId(row.item) != null;
+            holder.edit.setVisibility(editable ? View.VISIBLE : View.GONE);
+            holder.edit.setOnClickListener(editable ? v -> editor.edit(row) : null);
             holder.check.setOnCheckedChangeListener(null);
             holder.check.setChecked(row.pinned);
             holder.check.setOnCheckedChangeListener((button, checked) -> {

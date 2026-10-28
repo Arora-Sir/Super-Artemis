@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Outlined chip for an action the user taps: a 48dp touch target with a 40dp outline and a 20dp icon, as the Material 3 touch target rule asks -->
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_chip_action"
+    android:clickable="true"
+    android:drawablePadding="8dp"
+    android:ellipsize="middle"
+    android:focusable="true"
+    android:gravity="center_vertical"
+    android:maxLines="1"
+    android:minHeight="48dp"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:textAppearance="@style/TextAppearance.SuperArtemis.TitleSmall"
+    android:textColor="?android:attr/textColorPrimary" />

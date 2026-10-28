@@ -26,12 +26,13 @@
             android:text="@string/app_style_scheme"
             android:textAppearance="@style/TextAppearance.SuperArtemis.SectionLabel" />
 
-        <com.limelight.ui.FlowRow
+        <LinearLayout
             android:id="@+id/app_style_schemes"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:paddingLeft="6dp"
-            android:paddingRight="6dp" />
+            android:layout_marginTop="4dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal" />
+
     </LinearLayout>
 </ScrollView>

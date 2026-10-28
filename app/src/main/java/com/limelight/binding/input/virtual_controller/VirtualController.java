@@ -176,6 +176,13 @@ public class VirtualController {
         }
     }
 
+    // The pressed state of every element follows the accent color chosen in Settings
+    public void applyAccent(int accent) {
+        for (VirtualControllerElement element : elements) {
+            element.setPressedAccent(accent);
+        }
+    }
+
 
     public void addElement(VirtualControllerElement element, int x, int y, int width, int height) {
         elements.add(element);

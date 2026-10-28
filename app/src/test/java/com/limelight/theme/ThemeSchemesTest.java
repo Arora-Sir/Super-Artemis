@@ -62,8 +62,8 @@ public class ThemeSchemesTest {
 
     @Test
     public void fixedSchemesHaveASeedAndWallpaperHasNone() {
-        assertEquals(null, ThemeManager.colorOptions(ThemeManager.SCHEME_WALLPAPER).getContentBasedSeedColor());
-        assertEquals(Integer.valueOf(0xFF00897B), ThemeManager.colorOptions("teal").getContentBasedSeedColor());
+        assertEquals(null, ThemeManager.colorOptions(context, ThemeManager.SCHEME_WALLPAPER).getContentBasedSeedColor());
+        assertEquals(Integer.valueOf(0xFF00897B), ThemeManager.colorOptions(context, "teal").getContentBasedSeedColor());
         ThemeManager.choose(context, ThemeManager.MATERIAL_YOU, "not_a_scheme");
         assertEquals(ThemeManager.SCHEME_WALLPAPER, ThemeManager.currentScheme(context));
     }

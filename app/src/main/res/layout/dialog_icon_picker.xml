@@ -7,6 +7,19 @@
     android:paddingLeft="20dp"
     android:paddingRight="20dp">
 
+    <EditText
+        style="@style/Widget.SuperArtemis.TextField"
+        android:id="@+id/icon_picker_search"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:hint="@string/icon_search_hint"
+        android:importantForAutofill="no"
+        android:inputType="text"
+        android:maxLength="24"
+        android:minHeight="48dp"
+        android:singleLine="true" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/icon_picker_grid"
         android:layout_width="match_parent"

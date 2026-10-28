@@ -81,6 +81,8 @@
         <item name="saOutline">@color/sa_classic_outline</item>
         <item name="saOutlineVariant">@color/sa_classic_outline_variant</item>
         <item name="saError">@color/menu_destructive</item>
+        <item name="saDialogSurface">@color/sa_classic_surface_container_high</item>
+        <item name="saDialogStroke">@android:color/transparent</item>
         <item name="saGroupedSettings">false</item>
         <item name="android:alertDialogTheme">@style/Theme.SuperArtemis.Dialog.Classic</item>
         <item name="alertDialogTheme">@style/Theme.SuperArtemis.AppCompatDialog</item>
@@ -113,7 +115,29 @@
         <item name="saOutline">?attr/colorOutline</item>
         <item name="saOutlineVariant">?attr/colorOutlineVariant</item>
         <item name="saError">?attr/colorError</item>
+        <item name="saDialogSurface">?attr/colorSurfaceContainerHigh</item>
+        <item name="saDialogStroke">@android:color/transparent</item>
         <item name="saGroupedSettings">true</item>
+    </style>
+
+    <!-- NOTE: Pure AMOLED black on top of either style. The window and every dialog are #000000, and cards, fields and sections lift just enough to stay readable. -->
+    <!-- NOTE: The accent colors are left alone, so switch tracks, status and primary actions keep the chosen scheme. -->
+    <style name="ThemeOverlay.SuperArtemis.Amoled" parent="">
+        <item name="saBackground">@color/sa_amoled_black</item>
+        <item name="saSurfaceContainer">@color/sa_amoled_surface_container</item>
+        <item name="saSurfaceContainerHigh">@color/sa_amoled_surface_container_high</item>
+        <item name="saSurfaceContainerHighest">@color/sa_amoled_surface_container_highest</item>
+        <item name="saOutlineVariant">@color/sa_amoled_outline_variant</item>
+        <item name="saDialogSurface">@color/sa_amoled_black</item>
+        <item name="saDialogStroke">@color/sa_amoled_dialog_stroke</item>
+        <item name="colorSurface">@color/sa_amoled_black</item>
+        <item name="colorSurfaceContainerLowest">@color/sa_amoled_black</item>
+        <item name="colorSurfaceContainerLow">@color/sa_amoled_black</item>
+        <item name="colorSurfaceContainer">@color/sa_amoled_surface_container</item>
+        <item name="colorSurfaceContainerHigh">@color/sa_amoled_surface_container_high</item>
+        <item name="colorSurfaceContainerHighest">@color/sa_amoled_surface_container_highest</item>
+        <item name="android:colorBackground">@color/sa_amoled_black</item>
+        <item name="android:windowBackground">@color/sa_amoled_black</item>
     </style>
 
     <!-- NOTE: The Super Artemis dialog: centered, 28dp corners, sentence-case buttons and the shared type scale. -->
@@ -312,6 +336,8 @@
     <!-- Rounded buttons for Super Artemis dialogs: filled for the main action, tonal for the others -->
     <style name="Widget.SuperArtemis.Button" parent="@android:style/Widget.Material.Button.Borderless">
         <item name="android:background">@drawable/bg_button_text</item>
+        <!-- An AppCompat inflater turns a layout Button into a MaterialButton, which paints its background with the primary color unless the tint is cleared -->
+        <item name="backgroundTint">@null</item>
         <item name="android:minHeight">48dp</item>
         <item name="android:paddingLeft">24dp</item>
         <item name="android:paddingRight">24dp</item>

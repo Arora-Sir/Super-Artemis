@@ -254,6 +254,11 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
     @Override
     // NOTE: This will NOT be called on Android 13+ with android:enableOnBackInvokedCallback="true"
     public void onBackPressed() {
+        // The search page is on the back stack, so Back closes it first instead of ending Settings
+        if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+            super.onBackPressed();
+            return;
+        }
         finish();
 
         // Language changes are handled via configuration changes in Android 13+,
@@ -486,6 +491,8 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
             setupAppStyle();
             hideUpstreamPerformanceSharing();
             AboutSection.bind(this);
+            com.limelight.presets.PresetsDialog.bind(this);
+        com.limelight.hosthelp.LockKeyHelp.bind(this);
             PackageManager pm = activity.getPackageManager();
 
             // hide on-screen controls category on non touch screen devices
@@ -1342,6 +1349,14 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
         }
 
         private void setupAppStyle() {
+            // Pure black changes every window, so the screen rebuilds right away like it does for a new app style
+            Preference amoled = findPreference(ThemeManager.PREF_AMOLED);
+            if (amoled != null) {
+                amoled.setOnPreferenceChangeListener((preference, newValue) -> {
+                    requireActivity().getWindow().getDecorView().post(() -> requireActivity().recreate());
+                    return true;
+                });
+            }
             ListPreference style = findPreference(ThemeManager.PREF_KEY);
             if (style == null) {
                 return;
@@ -1488,7 +1503,8 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
                 String targetKey = pendingSearchResult.getKey();
                 pendingSearchResult.highlight(this);
                 pendingSearchResult = null;
-                // The library only scrolls the result into view somewhere, so it is brought to the top once the list has settled
+                // The library scrolls the result to the very top, so the final offset follows right behind it in the same frame and once more when the list has settled
+                getListView().post(() -> scrollToTop(targetKey));
                 getListView().postDelayed(() -> scrollToTop(targetKey), 350);
             }
             if (getActivity() instanceof SettingsSections.Host) {

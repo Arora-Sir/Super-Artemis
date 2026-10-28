@@ -61,7 +61,8 @@ public class GameMenuEditorTest {
 
         List<MenuEntry> preview = GameMenuEditor.buildPreview(res, rows);
         // The preview shows the key name like the real Quick Menu, without the "Key:" prefix of the editor list
-        assertEquals("Copy", preview.get(1).label);
+        // A named shortcut reads with its keys, like every other list (KeyLabels)
+        assertEquals("Ctrl + C (Copy)", preview.get(1).label);
     }
 
     @Test

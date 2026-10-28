@@ -13,6 +13,7 @@ import com.limelight.R;
 // Every external link the app opens for Super Artemis itself, kept in one place so a moved page is fixed once
 public final class Links {
     public static final String REPOSITORY = "https://github.com/Arora-Sir/Super-Artemis";
+    public static final String LOCK_GUIDE = REPOSITORY + "/blob/unified-main/SETUP.md#lock-the-pc-from-a-button";
     public static final String RELEASES = REPOSITORY + "/releases";
     public static final String NEW_ISSUE = REPOSITORY + "/issues/new/choose";
     public static final String ISSUES = REPOSITORY + "/issues";
@@ -22,6 +23,7 @@ public final class Links {
     public static final String LICENSE = REPOSITORY + "/blob/HEAD/LICENSE.txt";
 
     public static final String PAYPAL = "https://paypal.me/arorasir";
+    public static final String SPONSORS = "https://github.com/sponsors/Arora-Sir";
     public static final String UPI_ID = "mohit1998arora@yescred";
     // Same payment as the bundled QR code (res/drawable-nodpi/support_upi_qr.png), so both lead to one place
     public static final String UPI_PAYMENT = "upi://pay?pa=" + UPI_ID + "&pn=Mohit%20Arora&cu=INR&tn=Super%20Artemis%20support";

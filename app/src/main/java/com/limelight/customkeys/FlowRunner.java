@@ -30,8 +30,8 @@ public final class FlowRunner {
         void sleep(long ms) throws InterruptedException;
     }
 
-    // Same hold time as a shortcut from the menu, so a shortcut step behaves exactly like one
-    static final long COMBO_HOLD_MS = 25;
+    // Same hold time as a shortcut from the menu (see KeyTiming), so a shortcut step behaves exactly like one
+    static final long COMBO_HOLD_MS = KeyTiming.DEFAULT_HOLD_MS;
     // Breathing room between steps, so apps on the PC see each step as its own input
     static final long STEP_GAP_MS = 60;
     // Text goes out in chunks every 15 ms, so typing waits about that long per chunk before the next step
@@ -135,10 +135,10 @@ public final class FlowRunner {
                 short[] codes = new short[step.keys.size()];
                 for (int i = 0; i < codes.length; i++) {
                     codes[i] = (short) (int) step.keys.get(i);
-                    sink.keyDown(codes[i], modifiers);
+                    sink.keyDown(codes[i], KeyTiming.downModifier(codes[i], modifiers));
                     modifiers |= KeyboardTranslator.getModifier(codes[i]);
                 }
-                sleeper.sleep(COMBO_HOLD_MS);
+                sleeper.sleep(KeyTiming.holdMs(codes));
                 for (int i = codes.length - 1; i >= 0; i--) {
                     modifiers &= (byte) ~KeyboardTranslator.getModifier(codes[i]);
                     sink.keyUp(codes[i], modifiers);

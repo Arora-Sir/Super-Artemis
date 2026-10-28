@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Special key editor: name, the steps it runs in order with chips to add one, the key recorder for Keys, Hold and Release steps, the sticky option and the icon -->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
@@ -60,7 +61,8 @@
             android:id="@+id/custom_key_add_step"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="6dp" />
+            android:layout_marginTop="2dp"
+            app:rowGap="0dp" />
 
         <!-- The recorder opens for a Keys, Hold or Release step and closes with Done, so the editor stays short otherwise -->
         <LinearLayout
@@ -211,6 +213,19 @@
             android:layout_marginTop="4dp"
             android:text="@string/custom_key_icon_label"
             android:textAppearance="@style/TextAppearance.SuperArtemis.SectionLabel" />
+
+        <EditText
+            style="@style/Widget.SuperArtemis.TextField"
+            android:id="@+id/custom_key_icon_search"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:hint="@string/icon_search_hint"
+            android:importantForAutofill="no"
+            android:inputType="text"
+            android:maxLength="24"
+            android:minHeight="48dp"
+            android:singleLine="true" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/custom_key_icons"

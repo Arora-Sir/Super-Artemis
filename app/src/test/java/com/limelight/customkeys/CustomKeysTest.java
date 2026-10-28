@@ -122,8 +122,8 @@ public class CustomKeysTest {
     @Test
     public void unknownIconFallsBackToKeyboard() {
         assertEquals(IconCatalog.drawableFor("keyboard"), IconCatalog.drawableFor("removed_icon"));
-        // 28 original icons and 33 added in round 2, with unique IDs
-        assertEquals(75, IconCatalog.ICONS.size());
+        // The 75 icons of round 2 plus the sectioned catalogue (IconCatalogTest keeps every shipped ID), all with unique IDs
+        assertEquals(true, IconCatalog.ICONS.size() >= 75);
         java.util.Set<String> ids = new java.util.HashSet<>();
         for (IconCatalog.Icon icon : IconCatalog.ICONS) {
             assertEquals(true, ids.add(icon.id));
@@ -193,9 +193,9 @@ public class CustomKeysTest {
     }
     // Keys tapped in the recorder but not confirmed with Done must not be saveable
     @Test
-    public void saveWaitsForDoneAndANameAndAStep() {
+    public void saveWaitsForDoneAndAStep() {
         assertFalse(CustomKeyEditor.canSave(0, "Ctrl + F13", false));
-        assertFalse(CustomKeyEditor.canSave(1, "  ", false));
+        assertTrue("The name is optional", CustomKeyEditor.canSave(1, "  ", false));
         assertFalse("keys tapped but not confirmed with Done", CustomKeyEditor.canSave(1, "Ctrl + F13", true));
         assertTrue(CustomKeyEditor.canSave(1, "Ctrl + F13", false));
     }

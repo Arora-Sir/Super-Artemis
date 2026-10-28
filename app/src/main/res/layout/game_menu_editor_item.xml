@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Editor row: drag handle, action icon and label, the "show in Advanced Menu" eye (menu editor only) and the "show in Quick Menu" switch -->
+<!-- Editor row: drag handle, action icon and label, the pencil of a special key, the "show in Advanced Menu" eye (menu editor only) and the "show in Quick Menu" switch -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -32,6 +32,17 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:textAppearance="@style/TextAppearance.SuperArtemis.BodyLarge" />
+
+    <ImageView
+        android:id="@+id/game_menu_editor_edit"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:background="@drawable/bg_button_text"
+        android:contentDescription="@string/key_row_edit"
+        android:scaleType="center"
+        android:src="@drawable/ic_sa_edit"
+        android:tint="?attr/saOnSurfaceVariant"
+        android:visibility="gone" />
 
     <ImageView
         android:id="@+id/game_menu_editor_visibility"

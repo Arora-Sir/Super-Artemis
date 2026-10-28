@@ -40,17 +40,17 @@ public final class QuickActionBar {
         // A top left bar starts beside or below the menu button when that button is shown
         boolean isFloatingMenuButtonVisible();
 
-        // Long press on a button: a menu to add keys to this bar or edit it, titled with the button's name. The index points into the active set.
-        void showBarMenu(int barIndex, String buttonLabel);
+        // Long press on a button: a menu to add keys to this bar, edit that button's key or edit the bar, titled with the button's name. The index points into the active set.
+        void showBarMenu(int barIndex, String item, String buttonLabel);
     }
 
     private static final long FADE_DELAY_MS = 3000;
     private static final float IDLE_ALPHA = 0.4f;
     // Toggles such as the microphone change state asynchronously, so their look is refreshed a moment after a tap
     private static final long STATE_REFRESH_DELAY_MS = 400;
-    private static final int BUTTON_DP = 36;
-    private static final int GAP_DP = 8;
-    private static final int EDGE_DP = 24;
+    private static final int BUTTON_DP = BarFit.BUTTON_DP;
+    private static final int GAP_DP = BarFit.GAP_DP;
+    private static final int EDGE_DP = BarFit.EDGE_MARGIN_DP;
 
     private final Context context;
     private final FrameLayout parent;
@@ -77,7 +77,16 @@ public final class QuickActionBar {
         this.context = context;
         this.parent = parent;
         this.host = host;
+        // A rotation or a window change moves what fits, so the bars are built again for the new size
+        parent.addOnLayoutChangeListener((v, l, t, r, b, ol, ot, or, ob) -> {
+            if (connected && !bars.isEmpty() && (r - l != or - ol || b - t != ob - ot) && or - ol > 0) {
+                handler.removeCallbacks(rebuild);
+                handler.post(rebuild);
+            }
+        });
     }
+
+    private final Runnable rebuild = this::reload;
 
     public void setConnected(boolean connected) {
         this.connected = connected;
@@ -116,8 +125,13 @@ public final class QuickActionBar {
         wake();
     }
 
-    private LinearLayout buildBar(int index, BarSets.Bar spec) {
+    private LinearLayout buildBar(int index, BarSets.Bar savedSpec) {
         float density = context.getResources().getDisplayMetrics().density;
+        // NOTE: The saved line length is the intent. A phone cannot show 20 buttons in a line, so the line wraps earlier instead of clipping the rest.
+        android.util.DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+        boolean beside = BarSets.TOP_LEFT.equals(savedSpec.anchor) && host.isFloatingMenuButtonVisible();
+        BarSets.Bar spec = BarFit.fitted(savedSpec, metrics.widthPixels / density, metrics.heightPixels / density,
+                beside ? BUTTON_DP + GAP_DP : 0);
         // Items whose action or key is gone are skipped before the grid is laid out, so the grid has no holes
         List<String> items = new ArrayList<>();
         List<ImageButton> buttons = new ArrayList<>();
@@ -159,7 +173,7 @@ public final class QuickActionBar {
                 ImageButton button = buttons.get(items.indexOf(item));
                 button.setOnLongClickListener(v -> {
                     String name = String.valueOf(v.getContentDescription());
-                    com.limelight.ui.SafeRun.run(context, name, () -> host.showBarMenu(index, name));
+                    com.limelight.ui.SafeRun.run(context, name, () -> host.showBarMenu(index, item, name));
                     return true;
                 });
                 row.addView(button, params);
@@ -216,7 +230,7 @@ public final class QuickActionBar {
             if (key == null) {
                 return null;
             }
-            return makeButton(IconCatalog.drawableFor(key.icon), key.name, null, () -> host.runKey(key));
+            return makeButton(IconCatalog.drawableFor(key.icon), com.limelight.customkeys.KeyLabels.displayLabel(context, key), null, () -> host.runKey(key));
         }
         StreamAction action = StreamActionRegistry.find(item);
         if (action == null || action.destructive || !action.isAvailable(host.actionHost())) {

@@ -14,6 +14,8 @@ import com.limelight.binding.PlatformBinding;
 import com.limelight.gestures.GestureDispatcher;
 import com.limelight.menu.QuickActionBar;
 import com.limelight.session.BackgroundPolicy;
+import com.limelight.session.CallModeWatcher;
+import com.limelight.session.PipGuard;
 import com.limelight.session.ResumeStore;
 import com.limelight.binding.audio.AndroidAudioRenderer;
 import com.limelight.binding.audio.MicrophoneCaptureManager;
@@ -191,6 +193,11 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
     private boolean connecting = false;
     public boolean connected = false;
     private boolean autoEnterPip = false;
+    private CallModeWatcher callModeWatcher;
+    // When the assistant (Gemini) last asked this screen for its context, which is how its overlay announces itself
+    private long assistantInvokedAtMs;
+    // The assistant or a dialog it opened took the top of the screen, and the stream has not been top again
+    private boolean assistantOverlayUp;
     private boolean surfaceCreated = false;
     private boolean attemptedConnection = false;
     private int suppressPipRefCount = 0;
@@ -237,6 +244,8 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
     private MicrophoneCaptureManager microphoneCaptureManager;
     private MicrophoneStateStore microphoneStateStore;
     private static final int RECORD_AUDIO_PERMISSION_REQUEST = 4201;
+    private static final int PHONE_STATE_PERMISSION_REQUEST = 4202;
+    private static final String PREF_PHONE_STATE_ASKED = "phone_state_permission_asked";
 
     private WifiManager.WifiLock highPerfWifiLock;
     private WifiManager.WifiLock lowLatencyWifiLock;
@@ -1294,13 +1303,14 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
         int top = viewLocation[1];
         int width = view.getWidth();
         int height = view.getHeight();
-        Rational aspectRatio = new Rational(width, height);
-        hint = new Rect(left, top, left + width, top + height);
-
-        PictureInPictureParams.Builder builder =
-                new PictureInPictureParams.Builder()
-                        .setAspectRatio(aspectRatio)
-                        .setSourceRectHint(hint);
+        PictureInPictureParams.Builder builder = new PictureInPictureParams.Builder();
+        // NOTE: Before the first layout the view is 0 by 0, and Android rejects an aspect ratio outside 0.42 to 2.39 with an exception that ends the app.
+        // NOTE: Params set that early carry no ratio and no hint, and the next call after the layout sets both.
+        int[] ratio = PipGuard.aspectRatioFor(width, height);
+        if (ratio != null) {
+            hint = new Rect(left, top, left + width, top + height);
+            builder.setAspectRatio(new Rational(ratio[0], ratio[1])).setSourceRectHint(hint);
+        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             builder.setAutoEnterEnabled(autoEnter);
@@ -1327,13 +1337,20 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
             return;
         }
 
-        boolean autoEnter = connected && suppressPipRefCount == 0;
+        // A ringing phone or a call is not the user leaving the stream, so auto-enter stays off while one runs (PipGuard)
+        boolean autoEnter = PipGuard.autoEnterArmed(connected, suppressPipRefCount > 0, currentAudioMode(), assistantRecently());
 
         // NOTE: Android 12 auto-enter gives the smooth swipe from full screen into the small window on a Home or Recents gesture, so it stays on while streaming.
         // NOTE: Switches that auto-enter does not cover (One Hand Operation+ "previous app" through startActivityFromRecents) hide the stream window before pausing it.
         // NOTE: Those enter picture-in-picture in onTopResumedActivityChanged, which runs while the window is still visible, and onPause stays as the last fallback.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            setPictureInPictureParams(getPictureInPictureParams(autoEnter));
+            try {
+                setPictureInPictureParams(getPictureInPictureParams(autoEnter));
+            }
+            catch (IllegalArgumentException | IllegalStateException e) {
+                // A bad ratio must never end the stream, the next update after a layout sets valid params
+                LimeLog.warning("PiP params rejected: " + e.getMessage());
+            }
         }
         else {
             autoEnterPip = autoEnter;
@@ -1424,22 +1441,23 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
     public void onTopResumedActivityChanged(boolean isTopResumedActivity) {
         super.onTopResumedActivityChanged(isTopResumedActivity);
         pipDebug("onTopResumedActivityChanged " + isTopResumedActivity);
-        if (!isTopResumedActivity && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && shouldEnterPipOnPause()) {
-            try {
-                boolean entered = enterPictureInPictureMode(getPictureInPictureParams(true));
-                pipDebug("top resumed change entered=" + entered);
-            }
-            catch (IllegalStateException | IllegalArgumentException e) {
-                LimeLog.warning("PiP on top resumed change failed: " + e.getMessage());
-            }
+        if (isTopResumedActivity) {
+            assistantOverlayUp = false;
+            updatePipAutoEnter();
         }
+        else if (assistantRecently()) {
+            // The assistant covers the stream, so its share dialogs and account pickers must not shrink it either
+            assistantOverlayUp = true;
+        }
+        // NOTE: Losing the top position alone is not a reason to shrink the stream, because floating dialogs and overlays of other apps cause it too.
     }
 
     // Lifecycle order around picture-in-picture, written to the log in debug builds only
     private void pipDebug(String event) {
         if (BuildConfig.DEBUG) {
             LimeLog.info("PIPDBG " + event + " connected=" + connected + " inPip=" + (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && isInPictureInPictureMode())
-                    + " resumed=" + getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED));
+                    + " resumed=" + getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)
+                    + " focus=" + hasWindowFocus() + " audioMode=" + currentAudioMode() + " interactive=" + isScreenInteractive());
         }
     }
 
@@ -1456,6 +1474,7 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
+        pipDebug("onWindowFocusChanged " + hasFocus);
 
         // We can't guarantee the state of modifiers keys which may have
         // lifted while focus was not on us. Clear the modifier state.
@@ -1762,6 +1781,9 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
         // An open menu would leak the window and keep this activity alive after the stream ends
         hideGameMenu();
         stopMicrophoneCapture();
+        if (callModeWatcher != null) {
+            callModeWatcher.stop();
+        }
         if (flowRunner != null) {
             flowRunner.shutdown();
         }
@@ -1841,6 +1863,26 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
         // Coming back to the stream cancels a Home or Recents gesture that did not end up leaving it
         leftByUser = false;
         openingOwnScreen = false;
+        // Back from the assistant, so a Home swipe shrinks the stream again
+        assistantInvokedAtMs = 0;
+        assistantOverlayUp = false;
+        if (callModeWatcher == null) {
+            callModeWatcher = new CallModeWatcher(this, this::updatePipAutoEnter);
+        }
+        callModeWatcher.start(this);
+        askPhoneStateOnce();
+        updatePipAutoEnter();
+    }
+
+    // NOTE: A ringing phone is only visible through the phone state permission, and it is asked once so calls never shrink the stream.
+    private void askPhoneStateOnce() {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        if (!prefConfig.enablePip || CallModeWatcher.hasPhoneStatePermission(this) || prefs.getBoolean(PREF_PHONE_STATE_ASKED, false)) {
+            return;
+        }
+        prefs.edit().putBoolean(PREF_PHONE_STATE_ASKED, true).apply();
+        openingOwnScreen = true;
+        requestPermissions(new String[] {android.Manifest.permission.READ_PHONE_STATE}, PHONE_STATE_PERMISSION_REQUEST);
     }
 
     // A screen this app opens on top of the stream (help, a crash report, a link) pauses the stream too, and must not shrink it into picture-in-picture
@@ -1855,24 +1897,83 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
     // NOTE: Entering from onPause is allowed while the activity is still pausing, so any app switch now keeps the stream in picture-in-picture.
     // NOTE: Screen off, the lock screen, split screen, this app's own screens and a USB permission prompt also pause the stream, and none of them should shrink it.
     boolean shouldEnterPipOnPause() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O || !prefConfig.enablePip || !connected) {
-            return false;
+        boolean supported = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O;
+        PipGuard.State state = new PipGuard.State();
+        state.pipSupported = supported;
+        state.pipEnabled = prefConfig.enablePip;
+        state.connected = connected;
+        if (supported) {
+            state.finishing = isFinishing();
+            state.changingConfigurations = isChangingConfigurations();
+            state.inPip = isInPictureInPictureMode();
+            state.multiWindow = isInMultiWindowMode();
+            state.externalDisplay = isOnExternalDisplay();
         }
-        if (isFinishing() || isChangingConfigurations() || isInPictureInPictureMode() || isInMultiWindowMode()) {
-            return false;
-        }
-        if (isOnExternalDisplay() || suppressPipRefCount > 0 || openingOwnScreen) {
-            return false;
-        }
-        android.os.PowerManager power = (android.os.PowerManager) getSystemService(Context.POWER_SERVICE);
+        state.pipSuppressed = suppressPipRefCount > 0;
+        state.openingOwnScreen = openingOwnScreen;
+        state.interactive = isScreenInteractive();
         android.app.KeyguardManager keyguard = (android.app.KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
-        return (power == null || power.isInteractive()) && (keyguard == null || !keyguard.isKeyguardLocked());
+        state.keyguardLocked = keyguard != null && keyguard.isKeyguardLocked();
+        state.audioMode = currentAudioMode();
+        state.assistantRecently = assistantRecently();
+        return PipGuard.mayEnterPip(state);
+    }
+
+    private boolean assistantRecently() {
+        long now = android.os.SystemClock.uptimeMillis();
+        return PipGuard.assistantRecently(now, assistantInvokedAtMs)
+                || (assistantOverlayUp && PipGuard.assistantRecently(now, assistantInvokedAtMs, PipGuard.ASSISTANT_HOLD_MS));
+    }
+
+    // NOTE: The assistant overlay (Gemini from the power button) opens as an activity over the stream, and Android 12 auto-enter then shrinks the stream into picture-in-picture.
+    // NOTE: Before it shows, the system asks the screen for its context, so that request marks the invocation. Auto-enter stays off for a few seconds and comes back by itself.
+    private void markAssistantInvoked() {
+        assistantInvokedAtMs = android.os.SystemClock.uptimeMillis();
+        pipDebug("assistant invoked");
+        updatePipAutoEnter();
+        getWindow().getDecorView().postDelayed(this::updatePipAutoEnter, PipGuard.ASSISTANT_WINDOW_MS + 100);
+    }
+
+    @Override
+    public void onProvideAssistData(Bundle data) {
+        super.onProvideAssistData(data);
+        markAssistantInvoked();
+    }
+
+    @Override
+    public void onProvideAssistContent(android.app.assist.AssistContent outContent) {
+        super.onProvideAssistContent(outContent);
+        markAssistantInvoked();
+    }
+
+    private boolean isScreenInteractive() {
+        android.os.PowerManager power = (android.os.PowerManager) getSystemService(Context.POWER_SERVICE);
+        return power == null || power.isInteractive();
+    }
+
+    private int currentAudioMode() {
+        return callModeWatcher != null ? callModeWatcher.mode() : android.media.AudioManager.MODE_NORMAL;
+    }
+
+    // NOTE: A screen that turned off ends the stream, but it is not the user leaving it, so unlocking brings the stream back.
+    // NOTE: The stream is marked while it is still connected (surfaceDestroyed runs before onStop), and not for "End the stream" or a stream the user ended.
+    private void markResumeIfScreenWentOff() {
+        // NOTE: The power button locks the device before the display state flips, so a surface lost behind the lock screen counts as a screen off even while the display still reports interactive (Tab log, 2026-10-26).
+        android.app.KeyguardManager keyguard = (android.app.KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
+        boolean screenOn = isScreenInteractive() && !(keyguard != null && keyguard.isKeyguardLocked());
+        if (PipGuard.shouldResumeAfterScreenOff(connected, screenOn, isFinishing(),
+                BackgroundPolicy.resumesWhenReopened(PreferenceManager.getDefaultSharedPreferences(this)))) {
+            ResumeStore.markLeft(this, System.currentTimeMillis());
+            pipDebug("screen off, marked for resume");
+        }
     }
 
     @Override
     protected void onPause() {
         pipDebug("onPause");
-        if (shouldEnterPipOnPause()) {
+        // NOTE: Android 12 and later enter picture-in-picture through auto-enter and the leave hint only, which are the system's own signs that the user navigated away.
+        // NOTE: A pause alone also happens for dialogs and overlays of other apps, and must never shrink the stream.
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S && shouldEnterPipOnPause()) {
             try {
                 enterPictureInPictureMode(getPictureInPictureParams(false));
             }
@@ -1926,6 +2027,7 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
             if (connected && leftByUser && BackgroundPolicy.isResume(PreferenceManager.getDefaultSharedPreferences(this))) {
                 ResumeStore.markLeft(this, System.currentTimeMillis());
             }
+            markResumeIfScreenWentOff();
 
             int videoFormat = decoderRenderer.getActiveVideoFormat();
 
@@ -2508,7 +2610,7 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
         final byte[] modifier = {(byte) 0};
 
         for (short key : keys) {
-            conn.sendKeyboardInput(key, KeyboardPacket.KEY_DOWN, modifier[0], (byte) 0);
+            conn.sendKeyboardInput(key, KeyboardPacket.KEY_DOWN, com.limelight.customkeys.KeyTiming.downModifier(key, modifier[0]), (byte) 0);
 
             // Apply the modifier of the pressed key, e.g. CTRL first issues a CTRL event (without
             // modifier) and then sends the following keys with the CTRL modifier applied
@@ -2524,7 +2626,7 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
 
                 conn.sendKeyboardInput(key, KeyboardPacket.KEY_UP, modifier[0], (byte) 0);
             }
-        }), GameMenu.KEY_UP_DELAY);
+        }), com.limelight.customkeys.KeyTiming.holdMs(keys));
     }
 
     public boolean handleFocusChange(boolean hasFocus) {
@@ -3660,6 +3762,13 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
     public void stageComplete(String stage) {
     }
 
+    // Cancels the key or flow that is running and lets go of its held keys, before an editor changes it
+    public void cancelRunningKey() {
+        if (flowRunner != null) {
+            flowRunner.cancel();
+        }
+    }
+
     private void stopConnection() {
         stopMicrophoneCapture();
         // A key still running would keep typing into a closed stream, and its held keys must be let go
@@ -3819,6 +3928,12 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
+        if (requestCode == PHONE_STATE_PERMISSION_REQUEST) {
+            if (callModeWatcher != null) {
+                callModeWatcher.startPhoneState(this);
+            }
+            return;
+        }
         if (requestCode != RECORD_AUDIO_PERMISSION_REQUEST) {
             return;
         }
@@ -4233,6 +4348,13 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
         if (connected && leftByUser && !isFinishing() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && !isInPictureInPictureMode()
                 && BackgroundPolicy.isPip(PreferenceManager.getDefaultSharedPreferences(this))) {
             ResumeStore.markLeft(this, System.currentTimeMillis());
+        }
+        markResumeIfScreenWentOff();
+        if (PipGuard.shouldResumeAfterSurfaceLoss(connected, isFinishing(), Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && isInPictureInPictureMode(),
+                isChangingConfigurations(), openingOwnScreen, isScreenInteractive(),
+                BackgroundPolicy.resumesWhenReopened(PreferenceManager.getDefaultSharedPreferences(this)))) {
+            ResumeStore.markLeft(this, System.currentTimeMillis());
+            pipDebug("surface lost to another app, marked for resume");
         }
 
         if (attemptedConnection) {
@@ -4783,8 +4905,8 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
             }
 
             @Override
-            public void showBarMenu(int barIndex, String buttonLabel) {
-                menu.showQuickBarMenu(barIndex, buttonLabel);
+            public void showBarMenu(int barIndex, String item, String buttonLabel) {
+                menu.showQuickBarMenu(barIndex, item, buttonLabel);
             }
         });
     }

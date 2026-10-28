@@ -17,6 +17,13 @@
     <attr name="saOutline" format="color|reference" />
     <attr name="saOutlineVariant" format="color|reference" />
     <attr name="saError" format="color|reference" />
+    <!-- Surface and edge of every Super Artemis dialog. Pure black with a thin edge in AMOLED black, the container color otherwise. -->
+    <attr name="saDialogSurface" format="color|reference" />
+    <attr name="saDialogStroke" format="color|reference" />
     <!-- True in Material You, where settings sections sit in rounded containers -->
     <attr name="saGroupedSettings" format="boolean" />
+    <declare-styleable name="FlowRow">
+        <!-- Space between lines of a FlowRow, 8dp when not set -->
+        <attr name="rowGap" format="dimension" />
+    </declare-styleable>
 </resources>
