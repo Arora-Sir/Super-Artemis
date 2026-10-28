@@ -18,7 +18,6 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceCategory;
 import androidx.preference.PreferenceGroupAdapter;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.SimpleItemAnimator;
 
 import com.limelight.R;
 import com.limelight.ui.Dialogs;
@@ -34,10 +33,8 @@ final class SettingsListStyle {
         Context context = list.getContext();
         list.setClipToPadding(false);
         list.setPadding(list.getPaddingLeft(), list.getPaddingTop(), list.getPaddingRight(), (int) dp(context, 24));
-        // Rows such as the microphone preview update their text all the time, and change animations drew the old and new row on top of each other
-        if (list.getItemAnimator() instanceof SimpleItemAnimator) {
-            ((SimpleItemAnimator) list.getItemAnimator()).setSupportsChangeAnimations(false);
-        }
+        // NOTE: A settings list needs no item animations. Rows such as the microphone preview change all the time, and the default animator slid them from their old position (BUG-045).
+        list.setItemAnimator(null);
         TypedValue value = new TypedValue();
         if (context.getTheme().resolveAttribute(R.attr.saGroupedSettings, value, true) && value.data != 0) {
             list.addItemDecoration(new GroupedSections(context));

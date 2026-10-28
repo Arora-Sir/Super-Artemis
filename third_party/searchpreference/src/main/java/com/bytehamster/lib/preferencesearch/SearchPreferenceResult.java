@@ -124,6 +124,10 @@ public class SearchPreferenceResult {
      */
     public void closeSearchPage(AppCompatActivity activity) {
         FragmentManager fm = activity.getSupportFragmentManager();
-        fm.beginTransaction().remove(fm.findFragmentByTag(SearchPreferenceFragment.TAG)).commit();
+        if (fm.findFragmentByTag(SearchPreferenceFragment.TAG) == null) {
+            return;
+        }
+        // The page was added with addToBackStack, so removing only the fragment left one stale entry per search and Back needed one more press each time
+        fm.popBackStack(SearchPreferenceFragment.TAG, FragmentManager.POP_BACK_STACK_INCLUSIVE);
     }
 }
