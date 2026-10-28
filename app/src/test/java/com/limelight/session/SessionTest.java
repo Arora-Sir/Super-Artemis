@@ -69,6 +69,41 @@ public class SessionTest {
         assertTrue(BackgroundPolicy.resumesWhenReopened(prefs));
     }
 
+    // NOTE: The mark of a stream that ended with the screen off was used up while the screen was still off, so unlocking showed the PC list (Tab log, 2026-10-24).
+    @Test
+    public void aMarkWaitsUntilTheScreenIsOnAndUnlocked() {
+        prefs.edit().putString(BackgroundPolicy.PREF_KEY, BackgroundPolicy.PIP).commit();
+        ResumeStore.remember(context, session());
+        ResumeStore.markLeft(context, System.currentTimeMillis());
+        android.app.Activity activity = org.robolectric.Robolectric.buildActivity(android.app.Activity.class).setup().get();
+
+        org.robolectric.Shadows.shadowOf((android.os.PowerManager) context.getSystemService(Context.POWER_SERVICE)).turnScreenOn(false);
+        assertFalse("Screen off keeps the mark", SessionResumer.maybeResume(activity));
+        assertNotNull("The mark is still there", ResumeStore.takePending(context, System.currentTimeMillis()));
+    }
+
+    // NOTE: The lists came back behind the lock screen, the mark was kept, and unlocking never retried it (Tab log, 2026-10-26).
+    @Test
+    public void aMarkKeptBehindTheLockScreenResumesOnUnlock() {
+        prefs.edit().putString(BackgroundPolicy.PREF_KEY, BackgroundPolicy.PIP).commit();
+        ResumeStore.remember(context, session());
+        ResumeStore.markLeft(context, System.currentTimeMillis());
+        android.app.Activity activity = org.robolectric.Robolectric.buildActivity(android.app.Activity.class).setup().get();
+        android.app.KeyguardManager keyguard = (android.app.KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
+        org.robolectric.Shadows.shadowOf(keyguard).setKeyguardLocked(true);
+
+        assertFalse("Locked keeps the mark", SessionResumer.maybeResume(activity));
+
+        org.robolectric.Shadows.shadowOf(keyguard).setKeyguardLocked(false);
+        activity.sendBroadcast(new Intent(Intent.ACTION_USER_PRESENT));
+        org.robolectric.shadows.ShadowLooper.idleMainLooper();
+
+        Intent started = org.robolectric.Shadows.shadowOf(org.robolectric.RuntimeEnvironment.getApplication()).getNextStartedActivity();
+        assertNotNull("Unlocking starts the stream", started);
+        assertEquals(ShortcutTrampoline.class.getName(), started.getComponent().getClassName());
+        assertNull("The mark is used once", ResumeStore.takePending(context, System.currentTimeMillis()));
+    }
+
     @Test
     public void pendingResumeIsTakenOnceWithinTheWindow() {
         ResumeStore.remember(context, session());

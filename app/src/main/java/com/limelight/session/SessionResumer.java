@@ -1,8 +1,13 @@
 package com.limelight.session;
 
 import android.app.Activity;
+import android.app.Application;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 
+import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
 
 import com.limelight.AppView;
@@ -19,12 +24,93 @@ public final class SessionResumer {
 
     // Called when the PC or app list comes back to the front, which is where Recents and the launcher return to after a stream
     public static boolean maybeResume(Activity activity) {
+        // NOTE: A screen that turns off pauses the stream and brings the app lists back to the front a moment later, while the screen is still off.
+        // NOTE: Reconnecting then would use up the mark before the user is there, so the mark waits until the screen is on and unlocked, when the lists resume again.
+        if (!deviceInUse(activity)) {
+            armUnlockRetry(activity);
+            return false;
+        }
         ResumeStore.Session session = ResumeStore.takePending(activity, System.currentTimeMillis());
         if (session == null || !BackgroundPolicy.resumesWhenReopened(PreferenceManager.getDefaultSharedPreferences(activity))) {
             return false;
         }
         activity.startActivity(intentFor(activity, session));
         return true;
+    }
+
+    // NOTE: The lists can come back to the front while the lock screen is still up, and unlocking then gives them no new resume, so the PC list stayed (Tab log, 2026-10-26).
+    // NOTE: One receiver waits for the unlock and screen on broadcasts, tries again once the device is in use, and goes away with the activity.
+    private static void armUnlockRetry(Activity activity) {
+        if (activity.isFinishing() || activity.isDestroyed()) {
+            return;
+        }
+        final boolean[] done = {false};
+        final BroadcastReceiver receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (!done[0] && deviceInUse(activity)) {
+                    done[0] = true;
+                    try {
+                        activity.unregisterReceiver(this);
+                    }
+                    catch (IllegalArgumentException e) {
+                        // Already gone with the activity
+                    }
+                    maybeResume(activity);
+                }
+            }
+        };
+        IntentFilter filter = new IntentFilter(Intent.ACTION_USER_PRESENT);
+        filter.addAction(Intent.ACTION_SCREEN_ON);
+        ContextCompat.registerReceiver(activity, receiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED);
+        activity.getApplication().registerActivityLifecycleCallbacks(new Application.ActivityLifecycleCallbacks() {
+            @Override
+            public void onActivityDestroyed(Activity destroyed) {
+                if (destroyed == activity) {
+                    activity.getApplication().unregisterActivityLifecycleCallbacks(this);
+                    if (!done[0]) {
+                        done[0] = true;
+                        try {
+                            activity.unregisterReceiver(receiver);
+                        }
+                        catch (IllegalArgumentException e) {
+                            // Already unregistered
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onActivityCreated(Activity a, android.os.Bundle state) {
+            }
+
+            @Override
+            public void onActivityStarted(Activity a) {
+            }
+
+            @Override
+            public void onActivityResumed(Activity a) {
+            }
+
+            @Override
+            public void onActivityPaused(Activity a) {
+            }
+
+            @Override
+            public void onActivityStopped(Activity a) {
+            }
+
+            @Override
+            public void onActivitySaveInstanceState(Activity a, android.os.Bundle state) {
+            }
+        });
+    }
+
+    // True while the screen is on and not on the lock screen
+    static boolean deviceInUse(Context context) {
+        android.os.PowerManager power = (android.os.PowerManager) context.getSystemService(Context.POWER_SERVICE);
+        android.app.KeyguardManager keyguard = (android.app.KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
+        return (power == null || power.isInteractive()) && (keyguard == null || !keyguard.isKeyguardLocked());
     }
 
     // Called when Settings opened from a stream closes, so it reconnects whatever the leave policy is

@@ -545,6 +545,11 @@ public class NvConnection {
     }
 
     public void sendKeyboardInput(final short keyMap, final byte keyDirection, final byte modifier, final byte flags) {
+        // Debug builds write every key sent to the host, so a shortcut the host ignores can be traced from the log
+        if (com.limelight.BuildConfig.DEBUG) {
+            com.limelight.LimeLog.info("KEYDBG vk=0x" + Integer.toHexString(keyMap & 0xFFFF) + " dir=" + (keyDirection == 0x03 ? "down" : "up")
+                    + " mod=0x" + Integer.toHexString(modifier & 0xFF) + " t=" + android.os.SystemClock.uptimeMillis());
+        }
         if (!isMonkey) {
             MoonBridge.sendKeyboardInput(keyMap, keyDirection, modifier, flags);
         }
