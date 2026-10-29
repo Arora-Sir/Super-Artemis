@@ -23,7 +23,7 @@ python scripts/release/generate_keystore.py --out-dir "$HOME/.android-keystore/S
 
 The helper prompts for a password of at least 12 characters, runs `keytool` with RSA 4096 and 10000 days of validity, writes `release.jks` and `release.jks.base64` into the folder, and prints only the public certificate SHA-256. The alias is `super-artemis`.
 
-Rules for the key:
+### Key management rules
 
 - Pick a new password. The earlier one leaked into a backup repository history and counts as burned.
 - Store the password in a password manager, not next to the file.

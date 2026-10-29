@@ -32,4 +32,4 @@ Changes to this policy are published in this file in the [Super Artemis reposito
 
 ## Phone state
 
-Super Artemis asks once for the phone state permission while streaming. The app reads only whether the phone is idle, ringing or in a call, so a call keeps the stream full screen instead of shrinking it. The value stays on the device and the app works the same if you decline.
+Super Artemis asks once for the phone state permission during a stream. The app checks whether the phone is idle, ringing, or in a call so incoming calls keep the stream full screen. Declining this optional permission does not affect streaming or controls.

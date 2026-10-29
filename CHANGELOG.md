@@ -4,6 +4,8 @@ All notable changes to Super Artemis are listed here. The format follows [Keep a
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-10-30
+
 - Surface lift: while Pure black is on, tapping the text of the Pure black row opens a ten level dot slider with a live sample in the dialog. It moves only the cards, fields and sections from flat to lifted, and level 5 is the look that shipped first. The switch keeps its own tap zone behind a divider.
 - The color tiles are ten (Wallpaper, eight schemes including the new Amber, and a plus with a rainbow ring that wears the last custom color once one is picked), in one line on a wide dialog and in two rows of five on a phone.
 - The Lock key runs an Apollo server command named Lock when the host has one, and shows a one time hint otherwise.
