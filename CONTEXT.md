@@ -92,7 +92,7 @@ Everything below is implemented with unit tests and needs the Tab and the S24, w
 ## Open problems
 
 - The common-c fixes are committed in the submodule (`8c83fe9` on `super-artemis`) and must be pushed to `Arora-Sir/moonlight-common-c` before the superproject is pushed.
-- The fastlane screenshots still show upstream Moonlight until new ones are taken.
+- The fastlane 10-inch screenshots are updated with genuine Galaxy Tab S10 Ultra captures and embedded in README.md.
 
 ## Known unknowns
 

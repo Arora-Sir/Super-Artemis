@@ -42,6 +42,20 @@ Artemis already improves a lot on Moonlight. These are the things you lose if yo
 
 Everything else from Artemis stays: custom virtual buttons, custom resolutions and bitrates, mouse modes, gamepad skins, external display mode, Apollo virtual display, server commands and clipboard sync.
 
+## Interface and controls
+
+| Quick-action bars (Hero feature) | Tablet dual-pane Settings |
+| :---: | :---: |
+| ![Quick-action bars](fastlane/metadata/android/en-US/images/tenInchScreenshots/1-quick-bars.png) | ![Tablet dual-pane Settings](fastlane/metadata/android/en-US/images/tenInchScreenshots/2-settings.png) |
+
+| In-stream Quick Menu | App style and color schemes |
+| :---: | :---: |
+| ![In-stream Quick Menu](fastlane/metadata/android/en-US/images/tenInchScreenshots/3-in-stream-menu.png) | ![App style and color schemes](fastlane/metadata/android/en-US/images/tenInchScreenshots/4-app-style.png) |
+
+| Multi-finger gestures | Surface Lift on Pure black |
+| :---: | :---: |
+| ![Multi-finger gestures](fastlane/metadata/android/en-US/images/tenInchScreenshots/5-gestures.png) | ![Surface Lift on Pure black](fastlane/metadata/android/en-US/images/tenInchScreenshots/6-surface-lift.png) |
+
 ## Features
 
 ### Voice
