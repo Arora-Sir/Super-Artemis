@@ -124,6 +124,10 @@ Everything else from Artemis stays: custom virtual buttons, custom resolutions a
 3. Tap your PC in the app and enter the PIN in the Apollo web UI.
 4. Start streaming. Open the menu with the Back key, a five-finger tap or the floating button.
 
+### Check the APK before installing
+
+Every release APK is signed with one key. Its certificate SHA-256 is `AB:25:F8:81:C0:32:6E:4D:96:4A:7D:A1:7C:1F:AC:5F:26:89:ED:D9:BC:17:B8:D2:A4:29:35:03:82:C5:B2:8C`. Compare it with the value Android shows for the APK (`apksigner verify --print-certs`), or with the fingerprint in the release notes. Updates only install in place while the key stays the same.
+
 ### Host setup
 
 | Goal | What to set |

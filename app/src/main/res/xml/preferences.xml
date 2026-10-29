@@ -370,7 +370,7 @@
             app:iconSpaceReserved="false"
             app:useSimpleSummaryProvider="true"
             search:keywords="@string/keywords_app_style" />
-        <CheckBoxPreference
+        <com.limelight.preferences.AmoledBlackPreference
             android:defaultValue="false"
             android:key="checkbox_amoled_black"
             android:summary="@string/summary_amoled_black"

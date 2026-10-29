@@ -140,6 +140,96 @@
         <item name="android:windowBackground">@color/sa_amoled_black</item>
     </style>
 
+    <!-- NOTE: Surface lift level 0 of 0 to 9. Level 4 is the base overlay above, and these colors match AmoledLadder. -->
+    <style name="ThemeOverlay.SuperArtemis.Amoled.Lift0" parent="ThemeOverlay.SuperArtemis.Amoled">
+        <item name="saSurfaceContainer">#040404</item>
+        <item name="saSurfaceContainerHigh">#080808</item>
+        <item name="saSurfaceContainerHighest">#0C0C0C</item>
+        <item name="colorSurfaceContainer">#040404</item>
+        <item name="colorSurfaceContainerHigh">#080808</item>
+        <item name="colorSurfaceContainerHighest">#0C0C0C</item>
+    </style>
+
+    <!-- NOTE: Surface lift level 1 of 0 to 9. Level 4 is the base overlay above, and these colors match AmoledLadder. -->
+    <style name="ThemeOverlay.SuperArtemis.Amoled.Lift1" parent="ThemeOverlay.SuperArtemis.Amoled">
+        <item name="saSurfaceContainer">#060606</item>
+        <item name="saSurfaceContainerHigh">#0C0C0C</item>
+        <item name="saSurfaceContainerHighest">#111111</item>
+        <item name="colorSurfaceContainer">#060606</item>
+        <item name="colorSurfaceContainerHigh">#0C0C0C</item>
+        <item name="colorSurfaceContainerHighest">#111111</item>
+    </style>
+
+    <!-- NOTE: Surface lift level 2 of 0 to 9. Level 4 is the base overlay above, and these colors match AmoledLadder. -->
+    <style name="ThemeOverlay.SuperArtemis.Amoled.Lift2" parent="ThemeOverlay.SuperArtemis.Amoled">
+        <item name="saSurfaceContainer">#090909</item>
+        <item name="saSurfaceContainerHigh">#0F0F0F</item>
+        <item name="saSurfaceContainerHighest">#161616</item>
+        <item name="colorSurfaceContainer">#090909</item>
+        <item name="colorSurfaceContainerHigh">#0F0F0F</item>
+        <item name="colorSurfaceContainerHighest">#161616</item>
+    </style>
+
+    <!-- NOTE: Surface lift level 3 of 0 to 9. Level 4 is the base overlay above, and these colors match AmoledLadder. -->
+    <style name="ThemeOverlay.SuperArtemis.Amoled.Lift3" parent="ThemeOverlay.SuperArtemis.Amoled">
+        <item name="saSurfaceContainer">#0B0B0B</item>
+        <item name="saSurfaceContainerHigh">#131313</item>
+        <item name="saSurfaceContainerHighest">#1A1A1A</item>
+        <item name="colorSurfaceContainer">#0B0B0B</item>
+        <item name="colorSurfaceContainerHigh">#131313</item>
+        <item name="colorSurfaceContainerHighest">#1A1A1A</item>
+    </style>
+
+    <!-- NOTE: Surface lift level 5 of 0 to 9. Level 4 is the base overlay above, and these colors match AmoledLadder. -->
+    <style name="ThemeOverlay.SuperArtemis.Amoled.Lift5" parent="ThemeOverlay.SuperArtemis.Amoled">
+        <item name="saSurfaceContainer">#101010</item>
+        <item name="saSurfaceContainerHigh">#1A1A1A</item>
+        <item name="saSurfaceContainerHighest">#232323</item>
+        <item name="colorSurfaceContainer">#101010</item>
+        <item name="colorSurfaceContainerHigh">#1A1A1A</item>
+        <item name="colorSurfaceContainerHighest">#232323</item>
+    </style>
+
+    <!-- NOTE: Surface lift level 6 of 0 to 9. Level 4 is the base overlay above, and these colors match AmoledLadder. -->
+    <style name="ThemeOverlay.SuperArtemis.Amoled.Lift6" parent="ThemeOverlay.SuperArtemis.Amoled">
+        <item name="saSurfaceContainer">#131313</item>
+        <item name="saSurfaceContainerHigh">#1E1E1E</item>
+        <item name="saSurfaceContainerHighest">#272727</item>
+        <item name="colorSurfaceContainer">#131313</item>
+        <item name="colorSurfaceContainerHigh">#1E1E1E</item>
+        <item name="colorSurfaceContainerHighest">#272727</item>
+    </style>
+
+    <!-- NOTE: Surface lift level 7 of 0 to 9. Level 4 is the base overlay above, and these colors match AmoledLadder. -->
+    <style name="ThemeOverlay.SuperArtemis.Amoled.Lift7" parent="ThemeOverlay.SuperArtemis.Amoled">
+        <item name="saSurfaceContainer">#151515</item>
+        <item name="saSurfaceContainerHigh">#222222</item>
+        <item name="saSurfaceContainerHighest">#2C2C2C</item>
+        <item name="colorSurfaceContainer">#151515</item>
+        <item name="colorSurfaceContainerHigh">#222222</item>
+        <item name="colorSurfaceContainerHighest">#2C2C2C</item>
+    </style>
+
+    <!-- NOTE: Surface lift level 8 of 0 to 9. Level 4 is the base overlay above, and these colors match AmoledLadder. -->
+    <style name="ThemeOverlay.SuperArtemis.Amoled.Lift8" parent="ThemeOverlay.SuperArtemis.Amoled">
+        <item name="saSurfaceContainer">#181818</item>
+        <item name="saSurfaceContainerHigh">#262626</item>
+        <item name="saSurfaceContainerHighest">#303030</item>
+        <item name="colorSurfaceContainer">#181818</item>
+        <item name="colorSurfaceContainerHigh">#262626</item>
+        <item name="colorSurfaceContainerHighest">#303030</item>
+    </style>
+
+    <!-- NOTE: Surface lift level 9 of 0 to 9. Level 4 is the base overlay above, and these colors match AmoledLadder. -->
+    <style name="ThemeOverlay.SuperArtemis.Amoled.Lift9" parent="ThemeOverlay.SuperArtemis.Amoled">
+        <item name="saSurfaceContainer">#1B1B1B</item>
+        <item name="saSurfaceContainerHigh">#2A2A2A</item>
+        <item name="saSurfaceContainerHighest">#343434</item>
+        <item name="colorSurfaceContainer">#1B1B1B</item>
+        <item name="colorSurfaceContainerHigh">#2A2A2A</item>
+        <item name="colorSurfaceContainerHighest">#343434</item>
+    </style>
+
     <!-- NOTE: The Super Artemis dialog: centered, 28dp corners, sentence-case buttons and the shared type scale. -->
     <!-- NOTE: The two style variants below only differ in where their colors come from. -->
     <style name="Theme.SuperArtemis.Dialog" parent="@android:style/Theme.Material.Dialog.Alert">

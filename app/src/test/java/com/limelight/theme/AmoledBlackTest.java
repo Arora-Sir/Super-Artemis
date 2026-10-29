@@ -108,6 +108,29 @@ public class AmoledBlackTest {
         assertTrue(ThemeManager.needsRecreate(context, applied));
     }
 
+    // NOTE: Surface lift moves only the three card steps. Every level paints the greys of AmoledLadder, and the page stays black.
+    @Test
+    public void everyLiftLevelPaintsItsOwnGreys() {
+        for (int level = 0; level < AmoledLadder.LEVELS; level++) {
+            prefs.edit().putInt(ThemeManager.PREF_AMOLED_LIFT, level).commit();
+            AppCompatActivity activity = themed(ThemeManager.CLASSIC, true);
+            assertEquals("page at level " + level, Color.BLACK, Dialogs.color(activity, R.attr.saBackground));
+            assertEquals("card at level " + level, AmoledLadder.container(level), Dialogs.color(activity, R.attr.saSurfaceContainer));
+            assertEquals("field at level " + level, AmoledLadder.high(level), Dialogs.color(activity, R.attr.saSurfaceContainerHigh));
+            assertEquals("highest at level " + level, AmoledLadder.highest(level), Dialogs.color(activity, R.attr.saSurfaceContainerHighest));
+        }
+    }
+
+    @Test
+    public void aNewLiftLevelRebuildsOpenScreens() {
+        prefs.edit().putBoolean(ThemeManager.PREF_AMOLED, true).commit();
+        ThemeManager.choose(context, ThemeManager.CLASSIC, ThemeManager.SCHEME_WALLPAPER);
+        String applied = ThemeManager.CLASSIC + ":amoled" + ThemeManager.amoledLift(context);
+        assertFalse(ThemeManager.needsRecreate(context, applied));
+        ThemeManager.setAmoledLift(context, 9);
+        assertTrue(ThemeManager.needsRecreate(context, applied));
+    }
+
     @Test
     public void dialogsOverTheStreamFollowIt() {
         ThemeManager.choose(context, ThemeManager.CLASSIC, ThemeManager.SCHEME_WALLPAPER);

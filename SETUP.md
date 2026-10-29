@@ -92,15 +92,38 @@ Leave "Run as administrator" off, because the default microphone belongs to your
 
 ## Lock the PC from a button
 
-The built-in Lock key sends Windows + L. Windows treats that shortcut specially, and some hosts ignore it when it is injected, so a reliable way is an Apollo command that locks the session. In the Apollo web UI add a command to the client (Clients > this device > Do, or an application entry) with:
+The Lock key sends Win+L, and Windows refuses to lock for keys that come from a stream. Pick one of the two fixes below. Settings, Host, "Lock key does nothing?" shows the same steps with Copy buttons. A real keyboard on the PC keeps working as before.
 
-```
-rundll32.exe user32.dll,LockWorkStation
-```
+### Option 1: Apollo, nothing to install
 
-Leave "Run as administrator" off, since the lock belongs to your Windows user. The Lock key keeps working as a shortcut on hosts that accept it.
+Use this when the host is Apollo.
 
-Windows ignores a Win+L that a remote session injects, even though the Lock key sends the right keys. The simplest fix is an AutoHotkey v2 script on the PC. The repository has it as `scripts/host/SuperArtemisLock.ahk`, and Settings > Host > "Lock key does nothing?" shows the same two lines with a copy button. Save the script, run it, and put it in the Startup folder (Win+R, then `shell:startup`).
+1. On the PC, open the Apollo web page and go to Configuration, then General.
+2. Under Server commands, add a command named `Lock` with this command line, and leave "Run as administrator" off, since the lock belongs to your Windows user:
+
+   ```
+   rundll32.exe user32.dll,LockWorkStation
+   ```
+
+3. Save, and restart Apollo if the page asks.
+
+From then on the Lock key runs that command through the Server commands channel. The app looks for a server command whose name contains the word Lock (Lock, Lock PC, Lock screen) and ignores names such as Unlock. If the host has no such command, the first Lock key press shows a one time hint that points here.
+
+### Option 2: Any host, with AutoHotkey
+
+Use this for Sunshine, GameStream or any host that has no server commands.
+
+1. Install AutoHotkey v2 on the PC from autohotkey.com.
+2. Save these two lines in a file named `Lock.ahk` and double-click it:
+
+   ```
+   #Requires AutoHotkey v2.0
+   #l::DllCall("user32\LockWorkStation")
+   ```
+
+3. Press Win+R, type `shell:startup`, and put the file in that folder so it runs after every restart.
+
+The repository also has the script as `scripts/host/SuperArtemisLock.ahk`.
 
 ## Keeping up with upstream
 

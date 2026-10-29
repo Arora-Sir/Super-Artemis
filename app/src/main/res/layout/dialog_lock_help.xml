@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Lock key help: why the PC may ignore Win+L, the host script to save, and where to put it -->
+<!-- Lock key help: why the PC may ignore Win+L, then two separate ways to fix it, each with numbered steps and its own copy button -->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
@@ -15,24 +15,113 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/lock_help_steps"
+            android:layout_marginTop="0dp"
+            android:text="@string/lock_help_why"
             android:textAppearance="@style/TextAppearance.SuperArtemis.BodyMedium" />
 
         <TextView
-            android:id="@+id/lock_help_script"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:background="@drawable/bg_card"
-            android:padding="14dp"
-            android:textAppearance="@style/TextAppearance.SuperArtemis.BodyMedium"
-            android:textIsSelectable="true" />
+            android:layout_marginTop="16dp"
+            android:text="@string/lock_help_apollo_title"
+            android:textAppearance="@style/TextAppearance.SuperArtemis.SectionLabel" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="@string/lock_help_after"
+            android:layout_marginTop="4dp"
+            android:text="@string/lock_help_apollo_steps"
+            android:textAppearance="@style/TextAppearance.SuperArtemis.BodyMedium" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/bg_card"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingLeft="14dp"
+            android:paddingTop="6dp"
+            android:paddingRight="6dp"
+            android:paddingBottom="6dp">
+
+            <TextView
+                android:id="@+id/lock_help_command"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textAppearance="@style/TextAppearance.SuperArtemis.BodyMedium"
+                android:textIsSelectable="true" />
+
+            <Button
+                android:id="@+id/lock_help_copy_command"
+                style="@style/Widget.SuperArtemis.Button.Text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/lock_help_copy" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/lock_help_apollo_after"
+            android:textAppearance="@style/TextAppearance.SuperArtemis.BodyMedium" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/lock_help_ahk_title"
+            android:textAppearance="@style/TextAppearance.SuperArtemis.SectionLabel" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="@string/lock_help_ahk_steps"
+            android:textAppearance="@style/TextAppearance.SuperArtemis.BodyMedium" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/bg_card"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingLeft="14dp"
+            android:paddingTop="6dp"
+            android:paddingRight="6dp"
+            android:paddingBottom="6dp">
+
+            <TextView
+                android:id="@+id/lock_help_script"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textAppearance="@style/TextAppearance.SuperArtemis.BodyMedium"
+                android:textIsSelectable="true" />
+
+            <Button
+                android:id="@+id/lock_help_copy_script"
+                style="@style/Widget.SuperArtemis.Button.Text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/lock_help_copy" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/lock_help_ahk_after"
+            android:textAppearance="@style/TextAppearance.SuperArtemis.BodyMedium" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/lock_help_keyboard"
             android:textAppearance="@style/TextAppearance.SuperArtemis.BodySmall" />
     </LinearLayout>
 </ScrollView>

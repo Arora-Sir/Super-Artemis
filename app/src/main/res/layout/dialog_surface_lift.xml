@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Surface lift: a small black page with a section, a field and a selected item in the greys of the chosen level, the dot slider and the position -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingLeft="24dp"
+    android:paddingRight="24dp"
+    android:paddingBottom="8dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/black"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <LinearLayout
+            android:id="@+id/surface_lift_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/surface_lift_sample_card"
+                android:textAppearance="@style/TextAppearance.SuperArtemis.BodyMedium" />
+
+            <TextView
+                android:id="@+id/surface_lift_field"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:padding="10dp"
+                android:text="@string/surface_lift_sample_field"
+                android:textAppearance="@style/TextAppearance.SuperArtemis.BodyMedium" />
+
+            <TextView
+                android:id="@+id/surface_lift_highest"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:padding="10dp"
+                android:text="@string/surface_lift_sample_highest"
+                android:textAppearance="@style/TextAppearance.SuperArtemis.BodyMedium" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/surface_lift_position"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:gravity="center_horizontal"
+        android:textAppearance="@style/TextAppearance.SuperArtemis.BodyMedium" />
+
+    <com.limelight.theme.LiftSlider
+        android:id="@+id/surface_lift_slider"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="8dp"
+        android:contentDescription="@string/title_surface_lift" />
+</LinearLayout>

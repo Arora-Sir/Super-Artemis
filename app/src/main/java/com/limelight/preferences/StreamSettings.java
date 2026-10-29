@@ -493,6 +493,7 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
             AboutSection.bind(this);
             com.limelight.presets.PresetsDialog.bind(this);
         com.limelight.hosthelp.LockKeyHelp.bind(this);
+        com.limelight.theme.SurfaceLiftDialog.bind(this);
             PackageManager pm = activity.getPackageManager();
 
             // hide on-screen controls category on non touch screen devices

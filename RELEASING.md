@@ -9,12 +9,16 @@ This is the step-by-step guide for signing and publishing a release. It follows 
 - The workflow creates a draft release. The owner publishes it by hand.
 - Android, Obtainium and the in-app update check only update in place when the signing key never changes. The key is the most valuable thing in this project.
 
-## 1. Generate the release keystore (owner, once)
+## Status (2026-10-29)
 
-Use a trusted machine and never create the keystore inside the repository.
+Steps 1 and 2 are done. The key lives in the shared toolkit at `%USERPROFILE%\.android-keystore\SuperArtemis` (alias `super-artemis`), with a Bitwarden backup. The environment `release`, its four secrets and the variable `RELEASE_CERT_SHA256` exist. Check them any time with `%USERPROFILE%\.android-keystore\0-verify-all.ps1` and `4-verify-key.ps1` (they print status only). The tag ruleset for `v*` is still optional. Sections 1 and 2 stay below as the recovery guide if the key or the secrets ever have to be recreated.
+
+## 1. Generate the release keystore (owner, once, already done)
+
+Use a trusted machine and never create the keystore inside the repository. The numbered scripts in `%USERPROFILE%\.android-keystore` (5 creates the key, 7 sets the GitHub secrets) do the same as the commands below for every app.
 
 ```bash
-python scripts/release/generate_keystore.py --out-dir "D:/Keystores/super-artemis"
+python scripts/release/generate_keystore.py --out-dir "$HOME/.android-keystore/SuperArtemis"
 ```
 
 The helper prompts for a password of at least 12 characters, runs `keytool` with RSA 4096 and 10000 days of validity, writes `release.jks` and `release.jks.base64` into the folder, and prints only the public certificate SHA-256. The alias is `super-artemis`.
@@ -40,7 +44,7 @@ Send the keystore straight into its secret so the text is never shown or saved.
 PowerShell on Windows:
 
 ```powershell
-[Convert]::ToBase64String([IO.File]::ReadAllBytes("D:\Keystores\super-artemis\release.jks")) | gh secret set KEYSTORE_BASE64 --env release --repo Arora-Sir/Super-Artemis
+[Convert]::ToBase64String([IO.File]::ReadAllBytes("$env:USERPROFILE\.android-keystore\SuperArtemis\release.jks")) | gh secret set KEYSTORE_BASE64 --env release --repo Arora-Sir/Super-Artemis
 ```
 
 The other three secrets prompt for the value, so the password stays out of the shell history:
@@ -60,7 +64,7 @@ gh secret list --env release --repo Arora-Sir/Super-Artemis
 Read the certificate fingerprint and store it as a repository variable. It is public, and the workflow compares every signed APK against it:
 
 ```bash
-keytool -list -v -keystore "D:/Keystores/super-artemis/release.jks" -alias super-artemis
+keytool -list -v -keystore "$HOME/.android-keystore/SuperArtemis/release.jks" -alias super-artemis
 gh variable set RELEASE_CERT_SHA256 --repo Arora-Sir/Super-Artemis --body "<the SHA256 line without colons>"
 ```
 

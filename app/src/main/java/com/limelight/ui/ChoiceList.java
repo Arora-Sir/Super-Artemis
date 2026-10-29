@@ -43,9 +43,19 @@ public final class ChoiceList {
     }
 
     public ChoiceList add(int iconRes, CharSequence label, boolean checked, Runnable onPick) {
+        return add(iconRes, label, null, checked, onPick);
+    }
+
+    // A choice with a short line under its label, for choices that need a hint before they are opened
+    public ChoiceList add(int iconRes, CharSequence label, CharSequence subtitle, boolean checked, Runnable onPick) {
         View row = LayoutInflater.from(context).inflate(R.layout.sa_choice_row, list, false);
         ((ImageView) row.findViewById(R.id.sa_choice_icon)).setImageResource(iconRes);
         ((TextView) row.findViewById(R.id.sa_choice_label)).setText(label);
+        TextView hint = row.findViewById(R.id.sa_choice_subtitle);
+        if (subtitle != null) {
+            hint.setText(subtitle);
+            hint.setVisibility(View.VISIBLE);
+        }
         row.findViewById(R.id.sa_choice_check).setVisibility(checked ? View.VISIBLE : View.INVISIBLE);
         row.setOnClickListener(v -> {
             dismiss();

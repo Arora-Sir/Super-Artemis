@@ -26,6 +26,10 @@ So the problem is on the Windows side and no change in the key timing or the mod
 
 The owner already runs a fleet of AutoHotkey v2 scripts started by `StartupScript.ahk`. The Win+L hotkey is not a separate file there. It lives in `BasicTasks.ahk` next to the other power hotkeys (`Win+X+X` sleeps the laptop), as `$#l::LockPc()` with a small `LockPc()` helper, and it is listed in the header of that file, which feeds Hotkey Help. `#!l` (Win+Alt+L, the skills vault toggle) is a different hotkey and is unaffected. The standalone `scripts/host/SuperArtemisLock.ahk` in this repository stays as the generic script for other users.
 
+## What shipped (2026-10-29)
+
+The three layer plan: the app explains the problem (the help row and the one time hint), an Apollo server command named Lock runs from the Lock key with nothing to install (option B, built in `hosthelp/LockKeyAction.java`), and the help dialog lists both options as numbered steps with a Copy button each, and an AutoHotkey line is the answer for any other host (option C).
+
 ## Recommendation
 
 1. Keep option C as the generic path for users on plain Sunshine, since it is already built.

@@ -2607,6 +2607,10 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
     }
 
     public void sendKeys(short[] keys) {
+        // The Lock key runs an Apollo server command named Lock when the host has one, because Windows ignores an injected Win+L
+        if (com.limelight.hosthelp.LockKeyAction.handle(this, keys)) {
+            return;
+        }
         final byte[] modifier = {(byte) 0};
 
         for (short key : keys) {

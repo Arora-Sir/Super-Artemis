@@ -213,12 +213,12 @@ public class EditorsSmokeTest {
         openInBothStyles((activity, prefs) -> {
             AppStylePicker.show(activity, "classic", (style, scheme) -> { });
             android.view.ViewGroup swatches = ShadowDialog.getLatestDialog().findViewById(R.id.app_style_schemes);
-            // The fixed schemes and the plus, and the custom color joins them once one was picked
-            org.junit.Assert.assertEquals(com.limelight.theme.ThemeManager.SCHEMES.size(), swatches.getChildCount());
+            // Wallpaper, the eight schemes and the custom tile make ten tiles, on one line or in two rows, with or without a saved custom color
+            org.junit.Assert.assertEquals(com.limelight.theme.ThemeManager.SCHEMES.size(), tiles(swatches).size());
             com.limelight.theme.ThemeManager.chooseCustomColor(activity, 0xFFAA3355);
             AppStylePicker.show(activity, "classic", (style, scheme) -> { });
             android.view.ViewGroup withCustom = ShadowDialog.getLatestDialog().findViewById(R.id.app_style_schemes);
-            org.junit.Assert.assertEquals(com.limelight.theme.ThemeManager.SCHEMES.size() + 1, withCustom.getChildCount());
+            org.junit.Assert.assertEquals(com.limelight.theme.ThemeManager.SCHEMES.size(), tiles(withCustom).size());
             prefs.edit().remove(com.limelight.theme.ThemeManager.PREF_CUSTOM_COLOR).commit();
         });
     }
@@ -261,6 +261,44 @@ public class EditorsSmokeTest {
         });
     }
 
+    // The tiles of the picker, whether they sit on one line or in two rows. A tile is a view with a description.
+    private static java.util.List<android.view.View> tiles(android.view.ViewGroup group) {
+        java.util.List<android.view.View> found = new java.util.ArrayList<>();
+        for (int i = 0; i < group.getChildCount(); i++) {
+            android.view.View child = group.getChildAt(i);
+            if (child.getContentDescription() != null) {
+                found.add(child);
+            }
+            else if (child instanceof android.view.ViewGroup) {
+                found.addAll(tiles((android.view.ViewGroup) child));
+            }
+        }
+        return found;
+    }
+
+    // NOTE: The ten color tiles must stay symmetric: two rows of five on a phone, one line of ten on a tablet, every tile the same weight.
+    @Test
+    public void colorTilesAreSymmetricOnPhoneAndTablet() {
+        String[] screens = {"w411dp-h891dp-xxhdpi", "w1480dp-h924dp-xhdpi"};
+        int[] rows = {2, 1};
+        for (int i = 0; i < screens.length; i++) {
+            org.robolectric.RuntimeEnvironment.setQualifiers(screens[i]);
+            AppCompatActivity activity = activity(true);
+            AppStylePicker.show(activity, "material_you", (style, scheme) -> { });
+            ShadowLooper.idleMainLooper();
+            android.view.ViewGroup swatches = ShadowDialog.getLatestDialog().findViewById(R.id.app_style_schemes);
+            java.util.List<android.view.View> tiles = tiles(swatches);
+            org.junit.Assert.assertEquals(com.limelight.theme.ThemeManager.SCHEMES.size(), tiles.size());
+            java.util.Set<android.view.ViewGroup> lines = new java.util.LinkedHashSet<>();
+            for (android.view.View tile : tiles) {
+                lines.add((android.view.ViewGroup) tile.getParent());
+                org.junit.Assert.assertEquals(1f, ((android.widget.LinearLayout.LayoutParams) tile.getLayoutParams()).weight, 0f);
+            }
+            org.junit.Assert.assertEquals(screens[i], rows[i], lines.size());
+            ShadowDialog.getLatestDialog().dismiss();
+        }
+    }
+
     @Test
     public void appStylePickerAppliesOnlyOnTheButton() {
         // The Apply button closes the dialog, so this test opens it by hand instead of through the open and stay harness
@@ -273,7 +311,7 @@ public class EditorsSmokeTest {
         android.app.AlertDialog dialog = (android.app.AlertDialog) ShadowDialog.getLatestDialog();
         android.view.ViewGroup swatches = dialog.findViewById(R.id.app_style_schemes);
         // The Wallpaper dot keeps Robolectric away from the dynamic color overlay it cannot apply
-        swatches.getChildAt(0).performClick();
+        tiles(swatches).get(0).performClick();
         ShadowLooper.idleMainLooper();
         org.junit.Assert.assertNull("A tap on a dot only previews", picked[0]);
         org.junit.Assert.assertTrue(dialog.isShowing());
@@ -282,5 +320,20 @@ public class EditorsSmokeTest {
         ShadowLooper.idleMainLooper();
         org.junit.Assert.assertEquals("material_you", picked[0]);
         org.junit.Assert.assertEquals(com.limelight.theme.ThemeManager.SCHEMES.get(0), picked[1]);
+    }
+
+    @Test
+    public void surfaceLiftOpensWithAPreviewAndTenLevels() {
+        openInBothStyles((activity, prefs) -> {
+            com.limelight.theme.SurfaceLiftDialog.show(activity, () -> { });
+            android.app.AlertDialog dialog = (android.app.AlertDialog) ShadowDialog.getLatestDialog();
+            com.limelight.theme.LiftSlider slider = dialog.findViewById(R.id.surface_lift_slider);
+            org.junit.Assert.assertEquals(com.limelight.theme.AmoledLadder.LEVELS - 1, slider.getMax());
+            org.junit.Assert.assertEquals(com.limelight.theme.AmoledLadder.RECOMMENDED, slider.getProgress());
+            android.widget.TextView position = dialog.findViewById(R.id.surface_lift_position);
+            org.junit.Assert.assertTrue(position.getText().toString().contains("5 of 10"));
+            slider.setProgress(9);
+            org.junit.Assert.assertTrue(position.getText().toString().contains("10 of 10"));
+        });
     }
 }

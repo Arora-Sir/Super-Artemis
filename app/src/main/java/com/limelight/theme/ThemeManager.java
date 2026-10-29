@@ -29,15 +29,17 @@ public final class ThemeManager {
     public static final String MATERIAL_YOU = "material_you";
     // Pure #000000 window and dialogs for OLED panels, on top of either style
     public static final String PREF_AMOLED = "checkbox_amoled_black";
+    // How far cards and fields rise from the black of Pure black, 0 flat to 9 lifted (AmoledLadder)
+    public static final String PREF_AMOLED_LIFT = "amoled_surface_lift_10";
 
     public static final String SCHEME_WALLPAPER = "wallpaper";
     // The color the user picked in the color picker, stored as "#RRGGBB"
     public static final String SCHEME_CUSTOM = "custom";
     public static final String PREF_CUSTOM_COLOR = "custom_accent_color_hex";
     public static final List<String> SCHEMES = Collections.unmodifiableList(Arrays.asList(
-            SCHEME_WALLPAPER, "blue", "teal", "green", "purple", "orange", "rose", "mono", SCHEME_CUSTOM));
+            SCHEME_WALLPAPER, "blue", "teal", "green", "purple", "orange", "rose", "amber", "mono", SCHEME_CUSTOM));
     // Seed colors for the fixed schemes, in the order of SCHEMES after Wallpaper. Mono is a neutral grey, which gives an almost colorless palette.
-    private static final int[] SEEDS = {0xFF2196F3, 0xFF00897B, 0xFF388E3C, 0xFF7E57C2, 0xFFEF6C00, 0xFFD81B60, 0xFF808080};
+    private static final int[] SEEDS = {0xFF2196F3, 0xFF00897B, 0xFF388E3C, 0xFF7E57C2, 0xFFEF6C00, 0xFFD81B60, 0xFFFFB300, 0xFF808080};
 
     private ThemeManager() {
     }
@@ -69,9 +71,29 @@ public final class ThemeManager {
         return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(PREF_AMOLED, false);
     }
 
+    public static int amoledLift(Context context) {
+        return AmoledLadder.clamp(PreferenceManager.getDefaultSharedPreferences(context).getInt(PREF_AMOLED_LIFT, AmoledLadder.RECOMMENDED));
+    }
+
+    public static void setAmoledLift(Context context, int level) {
+        PreferenceManager.getDefaultSharedPreferences(context).edit().putInt(PREF_AMOLED_LIFT, AmoledLadder.clamp(level)).apply();
+    }
+
+    // The overlay of one lift level. The recommended level is the base overlay.
+    private static final int[] AMOLED_OVERLAYS = {
+            R.style.ThemeOverlay_SuperArtemis_Amoled_Lift0, R.style.ThemeOverlay_SuperArtemis_Amoled_Lift1,
+            R.style.ThemeOverlay_SuperArtemis_Amoled_Lift2, R.style.ThemeOverlay_SuperArtemis_Amoled_Lift3,
+            R.style.ThemeOverlay_SuperArtemis_Amoled, R.style.ThemeOverlay_SuperArtemis_Amoled_Lift5,
+            R.style.ThemeOverlay_SuperArtemis_Amoled_Lift6, R.style.ThemeOverlay_SuperArtemis_Amoled_Lift7,
+            R.style.ThemeOverlay_SuperArtemis_Amoled_Lift8, R.style.ThemeOverlay_SuperArtemis_Amoled_Lift9};
+
+    static int amoledOverlay(int level) {
+        return AMOLED_OVERLAYS[AmoledLadder.clamp(level)];
+    }
+
     // The AMOLED black roles over a context that already has the style, which dialogs over the stream and in Settings use
     private static Context withAmoled(Context context) {
-        return isAmoled(context) ? new ContextThemeWrapper(context, R.style.ThemeOverlay_SuperArtemis_Amoled) : context;
+        return isAmoled(context) ? new ContextThemeWrapper(context, amoledOverlay(amoledLift(context))) : context;
     }
 
     public static String currentScheme(Context context) {
@@ -147,7 +169,7 @@ public final class ThemeManager {
             activity.getTheme().applyStyle(R.style.ThemeOverlay_SuperArtemis_Classic, true);
         }
         if (isAmoled(activity)) {
-            activity.getTheme().applyStyle(R.style.ThemeOverlay_SuperArtemis_Amoled, true);
+            activity.getTheme().applyStyle(amoledOverlay(amoledLift(activity)), true);
         }
         return applied(activity);
     }
@@ -159,7 +181,7 @@ public final class ThemeManager {
         String applied = MATERIAL_YOU.equals(style)
                 ? style + ":" + scheme + (SCHEME_CUSTOM.equals(scheme) ? ":" + AccentColors.toHex(customSeed(context)) : "")
                 : style;
-        return isAmoled(context) ? applied + ":amoled" : applied;
+        return isAmoled(context) ? applied + ":amoled" + amoledLift(context) : applied;
     }
 
     // True when the user switched style or scheme while this activity was in the background, so it must be rebuilt

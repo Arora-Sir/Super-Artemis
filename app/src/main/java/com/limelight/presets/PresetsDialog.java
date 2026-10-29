@@ -21,7 +21,7 @@ import com.limelight.ui.Dialogs;
 
 import java.util.List;
 
-// NOTE: Settings > Performance presets: pick a preset, read what it trades and exactly which settings change, then apply.
+// NOTE: Settings > Quick setups: pick a preset, read what it trades and exactly which settings change, then apply.
 // NOTE: Nothing is overwritten. The values in use are saved as a "Before" profile first, and "Use my own settings" switches the preset off again.
 public final class PresetsDialog {
     private static final String KEY = "pref_performance_presets";
@@ -57,7 +57,7 @@ public final class PresetsDialog {
         ChoiceList choices = new ChoiceList(builder, R.drawable.ic_sa_speed, context.getString(R.string.title_presets), R.string.game_menu_cancel);
         Preset active = PresetActions.activePreset(context);
         for (Preset preset : PresetCatalog.load(context)) {
-            choices.add(iconFor(preset), context.getString(preset.nameRes), active != null && active.id.equals(preset.id), () -> showDetails(context, preset, onChanged));
+            choices.add(iconFor(preset), context.getString(preset.nameRes), context.getString(hintFor(preset)), active != null && active.id.equals(preset.id), () -> showDetails(context, preset, onChanged));
         }
         choices.list().addView(hint(choices.context(), R.string.presets_hint));
         choices.add(R.drawable.ic_sa_save, context.getString(R.string.presets_save_current), false, () -> askProfileName(context, onChanged));
@@ -69,6 +69,20 @@ public final class PresetsDialog {
             });
         }
         choices.show();
+    }
+
+    // One line of what the setup sets, so the choice is understood before it is opened
+    private static int hintFor(Preset preset) {
+        switch (preset.id) {
+            case "lowest_latency":
+                return R.string.preset_lowest_latency_hint;
+            case "best_quality":
+                return R.string.preset_best_quality_hint;
+            case "battery_saver":
+                return R.string.preset_battery_saver_hint;
+            default:
+                return R.string.preset_balanced_hint;
+        }
     }
 
     private static int iconFor(Preset preset) {

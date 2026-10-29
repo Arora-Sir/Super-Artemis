@@ -143,7 +143,7 @@ public class PresetsTest {
 
         SettingsProfile before = null;
         for (SettingsProfile profile : ProfilesManager.getInstance().getProfiles()) {
-            if (profile.getName().equals("Before Lowest latency")) {
+            if (profile.getName().equals("Before Competitive play")) {
                 before = profile;
             }
         }
