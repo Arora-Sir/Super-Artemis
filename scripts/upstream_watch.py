@@ -84,7 +84,7 @@ def report(sources):
                 message = commit["commit"]["message"].split("\n")[0]
                 flag = " **(fix?)**" if any(w in message.lower() for w in FIX_WORDS) else ""
                 author = (commit.get("author") or {}).get("login") or commit["commit"]["author"]["name"]
-                lines.append("  - [`%s`](%s) %s, @%s%s" % (commit["sha"][:9], commit["html_url"], message, author, flag))
+                lines.append("  - [`%s`](%s) %s, by %s%s" % (commit["sha"][:9], commit["html_url"], message, author, flag))
         lines.append("")
     if total == 0:
         lines.append("Nothing new since the last review.")
