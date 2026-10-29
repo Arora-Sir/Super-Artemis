@@ -18,6 +18,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
+import android.database.sqlite.SQLiteReadOnlyDatabaseException;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -41,30 +42,51 @@ public class ComputerDatabaseManager {
     private static final String MAC_ADDRESS_COLUMN_NAME = "MacAddress";
     private static final String SERVER_CERT_COLUMN_NAME = "ServerCert";
 
+    private final Context context;
     private SQLiteDatabase computerDb;
 
     public ComputerDatabaseManager(Context c) {
-        try {
-            // Create or open an existing DB
-            computerDb = c.openOrCreateDatabase(COMPUTER_DB_NAME, 0, null);
-        } catch (SQLiteException e) {
-            // Delete the DB and try again
-            c.deleteDatabase(COMPUTER_DB_NAME);
-            computerDb = c.openOrCreateDatabase(COMPUTER_DB_NAME, 0, null);
-        }
+        this.context = c.getApplicationContext() != null ? c.getApplicationContext() : c;
+        openOrRecreateDb();
         initializeDb(c);
     }
 
-    public void close() {
-        computerDb.close();
+    private synchronized void openOrRecreateDb() {
+        try {
+            if (computerDb != null && computerDb.isOpen()) {
+                computerDb.close();
+            }
+        } catch (Exception ignored) {}
+        try {
+            // Create or open an existing DB
+            computerDb = context.openOrCreateDatabase(COMPUTER_DB_NAME, 0, null);
+        } catch (SQLiteException e) {
+            // Delete the DB and try again
+            context.deleteDatabase(COMPUTER_DB_NAME);
+            computerDb = context.openOrCreateDatabase(COMPUTER_DB_NAME, 0, null);
+        }
+    }
+
+    public synchronized void close() {
+        try {
+            if (computerDb != null && computerDb.isOpen()) {
+                computerDb.close();
+            }
+        } catch (Exception e) {
+            LimeLog.warning("Error closing computer database: " + e.getMessage());
+        }
     }
 
     private void initializeDb(Context c) {
-        // Create tables if they aren't already there
-        computerDb.execSQL(String.format((Locale)null,
-                "CREATE TABLE IF NOT EXISTS %s(%s TEXT PRIMARY KEY, %s TEXT NOT NULL, %s TEXT NOT NULL, %s TEXT, %s TEXT)",
-                COMPUTER_TABLE_NAME, COMPUTER_UUID_COLUMN_NAME, COMPUTER_NAME_COLUMN_NAME,
-                ADDRESSES_COLUMN_NAME, MAC_ADDRESS_COLUMN_NAME, SERVER_CERT_COLUMN_NAME));
+        try {
+            // Create tables if they are not already there
+            computerDb.execSQL(String.format((Locale)null,
+                    "CREATE TABLE IF NOT EXISTS %s(%s TEXT PRIMARY KEY, %s TEXT NOT NULL, %s TEXT NOT NULL, %s TEXT, %s TEXT)",
+                    COMPUTER_TABLE_NAME, COMPUTER_UUID_COLUMN_NAME, COMPUTER_NAME_COLUMN_NAME,
+                    ADDRESSES_COLUMN_NAME, MAC_ADDRESS_COLUMN_NAME, SERVER_CERT_COLUMN_NAME));
+        } catch (SQLiteException e) {
+            LimeLog.warning("Failed to create tables in computer database: " + e.getMessage());
+        }
 
         // Move all computers from the old DB (if any) to the new one
         List<ComputerDetails> oldComputers = LegacyDatabaseReader.migrateAllComputers(c);
@@ -81,8 +103,20 @@ public class ComputerDatabaseManager {
         }
     }
 
-    public void deleteComputer(ComputerDetails details) {
-        computerDb.delete(COMPUTER_TABLE_NAME, COMPUTER_UUID_COLUMN_NAME+"=?", new String[]{details.uuid});
+    public synchronized void deleteComputer(ComputerDetails details) {
+        try {
+            computerDb.delete(COMPUTER_TABLE_NAME, COMPUTER_UUID_COLUMN_NAME+"=?", new String[]{details.uuid});
+        } catch (SQLiteReadOnlyDatabaseException e) {
+            LimeLog.warning("Computer database is read-only on delete, attempting to reopen");
+            openOrRecreateDb();
+            try {
+                computerDb.delete(COMPUTER_TABLE_NAME, COMPUTER_UUID_COLUMN_NAME+"=?", new String[]{details.uuid});
+            } catch (SQLiteException retryEx) {
+                LimeLog.warning("Failed to delete computer after reopening database: " + retryEx.getMessage());
+            }
+        } catch (SQLiteException e) {
+            LimeLog.warning("SQLite error deleting computer: " + e.getMessage());
+        }
     }
 
     public static JSONObject tupleToJson(ComputerDetails.AddressTuple tuple) throws JSONException {
@@ -107,7 +141,7 @@ public class ComputerDatabaseManager {
                 address.getString(AddressFields.ADDRESS), address.getInt(AddressFields.PORT));
     }
 
-    public boolean updateComputer(ComputerDetails details) {
+    public synchronized boolean updateComputer(ComputerDetails details) {
         ContentValues values = new ContentValues();
         values.put(COMPUTER_UUID_COLUMN_NAME, details.uuid);
         values.put(COMPUTER_NAME_COLUMN_NAME, details.name);
@@ -135,7 +169,22 @@ public class ComputerDatabaseManager {
             values.put(SERVER_CERT_COLUMN_NAME, (byte[])null);
             e.printStackTrace();
         }
-        return -1 != computerDb.insertWithOnConflict(COMPUTER_TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+
+        try {
+            return -1 != computerDb.insertWithOnConflict(COMPUTER_TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+        } catch (SQLiteReadOnlyDatabaseException e) {
+            LimeLog.warning("Computer database is read-only or moved on disk (" + e.getMessage() + "), attempting to reopen");
+            openOrRecreateDb();
+            try {
+                return -1 != computerDb.insertWithOnConflict(COMPUTER_TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+            } catch (SQLiteException retryEx) {
+                LimeLog.warning("Failed to update computer after reopening database: " + retryEx.getMessage());
+                return false;
+            }
+        } catch (SQLiteException e) {
+            LimeLog.warning("SQLite error updating computer " + details.name + ": " + e.getMessage());
+            return false;
+        }
     }
 
     private ComputerDetails getComputerFromCursor(Cursor c) {
@@ -151,7 +200,7 @@ public class ComputerDatabaseManager {
             details.ipv6Address = tupleFromJson(addresses, AddressFields.IPv6);
         } catch (JSONException e) {
             throw new RuntimeException(e);
-         }
+        }
 
         // External port is persisted in the remote address field
         if (details.remoteAddress != null) {
@@ -174,19 +223,35 @@ public class ComputerDatabaseManager {
             e.printStackTrace();
         }
 
-        // This signifies we don't have dynamic state (like pair state)
+        // This signifies we do not have dynamic state (like pair state)
         details.state = ComputerDetails.State.UNKNOWN;
 
         return details;
     }
 
-    public List<ComputerDetails> getAllComputers() {
+    public synchronized List<ComputerDetails> getAllComputers() {
         try (final Cursor c = computerDb.rawQuery("SELECT * FROM "+COMPUTER_TABLE_NAME, null)) {
             LinkedList<ComputerDetails> computerList = new LinkedList<>();
             while (c.moveToNext()) {
                 computerList.add(getComputerFromCursor(c));
             }
             return computerList;
+        } catch (SQLiteReadOnlyDatabaseException e) {
+            LimeLog.warning("Computer database is read-only on query, attempting to reopen");
+            openOrRecreateDb();
+            try (final Cursor c = computerDb.rawQuery("SELECT * FROM "+COMPUTER_TABLE_NAME, null)) {
+                LinkedList<ComputerDetails> computerList = new LinkedList<>();
+                while (c.moveToNext()) {
+                    computerList.add(getComputerFromCursor(c));
+                }
+                return computerList;
+            } catch (SQLiteException retryEx) {
+                LimeLog.warning("Failed to query all computers after reopening database: " + retryEx.getMessage());
+                return new LinkedList<>();
+            }
+        } catch (SQLiteException e) {
+            LimeLog.warning("SQLite error querying all computers: " + e.getMessage());
+            return new LinkedList<>();
         }
     }
 
@@ -199,7 +264,7 @@ public class ComputerDatabaseManager {
      * @see ComputerDatabaseManager#getComputerByUUID(String) for alternative.
      * @return The computer details, or null if no computer with that name exists
      */
-    public ComputerDetails getComputerByName(String name) {
+    public synchronized ComputerDetails getComputerByName(String name) {
         try (final Cursor c = computerDb.query(
                 COMPUTER_TABLE_NAME, null, COMPUTER_NAME_COLUMN_NAME+"=?",
                 new String[]{ name }, null, null, null)
@@ -210,6 +275,24 @@ public class ComputerDatabaseManager {
             }
 
             return getComputerFromCursor(c);
+        } catch (SQLiteReadOnlyDatabaseException e) {
+            LimeLog.warning("Computer database is read-only on query, attempting to reopen");
+            openOrRecreateDb();
+            try (final Cursor c = computerDb.query(
+                    COMPUTER_TABLE_NAME, null, COMPUTER_NAME_COLUMN_NAME+"=?",
+                    new String[]{ name }, null, null, null)
+            ) {
+                if (!c.moveToFirst()) {
+                    return null;
+                }
+                return getComputerFromCursor(c);
+            } catch (SQLiteException retryEx) {
+                LimeLog.warning("Failed to query computer by name after reopening database: " + retryEx.getMessage());
+                return null;
+            }
+        } catch (SQLiteException e) {
+            LimeLog.warning("SQLite error querying computer by name: " + e.getMessage());
+            return null;
         }
     }
 
@@ -219,7 +302,7 @@ public class ComputerDatabaseManager {
      * @see ComputerDatabaseManager#getComputerByName(String) for alternative.
      * @return The computer details, or null if no computer with that UUID exists
      */
-    public ComputerDetails getComputerByUUID(String uuid) {
+    public synchronized ComputerDetails getComputerByUUID(String uuid) {
         try (final Cursor c = computerDb.query(
                 COMPUTER_TABLE_NAME, null, COMPUTER_UUID_COLUMN_NAME+"=?",
                 new String[]{ uuid }, null, null, null)
@@ -230,6 +313,24 @@ public class ComputerDatabaseManager {
             }
 
             return getComputerFromCursor(c);
+        } catch (SQLiteReadOnlyDatabaseException e) {
+            LimeLog.warning("Computer database is read-only on query, attempting to reopen");
+            openOrRecreateDb();
+            try (final Cursor c = computerDb.query(
+                    COMPUTER_TABLE_NAME, null, COMPUTER_UUID_COLUMN_NAME+"=?",
+                    new String[]{ uuid }, null, null, null)
+            ) {
+                if (!c.moveToFirst()) {
+                    return null;
+                }
+                return getComputerFromCursor(c);
+            } catch (SQLiteException retryEx) {
+                LimeLog.warning("Failed to query computer by UUID after reopening database: " + retryEx.getMessage());
+                return null;
+            }
+        } catch (SQLiteException e) {
+            LimeLog.warning("SQLite error querying computer by UUID: " + e.getMessage());
+            return null;
         }
     }
 }

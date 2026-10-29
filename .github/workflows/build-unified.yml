@@ -114,8 +114,10 @@ jobs:
           set -eu
           expect=""
           if [ -n "${EXPECTED_CERT:-}" ]; then expect="--expect-cert-sha256 ${EXPECTED_CERT}"; fi
+          tag_ver="${TAG#v}"
+          base_ver="${tag_ver%%-*}"
           # shellcheck disable=SC2086
-          python scripts/release/verify_release.py "dist/SuperArtemis-${TAG}-arm64-v8a.apk" --expect-version "${TAG#v}" --cert-out dist/cert.txt $expect
+          python scripts/release/verify_release.py "dist/SuperArtemis-${TAG}-arm64-v8a.apk" --expect-version "$base_ver" --cert-out dist/cert.txt $expect
 
       - name: Write checksums and release notes
         run: |

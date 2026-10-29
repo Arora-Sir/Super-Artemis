@@ -2,17 +2,89 @@
   "schemaVersion": 1,
   "note": "reviewed is the last commit someone checked for this repository. Update it after each review, see UPSTREAM.md.",
   "sources": [
-    {"repo": "ClassicOldSong/moonlight-android", "branch": "moonlight-noir", "role": "base", "reviewed": "c5cf27f4dc82", "reviewedOn": "2026-10-08"},
-    {"repo": "moonlight-stream/moonlight-android", "branch": "master", "role": "upstream", "reviewed": "b48494cb96bf", "reviewedOn": "2026-10-08"},
-    {"repo": "ClassicOldSong/moonlight-common-c", "branch": "master", "role": "native base", "reviewed": "c99943685847", "reviewedOn": "2026-10-08"},
-    {"repo": "moonlight-stream/moonlight-common-c", "branch": "master", "role": "native upstream", "reviewed": "f900dd476775", "reviewedOn": "2026-10-08"},
-    {"repo": "ClassicOldSong/Apollo", "branch": "master", "role": "host", "reviewed": "adc5c5a0bd80", "reviewedOn": "2026-10-08"},
-    {"repo": "qiin2333/moonlight-vplus", "branch": "master", "role": "fork", "reviewed": "7d1c58a884a2", "reviewedOn": "2026-10-08"},
-    {"repo": "derflacco/moonlight-android", "branch": "moonlight-noir", "role": "fork", "reviewed": "8157555264bf", "reviewedOn": "2026-10-08"},
-    {"repo": "derflacco/moonlight-android", "branch": "Artemide_Experimental_Async", "role": "fork", "reviewed": "6648fe1b7c92", "reviewedOn": "2026-10-08"},
-    {"repo": "MikalaiKryvusha/KAST", "branch": "moonlight-noir", "role": "fork", "reviewed": "1810fcc13889", "reviewedOn": "2026-10-08"},
-    {"repo": "Rafael-CN/VibeArtemis", "branch": "dev", "role": "fork", "reviewed": "46de608abeb4", "reviewedOn": "2026-10-08"},
-    {"repo": "coroiu/twilight-android", "branch": "moonlight-noir", "role": "fork", "reviewed": "205adf5e2208", "reviewedOn": "2026-10-08"},
-    {"repo": "logabell/moonlight-android", "branch": "moonlight-noir", "role": "fork", "reviewed": "3397ec775096", "reviewedOn": "2026-10-08"}
+    {
+      "repo": "ClassicOldSong/moonlight-android",
+      "branch": "moonlight-noir",
+      "role": "base",
+      "reviewed": "c5cf27f4dc82",
+      "reviewedOn": "2026-10-29"
+    },
+    {
+      "repo": "moonlight-stream/moonlight-android",
+      "branch": "master",
+      "role": "upstream",
+      "reviewed": "b48494cb96bf",
+      "reviewedOn": "2026-10-29"
+    },
+    {
+      "repo": "ClassicOldSong/moonlight-common-c",
+      "branch": "master",
+      "role": "native base",
+      "reviewed": "c99943685847",
+      "reviewedOn": "2026-10-29"
+    },
+    {
+      "repo": "moonlight-stream/moonlight-common-c",
+      "branch": "master",
+      "role": "native upstream",
+      "reviewed": "5d3c0ecca00c",
+      "reviewedOn": "2026-10-29"
+    },
+    {
+      "repo": "ClassicOldSong/Apollo",
+      "branch": "master",
+      "role": "host",
+      "reviewed": "adc5c5a0bd80",
+      "reviewedOn": "2026-10-29"
+    },
+    {
+      "repo": "qiin2333/moonlight-vplus",
+      "branch": "master",
+      "role": "fork",
+      "reviewed": "7ecd9a140825",
+      "reviewedOn": "2026-10-29"
+    },
+    {
+      "repo": "derflacco/moonlight-android",
+      "branch": "moonlight-noir",
+      "role": "fork",
+      "reviewed": "8157555264bf",
+      "reviewedOn": "2026-10-29"
+    },
+    {
+      "repo": "derflacco/moonlight-android",
+      "branch": "Artemide_Experimental_Async",
+      "role": "fork",
+      "reviewed": "6648fe1b7c92",
+      "reviewedOn": "2026-10-29"
+    },
+    {
+      "repo": "MikalaiKryvusha/KAST",
+      "branch": "moonlight-noir",
+      "role": "fork",
+      "reviewed": "1810fcc13889",
+      "reviewedOn": "2026-10-08"
+    },
+    {
+      "repo": "Rafael-CN/VibeArtemis",
+      "branch": "dev",
+      "role": "fork",
+      "reviewed": "46de608abeb4",
+      "reviewedOn": "2026-10-29"
+    },
+    {
+      "repo": "coroiu/twilight-android",
+      "branch": "moonlight-noir",
+      "role": "fork",
+      "reviewed": "205adf5e2208",
+      "reviewedOn": "2026-10-29"
+    },
+    {
+      "repo": "logabell/moonlight-android",
+      "branch": "moonlight-noir",
+      "role": "fork",
+      "reviewed": "3397ec775096",
+      "reviewedOn": "2026-10-29"
+    }
   ]
 }

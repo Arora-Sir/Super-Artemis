@@ -105,13 +105,18 @@ def main():
 
     if args.mark_reviewed:
         today = datetime.date.today().isoformat()
+        marked = 0
         for source in config["sources"]:
-            source["reviewed"] = head(source)[:12]
-            source["reviewedOn"] = today
+            try:
+                source["reviewed"] = head(source)[:12]
+                source["reviewedOn"] = today
+                marked += 1
+            except urllib.error.HTTPError as e:
+                print(f"Skipping {source['repo']}: HTTP {e.code}")
         with open(SOURCES, "w", encoding="utf-8", newline="\n") as f:
             json.dump(config, f, indent=2)
             f.write("\n")
-        print("Marked %d sources as reviewed on %s" % (len(config["sources"]), today))
+        print("Marked %d sources as reviewed on %s" % (marked, today))
         return 0
 
     text, total = report(config["sources"])

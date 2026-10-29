@@ -34,15 +34,19 @@ def main() -> int:
     version, _code = gradle_version()
     problems: list[str] = []
 
-    if args.tag and args.tag != f"v{version}":
-        problems.append(f"tag {args.tag} does not equal v{version} (versionName in app/build.gradle)")
+    if args.tag:
+        expected_base = f"v{version}"
+        if args.tag != expected_base and not args.tag.startswith(f"{expected_base}-"):
+            problems.append(f"tag {args.tag} does not equal or derive from {expected_base} (versionName in app/build.gradle)")
 
     changelog = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
     entry = re.search(rf"^## \[{re.escape(version)}\] - \d{{4}}-\d{{2}}-\d{{2}}\s*$", changelog, re.MULTILINE)
+    tag_notes = ROOT / ".github" / "release-notes" / f"{args.tag}.md" if args.tag else None
     notes = ROOT / ".github" / "release-notes" / f"v{version}.md"
-    if args.tag and not entry and not notes.is_file():
+    has_notes = bool(entry or notes.is_file() or (tag_notes and tag_notes.is_file()))
+    if args.tag and not has_notes:
         problems.append(f"No release notes: add .github/release-notes/v{version}.md or a dated CHANGELOG.md entry '## [{version}] - YYYY-MM-DD'")
-    if not args.tag and not entry and not notes.is_file() and "## [Unreleased]" not in changelog:
+    if not args.tag and not has_notes and "## [Unreleased]" not in changelog:
         problems.append("CHANGELOG.md has neither an Unreleased section nor an entry for this version")
 
     for item in problems:

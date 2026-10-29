@@ -185,6 +185,8 @@ public class ComputerManagerService extends Service {
                         Thread.sleep(SERVERINFO_POLLING_PERIOD_MS);
                     } catch (InterruptedException e) {
                         break;
+                    } catch (Exception e) {
+                        LimeLog.warning("Error in polling thread for " + tuple.computer.name + ": " + e.getMessage());
                     }
                 }
             }

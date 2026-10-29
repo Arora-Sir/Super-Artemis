@@ -36,10 +36,14 @@ def main() -> int:
     args = parser.parse_args()
 
     notes_file = ROOT / ".github" / "release-notes" / f"{args.tag}.md"
+    if not notes_file.is_file():
+        base_tag = args.tag.split("-")[0]
+        notes_file = ROOT / ".github" / "release-notes" / f"{base_tag}.md"
     if notes_file.is_file():
         body = notes_file.read_text(encoding="utf-8").strip()
     else:
-        body = changelog_section(args.tag.lstrip("v")) or subprocess.run(
+        raw_version = args.tag.lstrip("v").split("-")[0]
+        body = changelog_section(raw_version) or subprocess.run(
             [sys.executable, str(ROOT / "scripts" / "render_credits.py"), "--release-notes"],
             capture_output=True, text=True, check=True).stdout.strip()
 
