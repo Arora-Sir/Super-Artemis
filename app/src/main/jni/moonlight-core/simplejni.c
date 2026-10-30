@@ -223,6 +223,12 @@ Java_com_limelight_nvstream_jni_MoonBridge_getEstimatedRttInfo(JNIEnv *env, jcla
     return ((uint64_t)rtt << 32U) | variance;
 }
 
+// Milliseconds since the last packet from the host on the control stream, -1 when there is no connected control stream
+JNIEXPORT jint JNICALL
+Java_com_limelight_nvstream_jni_MoonBridge_getControlStreamSilenceMs(JNIEnv *env, jclass clazz) {
+    return LiGetControlStreamSilenceMs();
+}
+
 JNIEXPORT jstring JNICALL
 Java_com_limelight_nvstream_jni_MoonBridge_getLaunchUrlQueryParameters(JNIEnv *env, jclass clazz) {
     return (*env)->NewStringUTF(env, LiGetLaunchUrlQueryParameters());

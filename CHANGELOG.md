@@ -4,6 +4,14 @@ All notable changes to Super Artemis are listed here. The format follows [Keep a
 
 ## [Unreleased]
 
+### Added
+
+- While the host is silent for 1.5 s, a label over the last frame says "Connection lost, waiting for the network" and counts the seconds. It goes away when the host answers again, and when the network drop grace period runs out the usual "connection terminated" dialog shows without the label.
+
+### Changed
+
+- The status label (poor or slow connection, network drop) sits in the top left corner and fades in and out over half a second.
+
 ## [1.0.0] - 2026-10-30
 
 - Surface lift: while Pure black is on, tapping the text of the Pure black row opens a ten level dot slider with a live sample in the dialog. It moves only the cards, fields and sections from flat to lifted, and level 5 is the look that shipped first. The switch keeps its own tap zone behind a divider.
