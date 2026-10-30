@@ -430,6 +430,9 @@ public class MoonBridge {
     // The RTT is in the top 32 bits, and the RTT variance is in the bottom 32 bits
     public static native long getEstimatedRttInfo();
 
+    // Milliseconds since the host last answered on the control stream, -1 when no control stream is connected
+    public static native int getControlStreamSilenceMs();
+
     public static native String getLaunchUrlQueryParameters();
 
     public static native byte guessControllerType(int vendorId, int productId);

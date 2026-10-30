@@ -233,6 +233,25 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
     private boolean overlayToggleZoomButtonShown;
     private TextView notificationOverlayView;
     private int requestedNotificationOverlayVisibility = View.GONE;
+
+    // NOTE: While the host is silent on the control stream, the status label says the connection is lost and counts the seconds over the last frame, which the surface keeps by itself.
+    // NOTE: The watchdog polls the core instead of counting frames, because a still desktop sends no frames and a frame counter would report a drop that is not there.
+    // NOTE: The label borrows the poor connection view and gives its text back when the host answers again (based on KAST, MikalaiKryvusha/KAST).
+    private static final String NETWORK_DROP_TAG = "NetworkDrop";
+    private static final int NETWORK_DROP_POLL_MS = 500;
+    private static final int NETWORK_DROP_SHOW_MS = 1500;
+    private static final int STATUS_LABEL_FADE_MS = 500;
+    private long networkDropStartMs; // elapsedRealtime() when the current silence began, 0 while the host answers
+    private CharSequence textBeforeNetworkDrop;
+    private boolean statusLabelShown; // where the label is going, so the 500 ms ticks do not restart a running fade
+    private final Runnable networkDropWatchdog = new Runnable() {
+        @Override
+        public void run() {
+            checkNetworkDrop();
+            timerHandler.postDelayed(this, NETWORK_DROP_POLL_MS);
+        }
+    };
+
     private View performanceOverlayView;
 
     private TextView performanceOverlayLite;
@@ -1272,7 +1291,10 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
                     performanceOverlayView.setVisibility(View.VISIBLE);
                 }
 
+                notificationOverlayView.animate().cancel();
+                notificationOverlayView.setAlpha(1f);
                 notificationOverlayView.setVisibility(requestedNotificationOverlayVisibility);
+                statusLabelShown = requestedNotificationOverlayVisibility == View.VISIBLE;
 
                 // Enable sensors again after exiting PiP
                 if (controllerHandler != null) {
@@ -3780,6 +3802,14 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
             flowRunner.cancel();
         }
 
+        // A drop label left on screen would keep counting a wait that is over, under the termination dialog
+        timerHandler.removeCallbacks(networkDropWatchdog);
+        if (networkDropStartMs != 0) {
+            networkDropStartMs = 0;
+            statusLabelShown = false;
+            notificationOverlayView.animate().cancel();
+            notificationOverlayView.setVisibility(View.GONE);
+        }
         if (connecting || connected) {
             connecting = connected = false;
             updatePipAutoEnter();
@@ -4124,6 +4154,68 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
         });
     }
 
+    // One watchdog tick on the UI thread: start the drop label after 1.5 s of silence, count the seconds, and end it when the host answers
+    private void checkNetworkDrop() {
+        int silenceMs = MoonBridge.getControlStreamSilenceMs();
+        long now = android.os.SystemClock.elapsedRealtime();
+
+        if (silenceMs >= NETWORK_DROP_SHOW_MS) {
+            if (networkDropStartMs == 0) {
+                networkDropStartMs = now - silenceMs;
+                textBeforeNetworkDrop = notificationOverlayView.getText();
+                LimeLog.info(NETWORK_DROP_TAG + ": silence start silenceMs=" + silenceMs);
+            }
+            int seconds = (int) ((now - networkDropStartMs) / 1000);
+            notificationOverlayView.setText(getString(R.string.network_drop_waiting, seconds));
+            if (!isHidingOverlays) {
+                fadeStatusLabel(true, null);
+            }
+        }
+        else if (silenceMs >= 0 && networkDropStartMs != 0) {
+            LimeLog.info(NETWORK_DROP_TAG + ": held elapsed=" + (now - networkDropStartMs));
+            networkDropStartMs = 0;
+            boolean poorStillShown = requestedNotificationOverlayVisibility == View.VISIBLE;
+            if (isHidingOverlays || poorStillShown || notificationOverlayView.getVisibility() != View.VISIBLE) {
+                notificationOverlayView.setText(textBeforeNetworkDrop);
+                if (!isHidingOverlays) {
+                    fadeStatusLabel(poorStillShown, null);
+                }
+            }
+            else {
+                // The earlier text comes back only after the fade, so the label does not show it for half a second
+                fadeStatusLabel(false, textBeforeNetworkDrop);
+            }
+        }
+    }
+
+    // NOTE: The status label fades in and out over half a second instead of switching at once. textAfterHide is the text the label takes after a fade out, null keeps the text.
+    private void fadeStatusLabel(boolean show, final CharSequence textAfterHide) {
+        final View label = notificationOverlayView;
+        if (show == statusLabelShown && (!show || label.getVisibility() == View.VISIBLE)) {
+            return;
+        }
+        statusLabelShown = show;
+        label.animate().cancel();
+        if (show) {
+            if (label.getVisibility() != View.VISIBLE) {
+                label.setAlpha(0f);
+                label.setVisibility(View.VISIBLE);
+            }
+            label.animate().alpha(1f).setDuration(STATUS_LABEL_FADE_MS).start();
+        }
+        else {
+            label.animate().alpha(0f).setDuration(STATUS_LABEL_FADE_MS).withEndAction(() -> {
+                if (!statusLabelShown) {
+                    label.setVisibility(View.GONE);
+                    label.setAlpha(1f);
+                    if (textAfterHide != null) {
+                        notificationOverlayView.setText(textAfterHide);
+                    }
+                }
+            }).start();
+        }
+    }
+
     @Override
     public void connectionStatusUpdate(final int connectionStatus) {
         runOnUiThread(new Runnable() {
@@ -4134,11 +4226,14 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
                 }
 
                 if (connectionStatus == MoonBridge.CONN_STATUS_POOR) {
-                    if (prefConfig.bitrate > 5000) {
-                        notificationOverlayView.setText(getResources().getString(R.string.slow_connection_msg));
+                    String text = getResources().getString(prefConfig.bitrate > 5000 ?
+                            R.string.slow_connection_msg : R.string.poor_connection_msg);
+                    // During a network drop the drop label keeps the view, and this text waits until the host answers
+                    if (networkDropStartMs != 0) {
+                        textBeforeNetworkDrop = text;
                     }
                     else {
-                        notificationOverlayView.setText(getResources().getString(R.string.poor_connection_msg));
+                        notificationOverlayView.setText(text);
                     }
 
                     requestedNotificationOverlayVisibility = View.VISIBLE;
@@ -4147,8 +4242,8 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
                     requestedNotificationOverlayVisibility = View.GONE;
                 }
 
-                if (!isHidingOverlays) {
-                    notificationOverlayView.setVisibility(requestedNotificationOverlayVisibility);
+                if (!isHidingOverlays && networkDropStartMs == 0) {
+                    fadeStatusLabel(requestedNotificationOverlayVisibility == View.VISIBLE, null);
                 }
             }
         });
@@ -4214,6 +4309,10 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
                 if (prefConfig.preventPacketLoss) {
                     timerHandler.postDelayed(backgroundPing, 1000);
                 }
+
+                // The network drop watchdog runs while the stream is connected; stopConnection and connectionTerminated remove it
+                networkDropStartMs = 0;
+                timerHandler.postDelayed(networkDropWatchdog, NETWORK_DROP_POLL_MS);
             }
         });
 
