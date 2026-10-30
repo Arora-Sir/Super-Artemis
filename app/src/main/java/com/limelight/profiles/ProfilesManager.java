@@ -155,6 +155,20 @@ public class ProfilesManager {
         saveIfPossible();
     }
 
+    // NOTE: Moves a profile to a new place in the list, the order profiles.json keeps. Called on every step of a drag, so it neither saves nor notifies listeners: a refresh would cancel the drag. The caller saves once when the drag ends.
+    public boolean move(int from, int to) {
+        List<SettingsProfile> ordered = new ArrayList<>(profiles.values());
+        if (from < 0 || to < 0 || from >= ordered.size() || to >= ordered.size()) {
+            return false;
+        }
+        com.limelight.ui.DragReorder.moveItem(ordered, from, to);
+        profiles.clear();
+        for (SettingsProfile p : ordered) {
+            profiles.put(p.getUuid(), p);
+        }
+        return true;
+    }
+
     // Options are copied one level deep, so editing the copy never changes a list or set held by the original
     static Map<String, Object> copyOptions(Map<String, Object> options) {
         Map<String, Object> copy = new java.util.HashMap<>();

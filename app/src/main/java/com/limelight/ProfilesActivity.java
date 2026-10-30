@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -14,6 +15,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.limelight.profiles.ProfilesAdapter;
 import com.limelight.profiles.ProfilesManager;
 import com.limelight.theme.ThemeManager;
+import com.limelight.ui.DragReorder;
 import com.limelight.utils.UiHelper;
 
 public class ProfilesActivity extends AppCompatActivity implements ProfilesManager.ProfileChangeListener {
@@ -44,6 +46,16 @@ public class ProfilesActivity extends AppCompatActivity implements ProfilesManag
 
         adapter = new ProfilesAdapter(this);
         recyclerView.setAdapter(adapter);
+
+        // Drag by the handle or a long press moves a profile. The order is saved once per drag, not on every step.
+        ItemTouchHelper touchHelper = DragReorder.attach(recyclerView, true, null, (from, to) -> {
+            if (!ProfilesManager.getInstance().move(from, to)) {
+                return false;
+            }
+            adapter.notifyItemMoved(from, to);
+            return true;
+        }, () -> ProfilesManager.getInstance().save(this));
+        adapter.setDragStarter(touchHelper::startDrag);
 
         // Setup empty state
         emptyState = findViewById(R.id.emptyState);
