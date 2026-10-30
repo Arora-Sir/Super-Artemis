@@ -11,6 +11,7 @@ import argparse
 import datetime
 import json
 import os
+import re
 import sys
 import urllib.error
 import urllib.request
@@ -63,8 +64,9 @@ def report(sources):
             ahead, commits = new_commits(source)
             releases = new_releases(source)
             found = advisories(source)
-        except urllib.error.HTTPError as e:
-            lines += [title, "", "Could not read this repository: HTTP %d." % e.code, ""]
+        except (urllib.error.HTTPError, urllib.error.URLError) as e:
+            code = e.code if hasattr(e, "code") else "network error"
+            lines += [title, "", "Could not read this repository: %s." % code, ""]
             continue
         if not ahead and not releases and not found:
             continue
@@ -88,7 +90,10 @@ def report(sources):
         lines.append("")
     if total == 0:
         lines.append("Nothing new since the last review.")
-    return "\n".join(lines) + "\n", total
+    report_text = "\n".join(lines) + "\n"
+    # Defang any @ mentions so weekly tracking issues never trigger user notifications or emails
+    report_text = re.sub(r"@([a-zA-Z0-9_\-]+)", r"\1", report_text)
+    return report_text, total
 
 
 def main():

@@ -55,10 +55,10 @@ The first Super Artemis release, not published yet. The date is set when the `v1
 
 ### Added
 
-- Microphone streaming to Apollo hosts that negotiate a mic stream (Steam Streaming Microphone on Windows), ported from @logabell's work in ClassicOldSong/moonlight-android#537.
+- Microphone streaming to Apollo hosts that negotiate a mic stream (Steam Streaming Microphone on Windows), ported from [@logabell](https://github.com/logabell)'s work in ClassicOldSong/moonlight-android#537. Requires the [mic-enabled Apollo release](https://github.com/logabell/apollo-microphone/releases/tag/v2026.3.18-mic.1) (v2026.3.18-mic.1) or Apollo with [ClassicOldSong/Apollo#1428](https://github.com/ClassicOldSong/Apollo/pull/1428).
 - "Microphone at stream start" setting with Always off (default), Always on and Follow last state, remembered per PC.
 - Mute and unmute from the in-stream Quick Menu and Advanced Menu. Muting stops the microphone hardware and the Opus encoder, so the privacy indicator turns off and no battery is spent on audio capture.
-- "Network drop grace period" setting (10 to 60 seconds, default 30) so short Wi-Fi drops do not end the session, from @MikalaiKryvusha's KAST.
+- "Network drop grace period" setting (10 to 60 seconds, default 30) so short Wi-Fi drops do not end the session, from [@MikalaiKryvusha](https://github.com/MikalaiKryvusha)'s KAST.
 - Settings search from a bar that stays at the top of Settings, with results inside collapsed sections and everyday words ("three finger", "pip", "upi") that find the right setting.
 - Backup and restore of all settings, layouts, profiles and the PC list to one `.sabackup` file, saved on the device or shared to another app or device. The file opens in the app from a file manager or the share sheet.
 - Password protected backups (AES-256-GCM, PBKDF2-HMAC-SHA256 with 310,000 iterations). Pairing keys are an explicit opt-in with a clear caution and always need a password.
@@ -98,8 +98,8 @@ The first Super Artemis release, not published yet. The date is set when the `v1
 
 ### Changed
 
-- Stylus (S Pen) strokes are no longer taken over by the handwriting keyboard on Android 13+, from @Yundi339's fix in qiin2333/moonlight-vplus#634.
-- The decoder requests low latency again right after it starts on Android 11+, from @derflacco.
+- Stylus (S Pen) strokes are no longer taken over by the handwriting keyboard on Android 13+, from [@Yundi339](https://github.com/Yundi339)'s fix in qiin2333/moonlight-vplus#634.
+- The decoder requests low latency again right after it starts on Android 11+, from [@derflacco](https://github.com/derflacco).
 - "Remember mouse mode" is on by default.
 - The app installs side by side with Artemis, Artemis-mic and Moonlight under its own package ID.
 - Release APKs are built and signed by GitHub Actions.
@@ -170,13 +170,13 @@ The first Super Artemis release, not published yet. The date is set when the `v1
 - A three-finger tap in trackpad mode no longer sends a middle click and toggles the keyboard at the same time. Middle click is now a gesture action you can choose.
 - Microphone capture falls back to the next audio source on devices that reject the first one instead of failing.
 - Backups no longer include Android framework files or settings search history.
-- The frame pacing setting is honoured again instead of always being forced to Balanced, a renderer loop that dropped about half the frames after any hiccup is gone, and the drop thresholds follow refresh rate changes during a stream, from @coroiu. The broken "Warp Drive" pacing options, which asked the host for double or quadruple the frame rate, are removed. This addresses the Samsung render rate reports in ClassicOldSong/moonlight-android#416, #415 and #376.
-- The forced surface frame rate and fixed surface size, which caused stutter, are removed, from @derflacco.
-- Decoder setup can no longer loop forever on NVIDIA and MediaTek decoders, the audio effects setting is no longer tied to "Play audio on PC", Android cloud and device transfer backups no longer copy the pairing private key, and the exported poster provider only serves files from its own cache, from @Rafael-CN.
-- The Joy-Con fix setting applies again (@CoolRobloxDeveloper, ClassicOldSong/moonlight-android#570), 4K streams no longer switch display modes needlessly (@Mad-Melon, #601), Print Screen sends the right key and the Samsung keyboard cover screenshot key reaches the PC (@Lian-CrescentMoon, #606), and vendor keyboards with out-of-range key codes no longer crash stream start (@qiin2333, qiin2333/moonlight-vplus#591).
-- Adding a PC from an `art://` pairing link no longer fails on slow networks, from @Swanand01.
-- Controller LED crashes, rumble on newer Android versions, Xbox Series controller IDs, Shift for the plus key and Android 15 and 16 key codes, from Moonlight 12.2 (@cgutman, @T2Fat2Fly, @bladeoner, @ReenigneArcher).
-- Native core: recovery after multi-block video loss and partially dropped IDR frames, no speculative loss reports with RFI off, RTT queries without the ENet lock, thread and pthread attribute leaks, and RTSP hardening against malformed or oversized responses (@cgutman, @foxirain, picked as in ClassicOldSong/moonlight-common-c#2 by @JustinZeus).
+- The frame pacing setting is honoured again instead of always being forced to Balanced, a renderer loop that dropped about half the frames after any hiccup is gone, and the drop thresholds follow refresh rate changes during a stream, from [@coroiu](https://github.com/coroiu). The broken "Warp Drive" pacing options, which asked the host for double or quadruple the frame rate, are removed. This addresses the Samsung render rate reports in ClassicOldSong/moonlight-android#416, #415 and #376.
+- The forced surface frame rate and fixed surface size, which caused stutter, are removed, from [@derflacco](https://github.com/derflacco).
+- Decoder setup can no longer loop forever on NVIDIA and MediaTek decoders, the audio effects setting is no longer tied to "Play audio on PC", Android cloud and device transfer backups no longer copy the pairing private key, and the exported poster provider only serves files from its own cache, from [@Rafael-CN](https://github.com/Rafael-CN).
+- The Joy-Con fix setting applies again ([@CoolRobloxDeveloper](https://github.com/CoolRobloxDeveloper), ClassicOldSong/moonlight-android#570), 4K streams no longer switch display modes needlessly ([@Mad-Melon](https://github.com/Mad-Melon), #601), Print Screen sends the right key and the Samsung keyboard cover screenshot key reaches the PC ([@Lian-CrescentMoon](https://github.com/Lian-CrescentMoon), #606), and vendor keyboards with out-of-range key codes no longer crash stream start ([@qiin2333](https://github.com/qiin2333), qiin2333/moonlight-vplus#591).
+- Adding a PC from an `art://` pairing link no longer fails on slow networks, from [@Swanand01](https://github.com/Swanand01).
+- Controller LED crashes, rumble on newer Android versions, Xbox Series controller IDs, Shift for the plus key and Android 15 and 16 key codes, from Moonlight 12.2 ([@cgutman](https://github.com/cgutman), [@T2Fat2Fly](https://github.com/T2Fat2Fly), [@bladeoner](https://github.com/bladeoner), [@ReenigneArcher](https://github.com/ReenigneArcher)).
+- Native core: recovery after multi-block video loss and partially dropped IDR frames, no speculative loss reports with RFI off, RTT queries without the ENet lock, thread and pthread attribute leaks, and RTSP hardening against malformed or oversized responses ([@cgutman](https://github.com/cgutman), [@foxirain](https://github.com/foxirain), picked as in ClassicOldSong/moonlight-common-c#2 by [@JustinZeus](https://github.com/JustinZeus)).
 - The local mouse cursor setting lists the Ctrl+Alt+Shift shortcuts.
 - Multi-finger gestures work in pan and zoom mode, so the gesture that turned it on can turn it off again.
 - The floating menu button no longer needs Back Menu to be on.

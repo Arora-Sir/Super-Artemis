@@ -60,7 +60,7 @@ def release_notes(data):
                 for person in entry["people"]:
                     if person["handle"] not in seen:
                         seen.append(person["handle"])
-        return " ".join("@" + h for h in seen)
+        return ", ".join("[@%s](https://github.com/%s)" % (h, h) for h in seen)
 
     out = ["### Thanks", ""]
     out.append("Super Artemis builds on code and designs by " + handles(CONTRIBUTOR_ROLES) + ".")

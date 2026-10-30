@@ -133,7 +133,7 @@ Everything else from Artemis stays: custom virtual buttons, custom resolutions a
 
 ## Get started
 
-1. Install [Apollo](https://github.com/ClassicOldSong/Apollo/releases) on your Windows PC and finish its first-time setup in the web UI.
+1. Install [Apollo](https://github.com/ClassicOldSong/Apollo/releases) on your Windows PC and finish its first-time setup in the web UI. If you want to use microphone streaming, install the [mic-enabled Apollo build](https://github.com/logabell/apollo-microphone/releases/tag/v2026.3.18-mic.1) instead.
 2. Install Super Artemis from [Releases](https://github.com/Arora-Sir/Super-Artemis/releases/latest), or follow it with Obtainium. It installs as `com.mohitarora.superartemis`, next to Artemis and Moonlight.
 3. Tap your PC in the app and enter the PIN in the Apollo web UI.
 4. Start streaming. Open the menu with the Back key, a five-finger tap or the floating button.
@@ -146,7 +146,7 @@ Every release APK is signed with one key. Its certificate SHA-256 is `AB:25:F8:8
 
 | Goal | What to set |
 | :--- | :--- |
-| Microphone | In Apollo's `sunshine.conf` set `stream_mic = enabled` and `mic_backend = steam_streaming_microphone`, then turn on "Enable microphone streaming" in the app. |
+| Microphone | Requires the [mic-enabled Apollo build](https://github.com/logabell/apollo-microphone/releases/tag/v2026.3.18-mic.1) (`v2026.3.18-mic.1`) or Apollo with [PR #1428](https://github.com/ClassicOldSong/Apollo/pull/1428), plus the Steam Streaming Microphone driver. In `sunshine.conf` set `stream_mic = enabled` and `mic_backend = steam_streaming_microphone`. See SETUP.md for details. |
 | Network drop grace period | Set Apollo's ping timeout at least as long as the grace period chosen in the app, or the host ends the session first. |
 | Actions on connect and disconnect | Apollo's per-client Do and Undo commands run on every session start and stop. SETUP.md has examples for mouse speed and for making Steam Streaming Microphone the default PC microphone only while you stream. |
 

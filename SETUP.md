@@ -34,7 +34,27 @@ Release builds install as `com.mohitarora.superartemis` and debug builds as `com
 
 ## Apollo host settings used by the fork
 
-- Microphone: in `sunshine.conf` set `stream_mic = enabled` and `mic_backend = steam_streaming_microphone`.
+### Microphone streaming setup on the host
+
+Stock Apollo releases by ClassicOldSong do not include remote microphone passthrough yet. The configuration keys `stream_mic` and `mic_backend` are part of unmerged pull request [ClassicOldSong/Apollo#1428](https://github.com/ClassicOldSong/Apollo/pull/1428) by Logan Abell. Stock Apollo releases (such as `0.4.6` or `0.4.7-alpha.1`) reject these keys with `Warning: Unrecognized configurable option` and will not negotiate a microphone channel.
+
+To stream your microphone to a Windows 11 or 10 host:
+
+1. **Install Steam Streaming Microphone**:
+   Install Steam on the PC. Open Steam settings, select **Remote Play**, and install the Steam audio drivers. Confirm that `Speakers (Steam Streaming Microphone)` and `Microphone (Steam Streaming Microphone)` exist in Windows Sound settings.
+2. **Install the mic-enabled Apollo host build**:
+   Download `Apollo-v2026.3.18-mic.1-windows-installer.exe` from [logabell/apollo-microphone releases](https://github.com/logabell/apollo-microphone/releases/tag/v2026.3.18-mic.1). Run the installer to update your Apollo installation. Alternatively, if you prefer not to run the installer, you can extract `sunshine.exe` using 7-Zip and replace `C:\Program Files\Apollo\sunshine.exe`.
+3. **Configure sunshine.conf**:
+   Add the following lines to `C:\Program Files\Apollo\config\sunshine.conf`:
+   ```ini
+   stream_mic = enabled
+   mic_backend = steam_streaming_microphone
+   ```
+4. **Restart ApolloService**:
+   Restart the service or restart your PC. When Super Artemis connects with microphone streaming enabled, Apollo will negotiate the channel and forward audio into the Steam Streaming Microphone endpoint.
+
+### Other Apollo settings
+
 - Network drop grace period: the app setting only helps if Apollo's ping timeout is at least as long.
 - Connect and disconnect actions: see the next section.
 

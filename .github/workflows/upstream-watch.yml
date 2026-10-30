@@ -1,9 +1,9 @@
 name: Upstream watch
 
-# Weekly report of new commits, releases and security advisories in the projects Super Artemis builds on, kept in one open issue
+# Monthly report of new commits, releases and security advisories in the projects Super Artemis builds on, kept in one open issue
 on:
   schedule:
-    - cron: "17 3 * * 1"
+    - cron: "17 3 1 * *"
   workflow_dispatch:
 
 permissions:
@@ -14,9 +14,9 @@ jobs:
   watch:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v4
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v5
         with:
           python-version: "3.12"
 
@@ -29,7 +29,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh label create upstream-watch --color 5319e7 --description "Weekly upstream report" 2>/dev/null || true
+          gh label create upstream-watch --color 5319e7 --description "Monthly upstream report" 2>/dev/null || true
           number=$(gh issue list --label upstream-watch --state open --json number --jq '.[0].number')
           if [ -n "$number" ]; then
             gh issue edit "$number" --body-file upstream-report.md
