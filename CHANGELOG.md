@@ -7,6 +7,7 @@ All notable changes to Super Artemis are listed here. The format follows [Keep a
 ### Changed
 
 - The Russian translation is complete: 590 strings and the step plural that had no Russian text are translated, and 173 existing Russian strings are corrected for meaning, completeness, outdated text and terminology. Keyboard keys and key combinations stay as printed on the keyboard, and only an explanation in brackets is translated (#3).
+- The Default entry of the language list is a string resource (`language_default`), so each language shows it in its own words (#3).
 
 ### Fixed
 

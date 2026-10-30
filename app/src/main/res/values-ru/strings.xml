@@ -803,6 +803,7 @@
     <string name="summary_checkbox_enable_pip">Позволяет просматривать стрим (но не управлять им) во время работы в других приложениях</string>
     <string name="title_language_list">Язык</string>
     <string name="summary_language_list">Язык, который будет использоваться в Super Artemis</string>
+    <string name="language_default">По умолчанию</string>
     <string name="title_checkbox_small_icon_mode">Маленькие обложки</string>
     <string name="summary_checkbox_small_icon_mode">Уменьшенные обложки в сетке приложений позволяют видеть на экране больше приложений</string>
 
