@@ -80,11 +80,15 @@ public class UiHelper {
         Configuration config = new Configuration(activity.getResources().getConfiguration());
         if (locale.equals(PreferenceConfiguration.DEFAULT_LANGUAGE)) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                // On Android 13, migrate this non-default language setting into the OS native API
+                // On Android 13 and newer, Default follows the language the user picked for this app in the
+                // Android settings (App languages), and the system language only when no app language is set.
+                // The locale is set explicitly because an earlier in-app choice may still sit in the shared
+                // Resources of this process.
                 LocaleManager localeManager = activity.getSystemService(LocaleManager.class);
-                LocaleList systemLocales = localeManager.getSystemLocales();
-                if (!systemLocales.isEmpty()) {
-                    config.locale = systemLocales.get(0);
+                LocaleList appLocales = localeManager.getApplicationLocales();
+                LocaleList locales = appLocales.isEmpty() ? localeManager.getSystemLocales() : appLocales;
+                if (!locales.isEmpty()) {
+                    config.locale = locales.get(0);
                 }
             }
         } else {

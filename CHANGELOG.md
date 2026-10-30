@@ -4,6 +4,15 @@ All notable changes to Super Artemis are listed here. The format follows [Keep a
 
 ## [Unreleased]
 
+### Changed
+
+- The Russian translation is complete: 590 strings and the step plural that had no Russian text are translated, and 173 existing Russian strings are corrected for meaning, completeness, outdated text and terminology. Keyboard keys and key combinations stay as printed on the keyboard, and only an explanation in brackets is translated (#3).
+- The Default entry of the language list is a string resource (`language_default`), so each language shows it in its own words (#3).
+
+### Fixed
+
+- With Language set to Default, the app follows the language picked for Super Artemis in the Android settings (App languages) on Android 13 and newer, and the system language only when no app language is set. Before, the first system language always won (#6).
+
 ## [1.0.0] - 2026-10-30
 
 - Surface lift: while Pure black is on, tapping the text of the Pure black row opens a ten level dot slider with a live sample in the dialog. It moves only the cards, fields and sections from flat to lifted, and level 5 is the look that shipped first. The switch keeps its own tap zone behind a divider.
