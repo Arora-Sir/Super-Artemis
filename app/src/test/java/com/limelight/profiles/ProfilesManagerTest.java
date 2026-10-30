@@ -104,6 +104,45 @@ public class ProfilesManagerTest {
         assertNull(fresh.getActive());
     }
 
+    // A drag ends with move steps and one save: the new order must come back from profiles.json, and the active profile with it
+    @Test
+    public void moveKeepsNewOrderAfterReload() {
+        SettingsProfile a = new SettingsProfile(UUID.randomUUID(), "A", System.currentTimeMillis(), System.currentTimeMillis(), null);
+        SettingsProfile b = new SettingsProfile(UUID.randomUUID(), "B", System.currentTimeMillis(), System.currentTimeMillis(), null);
+        SettingsProfile c = new SettingsProfile(UUID.randomUUID(), "C", System.currentTimeMillis(), System.currentTimeMillis(), null);
+        manager.add(a);
+        manager.add(b);
+        manager.add(c);
+        manager.setActive(b.getUuid());
+
+        assertTrue(manager.move(2, 0));
+        manager.save(context);
+
+        ProfilesManager.instance = null;
+        ProfilesManager fresh = ProfilesManager.getInstance();
+        fresh.load(context);
+        assertEquals("C", fresh.getProfiles().get(0).getName());
+        assertEquals("A", fresh.getProfiles().get(1).getName());
+        assertEquals("B", fresh.getProfiles().get(2).getName());
+        assertEquals(b.getUuid(), fresh.getActive().getUuid());
+    }
+
+    @Test
+    public void moveToEndAndOutOfRange() {
+        SettingsProfile a = new SettingsProfile(UUID.randomUUID(), "A", System.currentTimeMillis(), System.currentTimeMillis(), null);
+        SettingsProfile b = new SettingsProfile(UUID.randomUUID(), "B", System.currentTimeMillis(), System.currentTimeMillis(), null);
+        manager.add(a);
+        manager.add(b);
+
+        assertTrue(manager.move(0, 1));
+        assertEquals("B", manager.getProfiles().get(0).getName());
+        assertEquals("A", manager.getProfiles().get(1).getName());
+
+        assertFalse(manager.move(0, 2));
+        assertFalse(manager.move(-1, 0));
+        assertEquals("B", manager.getProfiles().get(0).getName());
+    }
+
     private void deleteRecursively(File f) {
         if (f == null || !f.exists()) return;
         if (f.isDirectory()) {
