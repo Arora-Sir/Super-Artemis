@@ -4,6 +4,10 @@ All notable changes to Super Artemis are listed here. The format follows [Keep a
 
 ## [Unreleased]
 
+### Changed
+
+- The Russian translation is complete: 590 strings and the step plural that had no Russian text are translated, and 173 existing Russian strings are corrected for meaning, completeness, outdated text and terminology. Keyboard keys and key combinations stay as printed on the keyboard, and only an explanation in brackets is translated (#3).
+
 ## [1.0.0] - 2026-10-30
 
 - Surface lift: while Pure black is on, tapping the text of the Pure black row opens a ten level dot slider with a live sample in the dialog. It moves only the cards, fields and sections from flat to lifted, and level 5 is the look that shipped first. The switch keeps its own tap zone behind a divider.
