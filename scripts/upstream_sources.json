@@ -78,6 +78,48 @@
       "role": "fork",
       "reviewed": "3397ec775096",
       "reviewedOn": "2026-10-30"
+    },
+    {
+      "repo": "MikalaiKryvusha/KAST",
+      "branch": "moonlight-noir",
+      "role": "fork",
+      "reviewed": "ff9de8273895",
+      "reviewedOn": "2026-11-01"
+    },
+    {
+      "repo": "4had45/moonlit-artemis",
+      "branch": "moonlit",
+      "role": "fork",
+      "reviewed": "9b23b8c3295f",
+      "reviewedOn": "2026-11-01"
+    },
+    {
+      "repo": "MrOz59/Hestia-Android",
+      "branch": "moonlight-noir",
+      "role": "fork",
+      "reviewed": "38c73c510529",
+      "reviewedOn": "2026-11-01"
+    },
+    {
+      "repo": "kefrens/ariane-android",
+      "branch": "ariane-main",
+      "role": "fork",
+      "reviewed": "1d3a8e74ecdc",
+      "reviewedOn": "2026-11-01"
+    },
+    {
+      "repo": "joemossjr16/artemis-android-pyrowave",
+      "branch": "pyrowave",
+      "role": "fork",
+      "reviewed": "387d3a5ce1e3",
+      "reviewedOn": "2026-11-01"
+    },
+    {
+      "repo": "Taveszfito/Artemis-Extended-Native-Wireless-DualSense-Features",
+      "branch": "agent/controller-emulation-settings",
+      "role": "fork",
+      "reviewed": "46431c506000",
+      "reviewedOn": "2026-11-01"
     }
   ]
 }

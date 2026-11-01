@@ -12,7 +12,7 @@ Super Artemis builds on Artemis, Moonlight, moonlight-common-c and Apollo, and b
 | Upstream | moonlight-stream/moonlight-android |
 | Native core | ClassicOldSong/moonlight-common-c, moonlight-stream/moonlight-common-c (our fork: Arora-Sir/moonlight-common-c, branch `super-artemis`) |
 | Host | ClassicOldSong/Apollo |
-| Forks | qiin2333/moonlight-vplus, derflacco/moonlight-android (`moonlight-noir` and `Artemide_Experimental_Async`), MikalaiKryvusha/KAST, Rafael-CN/VibeArtemis (`dev`), coroiu/twilight-android, logabell/moonlight-android |
+| Forks | qiin2333/moonlight-vplus, derflacco/moonlight-android (`moonlight-noir` and `Artemide_Experimental_Async`), MikalaiKryvusha/KAST (`moonlight-noir`), Rafael-CN/VibeArtemis (`dev`), coroiu/twilight-android (`moonlight-noir`), logabell/moonlight-android (`moonlight-noir`), 4had45/moonlit-artemis (`moonlit`), MrOz59/Hestia-Android (`moonlight-noir`), kefrens/ariane-android (`ariane-main`), joemossjr16/artemis-android-pyrowave (`pyrowave`), Taveszfito/Artemis-Extended-Native-Wireless-DualSense-Features (`agent/controller-emulation-settings`) |
 
 Add a repository there when code is taken from a new source, so it is watched from then on.
 
