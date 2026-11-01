@@ -4,6 +4,11 @@ All notable changes to Super Artemis are listed here. The format follows [Keep a
 
 ## [Unreleased]
 
+### Fixed
+
+- Prevented an Activity task race condition in `ShortcutTrampoline` when launching desktop PC shortcuts on Android 16 and 17 (BUG-059, upstream qiin2333/moonlight-vplus#778).
+- Streamlined decoder recovery failure handling in `MediaCodecDecoderRenderer` to release recovery monitors and notify listeners rather than aborting with an unhandled exception (BUG-060, upstream qiin2333/moonlight-vplus#783).
+
 ## [1.0.0] - 2026-10-30
 
 - Surface lift: while Pure black is on, tapping the text of the Pure black row opens a ten level dot slider with a live sample in the dialog. It moves only the cards, fields and sections from flat to lifted, and level 5 is the look that shipped first. The switch keeps its own tap zone behind a divider.

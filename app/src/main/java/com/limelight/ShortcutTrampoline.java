@@ -178,9 +178,6 @@ public class ShortcutTrampoline extends AppCompatActivity {
                                                     });
                                                 }
                                             } else {
-                                                // Close this activity
-                                                finish();
-
                                                 // Add the PC view at the back (and clear the task)
                                                 Intent i;
                                                 i = new Intent(ShortcutTrampoline.this, PcView.class);
@@ -199,7 +196,9 @@ public class ShortcutTrampoline extends AppCompatActivity {
                                                             new NvApp(null, null, details.runningGameId, false), details, managerBinder, prefConfig.useVirtualDisplay));
                                                 }
 
-                                                // Now start the activities
+                                                // ShortcutTrampoline is marked noHistory. Let CLEAR_TASK replace its task as
+                                                // part of this launch. Finishing first can leave the system without a
+                                                // valid task while it processes this multi-activity start request.
                                                 startActivities(intentStack.toArray(new Intent[]{}));
                                             }
                                             

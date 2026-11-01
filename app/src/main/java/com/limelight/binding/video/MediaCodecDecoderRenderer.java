@@ -683,7 +683,7 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
         } catch (IOException e) {
             e.printStackTrace();
             if (throwOnCodecError) {
-                throw new RuntimeException(e);
+                throw new IllegalStateException(e);
             }
         } finally {
             if (!configured && videoDecoder != null) {
@@ -837,6 +837,8 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
             return false;
         }
 
+        RendererException recoveryFailure = null;
+
         // We need some sort of recovery, so quiesce all threads before starting that
         synchronized (codecRecoveryMonitor) {
             if (choreographerHandlerThread == null) {
@@ -937,12 +939,9 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
                         stopping = true;
                         codecRecoveryType.set(CR_RECOVERY_TYPE_NONE);
                     } catch (IllegalStateException e) {
-                        // If we failed to recover after all of these attempts, just crash
-                        if (!reportedCrash) {
-                            reportedCrash = true;
-                            crashListener.notifyCrash(e);
-                        }
-                        throw new RendererException(this, e);
+                        // End the stream and let the existing recovery cleanup wake waiters.
+                        stopping = true;
+                        recoveryFailure = new RendererException(this, e);
                     }
                 }
 
@@ -968,6 +967,15 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
                         break;
                     }
                 }
+            }
+        }
+
+        // Report after releasing the monitor so connection teardown can join recovery waiters.
+        if (recoveryFailure != null) {
+            recoveryFailure.printStackTrace();
+            if (!reportedCrash) {
+                reportedCrash = true;
+                crashListener.notifyCrash(recoveryFailure);
             }
         }
 

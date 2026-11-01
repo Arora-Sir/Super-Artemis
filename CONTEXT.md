@@ -21,6 +21,15 @@ This is the handoff file for anyone (human or AI) resuming work on Super Artemis
 
 - Round 11 (2026-10-23) is implemented and uncommitted: the native audio crash in debug builds (BUG-043), Settings Back after search and the microphone preview slide (BUG-044 and BUG-045), readable tonal buttons, 48dp chips, a sectioned icon picker with 235 icons and search, optional key names with "Key:" and "Flow:" labels, in-place key editing from every editor and the bar long press menu (BUG-046 and BUG-047), bars that fit the screen (BUG-048), Lock key timing (BUG-049), call and screen off rules for picture-in-picture (BUG-050 and BUG-051), performance presets, pure black, a custom color, GitHub Sponsors and a manual update check. Device checks are pending on the Tab and the S24, and the unit suite has 331 tests, all passing.
 
+- Upstream watch expansion and Issue #12 triage (2026-11-01, commit `5591464f` on `unified-main`):
+  - Changes: Added six active community forks (`MikalaiKryvusha/KAST`, `4had45/moonlit-artemis`, `MrOz59/Hestia-Android`, `kefrens/ariane-android`, `joemossjr16/artemis-android-pyrowave`, `Taveszfito/Artemis-Extended-Native-Wireless-DualSense-Features`) to `scripts/upstream_sources.json` and synchronized `UPSTREAM.md`. All newly added sources are pinned to their 2026-11-01 head commit hashes so future weekly runs track forward deltas only. Retained mature quiet forks (`logabell`, `coroiu`) permanently because zero-delta sources produce no issue noise and cost only 1 API call per run. Verified locally with `python scripts/upstream_watch.py` (exit code 0 across all 17 sources).
+  - Issue #12 triage completed: Evaluated all 10 commits and 3 releases from `qiin2333/moonlight-vplus`. Ported two stability bug fixes locally: BUG-059 (`ShortcutTrampoline.java` task race condition on Android 16/17) and BUG-060 (`MediaCodecDecoderRenderer.java` graceful stream stop on decoder recreation failure). Cataloged resolution hot-switching (`0ef771f6b`) and layered haptics (`373e71adb`) for the post-1.0.0 roadmap. All 17 sources marked reviewed in `scripts/upstream_sources.json` via `python scripts/upstream_watch.py --mark-reviewed`.
+  - Review comment prepared: `comments/issue_12_comment.md`.
+  - Next manual review actions for Mohit:
+    1. Inspect unstaged changes across `ShortcutTrampoline.java`, `MediaCodecDecoderRenderer.java`, `BUGS.md`, `CHANGELOG.md`, `scripts/upstream_sources.json`, and `CONTEXT.md`.
+    2. Review and post `comments/issue_12_comment.md` to Issue #12, then close Issue #12.
+    3. Push commit `5591464f` and the new fixes to `origin/unified-main`.
+
 ## What works (verified on a Galaxy Tab S10 Ultra, Android 16)
 
 - Side-by-side install next to Artemis, Artemis-mic and Moonlight.

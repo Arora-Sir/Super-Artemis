@@ -451,3 +451,19 @@ The Tab sends Win down, L down, L up and Win up with the Windows modifier (KEYDB
 ### BUG-058: Unit tests failed at random and a full run took up to 50 minutes
 
 The test JVM ran with Gradle's default 512 MB heap. Robolectric with this many layouts and the 235 icon catalogue filled it, the JVM thrashed in garbage collection and finally died with an OutOfMemoryError, so single tests such as the quick bar editor, the style dialogs and the stream view tests appeared to fail depending on the run. Setting `unitTests.all { maxHeapSize = "2g" }` in `app/build.gradle` fixed it. The full suite now runs 345 tests in about 5 minutes with no failures.
+
+## BUG-059: ShortcutTrampoline activity stack race on Android 16 and 17
+
+- **Symptom:** Launching desktop PC shortcuts on Android 16 and 17 (specifically on HONOR and Xiaomi devices) crashes with a system NPE in `Task.mLaunchNextToBubble`.
+- **Root Cause:** When `ShortcutTrampoline` (declared with `android:noHistory="true"`) launched PC view without an explicit app target, it called `finish()` before calling `startActivities()` with `FLAG_ACTIVITY_CLEAR_TASK | FLAG_ACTIVITY_NEW_TASK`. Finishing the trampoline early destroyed the active task before the system could resolve the target task stack. Ported from qiin2333/moonlight-vplus#778 (commit `167e6ea67`).
+- **Fix Applied:** Omit the explicit `finish()` call before `startActivities()`. The `FLAG_ACTIVITY_CLEAR_TASK` flag replaces the task, and the `noHistory` attribute finishes the trampoline automatically once the destination stack starts.
+- **Verification:** Unit tests in `SessionTest` pass. Code path verified against Android 16 task lifecycle invariants.
+- **Status:** Fixed.
+
+## BUG-060: Uncaught exception in MediaCodec decoder reconstruction crashes process
+
+- **Symptom:** When hardware video decoder reconstruction fails during runtime recovery (`recreateDecoder`), the application process abruptly crashes instead of stopping the stream gracefully.
+- **Root Cause:** In `MediaCodecDecoderRenderer.doCodecRecoveryIfRequired`, when decoder recreation threw `IllegalStateException`, the method threw `RendererException` directly inside the monitor block. Because the exception escaped before `codecRecoveryMonitor.notifyAll()` and `codecRecoveryThreadQuiescedFlags = 0` ran, all other quiesced decoder threads remained deadlocked, and the uncaught runtime exception killed the process. Ported from qiin2333/moonlight-vplus#783 (commit `b7d606129`).
+- **Fix Applied:** Catch `IllegalStateException` during decoder reset, mark `stopping = true`, and store the exception in `recoveryFailure`. Wake all waiting threads and release `codecRecoveryMonitor` before dispatching `crashListener.notifyCrash(recoveryFailure)`. In `tryConfigureDecoder`, throw `IllegalStateException` on `IOException` when `throwOnCodecError` is set so all configuration errors route through the same recovery handler.
+- **Verification:** Unit tests pass. Diffs conform to BUG-008 line ending preservation rules.
+- **Status:** Fixed.
