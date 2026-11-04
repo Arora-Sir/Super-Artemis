@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- One profile as a rounded card: name and last change, then the active radio and the copy, edit and delete buttons -->
+<!-- One profile as a rounded card: drag handle, name and last change, then the active radio and the copy, edit and delete buttons -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -8,10 +8,20 @@
     android:gravity="center_vertical"
     android:minHeight="72dp"
     android:orientation="horizontal"
-    android:paddingStart="20dp"
+    android:paddingStart="4dp"
     android:paddingTop="8dp"
     android:paddingEnd="8dp"
     android:paddingBottom="8dp">
+
+    <ImageView
+        android:id="@+id/profileDragHandle"
+        android:layout_width="40dp"
+        android:layout_height="48dp"
+        android:layout_marginEnd="4dp"
+        android:contentDescription="@string/game_menu_editor_drag"
+        android:scaleType="center"
+        android:src="@drawable/ic_sa_drag_indicator"
+        android:tint="?attr/saOnSurfaceVariant" />
 
     <LinearLayout
         android:layout_width="0dp"

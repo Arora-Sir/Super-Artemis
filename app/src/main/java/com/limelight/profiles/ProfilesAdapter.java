@@ -25,6 +25,17 @@ public class ProfilesAdapter extends RecyclerView.Adapter<ProfilesAdapter.Profil
     private final Context context;
     private final ProfilesManager profilesManager;
 
+    // Starts a drag of the row whose handle was touched, set by the screen that attaches DragReorder
+    public interface DragStarter {
+        void startDrag(RecyclerView.ViewHolder holder);
+    }
+
+    DragStarter dragStarter;
+
+    public void setDragStarter(DragStarter dragStarter) {
+        this.dragStarter = dragStarter;
+    }
+
     public ProfilesAdapter(Context context) {
         this.context = context;
         this.profilesManager = ProfilesManager.getInstance();
@@ -86,6 +97,14 @@ public class ProfilesAdapter extends RecyclerView.Adapter<ProfilesAdapter.Profil
 
         // Also make the whole row clickable to edit
         holder.itemView.setOnClickListener(v -> holder.editProfile.performClick());
+
+        // Touching the handle starts the drag at once, a long press anywhere on the row does the same
+        holder.dragHandle.setOnTouchListener((v, event) -> {
+            if (event.getActionMasked() == android.view.MotionEvent.ACTION_DOWN && dragStarter != null) {
+                dragStarter.startDrag(holder);
+            }
+            return false;
+        });
     }
 
     // Duplicate makes a new profile, Copy settings into overwrites another profile after a confirmation
@@ -144,6 +163,7 @@ public class ProfilesAdapter extends RecyclerView.Adapter<ProfilesAdapter.Profil
     }
 
     static class ProfileViewHolder extends RecyclerView.ViewHolder {
+        android.widget.ImageView dragHandle;
         TextView profileName;
         TextView profileTimestamp;
         RadioButton profileActive;
@@ -153,6 +173,7 @@ public class ProfilesAdapter extends RecyclerView.Adapter<ProfilesAdapter.Profil
 
         ProfileViewHolder(@NonNull View itemView) {
             super(itemView);
+            dragHandle = itemView.findViewById(R.id.profileDragHandle);
             profileName = itemView.findViewById(R.id.profileName);
             profileTimestamp = itemView.findViewById(R.id.profileTimestamp);
             profileActive = itemView.findViewById(R.id.profileActive);

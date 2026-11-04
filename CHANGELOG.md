@@ -4,6 +4,10 @@ All notable changes to Super Artemis are listed here. The format follows [Keep a
 
 ## [Unreleased]
 
+### Added
+
+- Profiles can be moved up and down in the Profiles list: drag a profile by the handle at the start of its row, or long press the row and drag it. The new order is saved when the drag ends and stays after a restart; the active profile does not change.
+
 ### Changed
 
 - The Russian translation is complete: 590 strings and the step plural that had no Russian text are translated, and 173 existing Russian strings are corrected for meaning, completeness, outdated text and terminology. Keyboard keys and key combinations stay as printed on the keyboard, and only an explanation in brackets is translated (#3).
