@@ -801,6 +801,7 @@ For automatic update alerts without this, follow the app with Obtainium instead.
     <string name="summary_checkbox_enable_pip">Allows the stream to be viewed (but not controlled) while multitasking</string>
     <string name="title_language_list">Language</string>
     <string name="summary_language_list">Language to use for Super Artemis</string>
+    <string name="language_default">Default</string>
     <string name="title_checkbox_small_icon_mode">Use small box art</string>
     <string name="summary_checkbox_small_icon_mode">Smaller box art in the app grid allows more apps to be visible on screen</string>
 

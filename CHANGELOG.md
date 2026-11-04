@@ -4,11 +4,17 @@ All notable changes to Super Artemis are listed here. The format follows [Keep a
 
 ## [Unreleased]
 
+### Changed
+
+- The Russian translation is complete: 590 strings and the step plural that had no Russian text are translated, and 173 existing Russian strings are corrected for meaning, completeness, outdated text and terminology. Keyboard keys and key combinations stay as printed on the keyboard, and only an explanation in brackets is translated (#3).
+- The Default entry of the language list is a string resource (`language_default`), so each language shows it in its own words (#3).
+
 ### Fixed
 
 - Prevented an Activity task race condition in `ShortcutTrampoline` when launching desktop PC shortcuts on Android 16 and 17 (BUG-059, upstream qiin2333/moonlight-vplus#778).
 - Streamlined decoder recovery failure handling in `MediaCodecDecoderRenderer` to release recovery monitors and notify listeners rather than aborting with an unhandled exception (BUG-060, upstream qiin2333/moonlight-vplus#783).
 - Fixed the picture-in-picture window showing a cropped, shrunken picture with black borders when a stream zoom and pan are saved. Picture-in-picture now shows the whole stream and your zoom and pan come back when the window expands (BUG-061).
+- With Language set to Default, the app follows the language picked for Super Artemis in the Android settings (App languages) on Android 13 and newer, and the system language only when no app language is set. Before, the first system language always won (#6).
 
 ## [1.0.0] - 2026-10-30
 
