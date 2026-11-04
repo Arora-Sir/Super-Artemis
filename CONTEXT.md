@@ -41,6 +41,8 @@ This is the handoff file for anyone (human or AI) resuming work on Super Artemis
 - Phone width on the S24 (2026-10-15): bar editor, key editor, gesture editor, App style cards, Profiles and search.
 - Streaming at native 2960x1848 with Fit fills the screen, and native costs about 2.5% more battery than 1080p on the Tab (1,022 mA against 996 mA at 55 Mbps).
 
+- Round 12 (2026-11-04, S24 Ultra): picture-in-picture no longer keeps the fullscreen zoom and pan (`PanZoomHandler.enterPictureInPicture` and `exitPictureInPicture`, BUG-061). Checked on the S24 at a small and a large PiP size and on the way back to fullscreen. The microphone and Alt+F4 reports (BUG-062, BUG-063) were host side: Apollo view-only client permissions, one shared Apollo microphone writer for two streaming devices, and an AutoHotkey Alt+F4 guard. No app change for those two, and the host fixes are written up in BUGS.md.
+
 ## Waiting for device checks
 
 Everything below is implemented with unit tests and needs the Tab and the S24, with the debug build paired to Apollo:

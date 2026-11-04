@@ -8,6 +8,7 @@ All notable changes to Super Artemis are listed here. The format follows [Keep a
 
 - Prevented an Activity task race condition in `ShortcutTrampoline` when launching desktop PC shortcuts on Android 16 and 17 (BUG-059, upstream qiin2333/moonlight-vplus#778).
 - Streamlined decoder recovery failure handling in `MediaCodecDecoderRenderer` to release recovery monitors and notify listeners rather than aborting with an unhandled exception (BUG-060, upstream qiin2333/moonlight-vplus#783).
+- Fixed the picture-in-picture window showing a cropped, shrunken picture with black borders when a stream zoom and pan are saved. Picture-in-picture now shows the whole stream and your zoom and pan come back when the window expands (BUG-061).
 
 ## [1.0.0] - 2026-10-30
 

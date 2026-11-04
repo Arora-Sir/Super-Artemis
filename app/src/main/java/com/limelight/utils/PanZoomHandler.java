@@ -25,6 +25,12 @@ public class PanZoomHandler {
     private float parentWidth, parentHeight = 0;
     private float childWidth, childHeight = 0;
 
+    // NOTE: Picture-in-picture shows the whole stream fitted to its small window, so the saved zoom and pan are parked here and restored when the window expands.
+    // NOTE: A zoom of 1.16 with a pan offset of a few hundred pixels, kept as it was in fullscreen, crops and shifts the picture inside the small window and leaves black borders.
+    private boolean inPictureInPicture;
+    private float parkedScaleFactor = 1.0f;
+    private float parkedChildX, parkedChildY = 0;
+
     public PanZoomHandler(Context context, Game game, View streamView, View parent, PreferenceConfiguration prefConfig) {
         this.game = game;
         this.streamView = streamView;
@@ -77,6 +83,10 @@ public class PanZoomHandler {
     }
 
     public void handleSurfaceChange() {
+        if (inPictureInPicture) {
+            return;
+        }
+
         if (childWidth == 0 || parent == null) {
             // Retrieve parent, should handle both built-in display and external display
             parent = (View)streamView.getParent();
@@ -167,7 +177,45 @@ public class PanZoomHandler {
         streamView.setY(childY);
     }
 
-    public float getScaleFactor() { return scaleFactor; }
-    public float getChildX() { return childX; }
-    public float getChildY() { return childY; }
+    // NOTE: Shows the stream unzoomed and unpanned so it fills the picture-in-picture window, and remembers the real zoom and pan for later.
+    public void enterPictureInPicture() {
+        if (inPictureInPicture) {
+            return;
+        }
+
+        parkedScaleFactor = scaleFactor;
+        parkedChildX = childX;
+        parkedChildY = childY;
+        inPictureInPicture = true;
+
+        scaleFactor = 1.0f;
+        childX = 0;
+        childY = 0;
+        streamView.setScaleX(scaleFactor);
+        streamView.setScaleY(scaleFactor);
+        streamView.setX(childX);
+        streamView.setY(childY);
+    }
+
+    // NOTE: Puts back the zoom and pan from before picture-in-picture, then refits them to the restored window size.
+    public void exitPictureInPicture() {
+        if (!inPictureInPicture) {
+            return;
+        }
+
+        inPictureInPicture = false;
+        scaleFactor = parkedScaleFactor;
+        childX = parkedChildX;
+        childY = parkedChildY;
+        streamView.setScaleX(scaleFactor);
+        streamView.setScaleY(scaleFactor);
+        streamView.setX(childX);
+        streamView.setY(childY);
+        streamView.post(this::handleSurfaceChange);
+    }
+
+    // NOTE: The getters return the real zoom and pan even while picture-in-picture shows the neutral view, so the saved preferences never keep the temporary state.
+    public float getScaleFactor() { return inPictureInPicture ? parkedScaleFactor : scaleFactor; }
+    public float getChildX() { return inPictureInPicture ? parkedChildX : childX; }
+    public float getChildY() { return inPictureInPicture ? parkedChildY : childY; }
 }

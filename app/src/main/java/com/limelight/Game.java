@@ -1847,6 +1847,15 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
     public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode, Configuration newConfig) {
         super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig);
         pipDebug("onPictureInPictureModeChanged " + isInPictureInPictureMode);
+        // NOTE: Fullscreen zoom and pan must not apply inside the small window (BUG-061 and the partial black picture), so they are parked while in picture-in-picture.
+        if (panZoomHandler != null) {
+            if (isInPictureInPictureMode) {
+                panZoomHandler.enterPictureInPicture();
+            }
+            else {
+                panZoomHandler.exitPictureInPicture();
+            }
+        }
         if (isInPictureInPictureMode) {
             pipEndedAtMs = 0;
             return;
