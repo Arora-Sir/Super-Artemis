@@ -7,11 +7,13 @@ All notable changes to Super Artemis are listed here. The format follows [Keep a
 ### Added
 
 - Profiles can be moved up and down in the Profiles list: drag a profile by the handle at the start of its row, or long press the row and drag it. The new order is saved when the drag ends and stays after a restart; the active profile does not change.
+- While the host is silent for 1.5 s, a label over the last frame says "Connection lost, waiting for the network" and counts the seconds. It goes away when the host answers again, and when the network drop grace period runs out the usual "connection terminated" dialog shows without the label.
 
 ### Changed
 
 - The Russian translation is complete: 590 strings and the step plural that had no Russian text are translated, and 173 existing Russian strings are corrected for meaning, completeness, outdated text and terminology. Keyboard keys and key combinations stay as printed on the keyboard, and only an explanation in brackets is translated (#3).
 - The Default entry of the language list is a string resource (`language_default`), so each language shows it in its own words (#3).
+- The status label (poor or slow connection, network drop) sits in the top left corner and fades in and out over half a second.
 
 ### Fixed
 
