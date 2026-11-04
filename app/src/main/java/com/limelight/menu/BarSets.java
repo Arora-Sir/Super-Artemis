@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 
 import androidx.preference.PreferenceManager;
 
+import com.limelight.R;
 import com.limelight.profiles.ProfilesManager;
 
 import org.json.JSONArray;
@@ -152,6 +153,11 @@ public final class BarSets {
     }
 
     static final String DEFAULT_NAME = "Default";
+
+    // NOTE: The stored name of the first set stays "Default" so saved data keeps working, and each language shows its own word for it.
+    public static String displayName(Context context, Set set) {
+        return DEFAULT_NAME.equals(set.name) ? context.getString(R.string.bar_set_default_name) : set.name;
+    }
 
     private BarSets() {
     }

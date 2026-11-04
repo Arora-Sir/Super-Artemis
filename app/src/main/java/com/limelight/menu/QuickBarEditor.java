@@ -569,7 +569,7 @@ public final class QuickBarEditor {
         }
 
         void refresh() {
-            ((TextView) body.findViewById(R.id.quick_bar_set)).setText(set().name);
+            ((TextView) body.findViewById(R.id.quick_bar_set)).setText(BarSets.displayName(context, set()));
             BarSets.Bar bar = bar();
             body.findViewById(R.id.quick_bar_bar_controls).setVisibility(bar != null ? View.VISIBLE : View.GONE);
             body.findViewById(R.id.quick_bar_items_pane).setVisibility(bar != null ? View.VISIBLE : View.GONE);
@@ -727,7 +727,7 @@ public final class QuickBarEditor {
         void showSetMenu(View anchor) {
             PopupMenu popup = new PopupMenu(dialogContext, anchor);
             for (int i = 0; i < state.sets.size(); i++) {
-                String name = state.sets.get(i).name;
+                String name = BarSets.displayName(context, state.sets.get(i));
                 popup.getMenu().add(0, 1000 + i, i, i == shownSet ? context.getString(R.string.quick_bar_set_active, name) : name);
             }
             popup.getMenu().add(1, 1, 100, R.string.quick_bar_set_new);
@@ -751,14 +751,14 @@ public final class QuickBarEditor {
                     });
                 }
                 else if (id == 2) {
-                    askName(R.string.quick_bar_set_rename, set().name, name -> {
+                    askName(R.string.quick_bar_set_rename, BarSets.displayName(context, set()), name -> {
                         set().name = name;
                         refresh();
                     });
                 }
                 else if (id == 3) {
                     storeRows();
-                    state.sets.add(set().copy(context.getString(R.string.quick_bar_set_copy_name, set().name)));
+                    state.sets.add(set().copy(context.getString(R.string.quick_bar_set_copy_name, BarSets.displayName(context, set()))));
                     showSet(state.sets.size() - 1);
                 }
                 else if (id == 4) {
@@ -787,7 +787,7 @@ public final class QuickBarEditor {
             PopupMenu popup = new PopupMenu(dialogContext, body.findViewById(R.id.quick_bar_set_menu));
             for (int i = 0; i < state.sets.size(); i++) {
                 if (i != shownSet) {
-                    popup.getMenu().add(0, i, i, state.sets.get(i).name);
+                    popup.getMenu().add(0, i, i, BarSets.displayName(context, state.sets.get(i)));
                 }
             }
             popup.setOnMenuItemClickListener(item -> {

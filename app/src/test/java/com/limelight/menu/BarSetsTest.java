@@ -189,4 +189,14 @@ public class BarSetsTest {
         assertEquals(2, set.bars.get(0).items.size());
         assertTrue(copy.bars.get(0).items.contains(KEYBOARD));
     }
+
+    @Test
+    public void displayNameUsesTheStringResourceOnlyForTheStoredDefault() {
+        Context context = ApplicationProvider.getApplicationContext();
+        BarSets.Set stored = new BarSets.Set("Default", new ArrayList<>());
+        BarSets.Set custom = new BarSets.Set("Gaming", new ArrayList<>());
+
+        assertEquals(context.getString(com.limelight.R.string.bar_set_default_name), BarSets.displayName(context, stored));
+        assertEquals("Gaming", BarSets.displayName(context, custom));
+    }
 }

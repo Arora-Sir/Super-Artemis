@@ -385,7 +385,7 @@ public class GameMenu implements Game.GameMenuCallbacks {
             List<MenuEntry> entries = new ArrayList<>();
             for (int i = 0; i < state.sets.size(); i++) {
                 int index = i;
-                String name = state.sets.get(i).name;
+                String name = BarSets.displayName(game, state.sets.get(i));
                 entries.add(new MenuOption(i == state.active ? game.getString(R.string.quick_bar_set_active, name) : name,
                         R.drawable.ic_gm_toggle_floating_button, false, () -> {
                     BarSets.setActive(game, index);
