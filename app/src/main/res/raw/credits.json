@@ -319,6 +319,22 @@
       ]
     },
     {
+      "feature": "Skip KEY_LOW_LATENCY and HEVC RFI on Amlogic C2 decoder",
+      "role": "code",
+      "people": [{ "handle": "JustinZeus" }],
+      "links": [
+        { "label": "ClassicOldSong/moonlight-android#603", "url": "https://github.com/ClassicOldSong/moonlight-android/pull/603" }
+      ]
+    },
+    {
+      "feature": "PowerA Pro controller support",
+      "role": "code",
+      "people": [{ "handle": "CoolRobloxDeveloper" }],
+      "links": [
+        { "label": "ClassicOldSong/moonlight-android#571", "url": "https://github.com/ClassicOldSong/moonlight-android/pull/571" }
+      ]
+    },
+    {
       "feature": "No crash with vendor keyboards that report out-of-range key codes",
       "role": "code",
       "people": [{ "handle": "qiin2333" }],

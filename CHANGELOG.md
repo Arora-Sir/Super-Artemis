@@ -8,16 +8,22 @@ All notable changes to Super Artemis are listed here. The format follows [Keep a
 
 - Every slider dialog in Settings has a minus button, a number field and a plus button above the slider. Long pressing either button accelerates value stepping with haptic feedback.
 - The video bitrate and metered bitrate sliders use a calibrated power curve that places the 35 to 40 Mbps streaming sweet spot at the 50 percent center mark. Stepping supports 0.5 Mbps decimal precision below 50 Mbps.
+- The video resolution picker organizes display modes into three distinct sections: Standard Resolutions (360p through 4K with 16:9 subtitles), Native Display (Full-Screen and Cutout safe area with aspect ratio subtitles), and Custom Resolution at the bottom with clean section dividers.
+- Samsung Book Cover Keyboard touchpads are captured on demand when uncaptured finger input occurs on mouse-class devices, restoring two-finger scrolling and preventing tablet system gestures from interrupting the stream session.
+- Configurable controller rumble rate limiting with a 0 to 100 ms minimum interval prevents Android 14 system server crashes during dense vibration bursts on Bluetooth gamepads and DualSense controllers. Stop commands dispatch immediately. Trigger rumble honors the Enable Rumble toggle. Native translations are provided across all 11 supported locales.
+- The Amlogic Codec2 HEVC decoder (`c2.amlogic.hevc.decoder`) skips `KEY_LOW_LATENCY` and falls through to vendor low-latency controls, resolving the slideshow rendering bug on S905X5, S905X5M, and S905Y4 TV devices. Reference frame invalidation is disabled on this decoder to eliminate frame error bursts.
+- Official PowerA Pro controllers for Nintendo Switch with zeroed vendor and product IDs are recognized and mapped using the Switch Pro controller key layout.
 
 ### Changed
 
 - The Settings list shows the active value inline in the title for Resolution, Frame rate, and Bitrate settings, keeping descriptive text full-width underneath.
+- Preference titles wrap cleanly across up to two lines on compact phone displays to prevent truncation of active values.
 
 ## [1.1.0] - 2026-11-06
 
 ### Added
 
-- Profiles can be moved up and down in the Profiles list: drag a profile by the handle at the start of its row, or long press the row and drag it. The new order is saved when the drag ends and stays after a restart; the active profile does not change.
+- Profiles can be moved up and down in the Profiles list: drag a profile by the handle at the start of its row, or long press the row and drag it. The new order is saved when the drag ends and stays after a restart. The active profile does not change.
 - While the host is silent for 1.5 s, a label over the last frame says "Connection lost, waiting for the network" and counts the seconds. It goes away when the host answers again, and when the network drop grace period runs out the usual "connection terminated" dialog shows without the label.
 
 - When the network drops, a card over the last frame shows the state (waiting for the stream, waiting for the network, reaching the PC, starting) with Cancel and Reconnect now. The stream reconnects by itself once the network is back and the PC answers, with a short backoff and a five minute limit, and the usual terminated dialog shows if that runs out. A new Settings switch, Reconnect after a network drop, turns it off.
