@@ -577,6 +577,14 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
                 category_gamepad_settings.removePreference(findPreference("seekbar_vibrate_fallback_strength"));
             }
 
+            // Two numbers typed in the Resolution dialog that are not in the list become the custom resolution,
+            // saved the same way as the "Custom resolution" field, so the list gets its custom entry after the reload
+            Preference resolutionPref = findPreference(PreferenceConfiguration.RESOLUTION_PREF_STRING);
+            if (resolutionPref instanceof ResolutionPreference) {
+                ((ResolutionPreference) resolutionPref).setCustomResolutionListener(value ->
+                        editAndReload(PreferenceConfiguration.CUSTOM_RESOLUTION_PREF_STRING, value));
+            }
+
             // Check custom resolution
             String customResStr = prevPrefConfig.customResolution;
             if(customResStr != null && !customResStr.isEmpty()){
