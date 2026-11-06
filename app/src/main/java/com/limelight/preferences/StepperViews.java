@@ -29,6 +29,8 @@ final class StepperViews {
     static final int BUTTON_DP = 42;
     // Space between the row and the bar under it in dp.
     private static final int BAR_TOP_DP = 14;
+    // Side inset of the bar in dp: brings the thumb's outer edge in line with the dialog text indent.
+    private static final int BAR_SIDE_DP = 16;
     // Diameter of the bar thumb in dp.
     private static final int THUMB_DP = 24;
     // Fill of the dialog button pills: text color at 10 percent.
@@ -148,9 +150,10 @@ final class StepperViews {
     }
 
     // Layout params for the slider bar placed underneath the stepper row.
+    // Inset from both sides so the thumb at the minimum or maximum stops on the text line, not at the dialog edge.
     static LinearLayout.LayoutParams barParams(Context context) {
         LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        p.setMargins(0, dp(context, BAR_TOP_DP), 0, 0);
+        p.setMargins(dp(context, BAR_SIDE_DP), dp(context, BAR_TOP_DP), dp(context, BAR_SIDE_DP), 0);
         return p;
     }
 
