@@ -577,19 +577,8 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
                 category_gamepad_settings.removePreference(findPreference("seekbar_vibrate_fallback_strength"));
             }
 
-            // Check custom resolution
-            String customResStr = prevPrefConfig.customResolution;
-            if(customResStr != null && !customResStr.isEmpty()){
-                String[] resolutionSegments = customResStr.split("x");
-                if(resolutionSegments.length == 2){
-                    try {
-                        addNativeResolutionEntries(Integer.parseInt(resolutionSegments[0]), Integer.parseInt(resolutionSegments[1]), false, true);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-            
+
+
             // Check custom refresh rate
             String customRefreshRateStr = prevPrefConfig.customRefreshRate;
             if (customRefreshRateStr != null && !customRefreshRateStr.isEmpty()) {
@@ -750,6 +739,19 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
                 int width = Math.max(metrics.widthPixels, metrics.heightPixels);
                 int height = Math.min(metrics.widthPixels, metrics.heightPixels);
                 addNativeResolutionEntries(width, height, false, false);
+            }
+
+            // Add custom resolution at the end of the list after all standard and native display modes
+            String customResStr = prevPrefConfig.customResolution;
+            if (customResStr != null && !customResStr.isEmpty()) {
+                String[] resolutionSegments = customResStr.split("x");
+                if (resolutionSegments.length == 2) {
+                    try {
+                        addNativeResolutionEntries(Integer.parseInt(resolutionSegments[0]), Integer.parseInt(resolutionSegments[1]), false, true);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
             }
 
             if (!PreferenceConfiguration.readPreferences(this.getActivity()).unlockFps) {

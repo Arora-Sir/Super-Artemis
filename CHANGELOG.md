@@ -4,6 +4,15 @@ All notable changes to Super Artemis are listed here. The format follows [Keep a
 
 ## [Unreleased]
 
+### Added
+
+- Every slider dialog in Settings has a minus button, a number field and a plus button above the slider. Long pressing either button accelerates value stepping with haptic feedback.
+- The video bitrate and metered bitrate sliders use a calibrated power curve that places the 35 to 40 Mbps streaming sweet spot at the 50 percent center mark. Stepping supports 0.5 Mbps decimal precision below 50 Mbps.
+
+### Changed
+
+- The Settings list shows the active value inline in the title for Resolution, Frame rate, and Bitrate settings, keeping descriptive text full-width underneath.
+
 ## [1.1.0] - 2026-11-06
 
 ### Added
