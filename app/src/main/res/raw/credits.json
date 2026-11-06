@@ -303,6 +303,14 @@
       ]
     },
     {
+      "feature": "Samsung keyboard cover touchpad capture on demand",
+      "role": "code",
+      "people": [{ "handle": "Lian-CrescentMoon" }],
+      "links": [
+        { "label": "ClassicOldSong/moonlight-android#607", "url": "https://github.com/ClassicOldSong/moonlight-android/pull/607" }
+      ]
+    },
+    {
       "feature": "No crash with vendor keyboards that report out-of-range key codes",
       "role": "code",
       "people": [{ "handle": "qiin2333" }],

@@ -18,6 +18,18 @@ public class AndroidNativePointerCaptureProvider extends AndroidPointerIconCaptu
     private final InputManager inputManager;
     private final View targetView;
 
+    // hasCaptureCompatibleInputDevice() skips the touchpad of Samsung keyboard covers
+    // (sec_touchpad) because it reports SOURCE_TOUCHSCREEN until it is captured. With
+    // no other mouse connected the pointer was never captured. The touchpad had no
+    // two-finger scrolling and the tablet's multi-finger gestures stayed active.
+    // We capture on demand instead once such a touchpad is actually used.
+    private static final int TOUCHPAD_CAPTURE_RETRY_MS = 1000;
+    private static final int TOUCHPAD_CAPTURE_MAX_ATTEMPTS = 5;
+    private boolean touchpadCaptureRequested;
+    private int touchpadDeviceId = -1;
+    private int touchpadCaptureAttempts;
+    private long lastTouchpadCaptureRequestTime;
+
     public AndroidNativePointerCaptureProvider(Activity activity, View targetView) {
         super(activity, targetView);
         this.inputManager = activity.getSystemService(InputManager.class);
@@ -79,10 +91,34 @@ public class AndroidNativePointerCaptureProvider extends AndroidPointerIconCaptu
         // Listen for device events to enable/disable capture
         inputManager.registerInputDeviceListener(this, null);
 
+        touchpadCaptureAttempts = 0;
+
         // Capture now if we have a capture-capable device
-        if (hasCaptureCompatibleInputDevice()) {
+        if (hasCaptureCompatibleInputDevice() || touchpadCaptureRequested) {
             targetView.requestPointerCapture();
         }
+    }
+
+    @Override
+    public void onUncapturedTouchpadInput(MotionEvent event) {
+        if (!isCapturing || isCursorVisible || targetView.hasPointerCapture()) {
+            return;
+        }
+
+        // Give up after a few attempts where pointer capture is unavailable (for example DeX),
+        // and do not ask again while a request is still in flight.
+        long now = event.getEventTime();
+        if (touchpadCaptureAttempts >= TOUCHPAD_CAPTURE_MAX_ATTEMPTS ||
+                (lastTouchpadCaptureRequestTime != 0 &&
+                        now - lastTouchpadCaptureRequestTime < TOUCHPAD_CAPTURE_RETRY_MS)) {
+            return;
+        }
+
+        lastTouchpadCaptureRequestTime = now;
+        touchpadCaptureAttempts++;
+        touchpadCaptureRequested = true;
+        touchpadDeviceId = event.getDeviceId();
+        targetView.requestPointerCapture();
     }
 
     @Override
@@ -94,6 +130,8 @@ public class AndroidNativePointerCaptureProvider extends AndroidPointerIconCaptu
             return;
         }
 
+        touchpadCaptureAttempts = 0;
+
         // Recapture the pointer if focus was regained. On Android Q,
         // we have to delay a bit before requesting capture because otherwise
         // we'll hit the "requestPointerCapture called for a window that has no focus"
@@ -102,7 +140,9 @@ public class AndroidNativePointerCaptureProvider extends AndroidPointerIconCaptu
         h.postDelayed(new Runnable() {
             @Override
             public void run() {
-                if (hasCaptureCompatibleInputDevice()) {
+                // A touchpad captured on demand looks like a touchscreen again once
+                // capture is lost, so it needs its own check here.
+                if (hasCaptureCompatibleInputDevice() || touchpadCaptureRequested) {
                     targetView.requestPointerCapture();
                 }
             }
@@ -151,6 +191,12 @@ public class AndroidNativePointerCaptureProvider extends AndroidPointerIconCaptu
 
     @Override
     public void onInputDeviceRemoved(int deviceId) {
+        // The touchpad captured on demand was removed (for example keyboard cover detached)
+        if (touchpadCaptureRequested && deviceId == touchpadDeviceId) {
+            touchpadCaptureRequested = false;
+            touchpadDeviceId = -1;
+        }
+
         // Check if the capture-compatible device was removed
         if (targetView.hasPointerCapture() && !hasCaptureCompatibleInputDevice()) {
             targetView.releasePointerCapture();
@@ -159,6 +205,12 @@ public class AndroidNativePointerCaptureProvider extends AndroidPointerIconCaptu
 
     @Override
     public void onInputDeviceChanged(int deviceId) {
+        // Capturing reconfigures the touchpad and lands here. Do not let the emulated
+        // removal below release a capture that was requested on purpose for that touchpad.
+        if (touchpadCaptureRequested) {
+            return;
+        }
+
         // Emulating a remove+add should be sufficient for our purposes.
         //
         // Note: This callback must be handled carefully because it can happen as a result of
