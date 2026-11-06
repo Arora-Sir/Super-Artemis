@@ -13,7 +13,7 @@ import com.limelight.R;
 // Every external link the app opens for Super Artemis itself, kept in one place so a moved page is fixed once
 public final class Links {
     public static final String REPOSITORY = "https://github.com/Arora-Sir/Super-Artemis";
-    public static final String LOCK_GUIDE = REPOSITORY + "/blob/unified-main/SETUP.md#lock-the-pc-from-a-button";
+    public static final String LOCK_GUIDE = REPOSITORY + "/blob/unified-main/docs/SETUP.md#lock-the-pc-from-a-button";
     public static final String RELEASES = REPOSITORY + "/releases";
     public static final String NEW_ISSUE = REPOSITORY + "/issues/new/choose";
     public static final String ISSUES = REPOSITORY + "/issues";

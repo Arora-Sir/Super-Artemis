@@ -56,7 +56,7 @@ def advisories(source):
 
 
 def report(sources):
-    lines = ["# Upstream watch", "", "Generated %s UTC. Review each item, port what fits with credit (CONTRIBUTING.md), then update `reviewed` in `scripts/upstream_sources.json` (see UPSTREAM.md)." % datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M"), ""]
+    lines = ["# Upstream watch", "", "Generated %s UTC. Review each item, port what fits with credit (CONTRIBUTING.md), then update `reviewed` in `scripts/upstream_sources.json` (see docs/UPSTREAM.md)." % datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M"), ""]
     total = 0
     for source in sources:
         title = "## %s (%s, %s)" % (source["repo"], source["branch"], source["role"])

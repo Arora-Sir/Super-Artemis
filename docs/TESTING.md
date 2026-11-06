@@ -4,9 +4,9 @@ Quick-start guide: writing JVM/Robolectric unit tests for this repo
 0.  Where tests live  
     • Path: `app/src/test/java/com/limelight/...` (plain JVM tests, *not* instrumented).  
     • Build task:  
-      – Default flavour: `./gradlew :app:testNonRoot_gameDebugUnitTest`  
-      – Root flavour:   `./gradlew :app:testRootDebugUnitTest`  
-      – All:           `./gradlew :app:testDebugUnitTest`
+: Default flavour: `./gradlew :app:testNonRoot_gameDebugUnitTest`  
+: Root flavour:   `./gradlew :app:testRootDebugUnitTest`  
+: All:           `./gradlew :app:testDebugUnitTest`
 
 1.  Dependencies & Gradle switches  
     `app/build.gradle` already contains everything you need:  
@@ -54,8 +54,8 @@ Quick-start guide: writing JVM/Robolectric unit tests for this repo
     • `@Config(sdk = {33})` makes Robolectric emulate Android 13 (matches `compileSdk 34` while staying stable).  
     • `shadows = …` suppresses native or platform calls:
 
-      – `ShadowMoonBridge` eliminates the static initializer that tries `System.loadLibrary("moonbr")`, and provides minimal stubs/constants used by the app.  
-      – `ShadowGameManager` avoids a ServiceManager lookup present on real devices.
+: `ShadowMoonBridge` eliminates the static initializer that tries `System.loadLibrary("moonbr")`, and provides minimal stubs/constants used by the app.  
+: `ShadowGameManager` avoids a ServiceManager lookup present on real devices.
 
     If you hit another native/SDK obstacle, create a new shadow the same way:
 
@@ -68,7 +68,7 @@ Quick-start guide: writing JVM/Robolectric unit tests for this repo
 
 3.  Typical helpers used in current tests  
 
-    • **Resetting singletons** – many app classes use `private static` caches.  
+    • **Resetting singletons**: many app classes use `private static` caches.  
       Example (ProfilesManager):
 
       ```java
@@ -77,17 +77,17 @@ Quick-start guide: writing JVM/Robolectric unit tests for this repo
       f.set(null, null);       // clear before each test
       ```
 
-    • **Cleaning filesystem state** – tests create/delete `context.getFilesDir()/profiles`.  
+    • **Cleaning filesystem state**: tests create/delete `context.getFilesDir()/profiles`.  
       Re-use `deleteRecursively(File)` from existing tests.
 
-    • **Preferences isolation** – wipe them in `@Before`:
+    • **Preferences isolation**: wipe them in `@Before`:
 
       ```java
       SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(ctx);
       p.edit().clear().commit();
       ```
 
-    • **Activity testing** – use the Robolectric `buildActivity` chain:
+    • **Activity testing**: use the Robolectric `buildActivity` chain:
 
       ```java
       MyActivity act = Robolectric.buildActivity(MyActivity.class)
@@ -111,9 +111,9 @@ Quick-start guide: writing JVM/Robolectric unit tests for this repo
 
     • **Native JNI classes** (MoonBridge, etc.) must *always* be shadowed or the test JVM will `UnsatisfiedLinkError`.  
     • **GameManager & BackdropFrameRenderer** are Android-T APIs; stubbing them prevents `ServiceManager` or `SurfaceFlinger` lookups.  
-    • **Resources** – because `includeAndroidResources=true`, you can safely inflate real layout XML, but keep the SDK level in `@Config` ≥ the latest attribute you reference.  
-    • **Product flavours** – tests are compiled once per flavour; don’t hard-code `BuildConfig.APPLICATION_ID`, use `context.getPackageName()` when needed.  
-    • **Suppress noisy log spam** – call `TestLogSuppressor.install()` once per test-class (see above).  
+    • **Resources**: because `includeAndroidResources=true`, you can safely inflate real layout XML, but keep the SDK level in `@Config` ≥ the latest attribute you reference.  
+    • **Product flavours**: tests are compiled once per flavour; don’t hard-code `BuildConfig.APPLICATION_ID`, use `context.getPackageName()` when needed.  
+    • **Suppress noisy log spam**: call `TestLogSuppressor.install()` once per test-class (see above).  
 
 6.  Skeleton for a new test file  
 
@@ -163,8 +163,8 @@ Quick-start guide: writing JVM/Robolectric unit tests for this repo
     }
     ```
 
-With the above conventions—Robolectric runner, shadows for native pieces, reflection resets,
-and resource-enabled unit tests—you can write new coverage quickly without needing the
+With the above conventions: Robolectric runner, shadows for native pieces, reflection resets,
+and resource-enabled unit tests: you can write new coverage quickly without needing the
 Android emulator or `androidTest` instrumentation.
 
 ```java

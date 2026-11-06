@@ -146,9 +146,9 @@ Every release APK is signed with one key. Its certificate SHA-256 is `AB:25:F8:8
 
 | Goal | What to set |
 | :--- | :--- |
-| Microphone | Requires the [mic-enabled Apollo build](https://github.com/logabell/apollo-microphone/releases/tag/v2026.3.18-mic.1) (`v2026.3.18-mic.1`) or Apollo with [PR #1428](https://github.com/ClassicOldSong/Apollo/pull/1428), plus the Steam Streaming Microphone driver. In `sunshine.conf` set `stream_mic = enabled` and `mic_backend = steam_streaming_microphone`. See SETUP.md for details. |
+| Microphone | Requires the [mic-enabled Apollo build](https://github.com/logabell/apollo-microphone/releases/tag/v2026.3.18-mic.1) (`v2026.3.18-mic.1`) or Apollo with [PR #1428](https://github.com/ClassicOldSong/Apollo/pull/1428), plus the Steam Streaming Microphone driver. In `sunshine.conf` set `stream_mic = enabled` and `mic_backend = steam_streaming_microphone`. See [docs/SETUP.md](docs/SETUP.md) for details. |
 | Network drop grace period | Set Apollo's ping timeout at least as long as the grace period chosen in the app, or the host ends the session first. |
-| Actions on connect and disconnect | Apollo's per-client Do and Undo commands run on every session start and stop. SETUP.md has examples for mouse speed and for making Steam Streaming Microphone the default PC microphone only while you stream. |
+| Actions on connect and disconnect | Apollo's per-client Do and Undo commands run on every session start and stop. [docs/SETUP.md](docs/SETUP.md) has examples for mouse speed and for making Steam Streaming Microphone the default PC microphone only while you stream. |
 
 ## If something goes wrong
 
@@ -174,7 +174,7 @@ cd Super-Artemis
 ./gradlew assembleNonRoot_gameDebug
 ```
 
-The APK lands in `app/build/outputs/apk/nonRoot_game/debug/`. SETUP.md covers devices, pairing, tests, release signing and the doc checks. ARCHITECTURE.md explains how the app is built, CONTEXT.md shows the current state and UPSTREAM.md how the fork stays current with upstream.
+The APK lands in `app/build/outputs/apk/nonRoot_game/debug/`. [docs/SETUP.md](docs/SETUP.md) covers devices, pairing, tests, release signing and the doc checks. [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) explains how the app is built, [docs/CONTEXT.md](docs/CONTEXT.md) shows the current state, and [docs/UPSTREAM.md](docs/UPSTREAM.md) explains how the fork stays current with upstream.
 
 ## Support
 

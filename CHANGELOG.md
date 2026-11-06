@@ -73,7 +73,7 @@ All notable changes to Super Artemis are listed here. The format follows [Keep a
 - The app style picker previews a tap and applies on the Apply button, shows one line of dots that wraps on a phone, keeps the last custom color as its own dot and puts the chosen name in the section label.
 - The Support row has a filled red heart with a soft heartbeat that stops when animations are off. The Support dialog keeps its plain header.
 - Settings, Host has "Lock key does nothing?" with the AutoHotkey script, a Copy button and a link to the guide, because Windows ignores a Win+L that a stream injects.
-- The release process now follows DualClone: a keystore helper, a protected `release` environment, a verifier with a permission allow-list and certificate check, checksums, and a build and test workflow. See RELEASING.md.
+- The release process now follows DualClone: a keystore helper, a protected `release` environment, a verifier with a permission allow-list and certificate check, checksums, and a build and test workflow. See docs/RELEASING.md.
 - The Blue scheme seed is `2196F3` and the custom color default is `00BCD4`, matching the shared accent list.
 - The stream shrinks into picture-in-picture only through the system auto-enter and the leave hint, so dialogs and overlays of other apps no longer shrink it.
 - A stream lost behind the lock screen reconnects after unlock even when the display still reported interactive.
@@ -91,7 +91,7 @@ All notable changes to Super Artemis are listed here. The format follows [Keep a
 - Pencil buttons to edit a key or flow in place from the bar editor, the menu editor and the gesture editor (hold a gesture row), and "Edit this key or flow" and "Change icon" in the long press menu of a bar button, also over a stream.
 - A key or flow name is optional. A shortcut reads "Ctrl + M" or "Ctrl + M (Gemini Talk)", and pickers say "Key:" for one shortcut and "Flow:" for a sequence.
 - The quick bar editor says how many buttons fit per line on this screen and offers 4, 6, 10 and Fit screen.
-- `scripts/native_tests/` with a test for stray audio packets, and a Native crash fix note in BUGS.md.
+- `scripts/native_tests/` with a test for stray audio packets, and a Native crash fix note in docs/BUGS.md.
 
 ### Changed
 
@@ -171,7 +171,7 @@ The first Super Artemis release, not published yet. The date is set when the `v1
 - Duplicate settings are gone: the menu style lives in the menu editor, "Disable default special keys" became per-key hiding (the old switch carries over), and the overlay zoom button became a Pan/Zoom pin on the top right quick-action bar (also carried over).
 - The Support dialog has no GitHub button any more, since About has one "Source code on GitHub" entry.
 - "Enable multi-touch gestures" became one switch on the Multi-finger gestures row in Settings, after a divider: the row opens the gesture editor and the switch turns every multi-finger gesture on or off in every touch mode, multi-touch included. It is on by default. With it off, every touch reaches the touch mode as it would without Super Artemis.
-- SETUP.md shows how Apollo's Do and Undo commands make Steam Streaming Microphone the default PC microphone only while a stream runs.
+- docs/SETUP.md shows how Apollo's Do and Undo commands make Steam Streaming Microphone the default PC microphone only while a stream runs.
 - The quick-action bar editor uses two panes on tablets: the preview and bar settings scroll on the left, and the button list fills the right side down to its Add key or flow button.
 - Profiles has a title bar with back, each profile is a rounded card with tinted copy, edit and delete buttons, and its dialogs use the same icon headers as the rest of the app.
 - Send special keys and More keys list the keys and the menu entries (More keys, Add key or flow, Manage special keys, Cancel) in separate sections.

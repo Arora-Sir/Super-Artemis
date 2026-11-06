@@ -56,7 +56,7 @@ Super Artemis is built from the work of many people. Every change that ports cod
 
 ### Taking changes from upstream and forks
 
-Follow UPSTREAM.md: review the weekly "Upstream watch" issue and security advisories, keep original authorship with `git am` or `git cherry-pick` where the change applies cleanly, and add the source to `scripts/upstream_sources.json` when code comes from a new repository.
+Follow docs/UPSTREAM.md: review the weekly "Upstream watch" issue and security advisories, keep original authorship with `git am` or `git cherry-pick` where the change applies cleanly, and add the source to `scripts/upstream_sources.json` when code comes from a new repository.
 
 ## Important Rules
 
@@ -82,7 +82,7 @@ When using AI tools to generate code:
 
 ## Development Setup
 
-Please refer to SETUP.md for the development environment and README.md for an overview.
+Please refer to docs/SETUP.md for the development environment and README.md for an overview.
 
 ## Questions?
 

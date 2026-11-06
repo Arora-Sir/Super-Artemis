@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "note": "reviewed is the last commit someone checked for this repository. Update it after each review, see UPSTREAM.md.",
+  "note": "reviewed is the last commit someone checked for this repository. Update it after each review, see docs/UPSTREAM.md.",
   "sources": [
     {
       "repo": "ClassicOldSong/moonlight-android",

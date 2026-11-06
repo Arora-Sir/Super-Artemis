@@ -5,8 +5,8 @@ Describe the change and why it is needed in one or two short paragraphs.
 ## Checklist
 
 - [ ] Tested on a device (name the device and Android version below)
-- [ ] `./gradlew testNonRoot_gameDebugUnitTest` shows no failures beyond the five known upstream ones (BUGS.md, BUG-009)
-- [ ] Docs updated where behaviour changed (CHANGELOG.md Unreleased, and ARCHITECTURE.md, BUGS.md or CONTEXT.md if relevant)
+- [ ] `./gradlew testNonRoot_gameDebugUnitTest` shows no failures beyond the five known upstream ones (docs/BUGS.md, BUG-009)
+- [ ] Docs updated where behaviour changed (CHANGELOG.md Unreleased, and docs/ARCHITECTURE.md, docs/BUGS.md or docs/CONTEXT.md if relevant)
 - [ ] `python scripts/clean_dashes.py --check` passes for changed docs
 
 ## Credit
