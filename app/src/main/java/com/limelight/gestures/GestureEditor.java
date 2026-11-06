@@ -298,10 +298,41 @@ public final class GestureEditor {
         }
     }
 
+    // The Windows keys a binding sends, so the Find panel can find it by pressing them. Actions send none.
+    static List<Integer> keysFor(Context context, String binding) {
+        String keyId = GestureBindingStore.customKeyId(binding);
+        if (keyId != null) {
+            CustomKey key = SpecialKeys.find(context, keyId);
+            return key != null ? key.keys : null;
+        }
+        return GestureBindingStore.comboKeys(binding);
+    }
+
+    // NOTE: The same key, flow or action on two gestures is allowed, but the user is told which gesture already runs it.
+    static GestureBindingStore.Slot otherSlotWith(SharedPreferences prefs, GestureBindingStore.Slot slot, String binding) {
+        if (GestureBindingStore.NONE.equals(binding)) {
+            return null;
+        }
+        for (GestureBindingStore.Slot other : GestureBindingStore.SLOTS) {
+            if (!other.prefKey().equals(slot.prefKey()) && binding.equals(GestureBindingStore.get(prefs, other))) {
+                return other;
+            }
+        }
+        return null;
+    }
+
+    private static void warnIfShared(Context context, SharedPreferences prefs, GestureBindingStore.Slot slot, Option option) {
+        GestureBindingStore.Slot other = otherSlotWith(prefs, slot, option.binding);
+        if (other != null) {
+            Toast.makeText(context, context.getString(R.string.gesture_duplicate_warning, option.label, slotTitle(context, other)), Toast.LENGTH_LONG).show();
+        }
+    }
+
     // Picker with the options grouped under headings, each with its icon, and a check on the current choice
     private static void choose(Context context, SharedPreferences prefs, GestureBindingStore.Slot slot, List<Option> options, Runnable onChosen) {
         String current = GestureBindingStore.get(prefs, slot);
-        ChoiceList choices = new ChoiceList(new AlertDialog.Builder(context), slotIcon(slot), slotTitle(context, slot), R.string.game_menu_cancel);
+        ChoiceList choices = new ChoiceList(new AlertDialog.Builder(context), slotIcon(slot), slotTitle(context, slot), R.string.game_menu_cancel)
+                .enableSearch();
 
         int group = -1;
         for (Option option : options) {
@@ -311,8 +342,9 @@ public final class GestureEditor {
                     addSection(choices.list(), group);
                 }
             }
-            choices.add(option.iconRes, option.label, option.binding.equals(current), () -> {
+            choices.add(option.iconRes, option.label, option.binding.equals(current), keysFor(context, option.binding), () -> {
                 GestureBindingStore.set(prefs, slot, option.binding);
+                warnIfShared(context, prefs, slot, option);
                 onChosen.run();
             });
         }

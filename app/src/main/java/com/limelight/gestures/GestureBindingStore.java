@@ -11,7 +11,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-// NOTE: Which action each multi-finger gesture runs: taps, double taps and holds with 3, 4 or 5 fingers, and swipes with 3 or 4 fingers in four directions.
+// NOTE: Which action each multi-finger gesture runs: taps with 2 to 5 fingers, double taps and holds with 1 to 5 fingers, and swipes with 2 to 4 fingers in four directions.
 // NOTE: Values are "none", "quick_menu", "middle_click", a stream action ID, "key:<special key ID>" or "combo:<hex key codes joined by +>".
 // NOTE: Defaults match the gestures Artemis always had, swipes start as Nothing, and the old "Five-finger tap opens menu" switch decides the five-finger default.
 public final class GestureBindingStore {
@@ -24,9 +24,12 @@ public final class GestureBindingStore {
     // Setting from before configurable gestures, read only to migrate it
     static final String LEGACY_FIVE_FINGER_MENU = "checkbox_five_finger_menu";
 
-    public static final int[] FINGER_COUNTS = {3, 4, 5};
-    // Five-finger swipes look like a palm on the screen, so only 3 and 4 fingers can swipe
-    public static final int[] SWIPE_FINGER_COUNTS = {3, 4};
+    // A one-finger tap is the ordinary mouse click, so a single tap cannot be bound with one finger. Two-finger taps keep the right click until something else is chosen.
+    public static final int[] TAP_FINGER_COUNTS = {2, 3, 4, 5};
+    public static final int[] DOUBLE_TAP_FINGER_COUNTS = {1, 2, 3, 4, 5};
+    public static final int[] HOLD_FINGER_COUNTS = {1, 2, 3, 4, 5};
+    // Five-finger swipes look like a palm on the screen, so only 2, 3 and 4 fingers can swipe
+    public static final int[] SWIPE_FINGER_COUNTS = {2, 3, 4};
 
     // How long the fingers stay still before a hold runs, chosen in the gesture editor
     public static final String HOLD_DURATION_PREF = "gesture_hold_ms";
@@ -72,13 +75,13 @@ public final class GestureBindingStore {
 
     static {
         List<Slot> slots = new ArrayList<>();
-        for (int fingers : FINGER_COUNTS) {
+        for (int fingers : TAP_FINGER_COUNTS) {
             slots.add(new Slot(fingers, Kind.TAP));
         }
-        for (int fingers : FINGER_COUNTS) {
+        for (int fingers : DOUBLE_TAP_FINGER_COUNTS) {
             slots.add(new Slot(fingers, Kind.DOUBLE_TAP));
         }
-        for (int fingers : FINGER_COUNTS) {
+        for (int fingers : HOLD_FINGER_COUNTS) {
             slots.add(new Slot(fingers, Kind.HOLD));
         }
         for (int fingers : SWIPE_FINGER_COUNTS) {
@@ -101,8 +104,10 @@ public final class GestureBindingStore {
                 return StreamActionRegistry.ID_TOGGLE_KEYBOARD;
             case 4:
                 return StreamActionRegistry.ID_TOGGLE_FULL_KEYBOARD;
-            default:
+            case 5:
                 return prefs.getBoolean(LEGACY_FIVE_FINGER_MENU, true) ? QUICK_MENU : NONE;
+            default:
+                return NONE;
         }
     }
 

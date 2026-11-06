@@ -3,7 +3,9 @@ package com.limelight.gestures;
 import android.os.Build;
 import android.view.MotionEvent;
 
-// NOTE: Recognizes taps, holds and swipes with 3 or more fingers on the stream. Game runs it before any touch mode (direct touch, trackpad, pan and zoom),
+// NOTE: Recognizes taps, holds and swipes with 2 or more fingers on the stream, and double taps and holds with one finger.
+// NOTE: A one finger touch is never claimed at the start, so cursor movement, drags and clicks reach the PC without delay.
+// NOTE: A one finger double tap only reports the taps and leaves them with the PC, and a one finger hold takes the touch over once it fires. Game runs it before any touch mode (direct touch, trackpad, pan and zoom),
 // NOTE: so a gesture works the same in every mode, including the one that toggles pan and zoom off again.
 // NOTE: Fingers must all land within a short window, which keeps fast play on on-screen buttons from ever counting as a gesture.
 // NOTE: A finger count with a swipe or a hold bound is claimed as soon as the fingers land, and its touches stop reaching the PC.
@@ -41,7 +43,7 @@ public final class MultiFingerGestureRecognizer {
     static final long SWIPE_MAX_MS = 700;
     // The main axis must be at least twice the other one, so diagonal drags do nothing
     static final float SWIPE_AXIS_RATIO = 2f;
-    private static final int MIN_FINGERS = 3;
+    private static final int MIN_FINGERS = 2;
 
     private final Callbacks callbacks;
     private final float density;
@@ -64,6 +66,8 @@ public final class MultiFingerGestureRecognizer {
     private float startX;
     private float startY;
     private float maxDistance;
+    // The latest one finger touch, kept only while a one finger hold is waiting so the touch can be cancelled on the PC when the hold fires
+    private MotionEvent holdEvent;
 
     public MultiFingerGestureRecognizer(Callbacks callbacks, float density, MultiFingerTapDetector.Scheduler scheduler) {
         this.callbacks = callbacks;
@@ -80,6 +84,14 @@ public final class MultiFingerGestureRecognizer {
                 firstDownTime = event.getEventTime();
                 fingers = 1;
                 invalid = !allFingers(event);
+                startX = centroidX(event);
+                startY = centroidY(event);
+                if (!invalid && callbacks.handlesHold(1)) {
+                    holdFingers = 1;
+                    holdScheduled = true;
+                    holdEvent = MotionEvent.obtain(event);
+                    scheduler.schedule(holdRunnable, callbacks.holdDurationMs());
+                }
                 return false;
 
             case MotionEvent.ACTION_POINTER_DOWN:
@@ -140,7 +152,18 @@ public final class MultiFingerGestureRecognizer {
     }
 
     private boolean onMove(MotionEvent event) {
-        if (!tracking || lifted || fingers < MIN_FINGERS || event.getPointerCount() != fingers) {
+        if (!tracking || lifted || event.getPointerCount() != fingers) {
+            return claimed;
+        }
+        if (fingers == 1) {
+            maxDistance = Math.max(maxDistance, (float) Math.hypot(centroidX(event) - startX, centroidY(event) - startY));
+            if (maxDistance > TAP_SLOP_DP * density) {
+                cancelHold();
+            }
+            else if (holdEvent != null) {
+                holdEvent.recycle();
+                holdEvent = MotionEvent.obtain(event);
+            }
             return claimed;
         }
         float dx = centroidX(event) - startX;
@@ -180,7 +203,14 @@ public final class MultiFingerGestureRecognizer {
     private boolean onLastFingerUp(MotionEvent event) {
         boolean consume = claimed;
         boolean canceled = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && (event.getFlags() & MotionEvent.FLAG_CANCELED) != 0;
-        if (!canceled) {
+        if (!canceled && fingers == 1) {
+            // A quick one finger tap is reported for double tap detection and still reaches the PC as an ordinary click
+            if (tracking && !invalid && !held && !claimed && event.getEventTime() - firstDownTime <= TAP_MAX_MS
+                    && maxDistance <= TAP_SLOP_DP * density && callbacks.handlesTap(1)) {
+                callbacks.onTap(1, event.getEventTime());
+            }
+        }
+        else if (!canceled) {
             // A tap whose fingers all lifted together reaches this point without a first lift
             boolean tap = lifted ? tapPending : qualifiesAsTap(event.getEventTime());
             if (tap) {
@@ -205,6 +235,9 @@ public final class MultiFingerGestureRecognizer {
         holdScheduled = false;
         if (tracking && !lifted && !invalid && !swiped && !held && fingers == holdFingers && maxDistance <= TAP_SLOP_DP * density) {
             held = true;
+            if (fingers == 1 && !claimed && holdEvent != null) {
+                claim(holdEvent);
+            }
             callbacks.onHold(fingers);
         }
     }
@@ -218,6 +251,14 @@ public final class MultiFingerGestureRecognizer {
         if (holdScheduled) {
             holdScheduled = false;
             scheduler.cancel(holdRunnable);
+        }
+        releaseHoldEvent();
+    }
+
+    private void releaseHoldEvent() {
+        if (holdEvent != null) {
+            holdEvent.recycle();
+            holdEvent = null;
         }
     }
 

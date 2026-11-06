@@ -143,6 +143,74 @@ public class GestureRecognizerTest {
     }
 
     @Test
+    public void aOneFingerTouchIsNeverClaimedAtTheStart() {
+        holdFingers.add(1);
+        assertFalse(feed(MotionEvent.ACTION_DOWN, 0, 1, 1000, 100, 100));
+        assertFalse(feed(MotionEvent.ACTION_MOVE, 0, 1, 1050, 140, 100));
+        assertTrue(events.isEmpty());
+    }
+
+    @Test
+    public void aOneFingerHoldTakesTheTouchOverWhenItFires() {
+        holdFingers.add(1);
+        feed(MotionEvent.ACTION_DOWN, 0, 1, 1000, 100, 100);
+        assertEquals(1, scheduled.size());
+        elapseHold();
+        assertEquals(Arrays.asList("cancel", "hold1"), events);
+        assertTrue(feed(MotionEvent.ACTION_UP, 0, 1, 1700, 100, 100));
+        assertEquals(Arrays.asList("cancel", "hold1"), events);
+    }
+
+    @Test
+    public void aOneFingerDragNeverRunsTheHold() {
+        holdFingers.add(1);
+        feed(MotionEvent.ACTION_DOWN, 0, 1, 1000, 100, 100);
+        feed(MotionEvent.ACTION_MOVE, 0, 1, 1100, 200, 100);
+        assertTrue(scheduled.isEmpty());
+        assertFalse(feed(MotionEvent.ACTION_UP, 0, 1, 1200, 200, 100));
+        assertTrue(events.isEmpty());
+    }
+
+    @Test
+    public void aOneFingerTapIsReportedAndStillReachesThePc() {
+        tapFingers.add(1);
+        feed(MotionEvent.ACTION_DOWN, 0, 1, 1000, 100, 100);
+        assertFalse(feed(MotionEvent.ACTION_UP, 0, 1, 1080, 100, 100));
+        assertEquals(Collections.singletonList("tap1"), events);
+    }
+
+    @Test
+    public void aSlowOneFingerPressIsNoTap() {
+        tapFingers.add(1);
+        feed(MotionEvent.ACTION_DOWN, 0, 1, 1000, 100, 100);
+        assertFalse(feed(MotionEvent.ACTION_UP, 0, 1, 1600, 100, 100));
+        assertTrue(events.isEmpty());
+    }
+
+    @Test
+    public void aSecondFingerEndsTheOneFingerHold() {
+        holdFingers.add(1);
+        feed(MotionEvent.ACTION_DOWN, 0, 1, 1000, 100, 100);
+        feed(MotionEvent.ACTION_POINTER_DOWN, 1, 2, 1040, 100, 100);
+        assertTrue(scheduled.isEmpty());
+    }
+
+    @Test
+    public void aBoundTwoFingerSwipeIsClaimedAndReported() {
+        swipeFingers.add(2);
+        long time = land(2, 1000, 100, 100);
+        assertTrue(feed(MotionEvent.ACTION_MOVE, 0, 2, time + 60, 200, 100));
+        assertEquals(Arrays.asList("cancel", "swipe2RIGHT"), events);
+    }
+
+    @Test
+    public void aTwoFingerTapWithNothingBoundStaysWithTheMouseMode() {
+        long time = land(2, 1000, 100, 100);
+        assertFalse(liftAll(2, time + 100, 100, 100));
+        assertTrue(events.isEmpty());
+    }
+
+    @Test
     public void quickThreeFingerTapIsReportedAndTakenBackFromThePc() {
         tapFingers.add(3);
         long time = land(3, 1000, 100, 100);

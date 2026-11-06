@@ -51,9 +51,23 @@ public class GesturesTest {
         assertEquals(StreamActionRegistry.ID_TOGGLE_KEYBOARD, GestureBindingStore.get(prefs, tap(3)));
         assertEquals(StreamActionRegistry.ID_TOGGLE_FULL_KEYBOARD, GestureBindingStore.get(prefs, tap(4)));
         assertEquals(GestureBindingStore.QUICK_MENU, GestureBindingStore.get(prefs, tap(5)));
-        for (int fingers : GestureBindingStore.FINGER_COUNTS) {
+        for (int fingers : GestureBindingStore.DOUBLE_TAP_FINGER_COUNTS) {
             assertEquals(GestureBindingStore.NONE, GestureBindingStore.get(prefs, doubleTap(fingers)));
         }
+    }
+
+    @Test
+    public void oneAndTwoFingerGesturesStartAsNothingSoTheMouseKeepsWorking() {
+        assertEquals(GestureBindingStore.NONE, GestureBindingStore.get(prefs, tap(2)));
+        assertEquals(GestureBindingStore.NONE, GestureBindingStore.get(prefs, tap(1)));
+        assertEquals(GestureBindingStore.NONE, GestureBindingStore.get(prefs, doubleTap(1)));
+        assertFalse(GestureBindingStore.hasSwipe(prefs, 2));
+    }
+
+    @Test
+    public void theQuickBarToggleCanBeBoundToAGesture() {
+        GestureBindingStore.set(prefs, doubleTap(1), StreamActionRegistry.ID_TOGGLE_QUICK_BAR);
+        assertEquals(StreamActionRegistry.ID_TOGGLE_QUICK_BAR, GestureBindingStore.get(prefs, doubleTap(1)));
     }
 
     @Test
@@ -81,8 +95,8 @@ public class GesturesTest {
         for (GestureBindingStore.Slot slot : GestureBindingStore.SLOTS) {
             assertTrue(keys.add(slot.prefKey()));
         }
-        // Taps, double taps and holds with 3, 4 and 5 fingers, and swipes in four directions with 3 and 4 fingers
-        assertEquals(17, keys.size());
+        // Taps with 2 to 5 fingers, double taps and holds with 1 to 5 fingers, and swipes in four directions with 2 to 4 fingers
+        assertEquals(26, keys.size());
         assertEquals("gesture_hold_4", new GestureBindingStore.Slot(4, GestureBindingStore.Kind.HOLD).prefKey());
         assertEquals("gesture_tap_3", tap(3).prefKey());
         assertEquals("gesture_double_5", doubleTap(5).prefKey());
@@ -115,7 +129,7 @@ public class GesturesTest {
 
     @Test
     public void holdsStartAsNothingAndTheirDurationStaysOnTheOfferedChoices() {
-        for (int fingers : GestureBindingStore.FINGER_COUNTS) {
+        for (int fingers : GestureBindingStore.HOLD_FINGER_COUNTS) {
             assertEquals(GestureBindingStore.NONE, GestureBindingStore.get(prefs, new GestureBindingStore.Slot(fingers, GestureBindingStore.Kind.HOLD)));
         }
         assertFalse(GestureBindingStore.Kind.HOLD.isSwipe());
