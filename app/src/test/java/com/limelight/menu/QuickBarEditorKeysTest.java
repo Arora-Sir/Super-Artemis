@@ -73,4 +73,29 @@ public class QuickBarEditorKeysTest {
 
         assertEquals(Arrays.asList(QuickBarLayout.customKeyItem(key.id)), QuickBarEditor.pinnedItems(session.rowsByBar.get(0)));
     }
+
+    // NOTE: The style chosen in the editor is a draft. It is written on Save only, so Cancel leaves the setting alone.
+    @Test
+    public void theStyleIsADraftUntilSave() {
+        QuickBarEditor.Session session = open();
+        assertEquals(QuickBarLook.STYLE_RAIL, session.style);
+        assertTrue(session.body.findViewById(R.id.quick_bar_style_rail).isSelected());
+
+        session.body.findViewById(R.id.quick_bar_style_round).performClick();
+
+        assertEquals(QuickBarLook.STYLE_ROUND, session.style);
+        assertTrue(session.body.findViewById(R.id.quick_bar_style_round).isSelected());
+        assertTrue(!session.body.findViewById(R.id.quick_bar_style_rail).isSelected());
+        assertEquals(QuickBarLook.STYLE_RAIL, QuickBarLook.read(activity));
+    }
+
+    @Test
+    public void saveWritesTheChosenStyle() {
+        QuickBarEditor.Session session = open();
+        session.body.findViewById(R.id.quick_bar_style_handle).performClick();
+        android.app.AlertDialog dialog = (android.app.AlertDialog) org.robolectric.shadows.ShadowDialog.getLatestDialog();
+        dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE).performClick();
+        ShadowLooper.idleMainLooper();
+        assertEquals(QuickBarLook.STYLE_HANDLE, QuickBarLook.read(activity));
+    }
 }

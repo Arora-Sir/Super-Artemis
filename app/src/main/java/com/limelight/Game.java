@@ -57,6 +57,9 @@ import com.limelight.utils.Dialog;
 import com.limelight.utils.ExternalDisplayControlActivity;
 import com.limelight.utils.MouseModeOption;
 import com.limelight.utils.PanZoomHandler;
+import com.limelight.session.NetworkResumer;
+import com.limelight.session.ResumePlan;
+import com.limelight.ui.NetworkStatusCard;
 import com.limelight.utils.PerformanceDataTracker;
 import com.limelight.utils.ServerHelper;
 import com.limelight.utils.ShortcutHelper;
@@ -234,21 +237,41 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
     private TextView notificationOverlayView;
     private int requestedNotificationOverlayVisibility = View.GONE;
 
-    // NOTE: While the host is silent on the control stream, the status label says the connection is lost and counts the seconds over the last frame, which the surface keeps by itself.
+    // NOTE: While the host is silent on the control stream, the status card says the connection is lost and counts the seconds over the last frame, which the surface keeps by itself.
     // NOTE: The watchdog polls the core instead of counting frames, because a still desktop sends no frames and a frame counter would report a drop that is not there.
-    // NOTE: The label borrows the poor connection view and gives its text back when the host answers again (based on KAST, MikalaiKryvusha/KAST).
+    // NOTE: When the drop outlasts the grace period the stream ends, and the same card then waits for the network and starts the stream again (NetworkResumer).
+    // NOTE: The drop detection is based on KAST (MikalaiKryvusha/KAST).
     private static final String NETWORK_DROP_TAG = "NetworkDrop";
     private static final int NETWORK_DROP_POLL_MS = 500;
     private static final int NETWORK_DROP_SHOW_MS = 1500;
     private static final int STATUS_LABEL_FADE_MS = 500;
     private long networkDropStartMs; // elapsedRealtime() when the current silence began, 0 while the host answers
-    private CharSequence textBeforeNetworkDrop;
+    private boolean networkDropSeen; // a silence long enough to show the card happened during this stream
+    private boolean networkWentDownInDrop; // the device network was lost while the host was silent
+    private long networkBackSinceMs; // elapsedRealtime() when the device network returned during the silence, 0 while it is down or never dropped
+    private NetworkStatusCard networkCard;
+    private NetworkResumer networkResumer;
+    private boolean launchResumeWhenVisible; // the PC answered while the screen was in the background, where starting an activity is not allowed
+    private int endedErrorCode;
+    private int endedPortFlags;
+    private int endedPortTestResult;
+    // NOTE: Whether the stream started on a metered network, which decides its bitrate, and when the network became unmetered afterwards.
+    private boolean streamStartedMetered;
+    private long streamStartedAtMs;
+    private long unmeteredSinceMs;
+    // The PC has answered over the current unmetered network, found by a probe on a background thread
+    private boolean qualityHostReachable;
+    private boolean qualityProbeRunning;
+    private long qualityProbeNotBeforeMs;
     private boolean statusLabelShown; // where the label is going, so the 500 ms ticks do not restart a running fade
     private final Runnable networkDropWatchdog = new Runnable() {
         @Override
         public void run() {
             checkNetworkDrop();
-            timerHandler.postDelayed(this, NETWORK_DROP_POLL_MS);
+            // NOTE: A tick can end the connection itself (the early restart), and the native silence counter is gone after that, so the watchdog must not arm again.
+            if (connected) {
+                timerHandler.postDelayed(this, NETWORK_DROP_POLL_MS);
+            }
         }
     };
 
@@ -562,6 +585,7 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
         }
 
         notificationOverlayView = findViewById(R.id.notificationOverlay);
+        networkCard = new NetworkStatusCard(findViewById(R.id.networkStatusCard), this::cancelAutoResume, this::reconnectNowFromCard);
 
         performanceOverlayView = findViewById(R.id.performanceOverlay);
 
@@ -585,6 +609,7 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
         // Warn the user if they're on a metered connection
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         boolean isMetered = connMgr.isActiveNetworkMetered();
+        streamStartedMetered = isMetered;
         if (isMetered) {
             displayTransientMessage(getResources().getString(R.string.conn_metered));
         }
@@ -1247,6 +1272,9 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
 
                 performanceOverlayView.setVisibility(View.GONE);
                 notificationOverlayView.setVisibility(View.GONE);
+                if (networkCard != null) {
+                    networkCard.hideNow();
+                }
 
                 // Disable sensors while in PiP mode
                 if (controllerHandler != null) {
@@ -1831,6 +1859,11 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
             highPerfWifiLock.release();
         }
 
+        if (networkResumer != null) {
+            networkResumer.stop();
+            networkResumer = null;
+        }
+
         // Save zoom/pan before other cleanup
         if (prefConfig != null && prefConfig.rememberZoomPan && panZoomHandler != null) {
             SharedPreferences basePrefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -1880,6 +1913,14 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
         }
         if (isInPictureInPictureMode) {
             pipEndedAtMs = 0;
+            // NOTE: A menu or editor still open would be drawn oversized and cut off inside the small window, so they all close first.
+            if (gameMenuCallbacks != null) {
+                gameMenuCallbacks.hideMenu();
+            }
+            com.limelight.ui.Dialogs.dismissAll(this);
+            if (networkCard != null) {
+                networkCard.hideNow();
+            }
             return;
         }
         pipEndedAtMs = android.os.SystemClock.uptimeMillis();
@@ -1903,6 +1944,7 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
         callModeWatcher.start(this);
         askPhoneStateOnce();
         updatePipAutoEnter();
+        launchResumeIfVisible();
     }
 
     // NOTE: A ringing phone is only visible through the phone state permission, and it is asked once so calls never shrink the stream.
@@ -2634,6 +2676,14 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
         }
         if (!flowRunner.run(key)) {
             Toast.makeText(this, R.string.flow_busy, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    // NOTE: A single Windows virtual key down or up for keys Android has no key code for, such as F13 to F24 on the on-screen keyboard.
+    public void sendVirtualKey(short vk, boolean down) {
+        NvConnection connection = conn;
+        if (connection != null) {
+            connection.sendKeyboardInput(vk, down ? KeyboardPacket.KEY_DOWN : KeyboardPacket.KEY_UP, (byte) 0, (byte) 0);
         }
     }
 
@@ -3499,6 +3549,9 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
                 if (eventSource == InputDevice.SOURCE_TOUCHPAD) {
                     return handleTouchInput(event, trackpadContextMap, false);
                 } else {
+                    if (quickActionBar != null && event.getActionMasked() == MotionEvent.ACTION_DOWN) {
+                        quickActionBar.onStreamTouch();
+                    }
                     // Multi-finger gestures come first, so they work in every touch mode, including pan and zoom and on-screen control editing
                     // One switch on the Settings row turns them all off, which hands every touch to the touch mode
                     if (!cancellingGestureTouch && gestureDispatcher != null && prefConfig.enableMultiTouchGestures) {
@@ -3811,13 +3864,15 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
             flowRunner.cancel();
         }
 
-        // A drop label left on screen would keep counting a wait that is over, under the termination dialog
+        // A drop card left on screen would keep counting a wait that is over, under the termination dialog or the automatic reconnect card
         timerHandler.removeCallbacks(networkDropWatchdog);
+        networkWentDownInDrop = false;
+        networkBackSinceMs = 0;
         if (networkDropStartMs != 0) {
             networkDropStartMs = 0;
-            statusLabelShown = false;
-            notificationOverlayView.animate().cancel();
-            notificationOverlayView.setVisibility(View.GONE);
+            if (networkCard != null && networkCard.mode() == NetworkStatusCard.Mode.WAITING_STREAM) {
+                networkCard.hideNow();
+            }
         }
         if (connecting || connected) {
             connecting = connected = false;
@@ -4067,6 +4122,68 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
         }
     }
 
+    // The dialog for a stream that ended on its own, with a Reconnect button when a stream was running
+    private void showConnectionTerminatedDialog(final int errorCode, final int portTestResult, final int portFlags, final boolean wasStreaming) {
+                String message;
+
+                if (portTestResult != MoonBridge.ML_TEST_RESULT_INCONCLUSIVE && portTestResult != 0) {
+                    // If we got a blocked result, that supersedes any other error message
+                    message = getResources().getString(R.string.nettest_text_blocked);
+                }
+                else {
+                    switch (errorCode) {
+                        case MoonBridge.ML_ERROR_NO_VIDEO_TRAFFIC:
+                            message = getResources().getString(R.string.no_video_received_error);
+                            break;
+
+                        case MoonBridge.ML_ERROR_NO_VIDEO_FRAME:
+                            message = getResources().getString(R.string.no_frame_received_error);
+                            break;
+
+                        case MoonBridge.ML_ERROR_UNEXPECTED_EARLY_TERMINATION:
+                        case MoonBridge.ML_ERROR_PROTECTED_CONTENT:
+                            message = getResources().getString(R.string.early_termination_error);
+                            break;
+
+                        case MoonBridge.ML_ERROR_FRAME_CONVERSION:
+                            message = getResources().getString(R.string.frame_conversion_error);
+                            break;
+
+                        default:
+                            String errorCodeString;
+                            // We'll assume large errors are hex values
+                            if (Math.abs(errorCode) > 1000) {
+                                errorCodeString = Integer.toHexString(errorCode);
+                            }
+                            else {
+                                errorCodeString = Integer.toString(errorCode);
+                            }
+                            message = getResources().getString(R.string.conn_terminated_msg) + "\n\n" +
+                                    getResources().getString(R.string.error_code_prefix) + " " + errorCodeString;
+                            break;
+                    }
+                }
+
+                if (portFlags != 0) {
+                    message += "\n\n" + getResources().getString(R.string.check_ports_msg) + "\n" +
+                            MoonBridge.stringifyPortFlags(portFlags, "\n");
+                }
+
+                // A stream that was running can start again from here, without going back to the PC and app lists
+                if (wasStreaming) {
+                    Dialog.displayDialog(Game.this, getResources().getString(R.string.conn_terminated_title), message,
+                            Game.this::finish, getString(R.string.conn_terminated_reconnect), () -> {
+                                com.limelight.session.SessionResumer.reconnectLast(Game.this);
+                                finish();
+                            });
+                }
+                else {
+                    Dialog.displayDialog(Game.this, getResources().getString(R.string.conn_terminated_title),
+                            message, true);
+                }
+            
+    }
+
     @Override
     public void connectionTerminated(final int errorCode) {
         // Perform a connection test if the failure could be due to a blocked port
@@ -4092,68 +4209,19 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
                     LimeLog.severe("Connection terminated: " + errorCode);
                     // Reconnect is offered only when a stream was running, not when the first connection failed
                     final boolean wasStreaming = connected;
+                    final boolean dropSeen = networkDropSeen || networkDropStartMs != 0;
                     stopConnection();
 
-                    // Display the error dialog if it was an unexpected termination.
-                    // Otherwise, just finish the activity immediately.
-                    if (errorCode != MoonBridge.ML_ERROR_GRACEFUL_TERMINATION) {
-                        String message;
-
-                        if (portTestResult != MoonBridge.ML_TEST_RESULT_INCONCLUSIVE && portTestResult != 0) {
-                            // If we got a blocked result, that supersedes any other error message
-                            message = getResources().getString(R.string.nettest_text_blocked);
-                        }
-                        else {
-                            switch (errorCode) {
-                                case MoonBridge.ML_ERROR_NO_VIDEO_TRAFFIC:
-                                    message = getResources().getString(R.string.no_video_received_error);
-                                    break;
-
-                                case MoonBridge.ML_ERROR_NO_VIDEO_FRAME:
-                                    message = getResources().getString(R.string.no_frame_received_error);
-                                    break;
-
-                                case MoonBridge.ML_ERROR_UNEXPECTED_EARLY_TERMINATION:
-                                case MoonBridge.ML_ERROR_PROTECTED_CONTENT:
-                                    message = getResources().getString(R.string.early_termination_error);
-                                    break;
-
-                                case MoonBridge.ML_ERROR_FRAME_CONVERSION:
-                                    message = getResources().getString(R.string.frame_conversion_error);
-                                    break;
-
-                                default:
-                                    String errorCodeString;
-                                    // We'll assume large errors are hex values
-                                    if (Math.abs(errorCode) > 1000) {
-                                        errorCodeString = Integer.toHexString(errorCode);
-                                    }
-                                    else {
-                                        errorCodeString = Integer.toString(errorCode);
-                                    }
-                                    message = getResources().getString(R.string.conn_terminated_msg) + "\n\n" +
-                                            getResources().getString(R.string.error_code_prefix) + " " + errorCodeString;
-                                    break;
-                            }
-                        }
-
-                        if (portFlags != 0) {
-                            message += "\n\n" + getResources().getString(R.string.check_ports_msg) + "\n" +
-                                    MoonBridge.stringifyPortFlags(portFlags, "\n");
-                        }
-
-                        // A stream that was running can start again from here, without going back to the PC and app lists
-                        if (wasStreaming) {
-                            Dialog.displayDialog(Game.this, getResources().getString(R.string.conn_terminated_title), message,
-                                    Game.this::finish, getString(R.string.conn_terminated_reconnect), () -> {
-                                        com.limelight.session.SessionResumer.reconnectLast(Game.this);
-                                        finish();
-                                    });
-                        }
-                        else {
-                            Dialog.displayDialog(Game.this, getResources().getString(R.string.conn_terminated_title),
-                                    message, true);
-                        }
+                    // A drop that outlasted the grace period waits for the network and starts the stream again by itself, anything else shows the dialog
+                    boolean autoResume = ResumePlan.shouldAutoResume(prefConfig.autoResumeNetwork, wasStreaming, errorCode, dropSeen, isNetworkUp());
+                    if (autoResume) {
+                        endedErrorCode = errorCode;
+                        endedPortFlags = portFlags;
+                        endedPortTestResult = portTestResult;
+                        startAutoResume();
+                    }
+                    else if (errorCode != MoonBridge.ML_ERROR_GRACEFUL_TERMINATION) {
+                        showConnectionTerminatedDialog(errorCode, portTestResult, portFlags, wasStreaming);
                     }
                     else {
                         finish();
@@ -4163,37 +4231,184 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
         });
     }
 
-    // One watchdog tick on the UI thread: start the drop label after 1.5 s of silence, count the seconds, and end it when the host answers
+    // One watchdog tick on the UI thread: show the drop card after 1.5 s of silence, count the seconds, and hide it when the host answers
     private void checkNetworkDrop() {
-        int silenceMs = MoonBridge.getControlStreamSilenceMs();
+        // The native control stream is destroyed when the connection stops, and asking it for the silence then aborts the app
+        if (!connected) {
+            return;
+        }
         long now = android.os.SystemClock.elapsedRealtime();
+        if (restartForQualityWhenUnmetered(now)) {
+            return;
+        }
+        int silenceMs = MoonBridge.getControlStreamSilenceMs();
 
         if (silenceMs >= NETWORK_DROP_SHOW_MS) {
             if (networkDropStartMs == 0) {
                 networkDropStartMs = now - silenceMs;
-                textBeforeNetworkDrop = notificationOverlayView.getText();
+                networkDropSeen = true;
                 LimeLog.info(NETWORK_DROP_TAG + ": silence start silenceMs=" + silenceMs);
             }
-            int seconds = (int) ((now - networkDropStartMs) / 1000);
-            notificationOverlayView.setText(getString(R.string.network_drop_waiting, seconds));
             if (!isHidingOverlays) {
-                fadeStatusLabel(true, null);
+                networkCard.showWaitingStream((int) ((now - networkDropStartMs) / 1000));
             }
+            restartEarlyWhenNetworkIsBack(silenceMs, now);
         }
         else if (silenceMs >= 0 && networkDropStartMs != 0) {
             LimeLog.info(NETWORK_DROP_TAG + ": held elapsed=" + (now - networkDropStartMs));
             networkDropStartMs = 0;
-            boolean poorStillShown = requestedNotificationOverlayVisibility == View.VISIBLE;
-            if (isHidingOverlays || poorStillShown || notificationOverlayView.getVisibility() != View.VISIBLE) {
-                notificationOverlayView.setText(textBeforeNetworkDrop);
-                if (!isHidingOverlays) {
-                    fadeStatusLabel(poorStillShown, null);
-                }
+            networkWentDownInDrop = false;
+            networkBackSinceMs = 0;
+            networkCard.hide();
+        }
+    }
+
+    // NOTE: The host stays silent after the network returns when the old connection cannot recover, for example after a new Wi-Fi address.
+    // NOTE: Waiting out the whole grace period then only delays the new start, so the stream is started again as soon as the network has been back for a moment.
+    private void restartEarlyWhenNetworkIsBack(int silenceMs, long now) {
+        boolean up = isNetworkUp();
+        if (!up) {
+            networkWentDownInDrop = true;
+            networkBackSinceMs = 0;
+        }
+        else if (networkWentDownInDrop && networkBackSinceMs == 0) {
+            networkBackSinceMs = now;
+        }
+        long backMs = networkBackSinceMs == 0 ? 0 : now - networkBackSinceMs;
+        if (!connected || displayedFailureDialog
+                || !ResumePlan.shouldRestartEarly(prefConfig.autoResumeNetwork, up, networkWentDownInDrop, backMs, silenceMs)) {
+            return;
+        }
+        LimeLog.info(NETWORK_DROP_TAG + ": restarting early, network back for " + backMs + " ms and the host silent for " + silenceMs + " ms");
+        restartForResume();
+    }
+
+    // NOTE: A stream that started on mobile data keeps the low metered bitrate, so when Wi-Fi has been back for a few seconds it is started again at the normal bitrate.
+    private boolean restartForQualityWhenUnmetered(long now) {
+        ConnectivityManager manager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        boolean up = isNetworkUp();
+        boolean metered = manager == null || manager.isActiveNetworkMetered();
+        if (up && !metered) {
+            if (unmeteredSinceMs == 0) {
+                unmeteredSinceMs = now;
+                qualityHostReachable = false;
+                qualityProbeNotBeforeMs = 0;
             }
-            else {
-                // The earlier text comes back only after the fade, so the label does not show it for half a second
-                fadeStatusLabel(false, textBeforeNetworkDrop);
+        }
+        else {
+            unmeteredSinceMs = 0;
+            qualityHostReachable = false;
+        }
+        long unmeteredFor = unmeteredSinceMs == 0 ? 0 : now - unmeteredSinceMs;
+        boolean bitratesDiffer = prefConfig.meteredBitrate != prefConfig.bitrate;
+        boolean wanted = connected && !displayedFailureDialog && prefConfig.autoResumeNetwork && streamStartedMetered && bitratesDiffer;
+        if (wanted && unmeteredSinceMs != 0 && !qualityHostReachable && !qualityProbeRunning && now >= qualityProbeNotBeforeMs) {
+            probeHostForQuality(now);
+        }
+        if (!wanted
+                || !ResumePlan.shouldRestartForQuality(prefConfig.autoResumeNetwork, streamStartedMetered, bitratesDiffer, up, metered,
+                qualityHostReachable, unmeteredFor, now - streamStartedAtMs)) {
+            return false;
+        }
+        LimeLog.info(NETWORK_DROP_TAG + ": restarting for quality, started on a metered network and an unmetered one has been up for " + unmeteredFor + " ms");
+        restartForResume();
+        return true;
+    }
+
+    // NOTE: Checks on a background thread that the PC answers over the new network. A failed check is tried again a second later.
+    private void probeHostForQuality(long now) {
+        qualityProbeRunning = true;
+        final String uuid = getIntent().getStringExtra(EXTRA_PC_UUID);
+        new Thread(() -> {
+            boolean ok = com.limelight.session.HostProbe.reachable(this, host, port, uuid, 800, 600);
+            timerHandler.post(() -> {
+                qualityProbeRunning = false;
+                qualityHostReachable = ok && unmeteredSinceMs != 0;
+                qualityProbeNotBeforeMs = android.os.SystemClock.elapsedRealtime() + 1000;
+            });
+        }, "QualityProbe").start();
+    }
+
+    // Stops the connection from inside a watchdog tick and hands over to the automatic resume, which starts the same stream again
+    private void restartForResume() {
+        displayedFailureDialog = true;
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        controllerHandler.stop();
+        timerHandler.removeCallbacksAndMessages(null);
+        setInputGrabState(false);
+        stopConnection();
+        endedErrorCode = MoonBridge.ML_ERROR_NO_VIDEO_TRAFFIC;
+        endedPortFlags = 0;
+        endedPortTestResult = MoonBridge.ML_TEST_RESULT_INCONCLUSIVE;
+        startAutoResume();
+    }
+
+    private boolean isNetworkUp() {
+        ConnectivityManager manager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        android.net.NetworkInfo info = manager != null ? manager.getActiveNetworkInfo() : null;
+        return info != null && info.isConnected();
+    }
+
+    // NOTE: The stream ended after a drop, so the screen stays and the card waits for the network, checks that the PC answers, and starts the same stream again.
+    // NOTE: The screen is kept awake while waiting, and a wait that runs out falls back to the normal dialog with its Reconnect button.
+    private void startAutoResume() {
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        networkCard.showWaitingNetwork(0);
+        if (networkResumer != null) {
+            networkResumer.stop();
+        }
+        networkResumer = new NetworkResumer(this, host, port, getIntent().getStringExtra(EXTRA_PC_UUID), new NetworkResumer.Listener() {
+            @Override
+            public void onWaitingForNetwork(long waitedMs) {
+                networkCard.showWaitingNetwork((int) (waitedMs / 1000));
             }
+
+            @Override
+            public void onReachingHost(int check) {
+                networkCard.showReachingHost(pcName);
+            }
+
+            @Override
+            public void onHostReachable() {
+                networkCard.showStarting();
+                launchResumeWhenVisible = true;
+                launchResumeIfVisible();
+            }
+
+            @Override
+            public void onGiveUp() {
+                networkCard.hideNow();
+                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                showConnectionTerminatedDialog(endedErrorCode, endedPortTestResult, endedPortFlags, true);
+            }
+        });
+        networkResumer.start();
+    }
+
+    // Starting an activity is only allowed while this one is on screen, so a stream that became reachable in the background starts when the screen returns
+    private void launchResumeIfVisible() {
+        if (!launchResumeWhenVisible || !getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.RESUMED)) {
+            return;
+        }
+        launchResumeWhenVisible = false;
+        com.limelight.session.SessionResumer.reconnectLast(this);
+        finish();
+    }
+
+    private void cancelAutoResume() {
+        if (networkResumer != null) {
+            networkResumer.stop();
+            networkResumer = null;
+        }
+        launchResumeWhenVisible = false;
+        networkCard.hideNow();
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        finish();
+    }
+
+    private void reconnectNowFromCard() {
+        if (networkResumer != null) {
+            networkResumer.checkNow();
         }
     }
 
@@ -4237,13 +4452,7 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
                 if (connectionStatus == MoonBridge.CONN_STATUS_POOR) {
                     String text = getResources().getString(prefConfig.bitrate > 5000 ?
                             R.string.slow_connection_msg : R.string.poor_connection_msg);
-                    // During a network drop the drop label keeps the view, and this text waits until the host answers
-                    if (networkDropStartMs != 0) {
-                        textBeforeNetworkDrop = text;
-                    }
-                    else {
-                        notificationOverlayView.setText(text);
-                    }
+                    notificationOverlayView.setText(text);
 
                     requestedNotificationOverlayVisibility = View.VISIBLE;
                 }
@@ -4251,7 +4460,7 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
                     requestedNotificationOverlayVisibility = View.GONE;
                 }
 
-                if (!isHidingOverlays && networkDropStartMs == 0) {
+                if (!isHidingOverlays) {
                     fadeStatusLabel(requestedNotificationOverlayVisibility == View.VISIBLE, null);
                 }
             }
@@ -4321,6 +4530,8 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
 
                 // The network drop watchdog runs while the stream is connected; stopConnection and connectionTerminated remove it
                 networkDropStartMs = 0;
+                streamStartedAtMs = android.os.SystemClock.elapsedRealtime();
+                unmeteredSinceMs = 0;
                 timerHandler.postDelayed(networkDropWatchdog, NETWORK_DROP_POLL_MS);
             }
         });
@@ -5033,6 +5244,12 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
                 intent.getStringExtra(EXTRA_APP_UUID),
                 intent.getIntExtra(EXTRA_APP_ID, -1),
                 intent.getBooleanExtra(EXTRA_APP_HDR, false)));
+    }
+
+    public void toggleQuickActionBar() {
+        if (quickActionBar != null) {
+            quickActionBar.toggleManualHidden();
+        }
     }
 
     public void reloadQuickActionBar() {

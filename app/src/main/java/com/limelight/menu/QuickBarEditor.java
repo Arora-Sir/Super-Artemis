@@ -15,11 +15,13 @@ import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.widget.TextViewCompat;
@@ -35,6 +37,7 @@ import com.limelight.customkeys.KeyEditActions;
 import com.limelight.customkeys.KeyPicker;
 import com.limelight.customkeys.SpecialKeys;
 import com.limelight.ui.Dialogs;
+import com.limelight.ui.FindPanel;
 import com.limelight.ui.DragReorder;
 import com.limelight.ui.FlowRow;
 
@@ -150,6 +153,8 @@ public final class QuickBarEditor {
         final List<List<Row>> rowsByBar = new ArrayList<>();
         int shownSet;
         int selected;
+        // NOTE: The look of the bars is a draft until Save, so the preview can show it and Cancel leaves the setting alone.
+        String style;
 
         View body;
         Context dialogContext;
@@ -162,6 +167,7 @@ public final class QuickBarEditor {
             this.onChanged = onChanged;
             this.state = BarSets.load(context);
             this.keys = new ArrayList<>(SpecialKeys.visible(context));
+            this.style = QuickBarLook.read(context);
             this.shownSet = state.active;
             loadRows();
             List<BarSets.Bar> bars = set().bars;
@@ -192,6 +198,51 @@ public final class QuickBarEditor {
             }
         }
 
+        // NOTE: A key or action may sit on two bars, but the user is told when the one just pinned is already on another bar of the set.
+        void warnIfPinnedElsewhere(Row row) {
+            for (int i = 0; i < rowsByBar.size(); i++) {
+                if (i == selected) {
+                    continue;
+                }
+                for (Row other : rowsByBar.get(i)) {
+                    if (other.pinned && other.item.equals(row.item)) {
+                        Toast.makeText(context, context.getString(R.string.quick_bar_duplicate_warning, row.label), Toast.LENGTH_LONG).show();
+                        return;
+                    }
+                }
+            }
+        }
+
+        // Every item of the shown bar in the Find panel. A tap pins or unpins the item on the selected bar and the check follows.
+        void openFind() {
+            if (selected < 0) {
+                return;
+            }
+            List<FindPanel.Item> found = new ArrayList<>();
+            List<Row> source = new ArrayList<>(adapter.rows);
+            for (Row row : source) {
+                String keyId = QuickBarLayout.customKeyId(row.item);
+                CustomKey key = null;
+                for (CustomKey candidate : keys) {
+                    if (candidate.id.equals(keyId)) {
+                        key = candidate;
+                    }
+                }
+                int group = keyId != null ? R.string.gesture_group_keys : R.string.gesture_group_actions;
+                found.add(new FindPanel.Item(String.valueOf(found.size()), row.label, row.iconRes, context.getString(group), key != null ? key.keys : null, row.pinned));
+            }
+            FindPanel.show(dialogContext, found, true, item -> {
+                Row row = source.get(Integer.parseInt(item.id));
+                row.pinned = !row.pinned;
+                if (row.pinned) {
+                    warnIfPinnedElsewhere(row);
+                }
+                adapter.notifyDataSetChanged();
+                drawPreview();
+                return row.pinned;
+            });
+        }
+
         void showSet(int index) {
             storeRows();
             shownSet = index;
@@ -204,6 +255,7 @@ public final class QuickBarEditor {
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
             dialogContext = builder.getContext();
             body = LayoutInflater.from(dialogContext).inflate(R.layout.dialog_quick_bar_editor, null);
+            body.setTag(Dialogs.NO_LIST_EDGES);
             DisplayMetrics metrics = context.getResources().getDisplayMetrics();
             // A phone in landscape is wide enough for two panes but too short for them, so it keeps the single scrolling page
             boolean twoPane = metrics.widthPixels / metrics.density >= TWO_PANE_MIN_WIDTH_DP
@@ -232,6 +284,7 @@ public final class QuickBarEditor {
 
             adapter = new Adapter(this::drawPreview);
             adapter.editor = this::editKey;
+            adapter.onPinned = this::warnIfPinnedElsewhere;
             list.setAdapter(adapter);
             final ItemTouchHelper[] touchHelper = new ItemTouchHelper[1];
             adapter.dragStarter = holder -> touchHelper[0].startDrag(holder);
@@ -243,9 +296,12 @@ public final class QuickBarEditor {
             }, null);
 
             // A key or flow made here is pinned to the selected bar and offered to the other bars
-            ((LinearLayout) body.findViewById(R.id.quick_bar_items_header)).addView(KeyPicker.addButton(dialogContext, context, this::keyCreated),
-                    new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            ViewGroup itemsHeader = body.findViewById(R.id.quick_bar_items_actions);
+            itemsHeader.addView(KeyPicker.addButton(dialogContext, context, this::keyCreated));
+            // NOTE: Find opens the shared search panel over the editor, where an item is found by name or by pressing its keys and pinned with one tap.
+            itemsHeader.addView(FindPanel.openButton(dialogContext, R.string.find_button, this::openFind));
 
+            wireStyle();
             buildAnchorPicker();
             wireSliders();
             body.findViewById(R.id.quick_bar_reset_offset).setOnClickListener(v -> {
@@ -284,12 +340,14 @@ public final class QuickBarEditor {
                         storeRows();
                         state.active = shownSet;
                         BarSets.save(context, state);
+                        prefs.edit().putString(QuickBarLook.PREF_STYLE, style).apply();
                         if (onChanged != null) {
                             onChanged.run();
                         }
                     })
                     .setNegativeButton(R.string.game_menu_cancel, null);
-            Dialogs.show(builder, twoPane ? Dialogs.WIDTH_WIDE_DP : Dialogs.WIDTH_STANDARD_DP);
+            // The session keeps the bars being edited, so the dialog rebuilt after a rotation shows the same unsaved changes
+            Dialogs.reshowOnRotation(Dialogs.show(builder, twoPane ? Dialogs.WIDTH_WIDE_DP : Dialogs.WIDTH_STANDARD_DP), this::open);
         }
 
         // A key or flow made here is pinned to the selected bar and offered to the other bars
@@ -600,6 +658,12 @@ public final class QuickBarEditor {
         }
 
         // One chip per bar of the shown set, named by its anchor, then "Add bar"
+        // NOTE: The bar chips use 12 dp of side padding instead of 16 dp, so a phone in portrait fits three or four of them in a row before wrapping.
+        void tightenChip(TextView chip) {
+            int side = (int) Dialogs.dp(context, 12);
+            chip.setPadding(side, chip.getPaddingTop(), side, chip.getPaddingBottom());
+        }
+
         void buildBarChips() {
             FlowRow chips = body.findViewById(R.id.quick_bar_bars);
             chips.removeAllViews();
@@ -608,6 +672,7 @@ public final class QuickBarEditor {
                 int index = i;
                 TextView chip = (TextView) LayoutInflater.from(dialogContext).inflate(R.layout.sa_action_chip, chips, false);
                 chip.setText(context.getString(anchorNameFor(bars.get(i).anchor)));
+                tightenChip(chip);
                 chip.setSelected(i == selected);
                 if (i == selected) {
                     android.graphics.drawable.Drawable check = dialogContext.getDrawable(R.drawable.ic_sa_check);
@@ -627,6 +692,7 @@ public final class QuickBarEditor {
             }
             TextView add = (TextView) LayoutInflater.from(dialogContext).inflate(R.layout.sa_action_chip, chips, false);
             add.setText(R.string.quick_bar_add_bar);
+            tightenChip(add);
             android.graphics.drawable.Drawable icon = dialogContext.getDrawable(R.drawable.ic_sa_add);
             if (icon != null) {
                 int size = (int) Dialogs.dp(context, 20);
@@ -641,87 +707,48 @@ public final class QuickBarEditor {
             chips.addView(add);
         }
 
-        // NOTE: Draws every bar of the shown set at its anchor and offset, scaled from the real screen to the preview width.
-        // NOTE: Buttons use the same grid as the stream (BarSets.grid), so rows, columns and the fill direction look exactly as they will.
+        // The preview is drawn by QuickBarPreview. This only gathers what it needs from the rows of every bar.
         void drawPreview() {
             FrameLayout preview = body.findViewById(R.id.quick_bar_preview);
-            preview.removeAllViews();
-            int width = preview.getWidth() - preview.getPaddingLeft() - preview.getPaddingRight();
-            if (width <= 0) {
-                return;
-            }
-            DisplayMetrics metrics = context.getResources().getDisplayMetrics();
-            // Streams run in landscape, so the long side of the screen maps to the preview width
-            float scale = width / (float) Math.max(metrics.widthPixels, metrics.heightPixels);
-            float density = metrics.density;
-            // True scale makes icons a few pixels wide on a tablet preview, so they never shrink below a readable size
-            int button = Math.max((int) Dialogs.dp(context, 12), Math.round(BarFit.BUTTON_DP * density * scale));
-            int gap = Math.max(1, Math.round(BarFit.GAP_DP * density * scale));
-            List<BarSets.Bar> bars = set().bars;
             float[] screen = screenDp();
+            List<BarSets.Bar> bars = set().bars;
+            List<QuickBarPreview.PreviewBar> shown = new ArrayList<>();
             for (int i = 0; i < bars.size(); i++) {
-                // The preview shows the bar as the stream draws it on this screen, with a line that is too long wrapped where it fits
-                BarSets.Bar bar = BarFit.fitted(bars.get(i), screen[0], screen[1], 0);
-                List<String> items = pinnedItems(rowsByBar.get(i));
-                LinearLayout grid = new LinearLayout(dialogContext);
-                grid.setOrientation(LinearLayout.VERTICAL);
-                grid.setGravity(bar.isRight() ? Gravity.END : bar.isLeft() ? Gravity.START : Gravity.CENTER_HORIZONTAL);
-                int pad = (int) Dialogs.dp(context, 3);
-                grid.setPadding(pad, pad, pad, pad);
-                grid.setBackgroundResource(R.drawable.bg_corner_slot);
-                grid.setSelected(i == selected);
-                grid.setMinimumWidth((int) Dialogs.dp(context, 24));
-                grid.setMinimumHeight((int) Dialogs.dp(context, 16));
-                List<List<String>> cells = BarSets.grid(bar, items);
+                // The bar as the stream draws it on this screen, with a line that is too long wrapped where it fits
+                BarSets.Bar fitted = BarFit.fitted(bars.get(i), screen[0], screen[1], 0);
                 Map<String, Integer> icons = new LinkedHashMap<>();
                 for (Row row : rowsByBar.get(i)) {
                     icons.put(row.item, row.iconRes);
                 }
-                for (int r = 0; r < cells.size(); r++) {
-                    LinearLayout line = new LinearLayout(dialogContext);
-                    line.setOrientation(LinearLayout.HORIZONTAL);
-                    for (int c = 0; c < cells.get(r).size(); c++) {
-                        String item = cells.get(r).get(c);
-                        ImageView cell = new ImageView(dialogContext);
-                        if (item != null) {
-                            cell.setImageResource(icons.containsKey(item) ? icons.get(item) : R.drawable.ic_sa_keyboard);
-                            cell.setBackgroundResource(R.drawable.bg_mini_button);
-                            int cellPad = Math.max(1, button / 6);
-                            cell.setPadding(cellPad, cellPad, cellPad, cellPad);
-                        }
-                        cell.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
-                        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(button, button);
-                        if (c > 0) {
-                            params.leftMargin = gap;
-                        }
-                        line.addView(cell, params);
-                    }
-                    LinearLayout.LayoutParams lineParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                    if (r > 0) {
-                        lineParams.topMargin = gap;
-                    }
-                    grid.addView(line, lineParams);
-                }
-                int index = i;
-                grid.setOnClickListener(v -> {
-                    selected = index;
-                    refresh();
+                List<String> items = pinnedItems(rowsByBar.get(i));
+                CharSequence description = context.getString(R.string.quick_bar_bar_items, context.getString(anchorNameFor(fitted.anchor))) + ", " + items.size();
+                shown.add(new QuickBarPreview.PreviewBar(fitted, items, icons, description));
+            }
+            QuickBarPreview.render(dialogContext, preview, screen, shown, selected, context.getString(R.string.quick_bar_no_bars), style, index -> {
+                selected = index;
+                refresh();
+            });
+        }
+
+        // Dock rail, Round buttons and Tap to expand work as one segmented button above the bars, and every choice redraws the preview
+        void wireStyle() {
+            String[] values = {QuickBarLook.STYLE_RAIL, QuickBarLook.STYLE_ROUND, QuickBarLook.STYLE_HANDLE};
+            int[] ids = {R.id.quick_bar_style_rail, R.id.quick_bar_style_round, R.id.quick_bar_style_handle};
+            for (int i = 0; i < ids.length; i++) {
+                String value = values[i];
+                body.findViewById(ids[i]).setOnClickListener(v -> {
+                    style = value;
+                    markStyle();
+                    drawPreview();
                 });
-                grid.setContentDescription(context.getString(R.string.quick_bar_bar_items, context.getString(anchorNameFor(bar.anchor))) + ", " + items.size());
-                FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                int vertical = bar.isTop() ? Gravity.TOP : bar.isBottom() ? Gravity.BOTTOM : Gravity.CENTER_VERTICAL;
-                int horizontal = bar.isLeft() ? Gravity.START : bar.isRight() ? Gravity.END : Gravity.CENTER_HORIZONTAL;
-                params.gravity = vertical | horizontal;
-                preview.addView(grid, params);
-                QuickActionBar.placeInside(grid, bar.offsetXDp * density * scale, bar.offsetYDp * density * scale);
             }
-            if (bars.isEmpty()) {
-                TextView empty = new TextView(dialogContext);
-                empty.setText(R.string.quick_bar_no_bars);
-                empty.setGravity(Gravity.CENTER);
-                TextViewCompat.setTextAppearance(empty, R.style.TextAppearance_SuperArtemis_BodySmall);
-                preview.addView(empty, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER));
-            }
+            markStyle();
+        }
+
+        void markStyle() {
+            body.findViewById(R.id.quick_bar_style_rail).setSelected(QuickBarLook.STYLE_RAIL.equals(style));
+            body.findViewById(R.id.quick_bar_style_round).setSelected(QuickBarLook.STYLE_ROUND.equals(style));
+            body.findViewById(R.id.quick_bar_style_handle).setSelected(QuickBarLook.STYLE_HANDLE.equals(style));
         }
 
         void showSetMenu(View anchor) {
@@ -836,11 +863,16 @@ public final class QuickBarEditor {
         void edit(Row row);
     }
 
+    private interface RowListener {
+        void onPinned(Row row);
+    }
+
     private static final class Adapter extends RecyclerView.Adapter<Adapter.Holder> {
         private final Runnable onChanged;
         List<Row> rows = new ArrayList<>();
         DragStarter dragStarter;
         RowEditor editor;
+        RowListener onPinned;
 
         Adapter(Runnable onChanged) {
             this.onChanged = onChanged;
@@ -889,6 +921,9 @@ public final class QuickBarEditor {
             holder.check.setChecked(row.pinned);
             holder.check.setOnCheckedChangeListener((button, checked) -> {
                 row.pinned = checked;
+                if (checked && onPinned != null) {
+                    onPinned.onPinned(row);
+                }
                 onChanged.run();
             });
             holder.itemView.setOnClickListener(v -> holder.check.toggle());

@@ -30,6 +30,14 @@ import java.util.List;
 public class GameMenuLayoutTest {
     private SharedPreferences prefs;
 
+    @Test
+    public void advancedKeysKeepOnlyKeyItemsAndSurviveAReloadAndAreClearedByReset() {
+        GameMenuLayout.setAdvancedKeys(prefs, Arrays.asList("key:a", StreamActionRegistry.ID_ZOOM, "key:b", "key:a"));
+        assertEquals(Arrays.asList("key:a", "key:b"), GameMenuLayout.getAdvancedKeys(prefs));
+        GameMenuLayout.reset(prefs);
+        assertTrue(GameMenuLayout.getAdvancedKeys(prefs).isEmpty());
+    }
+
     @Before
     public void setUp() {
         Context context = ApplicationProvider.getApplicationContext();
@@ -43,6 +51,25 @@ public class GameMenuLayoutTest {
         assertFalse(GameMenuLayout.DEFAULT_QUICK_ITEMS.contains(StreamActionRegistry.ID_DISCONNECT));
         assertFalse(GameMenuLayout.DEFAULT_QUICK_ITEMS.contains(StreamActionRegistry.ID_QUIT));
         assertEquals(GameMenuLayout.STYLE_LIST, GameMenuLayout.getStyle(prefs));
+    }
+
+    @Test
+    public void sectionsStartInTheDefaultOrder() {
+        assertEquals(Arrays.asList("actions", "session", "menu"), GameMenuLayout.getSectionOrder(prefs));
+    }
+
+    @Test
+    public void aSavedSectionOrderRoundTripsAndResets() {
+        GameMenuLayout.setSectionOrder(prefs, Arrays.asList("session", "actions", "menu"));
+        assertEquals(Arrays.asList("session", "actions", "menu"), GameMenuLayout.getSectionOrder(prefs));
+        GameMenuLayout.reset(prefs);
+        assertEquals(GameMenuLayout.DEFAULT_SECTION_ORDER, GameMenuLayout.getSectionOrder(prefs));
+    }
+
+    @Test
+    public void aDamagedSectionOrderKeepsEverySectionOnce() {
+        prefs.edit().putString(GameMenuLayout.PREF_SECTION_ORDER, "menu,bogus,menu").commit();
+        assertEquals(Arrays.asList("menu", "actions", "session"), GameMenuLayout.getSectionOrder(prefs));
     }
 
     @Test

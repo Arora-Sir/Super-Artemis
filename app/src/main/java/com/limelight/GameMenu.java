@@ -28,7 +28,9 @@ import com.limelight.menu.GameMenuEditor;
 import com.limelight.menu.GameMenuLayout;
 import com.limelight.menu.GameMenuRenderer;
 import com.limelight.menu.MenuEntry;
+import com.limelight.menu.MenuSectionOrderDialog;
 import com.limelight.menu.MenuSections;
+import com.limelight.menu.QuickBarLook;
 import com.limelight.menu.BarSets;
 import com.limelight.menu.QuickBarEditor;
 import com.limelight.menu.QuickBarLayout;
@@ -296,6 +298,14 @@ public class GameMenu implements Game.GameMenuCallbacks {
                 actions.add(entryFor(action));
             }
         }
+        // NOTE: Custom keys the user switched on in the menu editor, in the order saved there. A key deleted later is skipped.
+        for (String item : GameMenuLayout.getAdvancedKeys(prefs())) {
+            String keyId = GameMenuLayout.keyId(item);
+            CustomKey key = keyId != null && !quickItems.contains(item) ? SpecialKeys.find(themedContext(), keyId) : null;
+            if (key != null) {
+                actions.add(keyEntry(key, () -> game.runKey(key)));
+            }
+        }
 
         List<MenuEntry> deviceOptions = new ArrayList<>();
         if (device != null) {
@@ -303,6 +313,9 @@ public class GameMenu implements Game.GameMenuCallbacks {
         }
 
         List<MenuEntry> navigation = new ArrayList<>();
+        // The same editor as in the Quick Menu, because it also decides which actions the Advanced Menu lists and in what order
+        navigation.add(new MenuEntry(getString(R.string.game_menu_customize), R.drawable.ic_gm_customize_menu, false, false,
+                () -> showMenuEditor(device)));
         navigation.add(quickBarEditorEntry());
         navigation.add(new MenuEntry(getString(R.string.game_menu_back_to_quick_menu), R.drawable.ic_gm_back, false, false,
                 () -> showMenu(device)));
@@ -406,6 +419,50 @@ public class GameMenu implements Game.GameMenuCallbacks {
     }
 
     // The editor is an in-stream dialog, so customizing never leaves the Game activity or ends the stream
+    // NOTE: A picker for the Quick Menu style, opened from an action so it can be pinned or sit in the Advanced Menu.
+    // NOTE: The menu opens again with the new style right after a choice, so the result is on screen at once.
+    void chooseMenuStyle() {
+        hideMenu();
+        SharedPreferences prefs = prefs();
+        String current = GameMenuLayout.getStyle(prefs);
+        com.limelight.ui.ChoiceList choices = new com.limelight.ui.ChoiceList(com.limelight.ui.ThemedDialogs.builder(themedContext()),
+                R.drawable.ic_gm_customize_menu, getString(R.string.game_menu_editor_style), R.string.game_menu_cancel);
+        String[] styles = {GameMenuLayout.STYLE_LIST, GameMenuLayout.STYLE_GRID, GameMenuLayout.STYLE_COMPACT};
+        int[] labels = {R.string.game_menu_style_list, R.string.game_menu_segment_grid, R.string.game_menu_style_compact};
+        for (int i = 0; i < styles.length; i++) {
+            String style = styles[i];
+            choices.add(R.drawable.ic_gm_customize_menu, getString(labels[i]), style.equals(current), () -> {
+                GameMenuLayout.setStyle(prefs, style);
+                showMenu(null);
+            });
+        }
+        choices.show();
+    }
+
+    // A picker for the look of the quick bars. The bars are built again at once, so the choice shows behind the dialog.
+    void chooseQuickBarStyle() {
+        hideMenu();
+        SharedPreferences prefs = prefs();
+        String current = QuickBarLook.read(game);
+        com.limelight.ui.ChoiceList choices = new com.limelight.ui.ChoiceList(com.limelight.ui.ThemedDialogs.builder(themedContext()),
+                R.drawable.ic_sa_widgets, getString(R.string.title_quick_bar_style), R.string.game_menu_cancel);
+        String[] styles = {QuickBarLook.STYLE_RAIL, QuickBarLook.STYLE_ROUND, QuickBarLook.STYLE_HANDLE};
+        int[] labels = {R.string.quick_bar_style_rail, R.string.quick_bar_style_round, R.string.quick_bar_style_handle};
+        for (int i = 0; i < styles.length; i++) {
+            String style = styles[i];
+            choices.add(R.drawable.ic_sa_widgets, getString(labels[i]), style.equals(current), () -> {
+                prefs.edit().putString(QuickBarLook.PREF_STYLE, style).apply();
+                game.reloadQuickActionBar();
+            });
+        }
+        choices.show();
+    }
+
+    void openMenuSectionOrder() {
+        hideMenu();
+        MenuSectionOrderDialog.show(themedContext(), prefs());
+    }
+
     private void showMenuEditor(GameInputDevice device) {
         hideMenu();
         GameMenuEditor.show(themedContext(), prefs(), () -> showMenu(device));
@@ -425,7 +482,7 @@ public class GameMenu implements Game.GameMenuCallbacks {
         showMenuDialog(getString(R.string.game_menu_server_cmd), options);
     }
 
-    // Quick Menu sections: the user's pinned actions, then Disconnect and Quit in red, then menu navigation
+    // Quick Menu sections: the user's pinned actions, Disconnect and Quit in red, and menu navigation, in the order chosen in Settings
     public void showMenu(GameInputDevice device) {
         List<MenuEntry> actions = new ArrayList<>();
         for (String id : GameMenuLayout.getQuickItems(prefs())) {
@@ -466,11 +523,15 @@ public class GameMenu implements Game.GameMenuCallbacks {
         }
         navigation.add(cancelEntry());
 
-        showMenuDialog(getString(R.string.quick_menu_title), new MenuSections(game.getResources())
-                .add(R.string.game_menu_section_actions, actions)
-                .add(R.string.game_menu_section_session, session)
-                .add(R.string.game_menu_section_menu, navigation)
-                .build());
+        java.util.Map<String, List<MenuEntry>> sections = new java.util.HashMap<>();
+        sections.put(GameMenuLayout.SECTION_ACTIONS, actions);
+        sections.put(GameMenuLayout.SECTION_SESSION, session);
+        sections.put(GameMenuLayout.SECTION_MENU, navigation);
+        MenuSections ordered = new MenuSections(game.getResources());
+        for (String section : GameMenuLayout.getSectionOrder(prefs())) {
+            ordered.add(GameMenuLayout.sectionTitleRes(section), sections.get(section));
+        }
+        showMenuDialog(getString(R.string.quick_menu_title), ordered.build());
     }
 
     @Override

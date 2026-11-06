@@ -23,11 +23,13 @@ import com.limelight.customkeys.IconCatalog;
 import com.limelight.customkeys.SpecialKeys;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 // NOTE: Small round buttons over the stream for the pinned actions and keys, drawn from the bars of the active set in BarSets.
 // NOTE: Each bar is a grid at one of nine anchors, nudged by its offset, and fills from the anchor's corner (see BarSets.grid).
-// NOTE: Bars fade after a few idle seconds so they do not cover the game, and only exist while connected and outside picture-in-picture.
+// NOTE: Bars dim, then hide, after idle seconds so they do not cover the game (see IdlePlan), and only exist while connected and outside picture-in-picture.
 public final class QuickActionBar {
     public interface Host {
         StreamActionHost actionHost();
@@ -44,8 +46,15 @@ public final class QuickActionBar {
         void showBarMenu(int barIndex, String item, String buttonLabel);
     }
 
-    private static final long FADE_DELAY_MS = 3000;
-    private static final float IDLE_ALPHA = 0.4f;
+    // NOTE: How the bars look. Rail is one translucent rounded container, round is a circle per button, and handle is a single chip that expands the rail when tapped.
+    public static final String PREF_STYLE = QuickBarLook.PREF_STYLE;
+    public static final String STYLE_RAIL = QuickBarLook.STYLE_RAIL;
+    public static final String STYLE_ROUND = QuickBarLook.STYLE_ROUND;
+    public static final String STYLE_HANDLE = QuickBarLook.STYLE_HANDLE;
+    // A handle that was opened closes again after this long without a touch when no hide time is set
+    private static final long HANDLE_COLLAPSE_MS = 5000;
+    private static final int PEEK_LONG_DP = 36;
+    private static final int PEEK_THICK_DP = 6;
     // Toggles such as the microphone change state asynchronously, so their look is refreshed a moment after a tap
     private static final long STATE_REFRESH_DELAY_MS = 400;
     private static final int BUTTON_DP = BarFit.BUTTON_DP;
@@ -58,9 +67,20 @@ public final class QuickActionBar {
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final List<Binding> bindings = new ArrayList<>();
     private final List<LinearLayout> bars = new ArrayList<>();
-    private final Runnable fade = this::fade;
+    // One peek tab and one handle chip per bar, in the same order as the bars. Only the one that fits the style and state is shown.
+    private final List<View> peeks = new ArrayList<>();
+    private final List<View> chips = new ArrayList<>();
+    private final Set<LinearLayout> expanded = new HashSet<>();
+    private String style = STYLE_RAIL;
+    private final Runnable collapse = this::collapseHandle;
+    private final Runnable dim = this::dim;
+    private final Runnable hideIdle = this::hideIdle;
     private boolean connected;
     private boolean hidden;
+    // NOTE: Hidden on purpose by the toggle action, and only the same action shows the bars again. Touch never wakes them.
+    private boolean manuallyHidden;
+    // NOTE: Hidden after the idle time ran out, and the next touch on the stream brings the bars back.
+    private boolean idleHidden;
 
     // Keeps the item each button runs, so state refreshes know which action a button shows
     private static final class Binding {
@@ -96,9 +116,80 @@ public final class QuickActionBar {
     // Hidden in picture-in-picture, restored afterwards
     public void setHidden(boolean hidden) {
         this.hidden = hidden;
+        applyVisibility();
+    }
+
+    public boolean isManuallyHidden() {
+        return manuallyHidden;
+    }
+
+    // The toggle action: hides every bar until it is called again
+    public void toggleManualHidden() {
+        manuallyHidden = !manuallyHidden;
+        idleHidden = false;
+        cancelIdle();
         for (LinearLayout bar : bars) {
-            bar.setVisibility(hidden ? View.GONE : View.VISIBLE);
+            bar.animate().cancel();
+            bar.setAlpha(1f);
         }
+        applyVisibility();
+        if (!manuallyHidden) {
+            wake();
+        }
+    }
+
+    // Called for a touch on the stream, which brings back bars that went idle
+    public void onStreamTouch() {
+        if (manuallyHidden || bars.isEmpty()) {
+            return;
+        }
+        if (idleHidden) {
+            idleHidden = false;
+            applyVisibility();
+        }
+        wake();
+    }
+
+    static String normalizeStyle(String value) {
+        return QuickBarLook.normalize(value);
+    }
+
+    private boolean handleStyle() {
+        return STYLE_HANDLE.equals(style);
+    }
+
+    // The rail and the handle share one look, only the round style keeps a circle per button
+    private boolean railLook() {
+        return QuickBarLook.railLook(style);
+    }
+
+    private int buttonBackground(boolean active) {
+        return QuickBarLook.buttonBackground(style, active);
+    }
+
+    // NOTE: Rail and round bars hide completely when idle and leave a peek tab on their edge. A handle bar shows its chip while collapsed and its rail while open.
+    private void applyVisibility() {
+        boolean off = hidden || manuallyHidden;
+        boolean handle = handleStyle();
+        IdlePlan plan = idlePlan();
+        for (int i = 0; i < bars.size(); i++) {
+            LinearLayout bar = bars.get(i);
+            boolean open = handle ? expanded.contains(bar) : !idleHidden;
+            bar.setVisibility(!off && open ? View.VISIBLE : View.GONE);
+            peeks.get(i).setAlpha(plan.tabAlpha());
+            peeks.get(i).setVisibility(!off && !handle && idleHidden && plan.showsTab() ? View.VISIBLE : View.GONE);
+            chips.get(i).setVisibility(!off && handle && !open ? View.VISIBLE : View.GONE);
+        }
+    }
+
+    private IdlePlan idlePlan() {
+        return IdlePlan.read(PreferenceManager.getDefaultSharedPreferences(context));
+    }
+
+    private void cancelIdle() {
+        handler.removeCallbacks(collapse);
+        handler.removeCallbacks(dim);
+        handler.removeCallbacks(hideIdle);
     }
 
     // Rebuilds every corner from the saved items and directions, for example after the bar editor saved
@@ -106,21 +197,32 @@ public final class QuickActionBar {
         for (LinearLayout bar : bars) {
             parent.removeView(bar);
         }
+        for (View view : peeks) {
+            parent.removeView(view);
+        }
+        for (View view : chips) {
+            parent.removeView(view);
+        }
         bars.clear();
+        peeks.clear();
+        chips.clear();
+        expanded.clear();
         bindings.clear();
-        handler.removeCallbacks(fade);
+        cancelIdle();
         if (!connected) {
             return;
         }
+        style = normalizeStyle(PreferenceManager.getDefaultSharedPreferences(context).getString(PREF_STYLE, STYLE_RAIL));
 
         List<BarSets.Bar> specs = BarSets.load(context).activeSet().bars;
         for (int i = 0; i < specs.size(); i++) {
             LinearLayout bar = buildBar(i, specs.get(i));
             if (bar != null) {
-                bar.setVisibility(hidden ? View.GONE : View.VISIBLE);
                 bars.add(bar);
             }
         }
+        idleHidden = false;
+        applyVisibility();
         refreshStates();
         wake();
     }
@@ -153,7 +255,8 @@ public final class QuickActionBar {
         bar.setElevation(9999 * density);
 
         int size = (int) (BUTTON_DP * density);
-        int gap = (int) (GAP_DP * density);
+        int gap = (int) (QuickBarLook.gapDp(style) * density);
+        QuickBarLook.styleContainer(bar, style, density);
         List<List<String>> grid = BarSets.grid(spec, items);
         for (int r = 0; r < grid.size(); r++) {
             LinearLayout row = new LinearLayout(context);
@@ -186,7 +289,66 @@ public final class QuickActionBar {
         }
         parent.addView(bar, layoutParams(spec, density));
         placeInside(bar, spec.offsetXDp * density, spec.offsetYDp * density);
+        buildChip(bar, spec, density);
+        buildPeek(spec, density);
         return bar;
+    }
+
+    // NOTE: The chip stands in for a bar of the handle style while it is collapsed, at the same corner and offset, and tapping it opens the rail.
+    private void buildChip(LinearLayout bar, BarSets.Bar spec, float density) {
+        ImageButton chip = new ImageButton(context);
+        chip.setImageResource(R.drawable.ic_sa_more_horiz);
+        chip.setBackgroundResource(R.drawable.floating_menu_button);
+        int padding = (int) (7 * density);
+        chip.setPadding(padding, padding, padding, padding);
+        chip.setScaleType(ImageButton.ScaleType.FIT_CENTER);
+        chip.setContentDescription(context.getString(R.string.quick_bar_handle_label));
+        chip.setElevation(9999 * density);
+        chip.setOnClickListener(v -> {
+            expanded.add(bar);
+            applyVisibility();
+            wake();
+        });
+        FrameLayout.LayoutParams params = layoutParams(spec, density);
+        params.width = (int) (BUTTON_DP * density);
+        params.height = (int) (BUTTON_DP * density);
+        parent.addView(chip, params);
+        placeInside(chip, spec.offsetXDp * density, spec.offsetYDp * density);
+        chips.add(chip);
+    }
+
+    // NOTE: The peek tab stays on the screen edge of a bar that hid on its own, so the user can see where it lives and tap it back without a touch reaching the game.
+    private void buildPeek(BarSets.Bar spec, float density) {
+        View peek = new View(context);
+        peek.setBackgroundResource(R.drawable.bg_quick_peek);
+        peek.setContentDescription(context.getString(R.string.quick_bar_peek_label));
+        peek.setElevation(9999 * density);
+        peek.setClickable(true);
+        boolean vertical = spec.isLeft() || spec.isRight() || (!spec.isTop() && !spec.isBottom());
+        int longSide = (int) (PEEK_LONG_DP * density);
+        int thick = (int) (PEEK_THICK_DP * density);
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(vertical ? thick : longSide, vertical ? longSide : thick);
+        int edge = (int) (EDGE_DP * density);
+        if (vertical) {
+            params.gravity = (spec.isRight() ? Gravity.END : Gravity.START)
+                    | (spec.isTop() ? Gravity.TOP : spec.isBottom() ? Gravity.BOTTOM : Gravity.CENTER_VERTICAL);
+            if (spec.isTop()) {
+                params.topMargin = edge;
+            }
+            else if (spec.isBottom()) {
+                params.bottomMargin = edge;
+            }
+        }
+        else {
+            params.gravity = (spec.isTop() ? Gravity.TOP : Gravity.BOTTOM) | Gravity.CENTER_HORIZONTAL;
+        }
+        peek.setOnClickListener(v -> {
+            idleHidden = false;
+            applyVisibility();
+            wake();
+        });
+        parent.addView(peek, params);
+        peeks.add(peek);
     }
 
     // NOTE: Applies the offset once the bar is measured and clamps it so the whole bar stays on screen.
@@ -216,7 +378,7 @@ public final class QuickActionBar {
     public void refreshStates() {
         for (Binding binding : bindings) {
             boolean active = binding.action != null && binding.action.isActive(host.actionHost());
-            binding.button.setBackgroundResource(active ? R.drawable.floating_menu_button_active : R.drawable.floating_menu_button);
+            binding.button.setBackgroundResource(buttonBackground(active));
             if (binding.action != null) {
                 binding.button.setContentDescription(context.getString(binding.action.labelRes(host.actionHost())));
             }
@@ -243,7 +405,7 @@ public final class QuickActionBar {
         float density = context.getResources().getDisplayMetrics().density;
         ImageButton button = new ImageButton(context);
         button.setImageResource(iconRes);
-        button.setBackgroundResource(R.drawable.floating_menu_button);
+        button.setBackgroundResource(buttonBackground(false));
         int padding = (int) (7 * density);
         button.setPadding(padding, padding, padding, padding);
         button.setScaleType(ImageButton.ScaleType.FIT_CENTER);
@@ -296,20 +458,50 @@ public final class QuickActionBar {
         return params;
     }
 
+    // NOTE: Every touch restarts both stages. A handle bar has one stage only, it closes into its chip after the hide time.
     private void wake() {
-        handler.removeCallbacks(fade);
+        cancelIdle();
         for (LinearLayout bar : bars) {
             bar.animate().cancel();
             bar.setAlpha(1f);
         }
-        if (!bars.isEmpty()) {
-            handler.postDelayed(fade, FADE_DELAY_MS);
+        if (bars.isEmpty()) {
+            return;
+        }
+        IdlePlan plan = idlePlan();
+        if (handleStyle()) {
+            handler.postDelayed(collapse, plan.hideDelayMs() > 0 ? plan.hideDelayMs() : HANDLE_COLLAPSE_MS);
+            return;
+        }
+        if (plan.dimDelayMs() >= 0) {
+            handler.postDelayed(dim, plan.dimDelayMs());
+        }
+        if (plan.hideDelayMs() >= 0) {
+            handler.postDelayed(hideIdle, plan.hideDelayMs());
         }
     }
 
-    private void fade() {
+    // A handle bar closes back into its chip, so there is nothing to dim or hide
+    private void collapseHandle() {
+        expanded.clear();
+        applyVisibility();
+    }
+
+    private void dim() {
+        float alpha = idlePlan().dimAlpha();
         for (LinearLayout bar : bars) {
-            bar.animate().alpha(IDLE_ALPHA).setDuration(300).start();
+            bar.animate().alpha(alpha).setDuration(300).start();
+        }
+    }
+
+    private void hideIdle() {
+        for (LinearLayout bar : bars) {
+            bar.animate().alpha(0f).setDuration(300).withEndAction(() -> {
+                if (bar.getAlpha() == 0f && !idleHidden) {
+                    idleHidden = true;
+                    applyVisibility();
+                }
+            }).start();
         }
     }
 }

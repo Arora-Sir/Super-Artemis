@@ -39,6 +39,9 @@ public final class BuiltInKeys {
     }
 
     public static final List<Def> ALL = Collections.unmodifiableList(Arrays.asList(
+            // NOTE: Backspace and Delete come first because they are the keys people reach for most and could not find before. Delete has its own icon so the two do not look alike.
+            new Def("backspace", R.string.more_key_backspace, "backspace", 0x08),
+            new Def("delete", R.string.more_key_delete, "delete_forever", 0x2E),
             new Def("esc", R.string.game_menu_send_keys_esc, "close", KeyboardTranslator.VK_ESCAPE),
             new Def("f11", R.string.game_menu_send_keys_f11, "fullscreen", KeyboardTranslator.VK_F11),
             new Def("alt_f4", R.string.game_menu_send_keys_alt_f4, "power_settings_new",
@@ -83,11 +86,14 @@ public final class BuiltInKeys {
             more("win_e", R.string.more_key_win_e, "folder_open", KeyboardTranslator.VK_LWIN, 0x45),
             more("win_l", R.string.more_key_win_l, "lock", KeyboardTranslator.VK_LWIN, 0x4C),
             more("win_r", R.string.more_key_win_r, "terminal", KeyboardTranslator.VK_LWIN, 0x52),
+            // Windows Magnifier: Win + Plus (0xBB) zooms in, Win + Minus (0xBD) zooms out, Win + Esc exits
+            more("win_plus", R.string.more_key_win_plus, "magnifier_win_plus", KeyboardTranslator.VK_LWIN, 0xBB),
+            more("win_minus", R.string.more_key_win_minus, "magnifier_win_minus", KeyboardTranslator.VK_LWIN, 0xBD),
+            more("win_esc", R.string.more_key_win_esc, "magnifier_win_esc", KeyboardTranslator.VK_LWIN, KeyboardTranslator.VK_ESCAPE),
             more("home", R.string.more_key_home, "first_page", 0x24),
             more("end", R.string.more_key_end, "last_page", 0x23),
             more("page_up", R.string.more_key_page_up, "keyboard_double_arrow_up", 0x21),
             more("page_down", R.string.more_key_page_down, "keyboard_double_arrow_down", 0x22),
-            more("delete", R.string.more_key_delete, "backspace", 0x2E),
             more("tab", R.string.more_key_tab, "keyboard_tab", KeyboardTranslator.VK_TAB),
             more("enter", R.string.more_key_enter, "keyboard_return", KeyboardTranslator.VK_RETURN),
             // VK_SNAPSHOT: Windows copies the screen or opens Snipping Tool, depending on its own setting

@@ -59,6 +59,62 @@
                 android:background="@drawable/bg_preview_screen"
                 android:padding="4dp" />
 
+            <!-- The look of every bar. It is chosen here so the preview above shows it, and Save applies it -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="@string/title_quick_bar_style"
+                android:textAppearance="@style/TextAppearance.SuperArtemis.SectionLabel" />
+
+            <!-- One fixed height for all three, so a label on two lines is never taller or clipped compared with its neighbours -->
+            <LinearLayout
+                android:id="@+id/quick_bar_style_row"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="6dp"
+                android:layout_marginBottom="8dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/quick_bar_style_rail"
+                    style="@style/SuperArtemis.Segment"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:layout_marginRight="6dp"
+                    android:maxLines="2"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="4dp"
+                    android:textSize="13sp"
+                    android:text="@string/quick_bar_style_rail" />
+
+                <TextView
+                    android:id="@+id/quick_bar_style_round"
+                    style="@style/SuperArtemis.Segment"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:layout_marginRight="6dp"
+                    android:maxLines="2"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="4dp"
+                    android:textSize="13sp"
+                    android:text="@string/quick_bar_style_round" />
+
+                <TextView
+                    android:id="@+id/quick_bar_style_handle"
+                    style="@style/SuperArtemis.Segment"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:maxLines="2"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="4dp"
+                    android:textSize="13sp"
+                    android:text="@string/quick_bar_style_handle" />
+            </LinearLayout>
+
             <com.limelight.ui.FlowRow
                 android:id="@+id/quick_bar_bars"
                 android:layout_width="match_parent"
@@ -202,22 +258,20 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- The label on the left and Add key or flow on the right, so the list below ends in its own edge instead of a button with a divider line on top -->
-            <LinearLayout
-                android:id="@+id/quick_bar_items_header"
+            <!-- The label on its own line, then Add key or flow and Find, which wrap under each other on a narrow screen, so the list below ends in its own edge instead of a button with a divider line on top -->
+            <TextView
+                android:id="@+id/quick_bar_items_label"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:textAppearance="@style/TextAppearance.SuperArtemis.SectionLabel" />
 
-                <TextView
-                    android:id="@+id/quick_bar_items_label"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:textAppearance="@style/TextAppearance.SuperArtemis.SectionLabel" />
-            </LinearLayout>
+            <com.limelight.ui.FlowRow
+                android:id="@+id/quick_bar_items_actions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                app:rowGap="0dp" />
 
             <FrameLayout
                 android:id="@+id/quick_bar_list"

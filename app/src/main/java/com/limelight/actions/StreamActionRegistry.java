@@ -23,6 +23,7 @@ public final class StreamActionRegistry {
     public static final String ID_MOUSE_MODE = "mouse_mode";
     public static final String ID_TOGGLE_HUD = "toggle_hud";
     public static final String ID_TOGGLE_FLOATING_BUTTON = "toggle_floating_button";
+    public static final String ID_TOGGLE_QUICK_BAR = "toggle_quick_bar";
     public static final String ID_TOGGLE_KEYBOARD_MODEL = "toggle_keyboard_model";
     public static final String ID_TOGGLE_VIRTUAL_CONTROLLER = "toggle_virtual_controller";
     public static final String ID_TOGGLE_FULL_KEYBOARD = "toggle_full_keyboard";
@@ -30,6 +31,10 @@ public final class StreamActionRegistry {
     public static final String ID_SEND_KEYS = "send_keys";
     public static final String ID_TOUCH_SENSITIVITY = "touch_sensitivity";
     public static final String ID_SETTINGS = "settings";
+    // NOTE: Settings that change how the menus and bars look, offered as actions so they can sit in the Advanced Menu, the Quick Menu, a bar or a gesture.
+    public static final String ID_MENU_STYLE = "menu_style";
+    public static final String ID_QUICK_BAR_STYLE = "quick_bar_style";
+    public static final String ID_MENU_SECTION_ORDER = "menu_section_order";
 
     public static final List<StreamAction> ALL = Collections.unmodifiableList(Arrays.asList(
             StreamAction.builder(ID_DISCONNECT, R.string.game_menu_disconnect, R.drawable.ic_gm_disconnect,
@@ -62,6 +67,8 @@ public final class StreamActionRegistry {
                     StreamActionHost::toggleHud).build(),
             StreamAction.builder(ID_TOGGLE_FLOATING_BUTTON, R.string.game_menu_toggle_floating_button, R.drawable.ic_gm_toggle_floating_button,
                     StreamActionHost::toggleFloatingButton).build(),
+            StreamAction.builder(ID_TOGGLE_QUICK_BAR, R.string.game_menu_toggle_quick_bar, R.drawable.ic_sa_widgets,
+                    StreamActionHost::toggleQuickBars).build(),
             StreamAction.builder(ID_TOGGLE_KEYBOARD_MODEL, R.string.game_menu_toggle_keyboard_model, R.drawable.ic_gm_toggle_keyboard_model,
                     StreamActionHost::toggleKeyboardModel).build(),
             StreamAction.builder(ID_TOGGLE_VIRTUAL_CONTROLLER, R.string.game_menu_toggle_virtual_model, R.drawable.ic_gm_toggle_virtual_controller,
@@ -75,6 +82,13 @@ public final class StreamActionRegistry {
                     StreamActionHost::openSpecialKeys).withoutGameFocus().build(),
             StreamAction.builder(ID_TOUCH_SENSITIVITY, R.string.game_menu_switch_touch_sensitivity_model, R.drawable.ic_gm_touch_sensitivity,
                     StreamActionHost::switchTouchSensitivity).build(),
+            // Pickers and dialogs that open on top of the stream, so they do not wait for game focus
+            StreamAction.builder(ID_MENU_STYLE, R.string.game_menu_editor_style, R.drawable.ic_gm_customize_menu,
+                    StreamActionHost::chooseMenuStyle).withoutGameFocus().build(),
+            StreamAction.builder(ID_QUICK_BAR_STYLE, R.string.title_quick_bar_style, R.drawable.ic_sa_widgets,
+                    StreamActionHost::chooseQuickBarStyle).withoutGameFocus().build(),
+            StreamAction.builder(ID_MENU_SECTION_ORDER, R.string.title_menu_section_order, R.drawable.ic_ck_view_agenda,
+                    StreamActionHost::openMenuSectionOrder).withoutGameFocus().build(),
             // Leaves the stream for Settings and comes back by itself, so it is not a session ender like Disconnect
             StreamAction.builder(ID_SETTINGS, R.string.game_menu_settings, R.drawable.ic_ck_settings,
                     StreamActionHost::openSettings).withoutGameFocus().build()

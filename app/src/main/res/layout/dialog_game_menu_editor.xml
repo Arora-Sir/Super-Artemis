@@ -8,6 +8,7 @@
     android:paddingRight="24dp">
 
     <TextView
+        android:id="@+id/game_menu_editor_style_label"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/game_menu_editor_style"
@@ -39,6 +40,7 @@
     </LinearLayout>
 
     <TextView
+        android:id="@+id/game_menu_editor_hint"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
@@ -51,11 +53,37 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <FrameLayout
-            android:id="@+id/game_menu_editor_list"
+        <LinearLayout
+            android:id="@+id/game_menu_editor_list_pane"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:id="@+id/game_menu_editor_tabs"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/game_menu_editor_tab_actions"
+                    style="@style/SuperArtemis.Segment"
+                    android:layout_marginRight="8dp"
+                    android:text="@string/game_menu_section_actions" />
+
+                <TextView
+                    android:id="@+id/game_menu_editor_tab_sections"
+                    style="@style/SuperArtemis.Segment"
+                    android:text="@string/game_menu_editor_tab_section_order" />
+            </LinearLayout>
+
+            <FrameLayout
+                android:id="@+id/game_menu_editor_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
 
         <LinearLayout
             android:id="@+id/game_menu_editor_preview_pane"
@@ -71,6 +99,24 @@
                 android:paddingBottom="6dp"
                 android:text="@string/game_menu_editor_preview"
                 android:textAppearance="@style/TextAppearance.SuperArtemis.SectionLabel" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/game_menu_editor_preview_quick"
+                    style="@style/SuperArtemis.Segment"
+                    android:layout_marginRight="8dp"
+                    android:text="@string/quick_menu_title" />
+
+                <TextView
+                    android:id="@+id/game_menu_editor_preview_advanced"
+                    style="@style/SuperArtemis.Segment"
+                    android:text="@string/game_menu_advanced" />
+            </LinearLayout>
 
             <FrameLayout
                 android:id="@+id/game_menu_editor_preview"

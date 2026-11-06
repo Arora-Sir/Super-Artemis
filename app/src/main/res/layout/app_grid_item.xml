@@ -40,6 +40,7 @@
                 android:gravity="center|center_vertical"
                 android:background="#00FFFFFF"
                 android:textAlignment="center"
+                android:textColor="#FF1B1B1F"
                 android:textSize="18sp" />
         </RelativeLayout>
 

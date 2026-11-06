@@ -113,6 +113,26 @@ final class GameActionHost implements StreamActionHost {
     }
 
     @Override
+    public void toggleQuickBars() {
+        game.toggleQuickActionBar();
+    }
+
+    @Override
+    public void chooseMenuStyle() {
+        menu.chooseMenuStyle();
+    }
+
+    @Override
+    public void chooseQuickBarStyle() {
+        menu.chooseQuickBarStyle();
+    }
+
+    @Override
+    public void openMenuSectionOrder() {
+        menu.openMenuSectionOrder();
+    }
+
+    @Override
     public void toggleKeyboardModel() {
         game.toggleKeyboardController();
     }

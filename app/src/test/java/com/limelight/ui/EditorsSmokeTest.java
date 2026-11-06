@@ -1,5 +1,6 @@
 package com.limelight.ui;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -16,6 +17,7 @@ import com.limelight.customkeys.CustomKeyEditor;
 import com.limelight.customkeys.SpecialKeysManager;
 import com.limelight.gestures.GestureEditor;
 import com.limelight.menu.GameMenuEditor;
+import com.limelight.menu.MenuSectionOrderDialog;
 import com.limelight.menu.QuickBarEditor;
 import com.limelight.shadows.ShadowMoonBridge;
 import com.limelight.theme.AppStylePicker;
@@ -81,20 +83,28 @@ public class EditorsSmokeTest {
         }
     }
 
-    // On a phone in landscape the menu editor keeps both panes but scrolls as one page, so the preview is never cut off at the bottom
+    // NOTE: On a phone in landscape the style row, the preview and the hint live in a right pane that scrolls by itself, so a drag on the key list scrolls the list and never the page.
     @Test
-    public void menuEditorScrollsOnAPhoneInLandscape() {
+    public void menuEditorKeepsTheListAndAddButtonInTheLeftPaneOnAPhoneInLandscape() {
         org.robolectric.RuntimeEnvironment.setQualifiers("w832dp-h384dp-land-xxhdpi");
         AppCompatActivity activity = activity(true);
         GameMenuEditor.show(activity, PreferenceManager.getDefaultSharedPreferences(activity), () -> { });
         ShadowLooper.idleMainLooper();
-        android.view.View panes = ShadowDialog.getLatestDialog().findViewById(R.id.game_menu_editor_panes);
-        boolean scrolls = false;
+        Dialog dialog = ShadowDialog.getLatestDialog();
+        android.view.View panes = dialog.findViewById(R.id.game_menu_editor_panes);
+        boolean pageScrolls = false;
         for (android.view.ViewParent parent = panes.getParent(); parent != null; parent = parent.getParent()) {
-            scrolls |= parent instanceof PageFirstScrollView;
+            pageScrolls |= parent instanceof androidx.core.widget.NestedScrollView || parent instanceof android.widget.ScrollView;
         }
-        assertTrue(scrolls);
-        ShadowDialog.getLatestDialog().dismiss();
+        assertFalse("the whole editor must not scroll as a page", pageScrolls);
+        // The style row sits in the right pane, which is the only scrolling part besides the list
+        android.view.View styleRow = dialog.findViewById(R.id.game_menu_editor_style);
+        boolean inScrollingRightPane = false;
+        for (android.view.ViewParent parent = styleRow.getParent(); parent != null; parent = parent.getParent()) {
+            inScrollingRightPane |= parent instanceof android.widget.ScrollView;
+        }
+        assertTrue(inScrollingRightPane);
+        dialog.dismiss();
     }
 
     @Test
@@ -105,6 +115,11 @@ public class EditorsSmokeTest {
     @Test
     public void quickMenuEditorOpens() {
         openInBothStyles((activity, prefs) -> GameMenuEditor.show(activity, prefs, () -> { }));
+    }
+
+    @Test
+    public void menuSectionOrderDialogOpens() {
+        openInBothStyles(MenuSectionOrderDialog::show);
     }
 
     @Test

@@ -37,6 +37,9 @@ public interface StreamActionHost {
 
     void toggleFloatingButton();
 
+    // Hides the quick bars until the same action shows them again, touch does not bring them back
+    void toggleQuickBars();
+
     void toggleKeyboardModel();
 
     boolean canShowVirtualController();
@@ -50,6 +53,15 @@ public interface StreamActionHost {
     void openSpecialKeys();
 
     void switchTouchSensitivity();
+
+    // A picker for the Quick Menu style (list, grid or compact), applied the next time the menu opens
+    void chooseMenuStyle();
+
+    // A picker for the look of the quick bars (dock rail, round buttons or tap to expand), applied at once
+    void chooseQuickBarStyle();
+
+    // The drag list that orders the sections of the Quick Menu
+    void openMenuSectionOrder();
 
     // Opens Settings and reconnects to the same app when Settings closes
     void openSettings();

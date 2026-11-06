@@ -89,7 +89,8 @@ public class QuickActionBarFitTest {
         layout(parent, width, Math.round(heightDp * density));
 
         List<ImageButton> buttons = new ArrayList<>();
-        collect(parent, buttons);
+        // The first view is the bar, the handle chip after it is not one of its buttons
+        collect(parent.getChildAt(0), buttons);
         assertEquals("Every button is built", 20, buttons.size());
         View barView = parent.getChildAt(0);
         assertTrue("The bar is " + barView.getWidth() + "px wide on a " + width + "px screen", barView.getWidth() <= width);

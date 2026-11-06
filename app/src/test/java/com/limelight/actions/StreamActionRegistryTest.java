@@ -109,6 +109,10 @@ public class StreamActionRegistryTest {
         @Override public boolean isMicrophoneAvailable() { return micAvailable; }
         @Override public boolean isMicrophoneStreaming() { return micStreaming; }
         @Override public void toggleMicrophone() { calls.add("mic"); }
+        @Override public void toggleQuickBars() { calls.add("quickbars"); }
+        @Override public void chooseMenuStyle() { calls.add("menustyle"); }
+        @Override public void chooseQuickBarStyle() { calls.add("barstyle"); }
+        @Override public void openMenuSectionOrder() { calls.add("sectionorder"); }
         @Override public boolean canChangeMouseMode() { return true; }
         @Override public void selectMouseMode() { calls.add("mouse"); }
         @Override public void toggleHud() { calls.add("hud"); }

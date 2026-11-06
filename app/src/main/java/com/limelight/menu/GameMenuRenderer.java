@@ -28,7 +28,7 @@ public final class GameMenuRenderer {
         void onClick(MenuEntry entry);
     }
 
-    private static final int GRID_COLUMN_WIDTH_DP = 96;
+    private static final int GRID_COLUMN_WIDTH_DP = 80;
 
     private GameMenuRenderer() {
     }

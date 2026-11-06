@@ -66,6 +66,8 @@
         android:preferKeepClear="true"
         android:visibility="gone" />
 
+    <include layout="@layout/view_network_status" />
+
     <LinearLayout
         android:id="@+id/performanceOverlay"
         android:orientation="vertical"

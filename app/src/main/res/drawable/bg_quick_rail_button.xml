@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A button on the dock rail: no tile of its own, only a ripple when pressed -->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="#80FFFFFF">
+    <item>
+        <shape android:shape="oval">
+            <solid android:color="#00000000" />
+            <size android:width="36dp" android:height="36dp" />
+        </shape>
+    </item>
+</ripple>

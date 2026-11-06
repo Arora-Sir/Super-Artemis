@@ -5,8 +5,11 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.PreferenceManager;
 import androidx.test.core.app.ApplicationProvider;
 
 import com.limelight.R;
@@ -16,8 +19,11 @@ import com.limelight.shadows.ShadowMoonBridge;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
+import org.robolectric.shadows.ShadowDialog;
+import org.robolectric.shadows.ShadowLooper;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -63,6 +69,43 @@ public class GameMenuEditorTest {
         // The preview shows the key name like the real Quick Menu, without the "Key:" prefix of the editor list
         // A named shortcut reads with its keys, like every other list (KeyLabels)
         assertEquals("Ctrl + C (Copy)", preview.get(1).label);
+    }
+
+    @Test
+    public void unpinnedKeysAreHiddenFromTheAdvancedMenuUntilTheirEyeIsOn() {
+        CustomKey copy = new CustomKey("k1", "Copy", false, "content_copy", Arrays.asList(0xA2, 0x43));
+        CustomKey paste = new CustomKey("k2", "Paste", false, null, Arrays.asList(0xA2, 0x56));
+        List<GameMenuEditor.Row> rows = GameMenuEditor.buildRows(context, new ArrayList<>(), new java.util.HashSet<>(),
+                Arrays.asList(GameMenuLayout.keyItem("k2")), Arrays.asList(copy, paste));
+        GameMenuEditor.Row copyRow = rows.get(rows.size() - 2);
+        GameMenuEditor.Row pasteRow = rows.get(rows.size() - 1);
+        assertEquals("key:k1", copyRow.item);
+        assertTrue(copyRow.hidden);
+        assertFalse(pasteRow.hidden);
+
+        List<MenuEntry> advanced = GameMenuEditor.buildAdvancedPreview(res, rows);
+        boolean copyShown = false;
+        boolean pasteShown = false;
+        for (MenuEntry entry : advanced) {
+            copyShown |= entry.label.contains("Copy");
+            pasteShown |= entry.label.contains("Paste");
+        }
+        assertFalse(copyShown);
+        assertTrue(pasteShown);
+    }
+
+    @Test
+    public void theAdvancedPreviewListsNavigationAndLeavesOutPinnedAndHiddenActions() {
+        java.util.Set<String> hidden = new java.util.HashSet<>(Arrays.asList(StreamActionRegistry.ID_ROTATE_SCREEN));
+        List<GameMenuEditor.Row> rows = GameMenuEditor.buildRows(context, Arrays.asList(StreamActionRegistry.ID_ZOOM), hidden, NO_KEYS);
+        List<MenuEntry> advanced = GameMenuEditor.buildAdvancedPreview(res, rows);
+        List<String> labels = new ArrayList<>();
+        for (MenuEntry entry : advanced) {
+            labels.add(entry.label);
+        }
+        assertFalse(labels.contains(res.getString(StreamActionRegistry.find(StreamActionRegistry.ID_ZOOM).nameRes)));
+        assertFalse(labels.contains(res.getString(StreamActionRegistry.find(StreamActionRegistry.ID_ROTATE_SCREEN).nameRes)));
+        assertTrue(labels.contains(res.getString(R.string.game_menu_back_to_quick_menu)));
     }
 
     @Test
@@ -130,5 +173,129 @@ public class GameMenuEditorTest {
         for (String style : Arrays.asList(GameMenuLayout.STYLE_LIST, GameMenuLayout.STYLE_GRID, GameMenuLayout.STYLE_COMPACT)) {
             assertEquals(style, GameMenuEditor.styleFor(GameMenuEditor.radioIdFor(style)));
         }
+    }
+
+    @Test
+    public void previewShowsSectionsInCustomOrder() {
+        List<GameMenuEditor.Row> rows = GameMenuEditor.buildRows(context, Arrays.asList(StreamActionRegistry.ID_ZOOM), NO_KEYS);
+        List<MenuEntry> preview = GameMenuEditor.buildPreview(res, rows, Arrays.asList(
+                GameMenuLayout.SECTION_SESSION, GameMenuLayout.SECTION_MENU, GameMenuLayout.SECTION_ACTIONS));
+
+        List<String> headers = new ArrayList<>();
+        for (MenuEntry entry : preview) {
+            if (entry.header) {
+                headers.add(entry.label);
+            }
+        }
+        assertEquals(Arrays.asList(
+                res.getString(R.string.game_menu_section_session),
+                res.getString(R.string.game_menu_section_menu),
+                res.getString(R.string.game_menu_section_actions)), headers);
+    }
+
+    @Test
+    public void editorPersistsSectionOrderOnSave() {
+        AppCompatActivity activity = Robolectric.buildActivity(AppCompatActivity.class).create().get();
+        activity.setTheme(R.style.AppTheme_MaterialYou);
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(activity);
+        prefs.edit().clear().commit();
+
+        assertEquals(GameMenuLayout.DEFAULT_SECTION_ORDER, GameMenuLayout.getSectionOrder(prefs));
+
+        final boolean[] changed = {false};
+        GameMenuEditor.show(activity, prefs, () -> changed[0] = true);
+        ShadowLooper.idleMainLooper();
+        android.app.AlertDialog dialog = (android.app.AlertDialog) ShadowDialog.getLatestDialog();
+
+        // Switch to the section order tab
+        dialog.findViewById(R.id.game_menu_editor_tab_sections).performClick();
+        assertTrue(dialog.findViewById(R.id.game_menu_editor_tab_sections).isSelected());
+        assertFalse(dialog.findViewById(R.id.game_menu_editor_tab_actions).isSelected());
+
+        // Find the sections RecyclerView
+        android.widget.FrameLayout listContainer = dialog.findViewById(R.id.game_menu_editor_list);
+        android.widget.LinearLayout sectionsColumn = (android.widget.LinearLayout) listContainer.getChildAt(1);
+        assertEquals(android.view.View.VISIBLE, sectionsColumn.getVisibility());
+        androidx.recyclerview.widget.RecyclerView sectionsList = (androidx.recyclerview.widget.RecyclerView) sectionsColumn.getChildAt(0);
+        assertEquals(3, sectionsList.getAdapter().getItemCount());
+
+        // Save dialog
+        dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE).performClick();
+        ShadowLooper.idleMainLooper();
+        assertTrue(changed[0]);
+        assertEquals(GameMenuLayout.DEFAULT_SECTION_ORDER, GameMenuLayout.getSectionOrder(prefs));
+    }
+
+    @Test
+    public void editorRevertsSectionOrderOnReset() {
+        AppCompatActivity activity = Robolectric.buildActivity(AppCompatActivity.class).create().get();
+        activity.setTheme(R.style.AppTheme_MaterialYou);
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(activity);
+        prefs.edit().clear().commit();
+        GameMenuLayout.setSectionOrder(prefs, Arrays.asList(
+                GameMenuLayout.SECTION_SESSION, GameMenuLayout.SECTION_MENU, GameMenuLayout.SECTION_ACTIONS));
+
+        final boolean[] changed = {false};
+        GameMenuEditor.show(activity, prefs, () -> changed[0] = true);
+        ShadowLooper.idleMainLooper();
+        android.app.AlertDialog dialog = (android.app.AlertDialog) ShadowDialog.getLatestDialog();
+
+        dialog.getButton(android.app.AlertDialog.BUTTON_NEUTRAL).performClick();
+        ShadowLooper.idleMainLooper();
+        assertTrue(changed[0]);
+        assertEquals(GameMenuLayout.DEFAULT_SECTION_ORDER, GameMenuLayout.getSectionOrder(prefs));
+    }
+
+    @Test
+    public void editorDiscardsSectionOrderOnCancel() {
+        AppCompatActivity activity = Robolectric.buildActivity(AppCompatActivity.class).create().get();
+        activity.setTheme(R.style.AppTheme_MaterialYou);
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(activity);
+        prefs.edit().clear().commit();
+        List<String> initialOrder = Arrays.asList(
+                GameMenuLayout.SECTION_MENU, GameMenuLayout.SECTION_ACTIONS, GameMenuLayout.SECTION_SESSION);
+        GameMenuLayout.setSectionOrder(prefs, initialOrder);
+
+        final boolean[] changed = {false};
+        GameMenuEditor.show(activity, prefs, () -> changed[0] = true);
+        ShadowLooper.idleMainLooper();
+        android.app.AlertDialog dialog = (android.app.AlertDialog) ShadowDialog.getLatestDialog();
+
+        dialog.getButton(android.app.AlertDialog.BUTTON_NEGATIVE).performClick();
+        ShadowLooper.idleMainLooper();
+        assertFalse(changed[0]);
+        assertEquals(initialOrder, GameMenuLayout.getSectionOrder(prefs));
+    }
+
+    @Test
+    public void switchingToSectionOrderTabSwapsPreviewBackToQuickMenu() {
+        AppCompatActivity activity = Robolectric.buildActivity(AppCompatActivity.class).create().get();
+        activity.setTheme(R.style.AppTheme_MaterialYou);
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(activity);
+        prefs.edit().clear().commit();
+
+        GameMenuEditor.show(activity, prefs, () -> { });
+        ShadowLooper.idleMainLooper();
+        android.app.AlertDialog dialog = (android.app.AlertDialog) ShadowDialog.getLatestDialog();
+
+        android.view.View previewQuick = dialog.findViewById(R.id.game_menu_editor_preview_quick);
+        android.view.View previewAdvanced = dialog.findViewById(R.id.game_menu_editor_preview_advanced);
+        android.view.View tabActions = dialog.findViewById(R.id.game_menu_editor_tab_actions);
+        android.view.View tabSections = dialog.findViewById(R.id.game_menu_editor_tab_sections);
+
+        assertTrue(previewQuick.isSelected());
+        assertTrue(tabActions.isSelected());
+
+        previewAdvanced.performClick();
+        assertTrue(previewAdvanced.isSelected());
+        assertFalse(previewQuick.isSelected());
+
+        tabSections.performClick();
+        assertTrue(tabSections.isSelected());
+        assertFalse(tabActions.isSelected());
+        assertTrue(previewQuick.isSelected());
+        assertFalse(previewAdvanced.isSelected());
+
+        dialog.dismiss();
     }
 }

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A desktop frame with a cross, so the Exit Magnifier key does not look like the in-app stream zoom (a magnifying glass). Drawn for Super Artemis. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:tint="?android:attr/textColorPrimary"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M3,4H21Q22,4 22,5V17Q22,18 21,18H14V20H17V21.5H7V20H10V18H3Q2,18 2,17V5Q2,4 3,4ZM3.5,5.5V16.5H20.5V5.5ZM9.06,8.5L12,11.44L14.94,8.5L15.5,9.06L12.56,12L15.5,14.94L14.94,15.5L12,12.56L9.06,15.5L8.5,14.94L11.44,12L8.5,9.06Z" />
+</vector>

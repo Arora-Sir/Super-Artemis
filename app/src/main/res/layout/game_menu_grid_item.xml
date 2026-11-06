@@ -5,12 +5,12 @@
     android:layout_height="wrap_content"
     android:background="@drawable/bg_pressable_rounded"
     android:gravity="center"
-    android:minHeight="88dp"
+    android:minHeight="68dp"
     android:orientation="vertical"
     android:paddingLeft="4dp"
-    android:paddingTop="10dp"
+    android:paddingTop="6dp"
     android:paddingRight="4dp"
-    android:paddingBottom="8dp">
+    android:paddingBottom="6dp">
 
     <ImageView
         android:id="@+id/game_menu_item_icon"
@@ -22,7 +22,7 @@
         android:id="@+id/game_menu_item_label"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
+        android:layout_marginTop="4dp"
         android:ellipsize="end"
         android:gravity="center"
         android:maxLines="2"

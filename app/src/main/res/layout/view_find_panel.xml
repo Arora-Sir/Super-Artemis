@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The Find panel: a search bar, the keys pressed in press mode, the results, and the in-app keyboard of press mode -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/find_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:minHeight="56dp"
+        android:orientation="horizontal"
+        android:paddingLeft="4dp"
+        android:paddingRight="4dp">
+
+        <ImageButton
+            android:id="@+id/find_close"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_button_text"
+            android:contentDescription="@string/find_close"
+            android:scaleType="center"
+            android:src="@drawable/ic_ck_arrow_back"
+            android:tint="?attr/saOnSurface" />
+
+        <FrameLayout
+            android:id="@+id/find_field_host"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <ImageButton
+            android:id="@+id/find_mode"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_button_text"
+            android:contentDescription="@string/find_mode_press"
+            android:scaleType="center"
+            android:src="@drawable/ic_ck_keyboard"
+            android:tint="?attr/saOnSurface" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/find_pressed_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:minHeight="48dp"
+        android:orientation="horizontal"
+        android:paddingLeft="16dp"
+        android:paddingRight="8dp"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/find_pressed_text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:accessibilityLiveRegion="polite"
+            android:textAppearance="@style/TextAppearance.SuperArtemis.TitleSmall" />
+
+        <TextView
+            android:id="@+id/find_clear"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_button_text"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:minWidth="48dp"
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp"
+            android:text="@string/find_clear"
+            android:textAppearance="@style/TextAppearance.SuperArtemis.TitleSmall"
+            android:textColor="?attr/saPrimary" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/find_body"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <ScrollView
+                android:id="@+id/find_scroll"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:paddingBottom="8dp">
+
+                <LinearLayout
+                    android:id="@+id/find_results"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingLeft="8dp"
+                    android:paddingRight="8dp" />
+            </ScrollView>
+
+            <TextView
+                android:id="@+id/find_empty"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:accessibilityLiveRegion="polite"
+                android:gravity="center"
+                android:padding="24dp"
+                android:text="@string/find_no_results"
+                android:textAppearance="@style/TextAppearance.SuperArtemis.BodyLarge"
+                android:textColor="?attr/saOnSurfaceVariant"
+                android:visibility="gone" />
+        </FrameLayout>
+
+        <ScrollView
+            android:id="@+id/find_keyboard_host"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone" />
+    </LinearLayout>
+</LinearLayout>

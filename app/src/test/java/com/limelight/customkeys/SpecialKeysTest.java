@@ -53,7 +53,28 @@ public class SpecialKeysTest {
             assertTrue(key.icon != null && !key.icon.isEmpty());
             assertFalse(key.keys.isEmpty());
         }
-        assertEquals("builtin_esc", keys.get(0).id);
+        // Backspace and Delete are the first keys, then the keys Artemis always had
+        assertEquals("builtin_backspace", keys.get(0).id);
+        assertEquals("builtin_delete", keys.get(1).id);
+        assertEquals("builtin_esc", keys.get(2).id);
+    }
+
+    @Test
+    public void backspaceDeleteAndMagnifierKeysSendTheRightWindowsKeys() {
+        BuiltInKeys.Def backspace = BuiltInKeys.find("builtin_backspace");
+        BuiltInKeys.Def delete = BuiltInKeys.find("builtin_delete");
+        assertEquals(Collections.singletonList(0x08), backspace.keys);
+        assertEquals(Collections.singletonList(0x2E), delete.keys);
+        assertFalse(backspace.more);
+        assertFalse(delete.more);
+        assertFalse("Delete and Backspace must not share an icon", backspace.icon.equals(delete.icon));
+
+        assertEquals(Arrays.asList(0x5B, 0xBB), BuiltInKeys.find("builtin_win_plus").keys);
+        assertEquals(Arrays.asList(0x5B, 0xBD), BuiltInKeys.find("builtin_win_minus").keys);
+        assertEquals(Arrays.asList(0x5B, 0x1B), BuiltInKeys.find("builtin_win_esc").keys);
+        for (String id : Arrays.asList("builtin_win_plus", "builtin_win_minus", "builtin_win_esc")) {
+            assertTrue(id + " has an icon of its own", IconCatalog.drawableFor(BuiltInKeys.find(id).icon) != com.limelight.R.drawable.ic_ck_keyboard);
+        }
     }
 
     @Test
