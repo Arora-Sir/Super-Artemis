@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="game_menu_send_keys_esc">ESC</string>
+    <string name="game_menu_send_keys_f11">F11</string>
+    <string name="game_menu_send_keys_alt_f4">Alt + F4</string>
+    <string name="game_menu_send_keys_ctrl_v">Ctrl + V</string>
+    <string name="game_menu_send_keys_win_d">Win + D</string>
+    <string name="game_menu_send_keys_alt_b">ALT + B</string>
+    <string name="game_menu_send_keys_ctrl_alt_tab">Ctrl + Alt + Tab</string>
+    <string name="game_menu_send_keys_alt_enter">Alt + Enter</string>
+    <string name="more_key_alt_tab">Alt + Tab</string>
+    <string name="more_key_home">Home</string>
+    <string name="more_key_end">End</string>
+    <string name="more_key_page_up">Page Up</string>
+    <string name="more_key_page_down">Page Down</string>
+    <string name="more_key_delete">Delete</string>
+    <string name="more_key_tab">Tab</string>
+    <string name="more_key_print_screen">Print Screen</string>
+    <string name="more_key_enter">Enter</string>
+    <string name="more_key_backspace">Backspace</string>
+    <string name="more_key_win_plus">Лупа Увеличить (Win + +)</string>
+    <string name="more_key_win_minus">Лупа Уменьшить (Win + -)</string>
+    <string name="more_key_win_esc">Выйти из лупы (Win + Esc)</string>
+    <string name="quick_bar_idle_dim_after">Затемнить через</string>
+    <string name="quick_bar_idle_dim_level">Прозрачность после затемнения</string>
+    <string name="quick_bar_idle_hide_after">Скрыть через</string>
+    <string name="quick_bar_idle_tab_level">Непрозрачность вкладки</string>
+    <string name="quick_bar_idle_seconds">с</string>
+    <string name="quick_bar_idle_dialog_hint">Оба времени отсчитываются от вашего последнего касания. Время 0 пропускает этот этап, поэтому панели никогда не затемняются или никогда не скрываются. После скрытия панелей на краю экрана остается едва заметная вкладка, а непрозрачность 0 убирает вкладку. Касание потока всегда возвращает панели.</string>
+</resources>

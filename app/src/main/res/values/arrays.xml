@@ -146,6 +146,18 @@
         <item>in</item>
     </string-array>
 
+    <string-array name="quick_bar_style_names">
+        <item>@string/quick_bar_style_rail</item>
+        <item>@string/quick_bar_style_round</item>
+        <item>@string/quick_bar_style_handle</item>
+    </string-array>
+
+    <string-array name="quick_bar_style_values" translatable="false">
+        <item>rail</item>
+        <item>round</item>
+        <item>handle</item>
+    </string-array>
+
     <string-array name="video_format_names">
         <item>@string/videoformat_auto</item>
         <item>@string/videoformat_av1always</item>

@@ -74,39 +74,10 @@ public class UiHelper {
         setGameModeStatus(context, false, false);
     }
 
+    // NOTE: Kept as the single call every screen already makes, the work lives in AppLanguage.
     public static void setLocale(Activity activity)
     {
-        String locale = PreferenceConfiguration.readPreferences(activity).language;
-        Configuration config = new Configuration(activity.getResources().getConfiguration());
-        if (locale.equals(PreferenceConfiguration.DEFAULT_LANGUAGE)) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                // On Android 13 and newer, Default follows the language the user picked for this app in the
-                // Android settings (App languages), and the system language only when no app language is set.
-                // The locale is set explicitly because an earlier in-app choice may still sit in the shared
-                // Resources of this process.
-                LocaleManager localeManager = activity.getSystemService(LocaleManager.class);
-                LocaleList appLocales = localeManager.getApplicationLocales();
-                LocaleList locales = appLocales.isEmpty() ? localeManager.getSystemLocales() : appLocales;
-                if (!locales.isEmpty()) {
-                    config.locale = locales.get(0);
-                }
-            }
-        } else {
-            // We're handling some nasty non-standard devices which cannot set locale using system config correctly
-            // Some locales include both language and country which must be separated
-            // before calling the Locale constructor.
-            if (locale.contains("-"))
-            {
-                config.locale = new Locale(locale.substring(0, locale.indexOf('-')),
-                        locale.substring(locale.indexOf('-') + 1));
-            }
-            else
-            {
-                config.locale = new Locale(locale);
-            }
-        }
-
-        activity.getResources().updateConfiguration(config, activity.getResources().getDisplayMetrics());
+        AppLanguage.apply(activity);
     }
 
     public static void applyStatusBarPadding(View view) {
