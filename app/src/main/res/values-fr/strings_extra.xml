@@ -90,6 +90,7 @@
     <string name="backup_password_confirm_hint">Répétez le mot de passe</string>
     <string name="backup_password_too_short">Utilisez au moins %1$d caractères.</string>
     <string name="backup_password_mismatch">Les deux mots de passe sont différents.</string>
+    <!-- ggignore -->
     <string name="restore_password_title">Sauvegarde protégée par mot de passe</string>
     <string name="restore_password_message">Saisissez le mot de passe utilisé lors de la création de cette sauvegarde.</string>
     <string name="restore_password_wrong">Ce mot de passe n\'a pas ouvert cette sauvegarde. Réessayez.</string>
