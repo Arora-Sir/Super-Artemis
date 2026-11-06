@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -40,6 +41,14 @@ public class KeyBoardLayoutController {
     private static final Set<Integer> MODIFIER_KEY_CODES = new HashSet<>();
     private static final Set<Integer> SPECIAL_KEY_CODES = new HashSet<>();
     private static final long POPUP_DURATION_MS = 75;
+    // NOTE: Tags that are not an Android key code. "fn" switches the function row, and "vk:" carries a Windows virtual key code in hex.
+    private static final String TAG_FN = "fn";
+    private static final String TAG_VK = "vk:";
+    private static final int VK_F1 = 0x70;
+    private static final int VK_F13 = 0x7C;
+    private static final int FUNCTION_KEY_COUNT = 12;
+    // Above the quick-action bars, which sit at an elevation of 9999 dp
+    private static final float ON_TOP_ELEVATION_DP = 10000;
 
     private final long timerLongClickTimeout = 300;
     private final Context context;
@@ -52,6 +61,9 @@ public class KeyBoardLayoutController {
     private PopupWindow keyPopup;
     private TextView keyPopupText;
     private Runnable hidePopupRunnable;
+    private final List<TextView> functionKeys = new ArrayList<>();
+    private TextView fnKey;
+    private boolean fnActive;
 
     static {
         MODIFIER_KEY_CODES.add(KeyEvent.KEYCODE_ALT_LEFT);
@@ -86,6 +98,8 @@ public class KeyBoardLayoutController {
     private final BitSet modifierKeyStates = new BitSet();
     // Keys whose press already went to the PC and whose release has not, so hiding the keyboard can let go of them
     private final Map<Integer, View> pressedKeys = new HashMap<>();
+    // F13 to F24 held on the keyboard, released the same way when the keyboard hides
+    private final Map<Integer, View> pressedVirtualKeys = new HashMap<>();
 
     public boolean isModifierKeyPressed(int keyCode) {
         return modifierKeyStates.get(keyCode);
@@ -131,6 +145,16 @@ public class KeyBoardLayoutController {
                     hide();
                 }
                 return true;
+            }
+
+            if (TextUtils.equals(TAG_FN, tag)) {
+                if (eventAction == MotionEvent.ACTION_UP) {
+                    setFnActive(!fnActive);
+                }
+                return true;
+            }
+            if (tag.startsWith(TAG_VK)) {
+                return onVirtualKeyTouch(v, eventAction, Integer.parseInt(tag.substring(TAG_VK.length()), 16));
             }
 
             int keyCode = Integer.parseInt(tag);
@@ -246,13 +270,15 @@ public class KeyBoardLayoutController {
             }
             return true;
         };
+        addFnKey();
+        addExtraFunctionRow();
         for (int i = 0; i < keyboardView.getChildCount(); i++) {
             LinearLayout keyboardRow = (LinearLayout) keyboardView.getChildAt(i);
             for (int j = 0; j < keyboardRow.getChildCount(); j++) {
                 View child = keyboardRow.getChildAt(j);
                 keyboardRow.getChildAt(j).setOnTouchListener(touchListener);
                 String keyTag = (String) child.getTag();
-                if (keyTag.equals("hide")) {
+                if (keyTag.equals("hide") || keyTag.equals(TAG_FN) || keyTag.startsWith(TAG_VK)) {
                     continue;
                 }
                 int keycode = Integer.parseInt((String) child.getTag());
@@ -266,6 +292,92 @@ public class KeyBoardLayoutController {
                 }
             }
         }
+    }
+
+    private TextView newKey(String label, String tag, float weight) {
+        TextView key = new TextView(context);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, weight);
+        key.setLayoutParams(params);
+        key.setBackgroundResource(R.drawable.bg_ax_keyboard_button);
+        key.setGravity(Gravity.CENTER);
+        key.setText(label);
+        key.setTag(tag);
+        key.setTextSize(12);
+        return key;
+    }
+
+    // NOTE: Fn sits at the end of the first row and swaps F1 to F12 for F13 to F24 while it is on, so the on-screen keyboard reaches every function key.
+    private void addFnKey() {
+        LinearLayout firstRow = (LinearLayout) keyboardView.getChildAt(0);
+        for (int i = 0; i < firstRow.getChildCount(); i++) {
+            View child = firstRow.getChildAt(i);
+            Object tag = child.getTag();
+            if (child instanceof TextView && tag instanceof String && ((String) tag).matches("\\d+")) {
+                int code = Integer.parseInt((String) tag);
+                if (code >= KeyEvent.KEYCODE_F1 && code <= KeyEvent.KEYCODE_F12) {
+                    functionKeys.add((TextView) child);
+                }
+            }
+        }
+        if (functionKeys.size() != FUNCTION_KEY_COUNT) {
+            functionKeys.clear();
+            return;
+        }
+        fnKey = newKey("Fn", TAG_FN, 100);
+        firstRow.addView(fnKey);
+    }
+
+    private void setFnActive(boolean active) {
+        fnActive = active;
+        for (int i = 0; i < functionKeys.size(); i++) {
+            TextView key = functionKeys.get(i);
+            if (active) {
+                key.setText("F" + (13 + i));
+                key.setTag(TAG_VK + Integer.toHexString(VK_F13 + i));
+            }
+            else {
+                key.setText("F" + (1 + i));
+                key.setTag(String.valueOf(KeyEvent.KEYCODE_F1 + i));
+            }
+        }
+        if (fnKey != null) {
+            fnKey.setBackgroundResource(active ? R.drawable.bg_ax_keyboard_button_confirm : R.drawable.bg_ax_keyboard_button);
+        }
+    }
+
+    // NOTE: An extra row with F13 to F24 right under the F1 to F12 row, for macro users who want both at once. The rows share the height, so the keyboard keeps its size.
+    private void addExtraFunctionRow() {
+        if (!prefConfig.keyboardShowF13F24Row) {
+            return;
+        }
+        LinearLayout row = new LinearLayout(context);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT, 100));
+        for (int i = 0; i < FUNCTION_KEY_COUNT; i++) {
+            row.addView(newKey("F" + (13 + i), TAG_VK + Integer.toHexString(VK_F13 + i), 100));
+        }
+        keyboardView.addView(row, Math.min(1, keyboardView.getChildCount()));
+    }
+
+    private boolean onVirtualKeyTouch(View v, int action, int vk) {
+        if (action == MotionEvent.ACTION_DOWN) {
+            sendVirtualKey(vk, true);
+            v.setBackgroundResource(R.drawable.bg_ax_keyboard_button_confirm);
+            pressedVirtualKeys.put(vk, v);
+        }
+        else if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) {
+            sendVirtualKey(vk, false);
+            v.setBackgroundResource(R.drawable.bg_ax_keyboard_button);
+            pressedVirtualKeys.remove(vk);
+        }
+        return true;
+    }
+
+    private void sendVirtualKey(int vk, boolean down) {
+        if (Game.instance == null || !Game.instance.connected) {
+            return;
+        }
+        Game.instance.sendVirtualKey((short) vk, down);
     }
 
     private void initKeyPopup() {
@@ -300,6 +412,11 @@ public class KeyBoardLayoutController {
             key.getValue().setBackgroundResource(R.drawable.bg_ax_keyboard_button);
         }
         pressedKeys.clear();
+        for (Map.Entry<Integer, View> key : new ArrayList<>(pressedVirtualKeys.entrySet())) {
+            sendVirtualKey(key.getKey(), false);
+            key.getValue().setBackgroundResource(R.drawable.bg_ax_keyboard_button);
+        }
+        pressedVirtualKeys.clear();
         modifierKeyStates.clear();
     }
 
@@ -315,6 +432,7 @@ public class KeyBoardLayoutController {
             }
         }
         keyboardView.setVisibility(View.GONE);
+        keyboardView.setElevation(0);
         if (!temporary) {
             shown = false;
         }
@@ -329,6 +447,16 @@ public class KeyBoardLayoutController {
     }
 
     public void show() {
+        // NOTE: The quick-action bars sit at a very high elevation so they stay above the stream, which also put them over the keys.
+        // NOTE: The keyboard goes above them while it is open, and it takes every touch on its own area so none reaches a bar below.
+        if (prefConfig.keyboardOnTop) {
+            keyboardView.setElevation(ON_TOP_ELEVATION_DP * context.getResources().getDisplayMetrics().density);
+            keyboardView.bringToFront();
+            keyboardView.setClickable(true);
+        }
+        else {
+            keyboardView.setElevation(0);
+        }
         keyboardView.setVisibility(View.VISIBLE);
         shown = true;
         if (viewCallbacks != null) {
