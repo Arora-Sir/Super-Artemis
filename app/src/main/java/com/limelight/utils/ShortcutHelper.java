@@ -166,7 +166,8 @@ public class ShortcutHelper {
             Icon appIcon;
 
             if (iconBits != null) {
-                appIcon = Icon.createWithAdaptiveBitmap(iconBits);
+                // Fitted to the visible middle of the adaptive icon, so the launcher mask does not crop it off center
+                appIcon = Icon.createWithAdaptiveBitmap(ShortcutIconComposer.compose(iconBits, app.getAppName() + " " + computer.name));
             } else {
                 appIcon = Icon.createWithResource(context, R.mipmap.ic_pc_scut);
             }
@@ -177,6 +178,16 @@ public class ShortcutHelper {
                 .setIcon(appIcon)
                 .build();
 
+            // NOTE: A shortcut with this ID that is already on the home screen keeps its old icon when it is pinned again, because the launcher only adds another icon for it.
+            // NOTE: Updating the saved shortcut first gives every icon of it the new look, the old ones and the new one.
+            try {
+                if (getInfoForId(sInfo.getId()) != null) {
+                    sm.updateShortcuts(Collections.singletonList(sInfo));
+                }
+            }
+            catch (RuntimeException e) {
+                LimeLog.warning("Could not update the saved shortcut icon: " + e.getMessage());
+            }
             return sm.requestPinShortcut(sInfo, null);
         } else {
             return false;
