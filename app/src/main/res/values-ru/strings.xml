@@ -1376,4 +1376,7 @@
     <string name="surface_lift_sample_highest">Выбранный элемент</string>
     <string name="lock_key_sent">Блокировка отправлена на ПК</string>
     <string name="lock_key_hint">Windows игнорирует Win+L из стрима. Добавьте команду Lock в Apollo или откройте в настройках раздел «Настройки хоста» → «Клавиша блокировки не работает?»</string>
+    <string name="section_resolution_standard">Стандартные разрешения</string>
+    <string name="section_resolution_native">Экран устройства</string>
+    <string name="section_resolution_custom">Пользовательское разрешение</string>
 </resources>

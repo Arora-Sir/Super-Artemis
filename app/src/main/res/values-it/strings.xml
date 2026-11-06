@@ -286,4 +286,7 @@
     <string name="title_rumble_throttle">Intervallo di aggiornamento vibrazione</string>
     <string name="summary_rumble_throttle">Imposta l\'intervallo minimo tra gli aggiornamenti per ciascun gruppo di motori di vibrazione. Aumenta questo valore se le vibrazioni frequenti causano instabilità del controller o del dispositivo. I comandi di arresto vengono inviati immediatamente. Imposta a 0 per disabilitare la limitazione.</string>
     <string name="suffix_rumble_throttle">ms</string>
+    <string name="section_resolution_standard">Risoluzioni standard</string>
+    <string name="section_resolution_native">Schermo nativo</string>
+    <string name="section_resolution_custom">Risoluzione personalizzata</string>
 </resources>

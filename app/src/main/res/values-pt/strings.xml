@@ -251,4 +251,19 @@
     <string name="title_rumble_throttle">Intervalo de atualização de vibração</string>
     <string name="summary_rumble_throttle">Define o intervalo mínimo entre atualizações para cada grupo de motores de vibração. Aumente este valor se a vibração frequente causar instabilidade no controle ou dispositivo. Comandos de parada são enviados imediatamente. Defina como 0 para desativar a limitação.</string>
     <string name="suffix_rumble_throttle">ms</string>
+    <string name="section_resolution_standard">Resoluções padrão</string>
+    <string name="section_resolution_native">Ecrã nativo</string>
+    <string name="section_resolution_custom">Resolução personalizada</string>
+    <string name="network_drop_title">Ligação perdida</string>
+    <string name="network_drop_detail">A aguardar pela rede, %1$d s</string>
+    <string name="network_resume_title">A restabelecer ligação automaticamente</string>
+    <string name="network_resume_waiting_network">A aguardar pelo regresso da rede, %1$d s</string>
+    <string name="network_resume_reaching_host">A rede voltou, a contactar %1$s</string>
+    <string name="network_resume_starting">A reiniciar a transmissão</string>
+    <string name="network_resume_pc_fallback">o seu PC</string>
+    <string name="network_resume_now">Voltar a ligar agora</string>
+    <string name="network_resume_cancel">Cancelar</string>
+    <string name="title_checkbox_auto_resume_network">Voltar a ligar automaticamente</string>
+    <string name="summary_checkbox_auto_resume_network">Quando uma quebra de rede ultrapassa o período de tolerância, aguarda que a rede regresse e reinicia a transmissão automaticamente.</string>
+    <string name="keywords_auto_resume_network">ligar, retomar, wifi, wi-fi, quebra de rede, ligação perdida, automático, reiniciar</string>
 </resources>

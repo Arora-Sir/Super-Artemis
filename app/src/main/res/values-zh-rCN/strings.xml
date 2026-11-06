@@ -710,4 +710,7 @@
 
     <string name="title_checkbox_full_screen">启用全屏</string>
     <string name="summary_checkbox_full_screen">使用沉浸模式隐藏系统状态栏</string>
+    <string name="section_resolution_standard">标准分辨率</string>
+    <string name="section_resolution_native">原生显示</string>
+    <string name="section_resolution_custom">自定义分辨率</string>
 </resources>

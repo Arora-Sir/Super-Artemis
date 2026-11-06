@@ -793,4 +793,7 @@
 
 	<string name="title_checkbox_full_screen">啟用全螢幕</string>
 	<string name="summary_checkbox_full_screen">以沉浸模式隱藏系統列</string>
+    <string name="section_resolution_standard">標準解析度</string>
+    <string name="section_resolution_native">原生顯示</string>
+    <string name="section_resolution_custom">自訂解析度</string>
 </resources>

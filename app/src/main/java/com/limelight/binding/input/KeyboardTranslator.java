@@ -162,6 +162,13 @@ public class KeyboardTranslator implements InputManager.InputDeviceListener {
     }
 
     public boolean hasNormalizedMapping(int keycode, int deviceId) {
+        // Japanese IME keys are layout-specific and must be interpreted using the host layout.
+        // Treating them as normalized makes Apollo use its US VK-to-scancode table, where
+        // VK_OEM_AUTO maps to 0x5F rather than the Japanese Hankaku/Zenkaku scancode 0x29.
+        if (isJapaneseImeKey(keycode)) {
+            return false;
+        }
+
         if (deviceId >= 0) {
             KeyboardMapping mapping = keyboardMappings.get(deviceId);
             if (mapping != null) {
@@ -183,12 +190,24 @@ public class KeyboardTranslator implements InputManager.InputDeviceListener {
      * @param deviceId InputDevice.getId() or -1 if unknown
      * @return a GFE keycode for the given keycode
      */
+    static boolean isJapaneseImeKey(int keycode) {
+        switch (keycode) {
+            case KeyEvent.KEYCODE_ZENKAKU_HANKAKU:
+            case KeyEvent.KEYCODE_HENKAN:
+            case KeyEvent.KEYCODE_MUHENKAN:
+            case KeyEvent.KEYCODE_KATAKANA_HIRAGANA:
+                return true;
+            default:
+                return false;
+        }
+    }
+
     public short translate(int keycode, int scancode, int deviceId) {
         int translated;
 
         // If a device ID was provided, look up the keyboard mapping
         // Force qwerty will break user's keyboard layout settings
-        if (prefConfig.forceQwerty && deviceId >= 0) {
+        if (prefConfig.forceQwerty && !isJapaneseImeKey(keycode) && deviceId >= 0) {
             KeyboardMapping mapping = keyboardMappings.get(deviceId);
             if (mapping != null) {
                 // Try to map this device-specific keycode onto a QWERTY layout.
@@ -421,6 +440,22 @@ public class KeyboardTranslator implements InputManager.InputDeviceListener {
 
             case KeyEvent.KEYCODE_SCREENSHOT:
                 translated = 0x2C;
+                break;
+
+            case KeyEvent.KEYCODE_ZENKAKU_HANKAKU:
+                translated = KeyMapper.VK_OEM_AUTO;
+                break;
+
+            case KeyEvent.KEYCODE_HENKAN:
+                translated = KeyMapper.VK_CONVERT;
+                break;
+
+            case KeyEvent.KEYCODE_MUHENKAN:
+                translated = KeyMapper.VK_NONCONVERT;
+                break;
+
+            case KeyEvent.KEYCODE_KATAKANA_HIRAGANA:
+                translated = KeyMapper.VK_OEM_COPY;
                 break;
 
             default:

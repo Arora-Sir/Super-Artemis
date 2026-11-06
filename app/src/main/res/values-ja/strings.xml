@@ -180,4 +180,7 @@
     <string name="title_rumble_throttle">振動の更新間隔</string>
     <string name="summary_rumble_throttle">各振動モーターグループの更新間隔の最小値を設定します。頻繁な振動でコントローラーやデバイスが不安定になる場合はこの値を増やしてください。停止コマンドは常に即座に送信されます。0に設定すると制限が無効になります。</string>
     <string name="suffix_rumble_throttle">ms</string>
+    <string name="section_resolution_standard">標準解像度</string>
+    <string name="section_resolution_native">ネイティブ画面</string>
+    <string name="section_resolution_custom">カスタム解像度</string>
 </resources>

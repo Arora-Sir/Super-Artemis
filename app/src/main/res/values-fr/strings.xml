@@ -591,4 +591,7 @@
     <string name="title_rumble_throttle">Intervalle de mise à jour des vibrations</string>
     <string name="summary_rumble_throttle">Définit l\'intervalle minimal entre les mises à jour pour chaque groupe de moteurs de vibration. Augmentez cette valeur si des vibrations fréquentes entraînent une instabilité de la manette ou de l\'appareil. Les commandes d\'arrêt sont toujours envoyées immédiatement. Définissez sur 0 pour désactiver la limitation.</string>
     <string name="suffix_rumble_throttle">ms</string>
+    <string name="section_resolution_standard">Résolutions standard</string>
+    <string name="section_resolution_native">Affichage natif</string>
+    <string name="section_resolution_custom">Résolution personnalisée</string>
 </resources>

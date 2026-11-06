@@ -13,6 +13,8 @@ All notable changes to Super Artemis are listed here. The format follows [Keep a
 - Configurable controller rumble rate limiting with a 0 to 100 ms minimum interval prevents Android 14 system server crashes during dense vibration bursts on Bluetooth gamepads and DualSense controllers. Stop commands dispatch immediately. Trigger rumble honors the Enable Rumble toggle. Native translations are provided across all 11 supported locales.
 - The Amlogic Codec2 HEVC decoder (`c2.amlogic.hevc.decoder`) skips `KEY_LOW_LATENCY` and falls through to vendor low-latency controls, resolving the slideshow rendering bug on S905X5, S905X5M, and S905Y4 TV devices. Reference frame invalidation is disabled on this decoder to eliminate frame error bursts.
 - Official PowerA Pro controllers for Nintendo Switch with zeroed vendor and product IDs are recognized and mapped using the Switch Pro controller key layout.
+- Physical Japanese JIS keyboards map Hankaku/Zenkaku, Henkan, Muhenkan, and Katakana/Hiragana keys directly to Windows virtual keys without forced QWERTY normalization, enabling full host IME switching.
+- Native translations for resolution picker section headers are provided across all 11 supported locales. European Portuguese localization is brought to full parity for network drop recovery.
 
 ### Changed
 
