@@ -6,13 +6,12 @@ All notable changes to Super Artemis are listed here. The format follows [Keep a
 
 ### Added
 
-- Every slider dialog in Settings has a minus button, a number field and a plus button above the slider. The field takes typed numbers with a comma or a period, and the buttons move by one step.
-- The video bitrate and the metered bitrate sliders are logarithmic: 2 or 3 Mbps take as much room on the slider as 100 or 200. The buttons step by 0.5 Mbps below 5, by 1 below 20, by 2 below 50, by 5 below 100 and by 10 above.
-- The Resolution dialog has two number fields with a fixed × between them, minus and plus buttons that step through the resolutions of the list, the name of the resolution under the fields, and a slider over the same resolutions from the smallest to the largest. A size typed into the fields that is not in the list is saved as the custom resolution, the same way as the Custom resolution setting.
+- Every slider dialog in Settings has a minus button, a number field and a plus button above the slider. Long pressing either button accelerates value stepping with haptic feedback.
+- The video bitrate and metered bitrate sliders use a calibrated power curve that places the 35 to 40 Mbps streaming sweet spot at the 50 percent center mark. Stepping supports 0.5 Mbps decimal precision below 50 Mbps.
 
 ### Changed
 
-- The Settings list shows the current value above the description for every slider setting, for Resolution and for Frame rate.
+- The Settings list shows the active value inline in the title for Resolution, Frame rate, and Bitrate settings, keeping descriptive text full-width underneath.
 
 ## [1.1.0] - 2026-11-06
 

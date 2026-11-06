@@ -215,6 +215,9 @@
     <string name="resolution_prefix_native_landscape">(Landscape)</string>
     <string name="resolution_prefix_native_portrait">(Portrait)</string>
     <string name="resolution_prefix_custom">Custom</string>
+    <string name="section_resolution_standard">Standard Resolutions</string>
+    <string name="section_resolution_native">Native Display</string>
+    <string name="section_resolution_custom">Custom Resolution</string>
     <string name="fps_suffix_fps">FPS</string>
     <string name="title_native_fps_dialog">Native FPS Warning</string>
     <string name="title_checkbox_auto_invert_video_resolution">Auto Invert Resolution</string>

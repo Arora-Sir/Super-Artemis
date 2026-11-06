@@ -8,9 +8,8 @@ import org.junit.Test;
 
 import java.util.Locale;
 
-// NOTE: Checks the bar and the "-" and "+" buttons of SliderScale on the real ranges of preferences.xml:
-// the bitrate (500..300000 kbps, step 500, logarithmic), the metered bitrate (0..300000, 0 means a quarter of the bitrate)
-// and the network grace time (10..60 s, step 5, linear).
+// NOTE: Checks the bar and the minus and plus buttons of SliderScale on the real ranges of preferences.xml.
+// NOTE: Tests the bitrate (500 to 300000 kbps, step 500, non-linear), metered bitrate (0 to 300000) and grace time (10 to 60 s).
 public class SliderScaleTest {
     private final SliderScale bitrate = new SliderScale(500, 300000, 500, 1000, true);
     private final SliderScale metered = new SliderScale(0, 300000, 500, 1000, true);
@@ -24,15 +23,19 @@ public class SliderScaleTest {
 
     @Test
     public void lowBitratesGetARealShareOfTheBar() {
-        // On the old linear bar 3 Mbps sat at 0.8 % of the length; on the logarithmic one it is past a quarter
         int pos = bitrate.positionOf(3000);
-        assertTrue("3 Mbps at position " + pos, pos > SliderScale.LOG_POSITIONS / 4);
-        assertTrue("2 Mbps and 3 Mbps are far apart", bitrate.positionOf(3000) - bitrate.positionOf(2000) > 50);
+        assertTrue("3 Mbps at position " + pos, pos > SliderScale.LOG_POSITIONS / 6);
+        assertTrue("2 Mbps and 3 Mbps are far apart", bitrate.positionOf(3000) - bitrate.positionOf(2000) > 30);
+    }
+
+    @Test
+    public void sweetSpotIsNearCenter() {
+        int mid = bitrate.valueAt(SliderScale.LOG_POSITIONS / 2);
+        assertTrue("Midpoint near 35 to 40 Mbps: " + mid, mid >= 35000 && mid <= 42000);
     }
 
     @Test
     public void everyButtonValueSurvivesTheBar() {
-        // Each value the buttons reach is shown again after the bar is put on its position
         for (int v = 500; v < 300000; v = bitrate.plus(v)) {
             assertEquals("value " + v, v, bitrate.valueAt(bitrate.positionOf(v)));
         }
@@ -41,22 +44,22 @@ public class SliderScaleTest {
     @Test
     public void bitrateButtonStepGrowsWithTheValue() {
         assertEquals(500, bitrate.buttonStep(3000));
-        assertEquals(1000, bitrate.buttonStep(15000));
-        assertEquals(2000, bitrate.buttonStep(30000));
-        assertEquals(5000, bitrate.buttonStep(60000));
-        assertEquals(10000, bitrate.buttonStep(150000));
+        assertEquals(500, bitrate.buttonStep(15000));
+        assertEquals(500, bitrate.buttonStep(30000));
+        assertEquals(500, bitrate.buttonStep(45000));
+        assertEquals(1000, bitrate.buttonStep(60000));
+        assertEquals(5000, bitrate.buttonStep(150000));
     }
 
     @Test
     public void bitrateButtonsCrossTheLadderCleanly() {
-        assertEquals(5000, bitrate.plus(4500));
-        assertEquals(6000, bitrate.plus(5000));
-        assertEquals(4500, bitrate.minus(5000));
-        assertEquals(14000, bitrate.minus(15000));
+        assertEquals(49500, bitrate.minus(50000));
+        assertEquals(51000, bitrate.plus(50000));
+        assertEquals(99000, bitrate.minus(100000));
+        assertEquals(105000, bitrate.plus(100000));
         assertEquals(500, bitrate.minus(500));
         assertEquals(300000, bitrate.plus(300000));
-        // A typed value off the grid goes to the next grid value up or down
-        assertEquals(16000, bitrate.plus(15300));
+        assertEquals(15500, bitrate.plus(15300));
         assertEquals(15000, bitrate.minus(15300));
     }
 
@@ -96,7 +99,6 @@ public class SliderScaleTest {
         assertEquals(Integer.valueOf(300000), bitrate.parse("999"));
         assertEquals(Integer.valueOf(500), bitrate.parse("0"));
         assertEquals(Integer.valueOf(45), grace.parse("44"));
-        // A typed value keeps the setting's own 0,5 Mbps step, not the coarser step of the buttons at that height
         assertEquals(Integer.valueOf(15500), bitrate.parse("15,3"));
         assertEquals(Integer.valueOf(0), metered.parse("0,2"));
         assertNull(bitrate.parse("abc"));

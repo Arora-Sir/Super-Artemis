@@ -16,7 +16,7 @@
             android:title="@string/title_presets"
             android:icon="@drawable/ic_sa_speed"
             search:keywords="@string/keywords_presets" />
-        <com.limelight.preferences.ResolutionPreference
+        <com.limelight.preferences.ResolutionListPreference
             android:defaultValue="1280x720"
             android:entries="@array/resolution_names"
             android:entryValues="@array/resolution_values"

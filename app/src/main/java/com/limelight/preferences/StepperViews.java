@@ -6,10 +6,15 @@ import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.RippleDrawable;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.HapticFeedbackConstants;
+import android.view.MotionEvent;
+import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -17,22 +22,21 @@ import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-// NOTE: The look of the "-" field "+" row shared by the slider dialog and the resolution dialog: round filled buttons and a
-// rounded filled box around the number with its unit inside. Colours come from the text colour of the current theme, so the
-// row fits the light, dark and black themes alike. [NOT-TESTED]
+// NOTE: Shared styling for numeric stepper rows in slider dialogs.
+// NOTE: Features compact round buttons, filled boxes, auto-repeat acceleration, and theme-adaptive coloring.
 final class StepperViews {
-    // Button diameter, box corner, box padding, in dp
-    static final int BUTTON_DP = 48;
-    // Space between the row and the bar under it, in dp
+    // Button diameter, box corner, and box padding in dp.
+    static final int BUTTON_DP = 42;
+    // Space between the row and the bar under it in dp.
     private static final int BAR_TOP_DP = 14;
-    // Diameter of the bar thumb, in dp (the stock one is about 14)
+    // Diameter of the bar thumb in dp.
     private static final int THUMB_DP = 24;
-    // Fill of the dialog button pills: their text colour at 10 %
+    // Fill of the dialog button pills: text color at 10 percent.
     private static final int PILL_ALPHA = 0x1A;
     private static final int CORNER_DP = 12;
-    private static final int BOX_PAD_H_DP = 12;
+    private static final int BOX_PAD_H_DP = 8;
     private static final int BOX_PAD_V_DP = 4;
-    // Fill and border of buttons and boxes: the theme's text colour at 8 % and 20 %
+    // Fill and border of buttons and boxes: theme text color at 8 percent and 20 percent.
     private static final int FILL_ALPHA = 0x14;
     private static final int STROKE_ALPHA = 0x33;
     private static final int RIPPLE_ALPHA = 0x40;
@@ -76,7 +80,7 @@ final class StepperViews {
         return d;
     }
 
-    // A round "-" or "+" button; an icon rather than a character, because the font draws "-" much shorter than "+"
+    // Round minus or plus button with ripple and centered vector icon.
     static ImageView roundButton(Context context, int icon, String description) {
         int on = textColor(context);
         ImageView b = new ImageView(context);
@@ -96,12 +100,12 @@ final class StepperViews {
         return new LinearLayout.LayoutParams(size, size);
     }
 
-    // A number field without its own underline; it sits inside a box
+    // Number field without underline, placed inside a rounded box.
     static EditText numberField(Context context, int widthDp, int maxLength) {
         EditText f = new EditText(context);
         f.setBackground(null);
         f.setGravity(Gravity.CENTER);
-        f.setTextSize(TypedValue.COMPLEX_UNIT_SP, 24);
+        f.setTextSize(TypedValue.COMPLEX_UNIT_SP, 22);
         f.setTextColor(textColor(context));
         f.setSingleLine(true);
         f.setSelectAllOnFocus(true);
@@ -115,7 +119,7 @@ final class StepperViews {
         return f;
     }
 
-    // The rounded filled box around a field, with the unit inside it when there is one ("15,0  Mbps")
+    // Rounded filled box around a field, with optional trailing unit.
     static LinearLayout box(Context context, EditText field, String unit) {
         int on = textColor(context);
         LinearLayout box = new LinearLayout(context);
@@ -132,27 +136,76 @@ final class StepperViews {
             u.setPadding(dp(context, 6), 0, 0, 0);
             box.addView(u, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
         }
-        // A tap anywhere on the box puts the cursor in the field
         box.setOnClickListener(v -> field.requestFocus());
         return box;
     }
 
-    // Margins of the row's middle part, so the buttons stand 12 dp away from the box as in the mockup
+    // Margins of the row middle part, maintaining clean separation on compact phone screens.
     static LinearLayout.LayoutParams middleParams(Context context) {
         LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        p.setMargins(dp(context, 12), 0, dp(context, 12), 0);
+        p.setMargins(dp(context, 6), 0, dp(context, 6), 0);
         return p;
     }
 
-    // The bar under the row, with some air above it
+    // Layout params for the slider bar placed underneath the stepper row.
     static LinearLayout.LayoutParams barParams(Context context) {
         LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         p.setMargins(0, dp(context, BAR_TOP_DP), 0, 0);
         return p;
     }
 
-    // Description under the dialog title with the same left and right indent as the title (the dialog theme's
-    // dialogPreferredPadding, 24 dp by default); parentPaddingPx is the padding the dialog layout already gives
+    // Attaches tap-and-hold auto-repeat acceleration with haptic feedback to a stepper button.
+    static void attachAutoRepeat(View button, Runnable action) {
+        button.setOnTouchListener(new View.OnTouchListener() {
+            private static final int INITIAL_DELAY_MS = 380;
+            private static final int INITIAL_INTERVAL_MS = 100;
+            private static final int MIN_INTERVAL_MS = 35;
+            private static final int ACCEL_STEP_MS = 10;
+
+            private final Handler handler = new Handler(Looper.getMainLooper());
+            private int currentInterval;
+            private View pressedView;
+
+            private final Runnable repeatRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    if (pressedView == null || !pressedView.isPressed()) {
+                        return;
+                    }
+                    action.run();
+                    pressedView.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP);
+                    currentInterval = Math.max(MIN_INTERVAL_MS, currentInterval - ACCEL_STEP_MS);
+                    handler.postDelayed(this, currentInterval);
+                }
+            };
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        pressedView = v;
+                        currentInterval = INITIAL_INTERVAL_MS;
+                        action.run();
+                        v.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP);
+                        v.setPressed(true);
+                        handler.removeCallbacks(repeatRunnable);
+                        handler.postDelayed(repeatRunnable, INITIAL_DELAY_MS);
+                        return true;
+                    case MotionEvent.ACTION_UP:
+                    case MotionEvent.ACTION_CANCEL:
+                        if (pressedView != null) {
+                            pressedView.setPressed(false);
+                            pressedView = null;
+                        }
+                        handler.removeCallbacks(repeatRunnable);
+                        return true;
+                }
+                return false;
+            }
+        });
+    }
+
+    // Description under dialog title with the same left and right indent as the title.
     static void alignWithTitle(Context context, TextView text, int parentPaddingPx) {
         Context dialogContext = new androidx.appcompat.app.AlertDialog.Builder(context).getContext();
         TypedArray a = dialogContext.obtainStyledAttributes(new int[]{androidx.appcompat.R.attr.dialogPreferredPadding});
@@ -166,14 +219,13 @@ final class StepperViews {
         text.setPadding(side, dp(context, 4), side, dp(context, 4));
     }
 
-    // After the dialog is drawn, gives the description the exact left indent of the title text, measured on screen, and the
-    // same indent on the right; the theme value alone did not match the title on Titan 1 (owner's screenshot 2026-11-06)
+    // Matches description side indent to dialog title after layout is drawn.
     static void matchTitleIndent(androidx.appcompat.app.AlertDialog dialog, TextView description) {
         if (description == null) {
             return;
         }
         description.post(() -> {
-            android.view.View title = dialog.findViewById(androidx.appcompat.R.id.alertTitle);
+            View title = dialog.findViewById(androidx.appcompat.R.id.alertTitle);
             if (title == null || title.getWidth() == 0) {
                 return;
             }
@@ -181,15 +233,13 @@ final class StepperViews {
             int[] d = new int[2];
             title.getLocationOnScreen(t);
             description.getLocationOnScreen(d);
-            // Where the title text starts, against where the description view starts
             int indent = (t[0] + title.getPaddingLeft()) - d[0];
             if (indent > 0) {
                 description.setPadding(indent, description.getPaddingTop(), indent, description.getPaddingBottom());
             }
-            // The "OK" pill ends where the description text ends, and the button row stands a little off the bottom edge
-            android.view.View ok = dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE);
-            if (ok != null && ok.getParent() instanceof android.view.View) {
-                android.view.View row = (android.view.View) ok.getParent();
+            View ok = dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE);
+            if (ok != null && ok.getParent() instanceof View) {
+                View row = (View) ok.getParent();
                 int[] o = new int[2];
                 ok.getLocationOnScreen(o);
                 int textRight = d[0] + description.getWidth() - Math.max(indent, 0);
@@ -204,10 +254,9 @@ final class StepperViews {
         });
     }
 
-    // Thumb and filled part of the bar in one colour (the dialog buttons'), as the accent bar of the mockup
+    // Tints thumb and progress track in the primary accent color.
     static void tintBar(SeekBar bar, int color) {
         ColorStateList c = ColorStateList.valueOf(color);
-        // A round thumb of THUMB_DP, larger than the stock one, so it is easy to catch with a finger
         Context context = bar.getContext();
         GradientDrawable thumb = new GradientDrawable();
         thumb.setShape(GradientDrawable.OVAL);
@@ -218,7 +267,7 @@ final class StepperViews {
         bar.setProgressTintList(c);
     }
 
-    // "Cancel" and "OK" of the dialog on barely visible pill-shaped backgrounds of their own colour
+    // Pill shaped backgrounds for Cancel and OK dialog buttons.
     static void pillButtons(androidx.appcompat.app.AlertDialog dialog) {
         int[] which = {androidx.appcompat.app.AlertDialog.BUTTON_NEGATIVE, androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE};
         for (int w : which) {
@@ -229,7 +278,6 @@ final class StepperViews {
             Context context = b.getContext();
             int color = b.getCurrentTextColor();
             if (b instanceof com.google.android.material.button.MaterialButton) {
-                // A MaterialButton ignores a plain background, so the pill is drawn by its own tint and corner radius
                 com.google.android.material.button.MaterialButton mb = (com.google.android.material.button.MaterialButton) b;
                 mb.setBackgroundTintList(ColorStateList.valueOf(withAlpha(color, PILL_ALPHA)));
                 mb.setCornerRadius(dp(context, 100));

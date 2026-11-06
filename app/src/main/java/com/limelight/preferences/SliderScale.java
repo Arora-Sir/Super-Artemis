@@ -4,25 +4,28 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Locale;
 
-// NOTE: Maps a stored setting value to a SeekBar position and back, and gives the step of the "-" and "+" buttons.
-// NOTE: A linear scale moves by the setting's own step. A logarithmic scale (the bitrate) gives the low values the same room
-// on the bar as the high ones, so 2 or 3 Mbps is as easy to set as 100, and its button step grows with the value.
-// NOTE: Pure Java with no Android types, so the unit tests run it directly. [NOT-TESTED]
+// NOTE: Maps a stored setting value to a SeekBar position and back, and gives the step of the minus and plus buttons.
+// NOTE: A linear scale moves by the setting own step.
+// NOTE: A calibrated power scale gives the low and medium values ample room on the bar.
+// NOTE: 35 to 40 Mbps sits near the center, and button steps provide fractional precision.
+// NOTE: Pure Java with no Android types, so unit tests run it directly.
 public final class SliderScale {
-    // Number of SeekBar positions a logarithmic scale uses; fine enough that each position moves less than one button step
+    // Number of SeekBar positions a scaled curve uses.
     static final int LOG_POSITIONS = 1000;
+    // Power exponent for the non-linear scale. An exponent of 3.0 centers 38 Mbps at the 50 percent mark.
+    private static final double POWER_EXPONENT = 3.0;
 
-    // Button step ladder of the logarithmic scale, in units of the divisor (Mbps for the bitrate):
-    // below 5 the step is 0.5, below 20 it is 1, below 50 it is 2, below 100 it is 5, and 10 above that
-    private static final double[] LADDER_LIMITS = {5, 20, 50, 100};
-    private static final double[] LADDER_STEPS = {0.5, 1, 2, 5, 10};
+    // Button step ladder of the scaled curve, in units of the divisor.
+    // Below 50 the step is 0.5, below 100 it is 1.0, and 5.0 above that.
+    private static final double[] LADDER_LIMITS = {50, 100};
+    private static final double[] LADDER_STEPS = {0.5, 1.0, 5.0};
 
     private final int min;
     private final int max;
     private final int step;
     private final int divisor;
     private final boolean logarithmic;
-    // Lowest value on the logarithmic part of the bar; a scale that starts at 0 keeps 0 alone on position 0
+    // Lowest value on the scaled part of the bar. A scale starting at 0 keeps 0 alone on position 0.
     private final int logMin;
 
     public SliderScale(int min, int max, int step, int divisor, boolean logarithmic) {
@@ -46,7 +49,7 @@ public final class SliderScale {
         return logarithmic;
     }
 
-    // Highest SeekBar position; the SeekBar runs from 0 to this
+    // Highest SeekBar position. The SeekBar runs from 0 to this.
     public int positions() {
         if (logarithmic) {
             return LOG_POSITIONS;
@@ -54,25 +57,27 @@ public final class SliderScale {
         return (max - min) / step;
     }
 
-    // Value shown for a SeekBar position, already rounded to what the buttons can reach
+    // Value shown for a SeekBar position, already rounded to what the buttons can reach.
     public int valueAt(int position) {
         int p = Math.max(0, Math.min(positions(), position));
         if (!logarithmic) {
             return clamp(min + p * step);
         }
         if (min < logMin) {
-            // Position 0 is the value below the logarithmic part (0 for "a quarter of the bitrate" in the metered setting)
+            // Position 0 is the value below the scaled part (0 for a quarter of the bitrate in metered settings).
             if (p == 0) {
                 return min;
             }
-            double v = logMin * Math.pow((double) max / logMin, (p - 1) / (double) (LOG_POSITIONS - 1));
+            double t = (p - 1) / (double) (LOG_POSITIONS - 1);
+            double v = logMin + (max - logMin) * Math.pow(t, POWER_EXPONENT);
             return clamp((int) Math.round(v));
         }
-        double v = logMin * Math.pow((double) max / logMin, p / (double) LOG_POSITIONS);
+        double t = p / (double) LOG_POSITIONS;
+        double v = logMin + (max - logMin) * Math.pow(t, POWER_EXPONENT);
         return clamp((int) Math.round(v));
     }
 
-    // SeekBar position for a value; values between positions land on the nearest one
+    // SeekBar position for a value. Values between positions land on the nearest one.
     public int positionOf(int value) {
         int v = clamp(value);
         if (!logarithmic) {
@@ -82,14 +87,14 @@ public final class SliderScale {
             if (v < logMin) {
                 return 0;
             }
-            double f = Math.log((double) v / logMin) / Math.log((double) max / logMin);
-            return 1 + (int) Math.round(f * (LOG_POSITIONS - 1));
+            double t = Math.pow((v - logMin) / (double) (max - logMin), 1.0 / POWER_EXPONENT);
+            return 1 + (int) Math.round(t * (LOG_POSITIONS - 1));
         }
-        double f = Math.log((double) v / logMin) / Math.log((double) max / logMin);
-        return (int) Math.round(f * LOG_POSITIONS);
+        double t = Math.pow((v - logMin) / (double) (max - logMin), 1.0 / POWER_EXPONENT);
+        return (int) Math.round(t * LOG_POSITIONS);
     }
 
-    // Step of the buttons at a value: the setting's own step on a linear scale, the ladder on a logarithmic one
+    // Step of the buttons at a value: setting step on linear scale, ladder on scaled curve.
     public int buttonStep(int value) {
         if (!logarithmic) {
             return step;
@@ -103,13 +108,13 @@ public final class SliderScale {
         return Math.max(step, (int) Math.round(LADDER_STEPS[LADDER_STEPS.length - 1] * divisor));
     }
 
-    // Value after "+": the next value on the grid of the current step
+    // Value after plus: the next value on the grid of the current step.
     public int plus(int value) {
         int s = buttonStep(value);
         return clamp((int) (Math.floor((double) value / s) * s) + s);
     }
 
-    // Value after "-": the step is the one just below the value, so 5.0 goes to 4.5 and not to 4.0
+    // Value after minus: step is the one just below the value.
     public int minus(int value) {
         if (value <= min) {
             return min;
@@ -117,17 +122,15 @@ public final class SliderScale {
         int s = buttonStep(value - 1);
         int down = (int) (Math.ceil((double) value / s) * s) - s;
         if (down < logMin && logarithmic && min < logMin) {
-            // Below the lowest logarithmic value only the value of position 0 is left
             return value > logMin ? logMin : min;
         }
         return clamp(down);
     }
 
-    // Keeps a value inside the range and on the grid the buttons and the bar can reach
+    // Keeps a value inside the range and on the grid the buttons and the bar can reach.
     public int clamp(int value) {
         int v = Math.max(min, Math.min(max, value));
         if (logarithmic && min < logMin && v < logMin) {
-            // A typed value between 0 and the lowest step goes to the nearer of the two
             return v * 2 < logMin ? min : logMin;
         }
         int s = logarithmic ? buttonStep(v) : step;
@@ -136,15 +139,14 @@ public final class SliderScale {
         return Math.max(min, Math.min(max, rounded));
     }
 
-    // Keeps a value inside the range on the setting's own step only (500 kbps for the bitrate), so a typed or a stored
-    // value like 15,5 Mbps stays as it is instead of jumping to the coarser grid of the buttons
+    // Keeps a value inside the range on the setting step only.
     public int bound(int value) {
         int v = Math.max(min, Math.min(max, value));
         int rounded = min + Math.round((v - min) / (float) step) * step;
         return Math.max(min, Math.min(max, rounded));
     }
 
-    // Text of a value for the field: one decimal when the setting has a divisor (10,0 Mbps in Russian), else a whole number
+    // Text of a value for the field: one decimal when the setting has a divisor.
     public String format(int value, Locale locale) {
         if (divisor == 1) {
             return String.valueOf(value);
@@ -153,7 +155,7 @@ public final class SliderScale {
         return f.format(value / (double) divisor);
     }
 
-    // Value from what the user typed; accepts both "," and "." as the decimal mark, returns null for text that is not a number
+    // Value from user input. Accepts both comma and period as decimal mark.
     public Integer parse(String text) {
         if (text == null) {
             return null;
