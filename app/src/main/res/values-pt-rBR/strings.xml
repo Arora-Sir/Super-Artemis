@@ -245,4 +245,7 @@
     <string name="fps_suffix_fps">FPS</string>
     <string name="title_enable_commit_text">Ativar envio de texto concluído (gesto/voz)</string>
     <string name="summary_enable_commit_text">Encaminha textos com vários caracteres de teclados virtuais (digitação por gestos, sugestões, ditado por voz). Pode causar problemas em jogos que dependem de entrada tecla por tecla.</string>
+    <string name="title_rumble_throttle">Intervalo de atualização de vibração</string>
+    <string name="summary_rumble_throttle">Define o intervalo mínimo entre atualizações para cada grupo de motores de vibração. Aumente este valor se a vibração frequente causar instabilidade no controle ou dispositivo. Comandos de parada são enviados imediatamente. Defina como 0 para desativar a limitação.</string>
+    <string name="suffix_rumble_throttle">ms</string>
 </resources>

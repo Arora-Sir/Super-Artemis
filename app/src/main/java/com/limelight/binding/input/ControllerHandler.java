@@ -125,6 +125,8 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
     private final SensorManager deviceSensorManager;
     private final SceManager sceManager;
     private final Handler mainThreadHandler;
+    private final RumbleRateLimiter rumbleRateLimiter;
+    private final RumbleRateLimiter triggerRumbleRateLimiter;
     private final HandlerThread backgroundHandlerThread;
     private final Handler backgroundThreadHandler;
     private boolean hasGameController;
@@ -151,6 +153,22 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
         this.deviceSensorManager = (SensorManager) activityContext.getSystemService(Context.SENSOR_SERVICE);
         this.inputManager = (InputManager) activityContext.getSystemService(Context.INPUT_SERVICE);
         this.mainThreadHandler = new Handler(Looper.getMainLooper());
+
+        RumbleRateLimiter.Scheduler rumbleScheduler = new RumbleRateLimiter.Scheduler() {
+            @Override
+            public void postDelayed(Runnable runnable, long delayMs) {
+                mainThreadHandler.postDelayed(runnable, delayMs);
+            }
+
+            @Override
+            public void removeCallbacks(Runnable runnable) {
+                mainThreadHandler.removeCallbacks(runnable);
+            }
+        };
+        this.rumbleRateLimiter = new RumbleRateLimiter(prefConfig.rumbleThrottleMs,
+                android.os.SystemClock::uptimeMillis, rumbleScheduler, this::applyRumble);
+        this.triggerRumbleRateLimiter = new RumbleRateLimiter(prefConfig.rumbleThrottleMs,
+                android.os.SystemClock::uptimeMillis, rumbleScheduler, this::applyRumbleTriggers);
 
         // Create a HandlerThread to process battery state updates. These can be slow enough
         // that they lead to ANRs if we do them on the main thread.
@@ -270,13 +288,16 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
         inputDeviceContexts.put(deviceId, newContext);
     }
 
-    public void stop() {
+    public synchronized void stop() {
         if (stopped) {
             return;
         }
 
         // Stop new device contexts from being created or used
         stopped = true;
+
+        rumbleRateLimiter.cancelAll();
+        triggerRumbleRateLimiter.cancelAll();
 
         // Unregister our input device callbacks
         inputManager.unregisterInputDeviceListener(this);
@@ -410,12 +431,15 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
         return mask;
     }
 
-    private void releaseControllerNumber(GenericControllerContext context) {
+    private synchronized void releaseControllerNumber(GenericControllerContext context) {
         // If we reserved a controller number, remove that reservation
         if (context.reservedControllerNumber) {
             LimeLog.info("Controller number "+context.controllerNumber+" is now available");
             currentControllers &= ~(1 << context.controllerNumber);
         }
+
+        rumbleRateLimiter.cancel(context.controllerNumber);
+        triggerRumbleRateLimiter.cancel(context.controllerNumber);
 
         // If this device sent data as a gamepad, zero the values before removing.
         // We must do this after clearing the currentControllers entry so this
@@ -2171,7 +2195,14 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
         }
     }
 
-    public void handleRumble(short controllerNumber, short lowFreqMotor, short highFreqMotor) {
+    public synchronized void handleRumble(short controllerNumber, short lowFreqMotor, short highFreqMotor) {
+        if (stopped) {
+            return;
+        }
+        rumbleRateLimiter.submit(controllerNumber, lowFreqMotor, highFreqMotor);
+    }
+
+    private void applyRumble(short controllerNumber, short lowFreqMotor, short highFreqMotor) {
         boolean foundMatchingDevice = false;
         boolean vibrated = false;
 
@@ -2247,7 +2278,14 @@ public class ControllerHandler implements InputManager.InputDeviceListener, UsbD
         }
     }
 
-    public void handleRumbleTriggers(short controllerNumber, short leftTrigger, short rightTrigger) {
+    public synchronized void handleRumbleTriggers(short controllerNumber, short leftTrigger, short rightTrigger) {
+        if (stopped) {
+            return;
+        }
+        triggerRumbleRateLimiter.submit(controllerNumber, leftTrigger, rightTrigger);
+    }
+
+    private void applyRumbleTriggers(short controllerNumber, short leftTrigger, short rightTrigger) {
         if (stopped) {
             return;
         }

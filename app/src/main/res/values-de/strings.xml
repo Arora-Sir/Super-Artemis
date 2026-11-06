@@ -303,4 +303,7 @@
 
     <string name="title_edit_profile">Profil bearbeiten</string>
 
+    <string name="title_rumble_throttle">Rumble-Aktualisierungsintervall</string>
+    <string name="summary_rumble_throttle">Legt das Mindestintervall zwischen Aktualisierungen für jede Rumble-Motorgruppe fest. Erhöhen Sie diesen Wert, wenn häufiges Rütteln zu Instabilitäten beim Controller oder Gerät führt. Stopp-Befehle werden immer sofort gesendet. Auf 0 setzen, um die Drosselung zu deaktivieren.</string>
+    <string name="suffix_rumble_throttle">ms</string>
 </resources>

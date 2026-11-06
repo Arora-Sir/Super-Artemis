@@ -311,6 +311,14 @@
       ]
     },
     {
+      "feature": "Configurable controller rumble rate limiting",
+      "role": "code",
+      "people": [{ "handle": "KillianG" }],
+      "links": [
+        { "label": "ClassicOldSong/moonlight-android#587", "url": "https://github.com/ClassicOldSong/moonlight-android/pull/587" }
+      ]
+    },
+    {
       "feature": "No crash with vendor keyboards that report out-of-range key codes",
       "role": "code",
       "people": [{ "handle": "qiin2333" }],

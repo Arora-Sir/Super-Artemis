@@ -341,6 +341,9 @@
     <string name="summary_checkbox_force_device_motion">强制使用设备内置的运动传感器，即使手柄报告支持运动传感器。</string>
     <string name="title_enable_rumble">启用手柄震动</string>
     <string name="summary_enable_rumble">为支持的手柄启用震动反馈。</string>
+    <string name="title_rumble_throttle">震动更新间隔</string>
+    <string name="summary_rumble_throttle">设置每个震动马达组更新之间的最小时间间隔。如果频繁震动导致手柄或设备不稳定，请增加此值。停止指令会立即发送。设置为 0 可禁用限制。</string>
+    <string name="suffix_rumble_throttle">毫秒</string>
     <string name="error_code_prefix">错误代码:</string>
     <string name="title_seekbar_vibrate_fallback_strength">调整模拟震动强度</string>
     <string name="suffix_seekbar_vibrate_fallback_strength">％</string>

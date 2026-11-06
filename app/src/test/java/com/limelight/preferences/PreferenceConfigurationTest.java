@@ -54,4 +54,20 @@ public class PreferenceConfigurationTest {
         assertEquals(0, config.microphoneDeviceId);
         assertEquals("0", prefs.getString(PreferenceConfiguration.MICROPHONE_DEVICE_PREF_STRING, null));
     }
+
+    @Test
+    public void rumbleThrottleDefaultsToDisabled() {
+        PreferenceConfiguration config = PreferenceConfiguration.readPreferences(context, prefs);
+
+        assertEquals(0, config.rumbleThrottleMs);
+    }
+
+    @Test
+    public void rumbleThrottleReadsConfiguredInterval() {
+        prefs.edit().putInt("seekbar_rumble_throttle_ms", 50).commit();
+
+        PreferenceConfiguration config = PreferenceConfiguration.readPreferences(context, prefs);
+
+        assertEquals(50, config.rumbleThrottleMs);
+    }
 }

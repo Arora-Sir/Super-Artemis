@@ -249,6 +249,9 @@
 	<string name="summary_checkbox_force_device_motion">即使手把支援陀螺儀，仍強制使用裝置內建的陀螺儀。</string>
 	<string name="title_enable_rumble">啟用震動回饋</string>
 	<string name="summary_enable_rumble">在支援的手把上啟用震動回饋。</string>
+    <string name="title_rumble_throttle">震動更新間隔</string>
+    <string name="summary_rumble_throttle">設定每個震動馬達組更新之間的最小時間間隔。如果頻繁震動導致控制器或裝置不穩定，請增加此值。停止指令會立即傳送。設定為 0 可停用限制。</string>
+    <string name="suffix_rumble_throttle">毫秒</string>
 	<string name="category_input_settings">輸入設定</string>
 	<string name="title_checkbox_touchscreen_trackpad">將觸控螢幕當作觸控板</string>
 	<string name="summary_checkbox_touchscreen_trackpad">啟用時，觸控螢幕行為如同觸控板；停用時，觸控螢幕直接控制滑鼠游標。</string>

@@ -283,4 +283,7 @@
     <string name="analogscroll_left">Stick analogico sinistro</string>
     <string name="title_enable_commit_text">Abilita input commit-text (swipe/voce)</string>
     <string name="summary_enable_commit_text">Invia al PC testi multi-carattere provenienti dalle tastiere software (scrittura a gesto, suggerimenti, dettatura vocale). Può causare problemi ai giochi che richiedono la pressione singola dei tasti.</string>
+    <string name="title_rumble_throttle">Intervallo di aggiornamento vibrazione</string>
+    <string name="summary_rumble_throttle">Imposta l\'intervallo minimo tra gli aggiornamenti per ciascun gruppo di motori di vibrazione. Aumenta questo valore se le vibrazioni frequenti causano instabilità del controller o del dispositivo. I comandi di arresto vengono inviati immediatamente. Imposta a 0 per disabilitare la limitazione.</string>
+    <string name="suffix_rumble_throttle">ms</string>
 </resources>

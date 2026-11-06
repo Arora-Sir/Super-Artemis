@@ -783,6 +783,9 @@
     <string name="summary_checkbox_force_device_motion">Принудительно использовать встроенный в устройство датчик движения, даже если контроллер сообщает о поддержке датчиков движения.</string>
     <string name="title_enable_rumble">Включить вибрацию</string>
     <string name="summary_enable_rumble">Включить вибрацию на поддерживаемых геймпадах.</string>
+    <string name="title_rumble_throttle">Интервал обновления вибрации</string>
+    <string name="summary_rumble_throttle">Задает минимальный интервал между обновлениями моторов вибрации. Увеличьте это значение, если частая вибрация приводит к нестабильности контроллера или устройства. Команды остановки отправляются сразу. 0 отключает ограничение.</string>
+    <string name="suffix_rumble_throttle">мс</string>
     <string name="category_input_settings">Мышь и сенсор</string>
     <string name="title_checkbox_touchscreen_trackpad">Использовать сенсор как тачпад</string>
     <string name="summary_checkbox_touchscreen_trackpad">Если включено, сенсорный экран работает как тачпад. Если отключено, сенсорный экран напрямую управляет курсором мыши.</string>

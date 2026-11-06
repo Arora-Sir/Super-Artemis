@@ -588,4 +588,7 @@
     <string name="title_checkbox_remember_zoom_pan">Mémoriser le zoom et le panoramique</string>
     <string name="summary_checkbox_remember_zoom_pan">Enregistre la position de zoom et de panoramique entre les sessions.</string>
     <string name="title_edit_profile">Modifier le profil</string>
+    <string name="title_rumble_throttle">Intervalle de mise à jour des vibrations</string>
+    <string name="summary_rumble_throttle">Définit l\'intervalle minimal entre les mises à jour pour chaque groupe de moteurs de vibration. Augmentez cette valeur si des vibrations fréquentes entraînent une instabilité de la manette ou de l\'appareil. Les commandes d\'arrêt sont toujours envoyées immédiatement. Définissez sur 0 pour désactiver la limitation.</string>
+    <string name="suffix_rumble_throttle">ms</string>
 </resources>
