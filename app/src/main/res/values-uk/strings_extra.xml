@@ -670,7 +670,11 @@
     <string name="title_floating_button">Плаваюча кнопка меню</string>
     <string name="summary_floating_button">Маленька кнопка над трансляцією, що відкриває швидке меню, навіть коли меню назад вимкнено</string>
     <string name="dialog_custom_resolution">Нова роздільна здатність застосується, коли ви вийдете з Налаштувань.</string>
-    <string name="summary_custom_resolution">Додайте власну роздільну здатність, розділивши літерою x, дивні значення можуть не працювати.\nНаприклад: 1920x1080\nЯкщо це не рідна роздільна здатність, вона може типово не заповнювати область виїмки. Якщо співвідношення сторін те саме, можна вручну налаштувати розтягування на весь екран</string>
+    <string name="summary_custom_resolution">Виберіть співвідношення сторін і розмір або введіть власну ширину й висоту. Розмір, що не збігається з екраном, може залишити чорні смуги; «Режим масштабування відео» розтягне зображення на весь екран.</string>
+    <string name="custom_resolution_error_empty">Введіть ширину й висоту</string>
+    <string name="custom_resolution_error_range">Ширина й висота від %1$d до %2$d</string>
+    <string name="custom_resolution_error_odd">Ширина й висота мають бути парними</string>
+    <string name="custom_resolution_error_decoder">Цей пристрій не може декодувати %1$d×%2$d</string>
     <string name="title_custom_resolution">Власна роздільна здатність</string>
     <string name="title_auto_orientation">Автоорієнтація</string>
     <string name="summary_auto_orientation">Екран трансляції відображатиметься відповідно до орієнтації пристрою на початку трансляції.</string>

@@ -687,7 +687,11 @@ Para receber alertas automáticos de atualização sem isso, acompanhe o app com
     <string name="title_floating_button">Botão de menu flutuante</string>
     <string name="summary_floating_button">Um pequeno botão sobre o stream que abre o Menu rápido, mesmo com o Menu Voltar desativado</string>
     <string name="dialog_custom_resolution">A nova resolução é aplicada quando você sair das Configurações.</string>
-    <string name="summary_custom_resolution">Adicione uma resolução personalizada, separada por x. Resoluções estranhas podem não funcionar.\nPor exemplo: 1920x1080\nSe for uma resolução não nativa, pode não preencher a área do notch por padrão. Se a proporção for a mesma, você pode definir manualmente para esticar a tela e preencher toda a tela</string>
+    <string name="summary_custom_resolution">Escolha uma proporção e um tamanho, ou digite sua própria largura e altura. Um tamanho diferente da tela pode deixar barras pretas; o “Modo de escala do vídeo” pode esticar a imagem para preencher a tela.</string>
+    <string name="custom_resolution_error_empty">Digite a largura e a altura</string>
+    <string name="custom_resolution_error_range">Largura e altura de %1$d a %2$d</string>
+    <string name="custom_resolution_error_odd">A largura e a altura devem ser pares</string>
+    <string name="custom_resolution_error_decoder">Este dispositivo não consegue decodificar %1$d×%2$d</string>
     <string name="title_custom_resolution">Resolução personalizada</string>
     <string name="title_auto_orientation">Orientação automática</string>
     <string name="summary_auto_orientation">A tela do streaming será exibida de acordo com a orientação do dispositivo quando o stream começar.</string>

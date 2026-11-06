@@ -785,7 +785,11 @@
     <string name="title_floating_button">כפתור תפריט צף</string>
     <string name="summary_floating_button">כפתור קטן מעל הסטרים שפותח את התפריט המהיר, גם כשתפריט החזרה כבוי</string>
     <string name="dialog_custom_resolution">הרזולוציה החדשה תחול כשתצא מההגדרות.</string>
-    <string name="summary_custom_resolution">הוספת רזולוציה מותאמת, מופרדת ב-x. רזולוציות מוזרות עלולות לא לעבוד.\nלמשל: 1920x1080\nרזולוציה לא מקורית עלולה לא למלא כברירת מחדל את אזור החריץ. אם יחס הגובה-רוחב זהה, אפשר להגדיר ידנית מתיחה כדי למלא את כל המסך</string>
+    <string name="summary_custom_resolution">בחרו יחס גובה-רוחב וגודל, או הקלידו רוחב וגובה משלכם. גודל שאינו תואם למסך עלול להשאיר פסים שחורים; „מצב קנה מידה של הווידאו” יכול למתוח את התמונה למסך מלא.</string>
+    <string name="custom_resolution_error_empty">הזינו רוחב וגובה</string>
+    <string name="custom_resolution_error_range">רוחב וגובה מ-%1$d עד %2$d</string>
+    <string name="custom_resolution_error_odd">הרוחב והגובה חייבים להיות זוגיים</string>
+    <string name="custom_resolution_error_decoder">המכשיר אינו יכול לפענח %1$d×%2$d</string>
     <string name="title_custom_resolution">רזולוציה מותאמת</string>
     <string name="title_auto_orientation">כיוון אוטומטי</string>
     <string name="summary_auto_orientation">מסך הסטרימינג יוצג לפי כיוון המכשיר כשהסטרים מתחיל.</string>

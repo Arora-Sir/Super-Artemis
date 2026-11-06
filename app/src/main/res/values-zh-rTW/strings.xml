@@ -480,7 +480,11 @@
 	<string name="summary_floating_button">啟用浮動按鈕</string>
 
 	<string name="dialog_custom_resolution">設定解析度並離開設定頁面後生效！</string>
-	<string name="summary_custom_resolution">新增自訂解析度，以 x 分隔；不常見的解析度可能無法運作。\n例如：1920x1080\n若非原生解析度，預設可能不會填滿瀏海區域。若長寬比相同，可手動設定拉伸畫面以全螢幕顯示。</string>
+	<string name="summary_custom_resolution">選擇長寬比與尺寸，或輸入自訂的寬度與高度。與螢幕不一致的尺寸可能會留下黑邊；「影片縮放模式」可將畫面拉伸至全螢幕。</string>
+	<string name="custom_resolution_error_empty">請輸入寬度與高度</string>
+	<string name="custom_resolution_error_range">寬度與高度須介於 %1$d 到 %2$d</string>
+	<string name="custom_resolution_error_odd">寬度與高度必須為偶數</string>
+	<string name="custom_resolution_error_decoder">此裝置無法解碼 %1$d×%2$d</string>
 	<string name="title_custom_resolution">自訂解析度</string>
 
 	<string name="title_auto_orientation">自動方向</string>

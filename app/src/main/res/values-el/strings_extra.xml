@@ -732,7 +732,11 @@
     <string name="title_floating_button">Αιωρούμενο κουμπί μενού</string>
     <string name="summary_floating_button">Ένα μικρό κουμπί πάνω από τη ροή που ανοίγει το γρήγορο μενού, ακόμη και με απενεργοποιημένο το Μενού πίσω</string>
     <string name="dialog_custom_resolution">Η νέα ανάλυση εφαρμόζεται όταν βγεις από τις Ρυθμίσεις.</string>
-    <string name="summary_custom_resolution">Πρόσθεσε μια προσαρμοσμένη ανάλυση, χωρισμένη με x, οι ασυνήθιστες αναλύσεις μπορεί να μη λειτουργούν.\nΓια παράδειγμα: 1920x1080\nΑν είναι μη εγγενής ανάλυση, μπορεί να μην καλύπτει από προεπιλογή την περιοχή του notch. Αν ο λόγος διαστάσεων είναι ίδιος, μπορείς να ορίσεις χειροκίνητα έκταση της οθόνης για πλήρη κάλυψη</string>
+    <string name="summary_custom_resolution">Επίλεξε αναλογία και μέγεθος ή πληκτρολόγησε δικό σου πλάτος και ύψος. Ένα μέγεθος που δεν ταιριάζει με την οθόνη μπορεί να αφήσει μαύρες λωρίδες· η «Λειτουργία κλίμακας βίντεο» μπορεί να τεντώσει την εικόνα σε όλη την οθόνη.</string>
+    <string name="custom_resolution_error_empty">Πληκτρολόγησε πλάτος και ύψος</string>
+    <string name="custom_resolution_error_range">Πλάτος και ύψος από %1$d έως %2$d</string>
+    <string name="custom_resolution_error_odd">Το πλάτος και το ύψος πρέπει να είναι ζυγά</string>
+    <string name="custom_resolution_error_decoder">Αυτή η συσκευή δεν μπορεί να αποκωδικοποιήσει %1$d×%2$d</string>
     <string name="title_custom_resolution">Προσαρμοσμένη ανάλυση</string>
     <string name="title_auto_orientation">Αυτόματος προσανατολισμός</string>
     <string name="summary_auto_orientation">Η οθόνη ροής θα εμφανίζεται σύμφωνα με τον προσανατολισμό της συσκευής όταν ξεκινά η ροή.</string>

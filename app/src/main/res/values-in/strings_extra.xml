@@ -731,7 +731,11 @@ Untuk pemberitahuan pembaruan otomatis tanpa ini, ikuti aplikasi ini dengan Obta
     <string name="title_floating_button">Tombol menu mengambang</string>
     <string name="summary_floating_button">Tombol kecil di atas stream yang membuka Menu Cepat, bahkan saat Menu Kembali mati</string>
     <string name="dialog_custom_resolution">Resolusi baru berlaku saat Anda keluar dari Pengaturan.</string>
-    <string name="summary_custom_resolution">Tambahkan resolusi kustom, dipisahkan dengan x, resolusi yang aneh mungkin tidak berfungsi.\nContoh: 1920x1080\nJika bukan resolusi asli, secara default mungkin tidak mengisi area notch. Jika rasio aspeknya sama, Anda bisa mengatur secara manual untuk meregangkan layar agar memenuhi layar penuh</string>
+    <string name="summary_custom_resolution">Pilih rasio aspek dan ukuran, atau ketik lebar dan tinggi sendiri. Ukuran yang tidak sesuai dengan layar dapat menyisakan bilah hitam; Mode Skala Video dapat meregangkan gambar hingga memenuhi layar.</string>
+    <string name="custom_resolution_error_empty">Masukkan lebar dan tinggi</string>
+    <string name="custom_resolution_error_range">Lebar dan tinggi dari %1$d hingga %2$d</string>
+    <string name="custom_resolution_error_odd">Lebar dan tinggi harus genap</string>
+    <string name="custom_resolution_error_decoder">Perangkat ini tidak dapat mendekode %1$d×%2$d</string>
     <string name="title_custom_resolution">Resolusi Kustom</string>
     <string name="title_auto_orientation">Orientasi Otomatis</string>
     <string name="summary_auto_orientation">Layar streaming akan ditampilkan sesuai orientasi perangkat saat stream dimulai.</string>

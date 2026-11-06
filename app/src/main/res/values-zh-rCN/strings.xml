@@ -417,10 +417,11 @@
     <string name="title_floating_button">悬浮按钮</string>
     <string name="summary_floating_button">启用悬浮按钮</string>
     <string name="dialog_custom_resolution">设置完分辨率后，退出设置页面 重新打开生效！</string>
-    <string name="summary_custom_resolution">添加一个自定义分辨率,x号分割,比较奇怪的分辨率可能无法生效。
-            \n例如：1920x1080
-            \n非原生分辨率如果是刘海屏可能不会默认填充刘海区域，
-            \n如果画面比例一样，可手动设置拉伸画面来充满全屏</string>
+    <string name="summary_custom_resolution">选择宽高比和尺寸，或输入自定义的宽度和高度。与屏幕不一致的尺寸可能会留下黑边；“视频缩放模式”可将画面拉伸至全屏。</string>
+    <string name="custom_resolution_error_empty">请输入宽度和高度</string>
+    <string name="custom_resolution_error_range">宽度和高度应在 %1$d 到 %2$d 之间</string>
+    <string name="custom_resolution_error_odd">宽度和高度必须为偶数</string>
+    <string name="custom_resolution_error_decoder">此设备无法解码 %1$d×%2$d</string>
     <string name="title_custom_resolution">自定义分辨率</string>
     <string name="title_auto_orientation">自动屏幕方向</string>
     <string name="summary_auto_orientation">串流画面将以启动时的设备旋转方向呈现。</string>

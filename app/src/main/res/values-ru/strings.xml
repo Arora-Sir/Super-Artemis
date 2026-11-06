@@ -1023,7 +1023,11 @@
     <string name="title_floating_button">Плавающая кнопка</string>
     <string name="summary_floating_button">Небольшая кнопка поверх стрима, открывающая быстрое меню, даже если меню по кнопке «Назад» выключено</string>
     <string name="dialog_custom_resolution">Новое разрешение применится после выхода из настроек.</string>
-    <string name="summary_custom_resolution">Добавьте пользовательское разрешение, разделив ширину и высоту знаком x; нестандартные разрешения могут не работать.\nНапример: 1920x1080\nЕсли разрешение не является нативным, оно по умолчанию может не заполнять область выреза. Если соотношение сторон совпадает, вы можете вручную настроить растягивание экрана на полный экран</string>
+    <string name="summary_custom_resolution">Выберите соотношение сторон и размер или введите свою ширину и высоту. Размер, не совпадающий с экраном, может оставить чёрные полосы; «Режим масштабирования видео» растянет картинку на весь экран.</string>
+    <string name="custom_resolution_error_empty">Введите ширину и высоту</string>
+    <string name="custom_resolution_error_range">Ширина и высота от %1$d до %2$d</string>
+    <string name="custom_resolution_error_odd">Ширина и высота должны быть чётными</string>
+    <string name="custom_resolution_error_decoder">Это устройство не декодирует %1$d×%2$d</string>
     <string name="title_custom_resolution">Пользовательское разрешение</string>
     <string name="title_auto_orientation">Авто-ориентация</string>
     <string name="summary_auto_orientation">Экран стрима будет соответствовать ориентации устройства в момент начала стрима.</string>

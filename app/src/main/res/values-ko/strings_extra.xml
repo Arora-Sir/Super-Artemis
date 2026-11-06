@@ -683,7 +683,11 @@
     <string name="title_floating_button">플로팅 메뉴 버튼</string>
     <string name="summary_floating_button">뒤로 메뉴가 꺼져 있어도 스트림 위의 작은 버튼으로 빠른 메뉴를 엽니다</string>
     <string name="dialog_custom_resolution">새 해상도는 설정을 나갈 때 적용됩니다.</string>
-    <string name="summary_custom_resolution">x로 구분해 사용자 지정 해상도를 추가합니다. 특이한 해상도는 작동하지 않을 수 있습니다.\n예: 1920x1080\n기본 해상도가 아니면 기본적으로 노치 영역을 채우지 못할 수 있습니다. 화면 비율이 같다면 화면 늘이기를 수동으로 설정해 전체 화면을 채울 수 있습니다</string>
+    <string name="summary_custom_resolution">화면 비율과 크기를 고르거나 너비와 높이를 직접 입력하세요. 화면과 맞지 않는 크기는 검은 여백이 생길 수 있으며, ‘비디오 크기 모드’로 화면을 가득 채우도록 늘릴 수 있습니다.</string>
+    <string name="custom_resolution_error_empty">너비와 높이를 입력하세요</string>
+    <string name="custom_resolution_error_range">너비와 높이는 %1$d~%2$d</string>
+    <string name="custom_resolution_error_odd">너비와 높이는 짝수여야 합니다</string>
+    <string name="custom_resolution_error_decoder">이 기기는 %1$d×%2$d을(를) 디코딩할 수 없습니다</string>
     <string name="title_custom_resolution">사용자 지정 해상도</string>
     <string name="title_auto_orientation">자동 방향</string>
     <string name="summary_auto_orientation">스트림이 시작될 때 기기의 방향에 맞춰 스트리밍 화면이 표시됩니다.</string>

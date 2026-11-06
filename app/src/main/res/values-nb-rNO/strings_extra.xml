@@ -734,7 +734,11 @@ For automatiske oppdateringsvarsler uten dette kan du følge appen med Obtainium
     <string name="title_floating_button">Flytende menyknapp</string>
     <string name="summary_floating_button">En liten knapp over strømmen som åpner hurtigmenyen, selv når Tilbakemeny er av</string>
     <string name="dialog_custom_resolution">Den nye oppløsningen brukes når du forlater Innstillinger.</string>
-    <string name="summary_custom_resolution">Legg til en egendefinert oppløsning, skilt med x. Uvanlige oppløsninger fungerer kanskje ikke.\nFor eksempel: 1920x1080\nHvis det er en ikke-opprinnelig oppløsning, fyller den kanskje ikke utskjæringsområdet som standard. Hvis sideforholdet er det samme, kan du manuelt velge å strekke bildet for å fylle hele skjermen</string>
+    <string name="summary_custom_resolution">Velg et sideforhold og en størrelse, eller skriv inn egen bredde og høyde. En størrelse som ikke passer skjermen, kan gi svarte felt; «Videoskaleringsmodus» kan strekke bildet over hele skjermen.</string>
+    <string name="custom_resolution_error_empty">Skriv inn bredde og høyde</string>
+    <string name="custom_resolution_error_range">Bredde og høyde fra %1$d til %2$d</string>
+    <string name="custom_resolution_error_odd">Bredde og høyde må være partall</string>
+    <string name="custom_resolution_error_decoder">Denne enheten kan ikke dekode %1$d×%2$d</string>
     <string name="title_custom_resolution">Egendefinert oppløsning</string>
     <string name="title_auto_orientation">Automatisk orientering</string>
     <string name="summary_auto_orientation">Strømmeskjermen vises etter enhetens orientering når strømmen starter.</string>
