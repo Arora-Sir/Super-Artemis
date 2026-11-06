@@ -4,21 +4,62 @@ All notable changes to Super Artemis are listed here. The format follows [Keep a
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-11-06
+
 ### Added
 
 - Profiles can be moved up and down in the Profiles list: drag a profile by the handle at the start of its row, or long press the row and drag it. The new order is saved when the drag ends and stays after a restart; the active profile does not change.
 - While the host is silent for 1.5 s, a label over the last frame says "Connection lost, waiting for the network" and counts the seconds. It goes away when the host answers again, and when the network drop grace period runs out the usual "connection terminated" dialog shows without the label.
 
+- When the network drops, a card over the last frame shows the state (waiting for the stream, waiting for the network, reaching the PC, starting) with Cancel and Reconnect now. The stream reconnects by itself once the network is back and the PC answers, with a short backoff and a five minute limit, and the usual terminated dialog shows if that runs out. A new Settings switch, Reconnect after a network drop, turns it off.
+- The quick bars have a Show or Hide Quick Bars action (`toggle_quick_bar`) for buttons, the Quick Menu, key flows and gestures. A bar hidden this way stays hidden until the action runs again and a touch does not bring it back.
+- A new Settings row, Hide quick bars when idle, opens a dialog with two stages and four values, each a slider with a number field: dim after X seconds to a chosen opacity, hide completely after Y seconds, and the opacity of the edge tab that stays where a bar hid (0 means no tab). A time of 0 skips that stage. The bars come back when you tap the tab or touch the stream. The defaults dim to 40 percent after 3 seconds and never hide, as before.
+- Gestures: two-finger taps, double taps, holds and swipes, and one-finger double taps and holds. Nothing is bound at first, so a two-finger tap stays a right click and one-finger touches reach the PC without delay. A one-finger hold takes the touch over only when it fires.
+- A new Settings choice, Quick bar style, picks the look of the quick bars: Dock rail (one translucent rounded container, the default), Round buttons (a circle per button, as before) or Tap to expand (one small handle that opens the rail and closes again after a pause).
+- A Find panel searches the keys, flows and actions of the quick bar editor (the Find button next to Add key or flow) and the gesture picker (the Search row at its top). It is a full-screen layer on a phone and a centered panel on a tablet. Type to filter by name, or switch to the in-app keyboard and tap keys to list everything that uses them. A gesture or bar item that is already used elsewhere shows a notice.
+- The menu style, the quick bar style and the Quick Menu section order are actions now, so the Advanced Menu, the Quick Menu, a bar or a gesture can hold them. The Advanced Menu also has a Customize menu entry.
+- The Quick Menu opens with a picker for the style (list, grid or compact) from the Menu style action.
+- The menu editor lists your custom keys and flows in the Advanced Menu on request: a key that is not in the Quick Menu starts hidden, and its eye shows it there. A Quick Menu and Advanced Menu switch above the preview shows either menu as it will look.
+- The quick bar style (Dock rail, Round buttons, Tap to expand) is also chosen in the Quick-action bars editor, where the preview shows it at once. It is applied on Save, and Cancel leaves it alone. The Settings row stays as a shortcut.
+
+- Special keys: Backspace and Delete are the first two keys, each with its own icon, and Windows Magnifier has three keys (Magnifier In, Magnifier Out, Exit Magnifier) with their own icons.
+- The virtual full keyboard has an Fn key at the end of the function row that swaps F1 to F12 for F13 to F24, and a new setting adds a permanent F13 to F24 row under the function row.
+- The virtual full keyboard draws above the quick bars while it is open (new setting, on by default), so taps on the keys never reach a bar.
+
+- The order of the Quick Menu sections (Actions, Session, Menu) can be changed by dragging in a new Settings row, Quick Menu section order, and directly inside the in-stream menu editor under a new Section order tab. The menu preview updates in real time as sections are reordered. The default order stays the same.
+
 ### Changed
 
+- The in-stream menu editor preview sits in a taller box and draws the menu at 62 percent, so most of the menu is visible at once on a phone.
+- The network drop card no longer waits out the whole grace period. While the stream is silent, the stream restarts by itself once the network has been back for 3 seconds, or after 10 seconds of silence when the network never reported a drop, instead of only after the grace period (BUG-070).
+- The Quick Menu grid is denser: 80 dp columns and 68 dp tiles instead of 96 dp and 88 dp, so more actions fit on a phone and a tablet without scrolling.
 - The Russian translation is complete: 590 strings and the step plural that had no Russian text are translated, and 173 existing Russian strings are corrected for meaning, completeness, outdated text and terminology. Keyboard keys and key combinations stay as printed on the keyboard, and only an explanation in brackets is translated (#3).
 - The Default entry of the language list is a string resource (`language_default`), so each language shows it in its own words (#3).
 - The status label (poor or slow connection, network drop) sits in the top left corner and fades in and out over half a second.
+- The language changes at once: the choice applies to every screen as it is created, and the open Settings screen redraws itself without a restart or a black flash. Language moved from Misc to the User interface section next to App style, and it is an app-wide setting for profiles.
+- All 21 languages of the language list now have a complete translation.
+- The first entry of the language list reads System default, in each language's own wording, and it follows the per-app language of Android 13 and newer, then the system language. The list opens in the same picker as the other choice lists, and every row, including Hebrew, lines up the same way.
+- Settings icons follow one rule: a row has an icon when it opens its own screen, editor, file picker or web page, or runs an action (backup, import, export, share, reset, help, links), and no icon when it is a switch, a single choice, a slider or a typed value. The 14 action and link rows that had none now have one.
 
 ### Fixed
 
 - Prevented an Activity task race condition in `ShortcutTrampoline` when launching desktop PC shortcuts on Android 16 and 17 (BUG-059, upstream qiin2333/moonlight-vplus#778).
 - Streamlined decoder recovery failure handling in `MediaCodecDecoderRenderer` to release recovery monitors and notify listeners rather than aborting with an unhandled exception (BUG-060, upstream qiin2333/moonlight-vplus#783).
+- After a switch from Wi-Fi to mobile data the stream now reconnects by itself. The wait for the PC tries every saved address of the PC (local, manual, remote or VPN, IPv6), not only the one the stream used, so a PC reachable by its VPN address is found over mobile data (BUG-073).
+- A stream that started on mobile data keeps the low mobile bitrate, so it is now started again by itself as soon as an unmetered network (Wi-Fi) has been up for 1.5 seconds and the PC answers over it, when the stream is at least 8 seconds old and the mobile and normal bitrates differ. A Wi-Fi with no route to the PC never restarts the stream. It follows the Reconnect after a network drop switch (BUG-074).
+- Fixed black bars at the left and right of pinned app shortcut icons. A square of the art now fills the visible icon, placed around the drawn icon and lettering so they sit in the center of the shortcut. Pinning an app shortcut again also updates the icon of a shortcut that is already on the home screen.
+- Fixed the quick bar style buttons in the bars editor being uneven and cut off in portrait. The three buttons share one fixed height.
+- Fixed the app closing, and returning to the PC list, after a Wi-Fi drop when the stream restarted early. The drop watchdog asked the stream for its silence time after the stream had been stopped (BUG-072).
+- Fixed the in-stream menu editor on a phone: in portrait the preview is reachable by scrolling the page, in landscape the key list scrolls on its own with Add key or flow fixed under it, and the line across the top of the preview pane is gone.
+- Fixed dialogs and editors that stayed open through a rotation keeping the size of the old orientation. They fit the new width, and the menu and bar editors rebuild for it.
+- Fixed the quick bar style buttons touching the bar buttons below them in the bars editor.
+- Fixed pinned app shortcuts on the home screen sitting off center and cropped by the launcher mask. The art is fitted into the visible middle, and an app with no box art shows its initials.
+- Fixed a symbol key such as the semicolon or bracket showing two characters in the Find panel in press-a-key mode. Each symbol key has one name now (BUG-071).
+- Fixed the text of the placeholder app tiles (a desktop or app without box art) being faint grey on grey. It has a fixed dark colour now.
+- Fixed the quick bar preview in the editor piling buttons onto each other when a bar has many buttons on a high resolution screen. The preview now draws the real bars, icons and style at full size and shrinks the whole screen, in a frame with the shape of the screen, so a phone in landscape shows its bars at the real corners.
+- Fixed menus and editors being drawn oversized and cut off inside the small picture-in-picture window. They close when the stream shrinks.
+- Fixed a stray line across the rows of the menu and bar editors, which were the scroll dividers of their inner lists.
+- Fixed the keyboard taking over the whole screen when searching on a phone in landscape, in the Settings search and in the new Find panel.
 - Fixed the picture-in-picture window showing a cropped, shrunken picture with black borders when a stream zoom and pan are saved. Picture-in-picture now shows the whole stream and your zoom and pan come back when the window expands (BUG-061).
 - With Language set to Default, the app follows the language picked for Super Artemis in the Android settings (App languages) on Android 13 and newer, and the system language only when no app language is set. Before, the first system language always won (#6).
 

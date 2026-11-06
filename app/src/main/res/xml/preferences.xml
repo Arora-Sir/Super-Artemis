@@ -284,6 +284,12 @@
             android:icon="@drawable/ic_sa_menu_open"
             search:keywords="@string/keywords_game_menu" />
         <Preference
+            android:key="pref_menu_section_order"
+            android:summary="@string/summary_menu_section_order"
+            android:title="@string/title_menu_section_order"
+            android:icon="@drawable/ic_ck_view_agenda"
+            search:keywords="@string/keywords_menu_section_order" />
+        <Preference
             android:key="pref_quick_bar"
             android:summary="@string/summary_quick_bar"
             android:title="@string/title_quick_bar"
@@ -302,26 +308,41 @@
             android:title="@string/title_custom_keys"
             android:icon="@drawable/ic_sa_keyboard"
             search:keywords="@string/keywords_special_keys" />
+        <ListPreference
+            android:defaultValue="rail"
+            android:entries="@array/quick_bar_style_names"
+            android:entryValues="@array/quick_bar_style_values"
+            android:key="quick_bar_style"
+            android:title="@string/title_quick_bar_style"
+            app:iconSpaceReserved="false"
+            app:useSimpleSummaryProvider="true"
+            search:keywords="@string/keywords_quick_bar_style" />
+        <Preference
+            android:key="quick_bar_idle_behavior"
+            android:title="@string/title_quick_bar_auto_hide"
+            android:summary="@string/summary_quick_bar_auto_hide"
+            android:icon="@drawable/ic_sa_tune"
+            search:keywords="@string/keywords_quick_bar_auto_hide" />
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="checkbox_enable_quit_dialog"
             android:summary="@string/summary_quit_dialog"
             android:title="@string/title_quit_dialog"
-            android:icon="@drawable/ic_gm_back"
+            app:iconSpaceReserved="false"
             search:keywords="@string/keywords_back_menu" />
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="checkbox_enable_floating_button"
             android:summary="@string/summary_floating_button"
             android:title="@string/title_floating_button"
-            android:icon="@drawable/ic_gm_toggle_floating_button"
+            app:iconSpaceReserved="false"
             search:keywords="@string/keywords_floating_button" />
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="checkbox_remember_zoom_pan"
             android:summary="@string/summary_checkbox_remember_zoom_pan"
             android:title="@string/title_checkbox_remember_zoom_pan"
-            android:icon="@drawable/ic_gm_zoom"
+            app:iconSpaceReserved="false"
             search:keywords="@string/keywords_pan_zoom" />
     </PreferenceCategory>
 
@@ -370,6 +391,16 @@
             app:iconSpaceReserved="false"
             app:useSimpleSummaryProvider="true"
             search:keywords="@string/keywords_app_style" />
+        <com.limelight.preferences.LanguagePreference
+            android:defaultValue="default"
+            android:entries="@array/language_names"
+            android:entryValues="@array/language_values"
+            android:key="list_languages"
+            android:summary="@string/summary_language_list"
+            android:title="@string/title_language_list"
+            app:iconSpaceReserved="false"
+            app:useSimpleSummaryProvider="true"
+            search:keywords="@string/keywords_language" />
         <com.limelight.preferences.AmoledBlackPreference
             android:defaultValue="false"
             android:key="checkbox_amoled_black"
@@ -487,7 +518,7 @@
         <Preference
             android:key="pref_keyboard_service"
             android:title="@string/title_keyboard_service"
-            app:iconSpaceReserved="false" />
+            android:icon="@drawable/ic_sa_keyboard" />
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="checkbox_back_as_meta"
@@ -799,7 +830,7 @@
             android:positiveButtonText="@string/yes"
             android:summary="@string/summary_reset_osc"
             android:title="@string/title_reset_osc"
-            app:iconSpaceReserved="false" />
+            android:icon="@drawable/ic_sa_restart_alt" />
     </PreferenceCategory>
 
     <PreferenceCategory
@@ -814,6 +845,20 @@
             android:title="@string/title_release_keys_on_close"
             app:iconSpaceReserved="false"
             search:keywords="@string/keywords_release_keys" />
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="keyboard_show_f13_f24_row"
+            android:summary="@string/summary_keyboard_f13_f24_row"
+            android:title="@string/title_keyboard_f13_f24_row"
+            app:iconSpaceReserved="false"
+            search:keywords="@string/keywords_keyboard_f13_f24_row" />
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="keyboard_render_on_top"
+            android:summary="@string/summary_keyboard_on_top"
+            android:title="@string/title_keyboard_on_top"
+            app:iconSpaceReserved="false"
+            search:keywords="@string/keywords_keyboard_on_top" />
         <CheckBoxPreference
             android:key="checkbox_enable_sticky_modifier_key_virtual_keyboard"
             android:title="@string/title_checkbox_enable_sticky_modifier_key_virtual_keyboard"
@@ -913,17 +958,17 @@
             android:positiveButtonText="@string/yes"
             android:summary="@string/summary_reset_keyboard_layout"
             android:title="@string/title_reset_keyboard_layout"
-            app:iconSpaceReserved="false" />
+            android:icon="@drawable/ic_sa_restart_alt" />
         <Preference
             android:key="import_keyboard_file"
             android:summary="@string/summary_import_keyboard_layout"
             android:title="@string/title_import_keyboard_layout"
-            app:iconSpaceReserved="false" />
+            android:icon="@drawable/ic_sa_download" />
         <Preference
             android:key="export_keyboard_file"
             android:summary="@string/summary_export_keyboard_layout"
             android:title="@string/title_export_keyboard_layout"
-            app:iconSpaceReserved="false" />
+            android:icon="@drawable/ic_sa_save" />
     </PreferenceCategory>
 
     <PreferenceCategory
@@ -971,7 +1016,7 @@
             android:key="pref_lock_key_help"
             android:summary="@string/summary_lock_help"
             android:title="@string/title_lock_help"
-            app:iconSpaceReserved="false"
+            android:icon="@drawable/ic_sa_help"
             search:keywords="@string/keywords_lock_help" />
     </PreferenceCategory>
 
@@ -1020,13 +1065,13 @@
             android:summary="@string/summary_share_performance_logs"
             android:title="@string/title_share_performance_logs_button"
             android:dependency="checkbox_enable_perf_logging"
-            app:iconSpaceReserved="false" />
+            android:icon="@drawable/ic_sa_share" />
         <com.limelight.preferences.WebLauncherPreference
             url="https://github.com/ClassicOldSong/moonlight-android/wiki/Performance-Statistics-Collection"
             android:key="option_view_shared_pref_logs"
             android:summary="@string/summary_performance_link"
             android:title="@string/title_performance_link"
-            app:iconSpaceReserved="false" />
+            android:icon="@drawable/ic_sa_open_in_new" />
     </PreferenceCategory>
 
     <PreferenceCategory
@@ -1073,6 +1118,13 @@
             seekbar:step="5"
             search:keywords="@string/keywords_network_grace" />
         <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="checkbox_auto_resume_network"
+            android:summary="@string/summary_checkbox_auto_resume_network"
+            android:title="@string/title_checkbox_auto_resume_network"
+            app:iconSpaceReserved="false"
+            search:keywords="@string/keywords_auto_resume_network" />
+        <CheckBoxPreference
             android:defaultValue="false"
             android:key="checkbox_unlock_fps"
             android:summary="@string/summary_unlock_fps"
@@ -1103,49 +1155,40 @@
         android:title="@string/title_settings_misc"
         app:initialExpandedChildrenCount="2"
         app:iconSpaceReserved="false">
-        <com.limelight.preferences.LanguagePreference
-            android:defaultValue="default"
-            android:entries="@array/language_names"
-            android:entryValues="@array/language_values"
-            app:iconSpaceReserved="false"
-            android:key="list_languages"
-            android:summary="@string/summary_language_list"
-            android:title="@string/title_language_list"
-            search:keywords="@string/keywords_language" />
         <Preference
             android:key="import_special_button_file"
             android:summary="@string/summary_import_special_button"
             android:title="@string/title_import_special_button"
-            app:iconSpaceReserved="false" />
+            android:icon="@drawable/ic_sa_download" />
         <com.limelight.preferences.WebLauncherPreference
             url="https://github.com/ClassicOldSong/moonlight-android/wiki/Custom-Special-Keys"
             android:key="option_help_custom_keys"
             android:summary="@string/summary_special_key_help"
             android:title="@string/title_special_key_help"
-            app:iconSpaceReserved="false" />
+            android:icon="@drawable/ic_sa_help" />
         <Preference
             android:key="pref_debug_info"
             android:summary="@string/summary_debug_info"
             android:title="@string/title_debug_info"
-            app:iconSpaceReserved="false" />
+            android:icon="@drawable/ic_sa_info" />
         <Preference
             android:key="pref_share_diagnostics"
             android:summary="@string/summary_share_diagnostics"
             android:title="@string/title_share_diagnostics"
-            app:iconSpaceReserved="false"
+            android:icon="@drawable/ic_sa_share"
             search:keywords="@string/keywords_diagnostics" />
         <com.limelight.preferences.WebLauncherPreference
             url="https://github.com/Arora-Sir/Super-Artemis/releases"
             android:key="option_software_release"
             android:summary="@string/summary_software_update"
             android:title="@string/title_software_update"
-            app:iconSpaceReserved="false" />
+            android:icon="@drawable/ic_sa_new_releases" />
         <com.limelight.preferences.WebLauncherPreference
             url="@string/obtainium_app_url"
             android:key="option_follow_update"
             android:summary="@string/summary_follow_update"
             android:title="@string/title_follow_update"
-            app:iconSpaceReserved="false" />
+            android:icon="@drawable/ic_sa_system_update" />
     </PreferenceCategory>
 
     <PreferenceCategory

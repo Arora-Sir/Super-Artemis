@@ -29,6 +29,13 @@ public final class Dialogs {
     }
 
     private static final int FADE_EDGE_DP = 16;
+    // NOTE: An editor body with this tag keeps the scroll dividers for the dialog itself, but not for the lists and previews inside it.
+    // NOTE: Those inner lists are boxes of their own, and a divider drawn on their edge looked like a stray line cutting through a row.
+    public static final String NO_LIST_EDGES = "sa_no_list_edges";
+    // NOTE: A scroll view with this tag draws no divider of its own, for a pane that sits beside another pane where the line would run across the dialog.
+    public static final String NO_SCROLL_EDGES = "sa_no_scroll_edges";
+    // Dialogs that are open, so a stream that shrinks into picture-in-picture can close them instead of drawing them in the small window
+    private static final java.util.Set<Dialog> OPEN = java.util.Collections.newSetFromMap(new java.util.WeakHashMap<>());
 
     public static AlertDialog show(AlertDialog.Builder builder, int maxWidthDp) {
         AlertDialog dialog = builder.show();
@@ -36,15 +43,24 @@ public final class Dialogs {
         return dialog;
     }
 
+    // NOTE: Editors whose panes have fixed heights are built again when the screen rotates, because those heights belong to the old orientation.
+    private static final java.util.Map<Dialog, Runnable> RESHOW = new java.util.WeakHashMap<>();
+
+    public static void reshowOnRotation(Dialog dialog, Runnable reshow) {
+        RESHOW.put(dialog, reshow);
+    }
+
     public static void fitWidth(Dialog dialog, int maxWidthDp) {
         Window window = dialog.getWindow();
         if (window == null) {
             return;
         }
-        DisplayMetrics metrics = dialog.getContext().getResources().getDisplayMetrics();
-        int max = (int) ((maxWidthDp + BACKGROUND_INSET_DP) * metrics.density);
-        window.setLayout(Math.min(metrics.widthPixels, max), WindowManager.LayoutParams.WRAP_CONTENT);
-        softenScrollEdges(window.getDecorView(), (int) (FADE_EDGE_DP * metrics.density));
+        sizeWindow(dialog, window, maxWidthDp);
+        // The dialog shrinks above the keyboard, so a search or a text field never ends up hidden behind it
+        if (OPEN.add(dialog)) {
+            followRotation(dialog, window, maxWidthDp);
+        }
+        softenScrollEdges(window.getDecorView(), (int) (FADE_EDGE_DP * dialog.getContext().getResources().getDisplayMetrics().density), false);
         if (dialog instanceof AlertDialog) {
             for (int which : new int[] {AlertDialog.BUTTON_POSITIVE, AlertDialog.BUTTON_NEGATIVE, AlertDialog.BUTTON_NEUTRAL}) {
                 fadeWhenDisabled(((AlertDialog) dialog).getButton(which));
@@ -54,6 +70,55 @@ public final class Dialogs {
 
     // NOTE: The dialog button style uses one accent color, so a disabled Save looked the same as an enabled one.
     // NOTE: This gives the label the Material 3 disabled look (38 percent of its color) while keeping the enabled color. Android 5 and 6 cannot read theme colors in a color list file, so it is built here.
+    private static void sizeWindow(Dialog dialog, Window window, int maxWidthDp) {
+        DisplayMetrics metrics = dialog.getContext().getResources().getDisplayMetrics();
+        int max = (int) ((maxWidthDp + BACKGROUND_INSET_DP) * metrics.density);
+        window.setLayout(Math.min(metrics.widthPixels, max), WindowManager.LayoutParams.WRAP_CONTENT);
+    }
+
+    // NOTE: A dialog that stays open through a rotation kept the width of the old orientation and looked too small or cut off.
+    // NOTE: It is fitted again, or built again when its editor asked for that.
+    private static void followRotation(Dialog dialog, Window window, int maxWidthDp) {
+        Context app = dialog.getContext().getApplicationContext();
+        if (app == null) {
+            return;
+        }
+        android.os.Handler handler = new android.os.Handler(android.os.Looper.getMainLooper());
+        android.content.ComponentCallbacks callbacks = new android.content.ComponentCallbacks() {
+            @Override
+            public void onConfigurationChanged(android.content.res.Configuration newConfig) {
+                handler.post(() -> {
+                    if (!dialog.isShowing()) {
+                        return;
+                    }
+                    Runnable reshow = RESHOW.get(dialog);
+                    if (reshow != null) {
+                        dialog.dismiss();
+                        reshow.run();
+                    }
+                    else {
+                        sizeWindow(dialog, window, maxWidthDp);
+                    }
+                });
+            }
+
+            @Override
+            public void onLowMemory() {
+            }
+        };
+        app.registerComponentCallbacks(callbacks);
+        window.getDecorView().addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
+            @Override
+            public void onViewAttachedToWindow(View v) {
+            }
+
+            @Override
+            public void onViewDetachedFromWindow(View v) {
+                app.unregisterComponentCallbacks(callbacks);
+            }
+        });
+    }
+
     public static void fadeWhenDisabled(android.widget.Button button) {
         if (button == null) {
             return;
@@ -68,9 +133,11 @@ public final class Dialogs {
     // NOTE: Every scrolling area in a dialog shows a thin divider on an edge that hides more content, as Material 3 dialogs do.
     // NOTE: A hard edge alone shows a sliver of the next card, and a fade dims the last row so it looks covered by an overlay.
     // NOTE: The divider only appears on a side with more content, so a dialog that fits shows none. Android 5 and 6 get a short fade instead.
-    private static void softenScrollEdges(View view, int length) {
-        if (view instanceof android.widget.ScrollView || view instanceof androidx.core.widget.NestedScrollView
-                || view instanceof androidx.recyclerview.widget.RecyclerView) {
+    private static void softenScrollEdges(View view, int length, boolean skipLists) {
+        skipLists |= NO_LIST_EDGES.equals(view.getTag());
+        boolean list = view instanceof androidx.recyclerview.widget.RecyclerView;
+        if (!NO_SCROLL_EDGES.equals(view.getTag()) && (view instanceof android.widget.ScrollView || view instanceof androidx.core.widget.NestedScrollView
+                || (list && !skipLists))) {
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
                 view.setVerticalFadingEdgeEnabled(false);
                 view.setScrollIndicators(View.SCROLL_INDICATOR_TOP | View.SCROLL_INDICATOR_BOTTOM,
@@ -84,9 +151,29 @@ public final class Dialogs {
         if (view instanceof android.view.ViewGroup) {
             android.view.ViewGroup group = (android.view.ViewGroup) view;
             for (int i = 0; i < group.getChildCount(); i++) {
-                softenScrollEdges(group.getChildAt(i), length);
+                softenScrollEdges(group.getChildAt(i), length, skipLists);
             }
         }
+    }
+
+    // Dialogs that are not built through show() register here, so picture-in-picture can close them too
+    public static void track(Dialog dialog) {
+        OPEN.add(dialog);
+    }
+
+    // NOTE: Closes every open Super Artemis dialog that belongs to this screen.
+    // NOTE: Picture-in-picture shows the whole window of the activity, so a menu or editor left open was drawn oversized and cut off in the small window.
+    public static void dismissAll(android.app.Activity activity) {
+        for (Dialog dialog : new java.util.ArrayList<>(OPEN)) {
+            Context context = dialog.getContext();
+            while (context instanceof android.content.ContextWrapper && !(context instanceof android.app.Activity)) {
+                context = ((android.content.ContextWrapper) context).getBaseContext();
+            }
+            if (context == activity && dialog.isShowing()) {
+                dialog.dismiss();
+            }
+        }
+        OPEN.clear();
     }
 
     // True on phone sized screens, where side by side content inside a dialog gets too narrow and should stack

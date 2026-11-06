@@ -495,3 +495,102 @@ The test JVM ran with Gradle's default 512 MB heap. Robolectric with this many l
 - **Fix Applied:** No app change. The host script now gates the hotkey with `#HotIf F4PhysicallyDown()`, so injected Alt + F4 passes straight to Windows. Committed in the AutoHotKey scripts repository (53e3871) with documentation.
 - **Verification:** Owner confirmed Alt + F4 works from the phone and the physical keyboard. Scancode injection tests against throwaway windows closed the window with the new logic and never with a copy of the old logic.
 - **Status:** Fixed on the host.
+
+## BUG-064: The stream did not reconnect by itself when the network came back
+
+- **Symptom:** After a network drop the label said the connection was lost, but the stream stayed ended once the network returned and the owner had to start it again.
+- **Evidence:** The label only counted seconds while the host was silent. When the grace period ran out the usual terminated dialog showed, and nothing waited for the network.
+- **Root Cause:** Nothing in the app watched for the network to return or tried to start the stream again after a drop.
+- **Fix Applied:** `NetworkResumer` waits for a connectivity callback, checks that the PC answers on its port with growing gaps for up to five minutes, then relaunches through `SessionResumer`. `NetworkStatusCard` shows the state with Cancel and Reconnect now, and a Settings switch turns the behavior off. `ResumePlan` keeps graceful ends, protected content and frame conversion failures out, because they repeat forever when resumed.
+- **Verification:** Unit tests for `ResumePlan`, `NetworkStatusCard` and `NetworkResumer` with a loopback server. Not yet checked on a device by switching Wi-Fi off and on during a stream.
+- **Status:** Fixed in code, device check pending.
+
+## BUG-065: Changing the language needed a restart and flashed black
+
+- **Symptom:** After picking another language the app force quit or waited for a restart, and the screen flashed black.
+- **Evidence:** The old code restarted the process and exited, and the system app locale API relayouts the whole window.
+- **Root Cause:** The language was applied through the system app locale API and a process restart instead of by the app itself.
+- **Fix Applied:** `AppLanguage` applies the language to each screen as it is created, `ArtemisApplication` recreates a screen once when it returns out of date, and `LanguagePreference` recreates the settings screen at once when the value changes.
+- **Verification:** On the S24 Ultra the picker switched Settings to German in place. A frame by frame check of a screen recording showed no black frame, only the dialog dim fading out.
+- **Status:** Fixed.
+
+## BUG-066: Quick bar editor preview piled buttons onto each other
+
+- **Symptom:** In the bar editor preview, a bar with many buttons on a high resolution screen drew its buttons on top of each other.
+- **Evidence:** The preview kept a 12 dp floor for the button size while its container shrank, so the grid grew past the preview.
+- **Root Cause:** The size floor won over the room the longest bar needs.
+- **Fix Applied:** The floor is 6 dp and the button size is capped so the widest and tallest bar fit the preview.
+- **Verification:** Not checked on a device yet. The live bars at the corners were not changed.
+- **Status:** Fixed in code, device check pending.
+
+## BUG-067: Quick bar preview was letterboxed in landscape
+
+- **Symptom:** On a phone in landscape the editor preview showed a small screen in the middle of a wide empty box, and the bars at the left and right edges appeared mid-box.
+- **Evidence:** The preview box was about 4.6 times wider than tall, the screen about 2.2 times, and the miniature screen was scaled by height and centered.
+- **Root Cause:** The box kept its own shape and the screen was fitted inside it, so the box and the screen were different shapes.
+- **Fix Applied:** `QuickBarPreview` makes the frame the shape of the screen and draws the real bars inside it, so a bar at a corner of the screen sits at the same corner of the preview.
+- **Verification:** `QuickBarPreviewTest` checks the frame shape for a wide and a tall room. On the S24 Ultra in landscape the frame has the screen's shape and the three bars sit at their real corners.
+- **Status:** Fixed.
+
+## BUG-068: The keyboard took over the screen when searching in landscape
+
+- **Symptom:** Tapping a search field on a phone in landscape opened the keyboard as a fullscreen text box with a Search button, hiding the list and the results.
+- **Evidence:** `dumpsys input_method` reported the extract view as the fullscreen input. After the fix it reports `mIsFullscreen=false`.
+- **Root Cause:** The fields did not ask the keyboard to stay out of fullscreen mode (`IME_FLAG_NO_EXTRACT_UI`, `IME_FLAG_NO_FULLSCREEN`).
+- **Fix Applied:** The shared search field and the vendored Settings search field set both flags. Searching the items of a bar or a gesture happens in the Find panel, which has its own window, because a dialog is left with a quarter of the screen once the keyboard is up.
+- **Verification:** On the S24 Ultra in portrait and landscape the field stays in place and the results show above the keyboard. `DialogsBehaviorTest` checks the flags.
+- **Status:** Fixed.
+
+## BUG-069: Menus were drawn inside the picture-in-picture window
+
+- **Symptom:** With the Quick Menu or an editor open, going Home shrank the stream into picture-in-picture and the dialog showed oversized and cut off in the small window.
+- **Evidence:** Screenshot from the owner on the S24 Ultra.
+- **Root Cause:** Nothing closed the dialogs of the stream screen when it entered picture-in-picture.
+- **Fix Applied:** `Dialogs` tracks the dialogs it shows and `Game.onPictureInPictureModeChanged` closes them, together with the menu and the network card.
+- **Verification:** `DialogsBehaviorTest` and `FindPanelTest` check that every open dialog of an activity closes and that another activity's dialogs stay open. Not yet checked with a live stream on a device.
+- **Status:** Fixed in code, device check pending.
+
+## BUG-070: The network card waited out the whole grace period
+
+- **Symptom:** After a Wi-Fi drop that lasted 5 seconds, the card "Connection lost, waiting for the network" stayed for 29 to 30 seconds before the stream came back.
+- **Evidence:** Screenshots and timing from the owner on the S24 Ultra. The restart rule only fired when the grace period of 30 seconds ran out.
+- **Root Cause:** The silent stream was only restarted by the grace period timer, so a network that came back early changed nothing.
+- **Fix Applied:** `ResumePlan.shouldRestartEarly` restarts the stream when the network has been back for 3 seconds, or after 10 seconds of silence when no drop was seen. `Game.restartEarlyWhenNetworkIsBack` applies it and hands over to the automatic resume.
+- **Verification:** `ResumePlanTest` covers the rule. Not yet checked with a real Wi-Fi toggle during a stream.
+- **Status:** Fixed in code, device check pending.
+
+## BUG-071: A symbol key showed two characters in the Find panel
+
+- **Symptom:** In press-a-key mode, pressing the semicolon, bracket or similar key showed two characters in the pressed bar and the filter.
+- **Evidence:** Report from the owner. The layout label of those keys has two characters (for example `;` and `:`).
+- **Root Cause:** The pressed bar used the layout label of the key button, which names the shifted and unshifted symbol together.
+- **Fix Applied:** `FindPanel.symbolName` gives each symbol key one name by its virtual key code.
+- **Verification:** `FindPanelTest.everySymbolKeyHasOneCleanName`. Not yet checked on a device.
+- **Status:** Fixed in code, device check pending.
+
+## BUG-072: The app aborted after an early restart on a network drop
+
+- **Symptom:** Toggling Wi-Fi during a stream sometimes closed the app and showed the PC list or home screen instead of the reconnect card.
+- **Evidence:** Logcat from the S24 Ultra shows `FORTIFY: pthread_mutex_lock called on a destroyed mutex` in `LiGetControlStreamSilenceMs`, called from `Game.checkNetworkDrop`, right after the log line "restarting early".
+- **Root Cause:** The early restart stopped the connection from inside a watchdog tick, and the tick then armed itself again, so the next tick asked the destroyed native control stream for its silence time.
+- **Fix Applied:** The watchdog arms itself only while the stream is connected, and `checkNetworkDrop` returns at once when it is not.
+- **Verification:** The crash signature is gone in code review of the call path. Needs the Wi-Fi toggle test again on the S24.
+- **Status:** Fixed in code, device check pending.
+
+## BUG-073: The stream did not reconnect after Wi-Fi changed to mobile data
+
+- **Symptom:** With Wi-Fi switched off and mobile data on, the reconnect card kept waiting until Wi-Fi came back.
+- **Evidence:** Report from the owner on the S24 Ultra. The PC is reachable on mobile data by its VPN address only.
+- **Root Cause:** `NetworkResumer` checked one address, the local address the stream was started with, which cannot be reached over mobile data.
+- **Fix Applied:** `ResumeAddresses.candidates` lists the stream address and every other saved address of the PC, and `NetworkResumer` tries each one on every check.
+- **Verification:** `ResumeAddressesTest` covers the list. Needs the Wi-Fi to mobile data test again on the S24.
+- **Status:** Fixed in code, device check pending.
+
+## BUG-074: The stream kept the mobile data quality after Wi-Fi came back
+
+- **Symptom:** After a Wi-Fi to mobile data switch and back, the stream stayed at the low mobile quality until the owner reconnected by hand.
+- **Evidence:** Report from the owner. `Game` picks the bitrate once at stream start from `isActiveNetworkMetered()` (`meteredBitrate` or `bitrate`), and nothing restarted the stream when the network became unmetered again.
+- **Root Cause:** The bitrate belongs to the session and cannot change while it runs.
+- **Fix Applied:** `ResumePlan.shouldRestartForQuality` and `Game.restartForQualityWhenUnmetered` start the stream again through the automatic resume once an unmetered network has been up for 1.5 seconds and a probe (`session/HostProbe`, a TCP check of every saved address of the PC) shows that the PC answers over it. A stream younger than 8 seconds, equal bitrates, a stream that started on Wi-Fi, or the reconnect switch being off all mean no restart.
+- **Verification:** `ResumePlanTest` covers the rule. Needs the Wi-Fi, mobile data, Wi-Fi test on the S24.
+- **Status:** Fixed in code, device check pending.

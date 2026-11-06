@@ -4,12 +4,18 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import androidx.core.text.BidiFormatter;
+
 import com.limelight.R;
+
+import java.util.ArrayList;
+import java.util.List;
 
 // NOTE: One choice-list dialog for every Super Artemis picker: an icon header, one row per choice with its icon, and a check on the current one.
 // NOTE: Picking a row closes the dialog first and then runs the row action, so an action that opens another dialog never stacks on top of this one.
@@ -17,6 +23,29 @@ public final class ChoiceList {
     private final AlertDialog.Builder builder;
     private final Context context;
     private final LinearLayout list;
+    private final LinearLayout root;
+    private final List<View> rows = new ArrayList<>();
+    private final List<Entry> entries = new ArrayList<>();
+    private boolean searchEnabled;
+
+    // What one choice is, kept so the Find panel can list it without reading the views
+    private static final class Entry {
+        final int iconRes;
+        final CharSequence label;
+        final CharSequence subtitle;
+        final boolean checked;
+        final List<Integer> keys;
+        final Runnable onPick;
+
+        Entry(int iconRes, CharSequence label, CharSequence subtitle, boolean checked, List<Integer> keys, Runnable onPick) {
+            this.iconRes = iconRes;
+            this.label = label;
+            this.subtitle = subtitle;
+            this.checked = checked;
+            this.keys = keys;
+            this.onPick = onPick;
+        }
+    }
     private AlertDialog dialog;
 
     public ChoiceList(AlertDialog.Builder builder, int iconRes, CharSequence title, int cancelRes) {
@@ -28,8 +57,11 @@ public final class ChoiceList {
         list.setPadding(side, 0, side, side);
         ScrollView scroll = new ScrollView(context);
         scroll.addView(list);
+        root = new LinearLayout(context);
+        root.setOrientation(LinearLayout.VERTICAL);
+        root.addView(scroll, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         builder.setCustomTitle(Dialogs.header(context, iconRes, title, null))
-                .setView(scroll)
+                .setView(root)
                 .setNegativeButton(cancelRes, null);
     }
 
@@ -46,11 +78,25 @@ public final class ChoiceList {
         return add(iconRes, label, null, checked, onPick);
     }
 
-    // A choice with a short line under its label, for choices that need a hint before they are opened
+    // A choice that sends these Windows virtual keys, so the Find panel can also find it by pressing them
+    public ChoiceList add(int iconRes, CharSequence label, boolean checked, List<Integer> keys, Runnable onPick) {
+        return add(iconRes, label, null, checked, keys, onPick);
+    }
+
     public ChoiceList add(int iconRes, CharSequence label, CharSequence subtitle, boolean checked, Runnable onPick) {
+        return add(iconRes, label, subtitle, checked, null, onPick);
+    }
+
+    // A choice with a short line under its label, for choices that need a hint before they are opened
+    public ChoiceList add(int iconRes, CharSequence label, CharSequence subtitle, boolean checked, List<Integer> keys, Runnable onPick) {
         View row = LayoutInflater.from(context).inflate(R.layout.sa_choice_row, list, false);
         ((ImageView) row.findViewById(R.id.sa_choice_icon)).setImageResource(iconRes);
-        ((TextView) row.findViewById(R.id.sa_choice_label)).setText(label);
+        TextView labelView = row.findViewById(R.id.sa_choice_label);
+        // NOTE: A row whose text is in another script, such as a Hebrew language name in an English list, still lines up with every other row.
+        // NOTE: The bidi wrapper pins the paragraph to the direction of the app language, so an English app keeps every row on the left and a Hebrew app mirrors the whole list.
+        labelView.setText(BidiFormatter.getInstance().unicodeWrap(label.toString()));
+        labelView.setTextDirection(View.TEXT_DIRECTION_LOCALE);
+        labelView.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);
         TextView hint = row.findViewById(R.id.sa_choice_subtitle);
         if (subtitle != null) {
             hint.setText(subtitle);
@@ -61,8 +107,49 @@ public final class ChoiceList {
             dismiss();
             onPick.run();
         });
+        row.setTag(label);
+        rows.add(row);
+        entries.add(new Entry(iconRes, label, subtitle, checked, keys, onPick));
         list.addView(row);
         return this;
+    }
+
+    // NOTE: Adds a Search row at the top of the list that opens the Find panel with every choice, found by name or by the keys pressed.
+    // NOTE: Picking a result closes both and runs that choice. The search never happens inside this dialog, where the keyboard would squeeze the list.
+    public ChoiceList enableSearch() {
+        searchEnabled = true;
+        return this;
+    }
+
+    private void addSearchRow() {
+        android.widget.Button search = FindPanel.openButton(context, R.string.find_search_row, this::openFind);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.setMargins((int) Dialogs.dp(context, 8), (int) Dialogs.dp(context, 4), (int) Dialogs.dp(context, 8), (int) Dialogs.dp(context, 8));
+        list.addView(search, 0, params);
+    }
+
+    private void openFind() {
+        List<FindPanel.Item> found = new ArrayList<>();
+        List<Entry> source = new ArrayList<>();
+        CharSequence group = null;
+        for (int i = 0; i < list.getChildCount(); i++) {
+            View child = list.getChildAt(i);
+            int at = rows.indexOf(child);
+            if (at >= 0) {
+                Entry entry = entries.get(at);
+                found.add(new FindPanel.Item(String.valueOf(source.size()), entry.label, entry.iconRes, group != null ? group : entry.subtitle, entry.keys, entry.checked));
+                source.add(entry);
+            }
+            else if (child instanceof TextView) {
+                group = ((TextView) child).getText();
+            }
+        }
+        FindPanel.show(context, found, false, item -> {
+            Entry entry = source.get(Integer.parseInt(item.id));
+            dismiss();
+            entry.onPick.run();
+            return true;
+        });
     }
 
     public void dismiss() {
@@ -72,6 +159,9 @@ public final class ChoiceList {
     }
 
     public AlertDialog show() {
+        if (searchEnabled) {
+            addSearchRow();
+        }
         dialog = Dialogs.show(builder, Dialogs.WIDTH_STANDARD_DP);
         return dialog;
     }

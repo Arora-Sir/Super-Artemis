@@ -230,6 +230,7 @@ public class PreferenceConfiguration {
     private static final boolean DEFAULT_SHOW_OVERLAY_TOGGLE_BUTTON = false;
 
     private static final boolean DEFAULT_REMEMBER_ZOOM_PAN = false;
+    private static final boolean DEFAULT_AUTO_RESUME_NETWORK = true;
     private static final float DEFAULT_ZOOM_SCALE = 1.0f;
     private static final float DEFAULT_PAN_OFFSET = 0.0f;
     private static final boolean DEFAULT_FULL_SCREEN = true;
@@ -282,6 +283,10 @@ public class PreferenceConfiguration {
     public boolean stickyModifierKey;
     // Lets go of every key still held on the built-in keyboard when it hides
     public boolean releaseKeysOnClose;
+    // Extra F13 to F24 row on the on-screen keyboard
+    public boolean keyboardShowF13F24Row;
+    // The on-screen keyboard draws above the quick-action bars while it is open
+    public boolean keyboardOnTop;
     public boolean onlyL3R3;
     public boolean showGuideButton;
     public boolean enableHdr;
@@ -405,11 +410,13 @@ public class PreferenceConfiguration {
     public boolean preventPacketLoss;
 
     public boolean rememberZoomPan;
+    public boolean autoResumeNetwork;
     public float zoomScale;
     public float panOffsetX;
     public float panOffsetY;
 
     private static final String CHECKBOX_REMEMBER_ZOOM_PAN = "checkbox_remember_zoom_pan";
+    private static final String CHECKBOX_AUTO_RESUME_NETWORK = "checkbox_auto_resume_network";
     private static final String NUMBER_ZOOM_SCALE = "number_zoom_scale";
 
     private static final String PARALLAX_DEPTH = "parallax_depth";
@@ -1067,6 +1074,8 @@ private static int getFramePacingValue(Context context) {
         config.hideClipboardContent = prefs.getBoolean(CHECKBOX_HIDE_CLIPBOARD_CONTENT, DEFAULT_HIDE_CLIPBOARD_CONTENT);
         config.stickyModifierKey = prefs.getBoolean(CHECKBOX_ENABLE_STICKY_MODIFIER_KEY_VIRTUAL_KEYBOARD, DEFAULT_ENABLE_STICKY_MODIFIER_KEY_VIRTUAL_KEYBOARD);
         config.releaseKeysOnClose = prefs.getBoolean("checkbox_release_keys_on_close", true);
+        config.keyboardShowF13F24Row = prefs.getBoolean("keyboard_show_f13_f24_row", false);
+        config.keyboardOnTop = prefs.getBoolean("keyboard_render_on_top", true);
         config.enableAudioFx = prefs.getBoolean(ENABLE_AUDIO_FX_PREF_STRING, DEFAULT_ENABLE_AUDIO_FX);
         config.reduceRefreshRate = prefs.getBoolean(REDUCE_REFRESH_RATE_PREF_STRING, DEFAULT_REDUCE_REFRESH_RATE);
         config.fullRange = prefs.getBoolean(FULL_RANGE_PREF_STRING, DEFAULT_FULL_RANGE);
@@ -1083,6 +1092,7 @@ private static int getFramePacingValue(Context context) {
 //        config.customBitrate = prefs.getString(CUSTOM_BITRATE_PREF_STRING, null);
 
         config.rememberZoomPan = prefs.getBoolean(CHECKBOX_REMEMBER_ZOOM_PAN, DEFAULT_REMEMBER_ZOOM_PAN);
+        config.autoResumeNetwork = prefs.getBoolean(CHECKBOX_AUTO_RESUME_NETWORK, DEFAULT_AUTO_RESUME_NETWORK);
         config.zoomScale = prefs.getFloat(NUMBER_ZOOM_SCALE, DEFAULT_ZOOM_SCALE);
         config.panOffsetX = prefs.getFloat(NUMBER_PAN_OFFSET_X, DEFAULT_PAN_OFFSET);
         config.panOffsetY = prefs.getFloat(NUMBER_PAN_OFFSET_Y, DEFAULT_PAN_OFFSET);

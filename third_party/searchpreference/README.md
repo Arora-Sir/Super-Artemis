@@ -14,3 +14,4 @@ The library returns at most 10 results, ranked by a greedy fuzzy score that favo
 - The per-attribute debug logging in `PreferenceParser` is removed, since it wrote a log line for every XML attribute each time Settings opened.
 - `SearchPreferenceResult.closeSearchPage` pops the search page from the back stack. The page is added with `addToBackStack`, and only removing the fragment left one stale entry per search, so Back needed one extra press after every search result (BUG-044).
 - `AndroidManifest.xml` has no `package` attribute and `build.gradle` sets the namespace, as Android Gradle Plugin 8 requires.
+- The search field asks the keyboard not to take over the whole screen (`flagNoExtractUi` and `flagNoFullscreen`), which it did on a phone in landscape and hid the results.

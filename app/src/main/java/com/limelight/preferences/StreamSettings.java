@@ -260,23 +260,6 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
             return;
         }
         finish();
-
-        // Language changes are handled via configuration changes in Android 13+,
-        // so manual activity relaunching is no longer required.
-        PreferenceConfiguration newPrefs = PreferenceConfiguration.readPreferences(this);
-        if (!newPrefs.language.equals(previousPrefs.language)) {
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-                // Restart the PC view to apply UI changes
-                Intent intent = new Intent(this, PcView.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent, null);
-            } else {
-                if (newPrefs.language == PreferenceConfiguration.DEFAULT_LANGUAGE) {
-                    Toast.makeText(this, "Language has been reset to default, please restart the app!", Toast.LENGTH_LONG).show();
-                    System.exit(0);
-                }
-            }
-        }
     }
 
     public static class SettingsFragment extends PreferenceFragmentCompat {
@@ -485,6 +468,7 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
             setupBackupRestore();
             setupGameMenuEditor();
             setupCustomKeys();
+            setupQuickBarIdle();
             setupQuickBar();
             setupGestures();
             setupBackgroundPolicy();
@@ -1327,6 +1311,14 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
 
         // The editor holds the menu style picker with its live preview, so there is no separate style setting
         private void setupGameMenuEditor() {
+            Preference sectionOrder = findPreference("pref_menu_section_order");
+            if (sectionOrder != null) {
+                sectionOrder.setOnPreferenceClickListener(preference -> {
+                    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(requireContext());
+                    com.limelight.ui.SafeRun.run(requireContext(), preference.getKey(), () -> com.limelight.menu.MenuSectionOrderDialog.show(ThemeManager.dialogContext(requireContext()), prefs));
+                    return true;
+                });
+            }
             Preference customize = findPreference("pref_customize_game_menu");
             if (customize != null) {
                 customize.setOnPreferenceClickListener(preference -> {
@@ -1415,6 +1407,18 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
             if (quickBar != null) {
                 quickBar.setOnPreferenceClickListener(preference -> {
                     com.limelight.ui.SafeRun.run(requireContext(), preference.getKey(), () -> QuickBarEditor.show(ThemeManager.dialogContext(requireContext()), PreferenceManager.getDefaultSharedPreferences(requireContext()), null));
+                    return true;
+                });
+            }
+        }
+
+        // NOTE: The idle behavior of the quick bars has four values, so it opens its own dialog instead of a single field.
+        private void setupQuickBarIdle() {
+            Preference idle = findPreference("quick_bar_idle_behavior");
+            if (idle != null) {
+                idle.setOnPreferenceClickListener(preference -> {
+                    com.limelight.ui.SafeRun.run(requireContext(), preference.getKey(), () -> com.limelight.menu.QuickBarIdleEditor.show(
+                            ThemeManager.dialogContext(requireContext()), PreferenceManager.getDefaultSharedPreferences(requireContext()), null));
                     return true;
                 });
             }

@@ -9,7 +9,9 @@ Super Artemis is a fork of Artemis (ClassicOldSong/moonlight-android, branch `mo
 - Keep `Game.java` and `StreamSettings.java` as wiring only. New behaviour goes in its own package (`actions/`, `menu/`, `customkeys/`, `gestures/`, `session/`, `backup/`, `about/`, `theme/`).
 - Keep each upstream file's line ending style (BUGS.md, BUG-008) and change only what a feature needs.
 - Update CONTEXT.md, CHANGELOG.md (Unreleased) and, when structure or a workaround changes, ARCHITECTURE.md and BUGS.md in the same change.
+- At the start of a session read `HANDOFF.md` (local, gitignored) for the stable context, rules and release process, then `PROJECT_TRACKER.md` for the live state.
 - Keep `PROJECT_TRACKER.md` (local, gitignored) current: read it before any change, add new findings first, tick items only when verified on a device or by a passing test, and log what was done.
 - Docs use no em dashes, en dashes or double hyphens. Run `python scripts/clean_dashes.py --check` on changed docs.
 - The unit suite must show no failures beyond the five known upstream ones (BUGS.md, BUG-009).
+- Never stage or commit local diagnostic logs, device screenshots, personal media, device test backups, or local working notes (`docs/logs/`, `docs/images/`, `bugs/`, `logs/`, `*.log`, `backup.tar`, `ui.xml`, `HANDOFF.md`, `PROJECT_TRACKER.md`). Keep all local test assets strictly gitignored to guarantee zero personal data or debug noise reaches the public repository.
 - Never commit or push without showing the diff, message and branch and getting an explicit yes.

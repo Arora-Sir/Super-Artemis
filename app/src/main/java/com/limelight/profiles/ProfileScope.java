@@ -20,10 +20,12 @@ public final class ProfileScope {
     // Settings and editors that act on the whole app, whatever profile is active
     public static final Set<String> APP_WIDE = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
             "list_app_style",
+            "list_languages",
             "list_background_policy",
             "checkbox_auto_connect_last",
             "checkbox_gestures_enabled",
             "pref_customize_game_menu",
+            "pref_menu_section_order",
             "pref_custom_keys",
             "option_help_custom_keys",
             "import_keyboard_file",

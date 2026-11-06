@@ -47,6 +47,7 @@ app/.externalNativeBuild/
 
 # agent files
 AGENTS.md
+.agents/
 # Release signing keys (never commit)
 *.jks
 *.keystore
@@ -57,3 +58,26 @@ FUTURE_WORK.md
 PROJECT_TRACKER.md
 *.local.md
 .claude/
+
+# local diagnostic logs, device dumps, and traces
+*.log
+logs/
+docs/logs/
+
+# local test captures, personal device screenshots, and visual assets
+docs/images/
+docs/screenshots/
+
+# local bug dossiers and scratchpads
+bugs/
+scratch/
+temp/
+tmp/
+*.tmp
+*.bak
+
+# device test kit artifacts
+backup.tar
+ui.xml
+ui_*.xml
+inject.dex
