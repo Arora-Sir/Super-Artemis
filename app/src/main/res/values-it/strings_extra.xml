@@ -695,7 +695,11 @@ Per avvisi di aggiornamento automatici senza questo, segui invece l\'app con Obt
     <string name="title_floating_button">Pulsante menu flottante</string>
     <string name="summary_floating_button">Un piccolo pulsante sopra lo stream che apre il menu rapido, anche con il Menu indietro disattivato</string>
     <string name="dialog_custom_resolution">La nuova risoluzione viene applicata quando esci da Impostazioni.</string>
-    <string name="summary_custom_resolution">Aggiungi una risoluzione personalizzata, separata da x. Le risoluzioni insolite potrebbero non funzionare.\nAd esempio: 1920x1080\nSe non è una risoluzione nativa, per impostazione predefinita potrebbe non riempire l\'area della tacca. Se le proporzioni sono le stesse, puoi impostare manualmente l\'estensione dello schermo per riempirlo del tutto</string>
+    <string name="summary_custom_resolution">Scegli un formato e una dimensione, oppure inserisci larghezza e altezza. Una dimensione diversa dallo schermo può lasciare bande nere; la «Modalità di scala video» può allungare l\'immagine a tutto schermo.</string>
+    <string name="custom_resolution_error_empty">Inserisci larghezza e altezza</string>
+    <string name="custom_resolution_error_range">Larghezza e altezza da %1$d a %2$d</string>
+    <string name="custom_resolution_error_odd">Larghezza e altezza devono essere pari</string>
+    <string name="custom_resolution_error_decoder">Questo dispositivo non può decodificare %1$d×%2$d</string>
     <string name="title_custom_resolution">Risoluzione personalizzata</string>
     <string name="title_auto_orientation">Orientamento automatico</string>
     <string name="summary_auto_orientation">Lo schermo dello streaming viene mostrato secondo l\'orientamento del dispositivo all\'inizio dello stream.</string>

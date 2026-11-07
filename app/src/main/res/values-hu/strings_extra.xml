@@ -706,7 +706,11 @@ Automatikus frissítési értesítésekhez ennek nélkül kövesd az alkalmazás
     <string name="title_floating_button">Lebegő menügomb</string>
     <string name="summary_floating_button">Egy kis gomb a stream fölött, amely megnyitja a Gyorsmenüt, kikapcsolt Vissza menü mellett is</string>
     <string name="dialog_custom_resolution">Az új felbontás a Beállítások elhagyásakor lép érvénybe.</string>
-    <string name="summary_custom_resolution">Adj hozzá egyéni felbontást, x-szel elválasztva, a furcsa felbontások nem biztos, hogy működnek.\nPéldául: 1920x1080\nHa nem natív felbontás, alapértelmezetten nem biztos, hogy kitölti a kivágás területét. Ha az oldalarány megegyezik, kézzel beállíthatod a képernyő kitöltésére nyújtást</string>
+    <string name="summary_custom_resolution">Válassz képarányt és méretet, vagy írd be a saját szélességet és magasságot. A képernyőtől eltérő méret fekete sávokat hagyhat; a „Videó skálázási módja” a kép nyújtásával kitöltheti a képernyőt.</string>
+    <string name="custom_resolution_error_empty">Add meg a szélességet és a magasságot</string>
+    <string name="custom_resolution_error_range">Szélesség és magasság %1$d és %2$d között</string>
+    <string name="custom_resolution_error_odd">A szélességnek és a magasságnak párosnak kell lennie</string>
+    <string name="custom_resolution_error_decoder">Ez az eszköz nem tudja dekódolni: %1$d×%2$d</string>
     <string name="title_custom_resolution">Egyéni felbontás</string>
     <string name="title_auto_orientation">Automatikus tájolás</string>
     <string name="summary_auto_orientation">A streamkép az eszköz tájolásának megfelelően jelenik meg a stream indulásakor.</string>

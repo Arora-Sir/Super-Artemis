@@ -1041,7 +1041,11 @@ For automatic update alerts without this, follow the app with Obtainium instead.
     <string name="title_floating_button">Floating menu button</string>
     <string name="summary_floating_button">A small button over the stream that opens the Quick Menu, even with Back Menu off</string>
     <string name="dialog_custom_resolution">The new resolution applies when you leave Settings.</string>
-    <string name="summary_custom_resolution">Add a custom resolution, separated by x, strange resolutions may not work.\nFor example: 1920x1080\nIf it is a non-native resolution, it may not fill the notch area by default. If the aspect ratio is the same, you can manually set to stretch the screen to fill the full screen</string>
+    <string name="custom_resolution_error_empty">Enter width and height</string>
+    <string name="custom_resolution_error_range">Width and height from %1$d to %2$d</string>
+    <string name="custom_resolution_error_odd">Width and height must be even</string>
+    <string name="custom_resolution_error_decoder">This device cannot decode %1$d×%2$d</string>
+    <string name="summary_custom_resolution">Pick an aspect ratio and a size, or type your own width and height. A size that does not match the screen may leave black bars; Video Scale Mode can stretch the picture to fill the screen.</string>
     <string name="title_custom_resolution">Custom Resolution</string>
     <string name="title_auto_orientation">Auto Orientation</string>
     <string name="summary_auto_orientation">The streaming screen will be displayed according to the device\'s orientation when the stream begins.</string>

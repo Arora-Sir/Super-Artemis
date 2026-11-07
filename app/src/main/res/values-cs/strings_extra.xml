@@ -470,7 +470,11 @@
     <string name="title_floating_button">Plovoucí tlačítko nabídky</string>
     <string name="summary_floating_button">Malé tlačítko nad streamem, které otevře Rychlou nabídku, i když je Nabídka zpět vypnutá</string>
     <string name="dialog_custom_resolution">Nové rozlišení se použije po opuštění Nastavení.</string>
-    <string name="summary_custom_resolution">Přidejte vlastní rozlišení oddělené znakem x, neobvyklá rozlišení nemusí fungovat.\nNapříklad: 1920x1080\nPokud je rozlišení nenativní, nemusí ve výchozím stavu vyplnit oblast výřezu. Při stejném poměru stran můžete ručně nastavit roztažení obrazu na celou obrazovku</string>
+    <string name="summary_custom_resolution">Vyberte poměr stran a velikost, nebo zadejte vlastní šířku a výšku. Velikost, která neodpovídá obrazovce, může zanechat černé pruhy; „Režim měřítka videa“ může obraz roztáhnout přes celou obrazovku.</string>
+    <string name="custom_resolution_error_empty">Zadejte šířku a výšku</string>
+    <string name="custom_resolution_error_range">Šířka a výška od %1$d do %2$d</string>
+    <string name="custom_resolution_error_odd">Šířka a výška musí být sudé</string>
+    <string name="custom_resolution_error_decoder">Toto zařízení nedokáže dekódovat %1$d×%2$d</string>
     <string name="title_custom_resolution">Vlastní rozlišení</string>
     <string name="title_auto_orientation">Automatická orientace</string>
     <string name="summary_auto_orientation">Obraz streamu se při jeho spuštění zobrazí podle orientace zařízení.</string>

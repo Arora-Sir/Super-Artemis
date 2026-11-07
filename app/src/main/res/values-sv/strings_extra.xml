@@ -670,7 +670,11 @@ För automatiska uppdateringsaviseringar utan detta kan du följa appen med Obta
     <string name="title_floating_button">Flytande menyknapp</string>
     <string name="summary_floating_button">En liten knapp över strömmen som öppnar snabbmenyn, även när Bakåtmeny är avstängd</string>
     <string name="dialog_custom_resolution">Den nya upplösningen gäller när du lämnar Inställningar.</string>
-    <string name="summary_custom_resolution">Lägg till en egen upplösning, separerad med x. Ovanliga upplösningar kanske inte fungerar.\nTill exempel: 1920x1080\nOm det är en icke-ursprunglig upplösning fyller den kanske inte hack-området som standard. Om bildformatet är detsamma kan du ställa in sträckning manuellt för att fylla hela skärmen</string>
+    <string name="summary_custom_resolution">Välj ett bildförhållande och en storlek, eller skriv in egen bredd och höjd. En storlek som inte passar skärmen kan ge svarta fält; ”Videoskalningsläge” kan sträcka bilden över hela skärmen.</string>
+    <string name="custom_resolution_error_empty">Ange bredd och höjd</string>
+    <string name="custom_resolution_error_range">Bredd och höjd från %1$d till %2$d</string>
+    <string name="custom_resolution_error_odd">Bredd och höjd måste vara jämna</string>
+    <string name="custom_resolution_error_decoder">Den här enheten kan inte avkoda %1$d×%2$d</string>
     <string name="title_custom_resolution">Egen upplösning</string>
     <string name="title_auto_orientation">Automatisk orientering</string>
     <string name="summary_auto_orientation">Strömmen visas efter enhetens orientering när strömmen startar.</string>

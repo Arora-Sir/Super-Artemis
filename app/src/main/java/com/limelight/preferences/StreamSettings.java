@@ -1032,44 +1032,13 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
                 });
             }
 
-            EditTextPreference resolutionEditPref = findPreference(PreferenceConfiguration.CUSTOM_RESOLUTION_PREF_STRING);
+            // The Custom Resolution dialog validates the size itself (CustomResolutionPreference); a saved size reloads the
+            // settings so the picker lists it in its Custom section
+            Preference resolutionEditPref = findPreference(PreferenceConfiguration.CUSTOM_RESOLUTION_PREF_STRING);
             if (resolutionEditPref != null) {
-                resolutionEditPref.setOnBindEditTextListener((EditText editText) -> {
-                    editText.setInputType(InputType.TYPE_CLASS_TEXT);
-                    editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(11)});
-                });
-
                 resolutionEditPref.setOnPreferenceChangeListener((preference, newValue) -> {
-                    String value = (String) newValue;
-                    if (TextUtils.isEmpty(value)) {
-                        Toast.makeText(getActivity(), getString(R.string.pref_enter_value_0_9999), Toast.LENGTH_SHORT).show();
-                        return false;
-                    }
-
-                    // Verify format: [width]x[height]
-                    String[] resolutionSegments = value.split("x");
-                    if (resolutionSegments.length != 2) {
-                        Toast.makeText(getActivity(), getString(R.string.pref_error_occurred), Toast.LENGTH_SHORT).show();
-                        return false;
-                    }
-
-                    try {
-                        int width = Integer.parseInt(resolutionSegments[0]);
-                        int height = Integer.parseInt(resolutionSegments[1]);
-                        
-                        if (width <= 0 || height <= 0) {
-                            Toast.makeText(getActivity(), getString(R.string.pref_error_occurred), Toast.LENGTH_SHORT).show();
-                            return false;
-                        }
-
-                        // Save the value and reload settings
-                        editAndReload(PreferenceConfiguration.CUSTOM_RESOLUTION_PREF_STRING, value);
-
-                        return true;
-                    } catch (NumberFormatException e) {
-                        Toast.makeText(getActivity(), getString(R.string.pref_error_occurred), Toast.LENGTH_SHORT).show();
-                        return false;
-                    }
+                    editAndReload(PreferenceConfiguration.CUSTOM_RESOLUTION_PREF_STRING, (String) newValue);
+                    return true;
                 });
             }
 

@@ -481,7 +481,11 @@
     <string name="title_floating_button">フローティングメニューボタン</string>
     <string name="summary_floating_button">ストリームの上に表示される小さなボタンで、戻るメニューがオフでもクイックメニューを開けます</string>
     <string name="dialog_custom_resolution">新しい解像度は、設定を閉じたときに適用されます。</string>
-    <string name="summary_custom_resolution">カスタム解像度をxで区切って追加します。変わった解像度は動作しない場合があります。\n例: 1920x1080\nネイティブ以外の解像度では、デフォルトでノッチ領域を埋めない場合があります。アスペクト比が同じなら、画面をストレッチして全画面を埋めるよう手動で設定できます</string>
+    <string name="summary_custom_resolution">アスペクト比とサイズを選ぶか、幅と高さを入力してください。画面と一致しないサイズでは黒い帯が出ることがあります。「映像のスケールモード」で画面いっぱいに引き伸ばせます。</string>
+    <string name="custom_resolution_error_empty">幅と高さを入力してください</string>
+    <string name="custom_resolution_error_range">幅と高さは %1$d〜%2$d</string>
+    <string name="custom_resolution_error_odd">幅と高さは偶数にしてください</string>
+    <string name="custom_resolution_error_decoder">この端末は %1$d×%2$d をデコードできません</string>
     <string name="title_custom_resolution">カスタム解像度</string>
     <string name="title_auto_orientation">自動向き</string>
     <string name="summary_auto_orientation">ストリーム開始時の端末の向きに合わせて、ストリーミング画面が表示されます。</string>

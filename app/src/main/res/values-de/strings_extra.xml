@@ -653,7 +653,11 @@ Für automatische Update-Benachrichtigungen ohne dies verfolge die App stattdess
     <string name="title_floating_button">Schwebende Menü-Schaltfläche</string>
     <string name="summary_floating_button">Eine kleine Schaltfläche über dem Stream, die das Schnellmenü öffnet, auch bei ausgeschaltetem Zurück-Menü</string>
     <string name="dialog_custom_resolution">Die neue Auflösung wird übernommen, wenn du die Einstellungen verlässt.</string>
-    <string name="summary_custom_resolution">Füge eine benutzerdefinierte Auflösung hinzu, getrennt durch x. Ungewöhnliche Auflösungen funktionieren eventuell nicht.\nZum Beispiel: 1920x1080\nBei einer nicht nativen Auflösung füllt sie den Notch-Bereich standardmäßig möglicherweise nicht aus. Bei gleichem Seitenverhältnis kannst du manuell festlegen, dass das Bild gestreckt wird, um den gesamten Bildschirm zu füllen</string>
+    <string name="summary_custom_resolution">Wähle ein Seitenverhältnis und eine Größe oder gib eigene Breite und Höhe ein. Eine Größe, die nicht zum Bildschirm passt, kann schwarze Balken hinterlassen; „Videoskalierung“ kann das Bild auf den ganzen Bildschirm strecken.</string>
+    <string name="custom_resolution_error_empty">Breite und Höhe eingeben</string>
+    <string name="custom_resolution_error_range">Breite und Höhe von %1$d bis %2$d</string>
+    <string name="custom_resolution_error_odd">Breite und Höhe müssen gerade sein</string>
+    <string name="custom_resolution_error_decoder">Dieses Gerät kann %1$d×%2$d nicht dekodieren</string>
     <string name="title_custom_resolution">Benutzerdefinierte Auflösung</string>
     <string name="title_auto_orientation">Automatische Ausrichtung</string>
     <string name="summary_auto_orientation">Der Streaming-Bildschirm wird beim Start des Streams entsprechend der Ausrichtung des Geräts angezeigt.</string>

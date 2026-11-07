@@ -422,7 +422,11 @@
     <string name="summary_quit_dialog">Khi bật, nhấn nút quay lại vật lý khi đang stream sẽ hiển thị các tùy chọn liên quan!\nBàn phím ảo, thông tin hiệu suất, chuyển đổi chế độ cảm ứng, gửi phím đặc biệt</string>
 
     <string name="dialog_custom_resolution">Đặt độ phân giải và thoát khỏi trang cài đặt để áp dụng!</string>
-    <string name="summary_custom_resolution">Thêm độ phân giải tùy chỉnh, phân tách bằng dấu x, độ phân giải lạ có thể không hoạt động.\nVí dụ: 1920x1080\nNếu là độ phân giải không gốc, có thể sẽ không hiển thị toàn màn hình. Nếu tỷ lệ khung hình giống nhau, bạn có thể chọn kéo giãn để hiển thị toàn màn hình</string>
+    <string name="summary_custom_resolution">Chọn tỷ lệ khung hình và kích thước, hoặc nhập chiều rộng và chiều cao của riêng bạn. Kích thước không khớp với màn hình có thể để lại viền đen; Chế độ tỷ lệ video có thể kéo giãn hình ảnh để lấp đầy màn hình.</string>
+    <string name="custom_resolution_error_empty">Nhập chiều rộng và chiều cao</string>
+    <string name="custom_resolution_error_range">Chiều rộng và chiều cao từ %1$d đến %2$d</string>
+    <string name="custom_resolution_error_odd">Chiều rộng và chiều cao phải là số chẵn</string>
+    <string name="custom_resolution_error_decoder">Thiết bị này không thể giải mã %1$d×%2$d</string>
     <string name="title_custom_resolution">Độ phân giải tùy chỉnh</string>
 
     <string name="title_auto_orientation">Tự động xoay màn hình</string>

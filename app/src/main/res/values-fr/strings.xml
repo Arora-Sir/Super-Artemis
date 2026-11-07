@@ -401,7 +401,11 @@
     <string name="title_quit_dialog">Menu retour</string>
     <string name="summary_quit_dialog">Lorsqu\'il est activé, cliquer sur le bouton retour physique de l\'interface de streaming affichera les options associées !\nClavier logiciel, informations de performance, basculement du mode tactile, envoi de touches spéciales</string>
     <string name="dialog_custom_resolution">Définissez la résolution et quittez la page des paramètres pour prendre effet !</string>
-    <string name="summary_custom_resolution">Ajoutez une résolution personnalisée, séparée par x, les résolutions étranges peuvent ne pas fonctionner.\nPar exemple : 1920x1080\nSi ce n\'est pas une résolution native, elle peut ne pas remplir la zone d\'encoche par défaut. Si l\'aspect ratio est le même, vous pouvez ajuster manuellement les paramètres pour étirer l\'écran afin de remplir tout l\'écran</string>
+    <string name="summary_custom_resolution">Choisissez un format et une taille, ou saisissez votre propre largeur et hauteur. Une taille différente de l\'écran peut laisser des bandes noires ; le Mode d\'échelle vidéo peut étirer l\'image pour remplir l\'écran.</string>
+    <string name="custom_resolution_error_empty">Saisissez la largeur et la hauteur</string>
+    <string name="custom_resolution_error_range">Largeur et hauteur de %1$d à %2$d</string>
+    <string name="custom_resolution_error_odd">La largeur et la hauteur doivent être paires</string>
+    <string name="custom_resolution_error_decoder">Cet appareil ne peut pas décoder %1$d×%2$d</string>
     <string name="title_custom_resolution">Résolution personnalisée</string>
     <string name="title_auto_orientation">Orientation automatique</string>
     <string name="summary_auto_orientation">L\'écran de streaming sera affiché selon l\'orientation de l\'appareil lorsque le streaming commence.</string>

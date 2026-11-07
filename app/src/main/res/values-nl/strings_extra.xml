@@ -752,7 +752,11 @@ Volg de app met Obtainium voor automatische updatemeldingen zonder dit.</string>
     <string name="title_floating_button">Zwevende menuknop</string>
     <string name="summary_floating_button">Een kleine knop boven de stream die het Snelmenu opent, ook als het Terugmenu uit staat</string>
     <string name="dialog_custom_resolution">De nieuwe resolutie wordt toegepast als je Instellingen verlaat.</string>
-    <string name="summary_custom_resolution">Voeg een aangepaste resolutie toe, gescheiden door x. Vreemde resoluties werken mogelijk niet.\nBijvoorbeeld: 1920x1080\nBij een niet-native resolutie vult het beeld standaard mogelijk het notchgebied niet. Is de beeldverhouding gelijk, dan kun je handmatig instellen dat het beeld wordt uitgerekt om het hele scherm te vullen</string>
+    <string name="summary_custom_resolution">Kies een beeldverhouding en een formaat, of typ je eigen breedte en hoogte. Een formaat dat niet bij het scherm past, kan zwarte balken geven; „Videoschaalmodus” kan het beeld uitrekken tot het hele scherm.</string>
+    <string name="custom_resolution_error_empty">Voer breedte en hoogte in</string>
+    <string name="custom_resolution_error_range">Breedte en hoogte van %1$d tot %2$d</string>
+    <string name="custom_resolution_error_odd">Breedte en hoogte moeten even zijn</string>
+    <string name="custom_resolution_error_decoder">Dit apparaat kan %1$d×%2$d niet decoderen</string>
     <string name="title_custom_resolution">Aangepaste resolutie</string>
     <string name="title_auto_orientation">Automatische oriëntatie</string>
     <string name="summary_auto_orientation">Het streamscherm wordt weergegeven volgens de oriëntatie van het apparaat als de stream begint.</string>

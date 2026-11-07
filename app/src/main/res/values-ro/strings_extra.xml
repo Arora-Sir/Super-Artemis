@@ -758,7 +758,11 @@ Pentru alerte automate de actualizare fără aceasta, urmărește aplicația cu 
     <string name="title_floating_button">Buton plutitor de meniu</string>
     <string name="summary_floating_button">Un buton mic peste transmisie care deschide Meniul rapid, chiar și cu Meniul Înapoi oprit</string>
     <string name="dialog_custom_resolution">Noua rezoluție se aplică la ieșirea din Setări.</string>
-    <string name="summary_custom_resolution">Adaugă o rezoluție personalizată, separată prin x, rezoluțiile ciudate pot să nu funcționeze.\nDe exemplu: 1920x1080\nDacă nu este o rezoluție nativă, este posibil să nu umple implicit zona decupajului. Dacă raportul de aspect este același, poți seta manual întinderea ecranului pentru a umple tot ecranul</string>
+    <string name="summary_custom_resolution">Alege un raport de aspect și o dimensiune sau introdu propria lățime și înălțime. O dimensiune care nu se potrivește ecranului poate lăsa benzi negre; „Mod de scalare video” poate întinde imaginea pe tot ecranul.</string>
+    <string name="custom_resolution_error_empty">Introdu lățimea și înălțimea</string>
+    <string name="custom_resolution_error_range">Lățime și înălțime de la %1$d la %2$d</string>
+    <string name="custom_resolution_error_odd">Lățimea și înălțimea trebuie să fie pare</string>
+    <string name="custom_resolution_error_decoder">Acest dispozitiv nu poate decoda %1$d×%2$d</string>
     <string name="title_custom_resolution">Rezoluție personalizată</string>
     <string name="title_auto_orientation">Orientare automată</string>
     <string name="summary_auto_orientation">Ecranul transmisiei va fi afișat conform orientării dispozitivului la începutul transmisiei.</string>

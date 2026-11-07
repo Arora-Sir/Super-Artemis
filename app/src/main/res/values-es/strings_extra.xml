@@ -663,7 +663,11 @@ Para recibir alertas de actualización automáticas sin esto, sigue la app con O
     <string name="title_floating_button">Botón de menú flotante</string>
     <string name="summary_floating_button">Un botón pequeño sobre la transmisión que abre el Menú rápido, incluso con el Menú Atrás desactivado</string>
     <string name="dialog_custom_resolution">La nueva resolución se aplica al salir de Ajustes.</string>
-    <string name="summary_custom_resolution">Añade una resolución personalizada separada por x, las resoluciones raras pueden no funcionar.\nPor ejemplo: 1920x1080\nSi no es una resolución nativa, puede que por defecto no llene la zona del notch. Si la relación de aspecto es la misma, puedes configurar manualmente que se estire para llenar toda la pantalla</string>
+    <string name="summary_custom_resolution">Elige una relación de aspecto y un tamaño, o escribe tu propio ancho y alto. Un tamaño que no coincide con la pantalla puede dejar franjas negras; el «Modo de escala de vídeo» puede estirar la imagen para llenar la pantalla.</string>
+    <string name="custom_resolution_error_empty">Escribe el ancho y el alto</string>
+    <string name="custom_resolution_error_range">Ancho y alto de %1$d a %2$d</string>
+    <string name="custom_resolution_error_odd">El ancho y el alto deben ser pares</string>
+    <string name="custom_resolution_error_decoder">Este dispositivo no puede decodificar %1$d×%2$d</string>
     <string name="title_custom_resolution">Resolución personalizada</string>
     <string name="title_auto_orientation">Orientación automática</string>
     <string name="summary_auto_orientation">La pantalla de transmisión se mostrará según la orientación del dispositivo cuando empiece la transmisión.</string>
