@@ -6,6 +6,8 @@ All notable changes to Super Artemis are listed here. The format follows [Keep a
 
 ### Added
 
+- The Custom Resolution setting opens a structured dialog with five aspect ratio buttons (Native, 16:9, 16:10, 21:9, 4:3), numeric width and height fields with minus and plus stepping buttons, a labelled resolution stops bar, and real-time decoder capability validation across 22 supported locales.
+- The slider bar in settings dialogs features 16 dp side insets so the thumb aligns with the dialog text indent and action button edges at minimum and maximum values.
 - Every slider dialog in Settings has a minus button, a number field and a plus button above the slider. Long pressing either button accelerates value stepping with haptic feedback.
 - The video bitrate and metered bitrate sliders use a calibrated power curve that places the 35 to 40 Mbps streaming sweet spot at the 50 percent center mark. Stepping supports 0.5 Mbps decimal precision below 50 Mbps.
 - The video resolution picker organizes display modes into three distinct sections: Standard Resolutions (360p through 4K with 16:9 subtitles), Native Display (Full-Screen and Cutout safe area with aspect ratio subtitles), and Custom Resolution at the bottom with clean section dividers.

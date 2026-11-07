@@ -266,4 +266,9 @@
     <string name="title_checkbox_auto_resume_network">Voltar a ligar automaticamente</string>
     <string name="summary_checkbox_auto_resume_network">Quando uma quebra de rede ultrapassa o período de tolerância, aguarda que a rede regresse e reinicia a transmissão automaticamente.</string>
     <string name="keywords_auto_resume_network">ligar, retomar, wifi, wi-fi, quebra de rede, ligação perdida, automático, reiniciar</string>
+    <string name="summary_custom_resolution">Escolha um formato e um tamanho, ou introduza a sua própria largura e altura. Um tamanho que não corresponda ao ecrã pode deixar barras pretas. O Modo de Escala de Vídeo pode esticar a imagem para preencher o ecrã.</string>
+    <string name="custom_resolution_error_empty">Introduza a largura e a altura</string>
+    <string name="custom_resolution_error_range">Largura e altura entre %1$d e %2$d</string>
+    <string name="custom_resolution_error_odd">A largura e a altura devem ser números pares</string>
+    <string name="custom_resolution_error_decoder">Este dispositivo não suporta descodificar %1$d×%2$d</string>
 </resources>

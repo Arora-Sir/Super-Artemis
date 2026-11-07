@@ -100,6 +100,10 @@ def find_node(nodes: list[dict], **kwargs) -> dict | None:
                 if v.lower() not in n["content-desc"].lower():
                     match = False
                     break
+            elif k == "id_contains":
+                if v.lower() not in n["resource-id"].lower():
+                    match = False
+                    break
             elif n.get(k) != v:
                 match = False
                 break
@@ -133,7 +137,7 @@ def find_apk_for_abi(abi: str) -> Path | None:
 
 def check_logcat_crashes(serial: str, since_time: str) -> list[str]:
     """Inspect logcat for fatal exceptions or ANRs."""
-    logs = run_adb(serial, "logcat", "-d", "-t", since_time, "*:E", check=False)
+    logs = run_adb(serial, "logcat", "-d", "-t", "200", "*:E", check=False)
     crash_lines = []
     for line in logs.splitlines():
         if "FATAL EXCEPTION" in line or "AndroidRuntime" in line:
@@ -182,19 +186,22 @@ def run_regression(serial: str) -> int:
         run_adb(serial, "shell", "input", "tap", str(add_pc_btn["center"][0]), str(add_pc_btn["center"][1]))
         time.sleep(1)
         capture_screenshot(serial, "02_add_host_dialog")
+        # Send BACK twice: once for soft keyboard, once to dismiss dialog
+        run_adb(serial, "shell", "input", "keyevent", "KEYCODE_BACK")
+        time.sleep(0.5)
         run_adb(serial, "shell", "input", "keyevent", "KEYCODE_BACK")
         time.sleep(1)
 
     # 4. Open Settings
     print("\n--- Test Phase 2: Stream Settings and Quick Setups ---")
     nodes = dump_ui_nodes(serial)
-    settings_btn = find_node(nodes, desc_contains="Settings") or find_node(nodes, desc_contains="Preferences")
-    if not settings_btn:
-        # Fallback to known top-right action bar coords
-        settings_x = 900 if int(sdk) < 30 else 980
-        run_adb(serial, "shell", "input", "tap", str(settings_x), "150")
-    else:
+    settings_btn = find_node(nodes, id_contains="settingsButton") or find_node(nodes, desc_contains="Settings")
+    if settings_btn and settings_btn["center"]:
+        print(f"Found Settings button at {settings_btn['center']}. Opening Settings...")
         run_adb(serial, "shell", "input", "tap", str(settings_btn["center"][0]), str(settings_btn["center"][1]))
+    else:
+        print("Tapping fallback settings coordinates...")
+        run_adb(serial, "shell", "input", "tap", "980", "150")
     time.sleep(2)
     capture_screenshot(serial, "03_settings_top")
 
@@ -219,8 +226,90 @@ def run_regression(serial: str) -> int:
         if everyday_node and everyday_node["center"]:
             run_adb(serial, "shell", "input", "tap", str(everyday_node["center"][0]), str(everyday_node["center"][1]))
             time.sleep(1)
+        # Dismiss Quick setups dialog
+        run_adb(serial, "shell", "input", "keyevent", "KEYCODE_BACK")
+        time.sleep(1)
     else:
         print("Warning: Quick setups card not found on screen.")
+
+    # Locate Video Resolution row
+    print("\n--- Test Phase 2b: Sectioned Video Resolution Picker ---")
+    nodes = dump_ui_nodes(serial)
+    res_row = find_node(nodes, text_contains="Video resolution")
+    if res_row and res_row["center"]:
+        print(f"Tapping Video resolution row at {res_row['center']}...")
+        run_adb(serial, "shell", "input", "tap", str(res_row["center"][0]), str(res_row["center"][1]))
+        time.sleep(1)
+        capture_screenshot(serial, "04b_resolution_picker_dialog")
+        dialog_nodes = dump_ui_nodes(serial)
+        has_std = find_node(dialog_nodes, text_contains="Standard Resolutions")
+        has_native = find_node(dialog_nodes, text_contains="Native Display")
+        has_custom = find_node(dialog_nodes, text_contains="Custom Resolution")
+        print(f"  Section 'Standard Resolutions': {'PASS' if has_std else 'FAIL'}")
+        print(f"  Section 'Native Display': {'PASS' if has_native else 'FAIL'}")
+        print(f"  Section 'Custom Resolution': {'PASS' if has_custom else 'FAIL'}")
+        run_adb(serial, "shell", "input", "keyevent", "KEYCODE_BACK")
+        time.sleep(1)
+    else:
+        print("Warning: Video resolution preference row not found.")
+
+    # Locate Video Bitrate row
+    print("\n--- Test Phase 2c: Stepper Video Bitrate Dialog ---")
+    nodes = dump_ui_nodes(serial)
+    bitrate_row = None
+    for n in nodes:
+        if "video bitrate:" in n["text"].lower() or ("video bitrate" in n["text"].lower() and "metered" not in n["text"].lower()):
+            bitrate_row = n
+            break
+    if bitrate_row and bitrate_row["center"]:
+        print(f"Tapping Video bitrate row at {bitrate_row['center']}...")
+        run_adb(serial, "shell", "input", "tap", str(bitrate_row["center"][0]), str(bitrate_row["center"][1]))
+        time.sleep(1)
+        capture_screenshot(serial, "04c_bitrate_stepper_dialog")
+        dialog_nodes = dump_ui_nodes(serial)
+        has_mbps = any("mbps" in n["text"].lower() for n in dialog_nodes)
+        print(f"  Bitrate unit verification: {'PASS' if has_mbps else 'FAIL'}")
+        run_adb(serial, "shell", "input", "keyevent", "KEYCODE_BACK")
+        time.sleep(1)
+    else:
+        print("Warning: Video bitrate preference row not found.")
+
+    # Expand "Show more" if present under Video settings to expose advanced options
+    nodes = dump_ui_nodes(serial)
+    show_more = find_node(nodes, text_contains="Show more")
+    if show_more and show_more["center"]:
+        print(f"Expanding 'Show more' at {show_more['center']}...")
+        run_adb(serial, "shell", "input", "tap", str(show_more["center"][0]), str(show_more["center"][1]))
+        time.sleep(1)
+
+    # Locate Custom resolution row
+    print("\n--- Test Phase 2d: Custom Resolution Dialog & Aspect Ratio Picker ---")
+    custom_res_row = None
+    for _ in range(3):
+        run_adb(serial, "shell", "input", "swipe", "500", "1600", "500", "600", "300")
+        time.sleep(1)
+        nodes = dump_ui_nodes(serial)
+        for n in nodes:
+            if n["text"] == "Custom Resolution" or n["text"] == "Custom resolution":
+                custom_res_row = n
+                break
+        if custom_res_row:
+            break
+
+    if custom_res_row and custom_res_row["center"]:
+        print(f"Tapping Custom Resolution row at {custom_res_row['center']}...")
+        run_adb(serial, "shell", "input", "tap", str(custom_res_row["center"][0]), str(custom_res_row["center"][1]))
+        time.sleep(1)
+        capture_screenshot(serial, "04d_custom_resolution_dialog")
+        dialog_nodes = dump_ui_nodes(serial)
+        has_ratio = any("16:9" in n["text"] or "Native" in n["text"] for n in dialog_nodes)
+        has_ok = any(n["text"] == "OK" for n in dialog_nodes)
+        print(f"  Aspect ratio buttons presence: {'PASS' if has_ratio else 'FAIL'}")
+        print(f"  OK Button presence: {'PASS' if has_ok else 'FAIL'}")
+        run_adb(serial, "shell", "input", "keyevent", "KEYCODE_BACK")
+        time.sleep(1)
+    else:
+        print("Warning: Custom Resolution row not found.")
 
     # 5. Host Settings and Lock Key Guidance
     print("\n--- Test Phase 3: Host Settings and Lock Key Guidance ---")
@@ -243,6 +332,29 @@ def run_regression(serial: str) -> int:
         time.sleep(1)
     else:
         print("Warning: Lock key guidance row not found.")
+
+    # Locate Rumble update interval row
+    print("\n--- Test Phase 3b: Controller Rumble Rate Limiting ---")
+    nodes = dump_ui_nodes(serial)
+    rumble_row = find_node(nodes, text_contains="Rumble update interval")
+    if not rumble_row:
+        run_adb(serial, "shell", "input", "swipe", "500", "1500", "500", "700", "300")
+        time.sleep(1)
+        nodes = dump_ui_nodes(serial)
+        rumble_row = find_node(nodes, text_contains="Rumble update interval")
+
+    if rumble_row and rumble_row["center"]:
+        print(f"Tapping Rumble update interval at {rumble_row['center']}...")
+        run_adb(serial, "shell", "input", "tap", str(rumble_row["center"][0]), str(rumble_row["center"][1]))
+        time.sleep(1)
+        capture_screenshot(serial, "06b_rumble_throttle_dialog")
+        dialog_nodes = dump_ui_nodes(serial)
+        has_ms = any("ms" in n["text"].lower() for n in dialog_nodes)
+        print(f"  Rumble interval unit verification: {'PASS' if has_ms else 'FAIL'}")
+        run_adb(serial, "shell", "input", "keyevent", "KEYCODE_BACK")
+        time.sleep(1)
+    else:
+        print("Warning: Rumble update interval preference row not found.")
 
     # 6. Appearance, App Style, and Surface Lift
     print("\n--- Test Phase 4: App Style Picker and Surface Lift ---")
