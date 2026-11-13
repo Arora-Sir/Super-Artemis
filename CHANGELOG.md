@@ -6,6 +6,8 @@ All notable changes to Super Artemis are listed here. The format follows [Keep a
 
 ### Added
 
+- A profile can be marked as the start for new profiles (Copy profile menu, Use as the start for new profiles). A new profile then starts from the current settings with that profile's options laid over them, and existing profiles never change. The marked profile shows a star after its name, and deleting it clears the mark (issue 5). The Copy profile menu is the app's own choice list now, so it has its own surface in Pure black instead of merging with the screen.
+
 - The Custom Resolution setting opens a structured dialog with five aspect ratio buttons (Native, 16:9, 16:10, 21:9, 4:3), numeric width and height fields with minus and plus stepping buttons, a labelled resolution stops bar, and real-time decoder capability validation across 22 supported locales.
 - The slider bar in settings dialogs features 16 dp side insets so the thumb aligns with the dialog text indent and action button edges at minimum and maximum values.
 - Every slider dialog in Settings has a minus button, a number field and a plus button above the slider. Long pressing either button accelerates value stepping with haptic feedback.
@@ -20,8 +22,26 @@ All notable changes to Super Artemis are listed here. The format follows [Keep a
 
 ### Changed
 
+- The Quick bar style, the Hide quick bars when idle dialog and the Quick Menu section order no longer have their own Settings rows, because each is part of an editor that is also reachable from the stream. The Quick-action bars editor holds the style buttons and an Hide quick bars when idle button, and the In-stream menu editor holds the section order. Settings search still finds all three through the rows of those editors.
+- The Tap to expand style is drawn in the bars editor preview as its small handle, like in the stream. A tap on the handle of the selected bar opens or closes it in the preview, and a tap on another bar selects it.
+- The Video resolution picker always has a Custom resolution row at the end that opens the custom size dialog, so that setting is no longer hidden in a collapsed group.
+
+- The standard resolutions in the Video resolution picker are equal-size cells in an even grid (six become 3 by 2, styled like the segmented buttons, the chosen one filled), with the shared ratio in the heading (Standard Resolutions (16:9)), so the picker is much shorter on a phone. Native display and custom sizes keep their rows.
+- The custom accent color picker replaces the app style dialog instead of opening on top of it, and the app style dialog comes back with the choice, or unchanged when the picker is cancelled.
+
 - The Settings list shows the active value inline in the title for Resolution, Frame rate, and Bitrate settings, keeping descriptive text full-width underneath.
 - Preference titles wrap cleanly across up to two lines on compact phone displays to prevent truncation of active values.
+
+### Fixed
+
+- Fixed the Stream closed reconnect dialog being wider than the screen, with its message and buttons cut off, when the app opened in portrait right after a landscape stream. Dialogs now take the width from the window manager at show time and fit it again once the screen has settled.
+- Fixed the quick bars dimming or hiding while a finger was on the stream, for example during a scroll or a long press. The idle time now starts when the last finger lifts.
+- Fixed the hard white lines across the Quick-action bars editor on a tablet. The two panes fade out softly at their edges instead.
+
+- Fixed the 1080p entry disappearing from the Video resolution picker when the saved custom resolution was also 1920 by 1080.
+- Fixed the Copy profile menu running past the edge of the screen on a phone and blending into the black background in Pure black.
+
+- Fixed long titles of Settings rows with a switch being cut off with dots on a phone in portrait. A title now wraps to a second line before it is cut.
 
 ## [1.1.0] - 2026-11-06
 

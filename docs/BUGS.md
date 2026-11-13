@@ -557,7 +557,7 @@ The test JVM ran with Gradle's default 512 MB heap. Robolectric with this many l
 - **Root Cause:** The silent stream was only restarted by the grace period timer, so a network that came back early changed nothing.
 - **Fix Applied:** `ResumePlan.shouldRestartEarly` restarts the stream when the network has been back for 3 seconds, or after 10 seconds of silence when no drop was seen. `Game.restartEarlyWhenNetworkIsBack` applies it and hands over to the automatic resume.
 - **Verification:** `ResumePlanTest` covers the rule. Not yet checked with a real Wi-Fi toggle during a stream.
-- **Status:** Fixed in code, device check pending.
+- **Status:** Fixed. The owner saw the stream reconnect at once after a Wi-Fi drop on the S24 Ultra (2026-11-05).
 
 ## BUG-071: A symbol key showed two characters in the Find panel
 
@@ -566,7 +566,7 @@ The test JVM ran with Gradle's default 512 MB heap. Robolectric with this many l
 - **Root Cause:** The pressed bar used the layout label of the key button, which names the shifted and unshifted symbol together.
 - **Fix Applied:** `FindPanel.symbolName` gives each symbol key one name by its virtual key code.
 - **Verification:** `FindPanelTest.everySymbolKeyHasOneCleanName`. Not yet checked on a device.
-- **Status:** Fixed in code, device check pending.
+- **Status:** Fixed. The owner pressed the symbol keys in the Find panel and each shows one character (2026-11-05).
 
 ## BUG-072: The app aborted after an early restart on a network drop
 
@@ -575,7 +575,7 @@ The test JVM ran with Gradle's default 512 MB heap. Robolectric with this many l
 - **Root Cause:** The early restart stopped the connection from inside a watchdog tick, and the tick then armed itself again, so the next tick asked the destroyed native control stream for its silence time.
 - **Fix Applied:** The watchdog arms itself only while the stream is connected, and `checkNetworkDrop` returns at once when it is not.
 - **Verification:** The crash signature is gone in code review of the call path. Needs the Wi-Fi toggle test again on the S24.
-- **Status:** Fixed in code, device check pending.
+- **Status:** Fixed. The owner repeated the Wi-Fi toggle test on the S24 Ultra and the app no longer aborts (2026-11-05).
 
 ## BUG-073: The stream did not reconnect after Wi-Fi changed to mobile data
 
@@ -584,7 +584,7 @@ The test JVM ran with Gradle's default 512 MB heap. Robolectric with this many l
 - **Root Cause:** `NetworkResumer` checked one address, the local address the stream was started with, which cannot be reached over mobile data.
 - **Fix Applied:** `ResumeAddresses.candidates` lists the stream address and every other saved address of the PC, and `NetworkResumer` tries each one on every check.
 - **Verification:** `ResumeAddressesTest` covers the list. Needs the Wi-Fi to mobile data test again on the S24.
-- **Status:** Fixed in code, device check pending.
+- **Status:** Fixed. The owner switched from Wi-Fi to mobile data and the stream reconnected by itself (2026-11-05).
 
 ## BUG-074: The stream kept the mobile data quality after Wi-Fi came back
 
@@ -593,4 +593,22 @@ The test JVM ran with Gradle's default 512 MB heap. Robolectric with this many l
 - **Root Cause:** The bitrate belongs to the session and cannot change while it runs.
 - **Fix Applied:** `ResumePlan.shouldRestartForQuality` and `Game.restartForQualityWhenUnmetered` start the stream again through the automatic resume once an unmetered network has been up for 1.5 seconds and a probe (`session/HostProbe`, a TCP check of every saved address of the PC) shows that the PC answers over it. A stream younger than 8 seconds, equal bitrates, a stream that started on Wi-Fi, or the reconnect switch being off all mean no restart.
 - **Verification:** `ResumePlanTest` covers the rule. Needs the Wi-Fi, mobile data, Wi-Fi test on the S24.
-- **Status:** Fixed in code, device check pending.
+- **Status:** Fixed. The owner confirmed the stream returns to the normal quality after Wi-Fi comes back (2026-11-05).
+
+## BUG-075: The Stream closed dialog was wider than the screen
+
+- **Symptom:** After a stream closed from its picture-in-picture window, opening the app in portrait showed the reconnect dialog as one wide card running off the right edge, with the question and the Reconnect button out of view.
+- **Evidence:** Screenshot from the owner on the S24 Ultra. The dialog is shown from `onResume`, while the activity can still hold the landscape metrics of the stream.
+- **Root Cause:** `Dialogs.sizeWindow` read `widthPixels` from the resources of the dialog context, which were stale, so the window was sized for the landscape width.
+- **Fix Applied:** `Dialogs.availableWidth` reads the current window bounds from the window manager on Android 11 and later, and the dialog is fitted again once on the next frame for older versions.
+- **Verification:** `DialogsBehaviorTest.aDialogNeverGetsWiderThanTheRealScreenWhenTheResourcesAreStale`. Needs the PiP close, then open in portrait check on the S24.
+- **Status:** Fixed in code, owner check pending.
+
+## BUG-076: The stream closed by itself right after swiping into picture-in-picture
+
+- **Symptom:** After a swipe from the stream into picture-in-picture, the small window vanished about 5 seconds later and the app was gone, so the stream had to be started again. No crash report was offered at the next start.
+- **Evidence:** Logs of the S24 Ultra (Android 17, One UI) from 2026-11-13. Three of four swipes finished entering in 120 to 290 ms. In the failing one (08:57:05) the app received `onPictureInPictureModeChanged(true)` normally, but System UI stayed in `scheduled_enter_pip` and logged `PipTransitionState: stuck-state watchdog recovering after 5000ms`, then ran `removeTask ... killProcess=true` on the task. All four swipes show the same `TransitionChain` warnings (a display rotation transition merged into the PiP transition, because the stream is landscape and Home is portrait), so a timing race in the system decides the outcome. The crash buffer, dropbox, tombstones, process exit records and the app's own `diagnostics` folder hold nothing for the app.
+- **Root Cause:** A platform race between the PiP enter transition and the rotation change to Home. The system gives up after 5 seconds and kills the task itself, so the process ends with "remove task", which is neither a Java crash, a native crash nor an ANR.
+- **Fix Applied:** None in the app, because the state machine and the kill are in System UI and `system_server`. The existing recovery works: the app marks the stream as closed from picture-in-picture when the stream activity stops while it is in picture-in-picture (`Game.onStop`), and the next start of the PC or app list offers Reconnect once (`SessionResumer.maybeOfferReconnectAfterPipClose`). `CrashReporter` stays silent on purpose, since no crash happened.
+- **Verification:** Reproduction needs the race, so it is not forced. Check by swiping into picture-in-picture many times from landscape and counting `wm_enter_pip` against `entered-pip` in logcat. If the failure repeats often, test a Home swipe without Recents first and report to Samsung.
+- **Status:** Open, platform issue. Recovery is covered by the reconnect offer.
