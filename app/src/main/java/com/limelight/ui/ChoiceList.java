@@ -155,6 +155,89 @@ public final class ChoiceList {
         return this;
     }
 
+    // One short choice shown as a chip in a grid, with the longer text kept for the Find panel and for screen readers
+    public static final class Chip {
+        final CharSequence label;
+        final CharSequence detail;
+        final boolean checked;
+        final Runnable onPick;
+
+        public Chip(CharSequence label, CharSequence detail, boolean checked, Runnable onPick) {
+            this.label = label;
+            this.detail = detail;
+            this.checked = checked;
+            this.onPick = onPick;
+        }
+    }
+
+    // NOTE: Several short choices share one grid of equal cells, so a row of resolutions takes two short lines instead of one tall row each.
+    // NOTE: The columns divide the choices evenly (six become 3 by 2), so no cell is left alone on the last line. Cells look like the segmented buttons of the menu editor, and the chosen one is filled.
+    static final String CHIP_GRID_TAG = "sa_chip_grid";
+
+    // A column count that fills every line when it can, for example 3 for six choices and 4 for eight
+    static int chipColumns(int count) {
+        if (count <= 3) {
+            return Math.max(1, count);
+        }
+        int[] preferred = {3, 4, 2};
+        for (int columns : preferred) {
+            if (count % columns == 0) {
+                return columns;
+            }
+        }
+        return 3;
+    }
+
+    public ChoiceList addChips(List<Chip> chips) {
+        LinearLayout grid = new LinearLayout(context);
+        grid.setOrientation(LinearLayout.VERTICAL);
+        grid.setTag(CHIP_GRID_TAG);
+        int side = (int) Dialogs.dp(context, 8);
+        grid.setPadding(side, side / 2, side, side / 2);
+        int columns = chipColumns(chips.size());
+        int gap = (int) Dialogs.dp(context, 8);
+        LinearLayout line = null;
+        for (int i = 0; i < chips.size(); i++) {
+            if (i % columns == 0) {
+                line = new LinearLayout(context);
+                line.setOrientation(LinearLayout.HORIZONTAL);
+                LinearLayout.LayoutParams lineParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                if (i > 0) {
+                    lineParams.topMargin = gap;
+                }
+                grid.addView(line, lineParams);
+            }
+            Chip chip = chips.get(i);
+            TextView view = new TextView(context, null, 0, R.style.SuperArtemis_Segment);
+            view.setText(chip.label);
+            view.setMinHeight((int) Dialogs.dp(context, 48));
+            view.setContentDescription(chip.detail != null ? chip.label + ", " + chip.detail : chip.label);
+            view.setSelected(chip.checked);
+            view.setOnClickListener(v -> {
+                dismiss();
+                chip.onPick.run();
+            });
+            view.setTag(chip.label);
+            rows.add(view);
+            entries.add(new Entry(0, chip.label, chip.detail, chip.checked, null, chip.onPick));
+            LinearLayout.LayoutParams cell = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+            if (i % columns != 0) {
+                cell.leftMargin = gap;
+            }
+            line.addView(view, cell);
+        }
+        // A short last line gets empty cells of the same weight, so every cell has the same width
+        int missing = (columns - chips.size() % columns) % columns;
+        for (int k = 0; k < missing && line != null; k++) {
+            View space = new View(context);
+            LinearLayout.LayoutParams cell = new LinearLayout.LayoutParams(0, 1, 1f);
+            cell.leftMargin = gap;
+            line.addView(space, cell);
+        }
+        list.addView(grid);
+        return this;
+    }
+
     // NOTE: Adds a Search row at the top of the list that opens the Find panel with every choice, found by name or by the keys pressed.
     // NOTE: Picking a result closes both and runs that choice. The search never happens inside this dialog, where the keyboard would squeeze the list.
     public ChoiceList enableSearch() {
@@ -180,6 +263,21 @@ public final class ChoiceList {
                 Entry entry = entries.get(at);
                 found.add(new FindPanel.Item(String.valueOf(source.size()), entry.label, entry.iconRes, group != null ? group : entry.subtitle, entry.keys, entry.checked));
                 source.add(entry);
+            }
+            else if (CHIP_GRID_TAG.equals(child.getTag())) {
+                // The choices of a chip grid are found like rows, listed under the heading above the grid
+                LinearLayout grid = (LinearLayout) child;
+                for (int r = 0; r < grid.getChildCount(); r++) {
+                    LinearLayout line = (LinearLayout) grid.getChildAt(r);
+                    for (int c = 0; c < line.getChildCount(); c++) {
+                        int chipAt = rows.indexOf(line.getChildAt(c));
+                        if (chipAt >= 0) {
+                            Entry entry = entries.get(chipAt);
+                            found.add(new FindPanel.Item(String.valueOf(source.size()), entry.label, entry.iconRes, group != null ? group : entry.subtitle, entry.keys, entry.checked));
+                            source.add(entry);
+                        }
+                    }
+                }
             }
             else if (child instanceof TextView) {
                 group = ((TextView) child).getText();

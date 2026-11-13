@@ -75,7 +75,9 @@ public class ResolutionListPreference extends ValueListPreference {
             int w = dims[0];
             int h = dims[1];
 
-            if (entry.startsWith(customPrefix) || (customPrefValue != null && val.equals(customPrefValue))) {
+            // NOTE: A saved custom size that equals a standard size, such as 1920 x 1080, must not take the standard chip away, so only a size that is not standard counts as the custom one.
+            boolean standardSize = w > 0 && h > 0 && !PreferenceConfiguration.isNativeResolution(w, h) && !entry.startsWith(customPrefix);
+            if (entry.startsWith(customPrefix) || (!standardSize && customPrefValue != null && val.equals(customPrefValue))) {
                 customList.add(new ResolutionItem(val, entry.replace("x", " × "), formatCustomSubtitle(w, h), R.drawable.ic_sa_tune));
             } else if (w > 0 && h > 0 && !PreferenceConfiguration.isNativeResolution(w, h)) {
                 standardList.add(new ResolutionItem(val, entry, formatStandardSubtitle(w, h), R.drawable.ic_sa_computer));
@@ -85,10 +87,13 @@ public class ResolutionListPreference extends ValueListPreference {
         }
 
         if (!standardList.isEmpty()) {
-            choices.addSectionHeader(context.getString(R.string.section_resolution_standard));
+            // NOTE: The standard resolutions share one aspect ratio, so it is named once in the heading and each one is a short chip.
+            choices.addSectionHeader(standardHeading(context.getString(R.string.section_resolution_standard), standardList));
+            List<ChoiceList.Chip> chips = new ArrayList<>();
             for (ResolutionItem item : standardList) {
-                choices.add(item.iconRes, item.label, item.subtitle, item.value.equals(current), () -> selectResolution(item.value));
+                chips.add(new ChoiceList.Chip(item.label, item.subtitle, item.value.equals(current), () -> selectResolution(item.value)));
             }
+            choices.addChips(chips);
         }
 
         if (!nativeList.isEmpty()) {
@@ -98,14 +103,39 @@ public class ResolutionListPreference extends ValueListPreference {
             }
         }
 
-        if (!customList.isEmpty()) {
-            choices.addSectionHeader(context.getString(R.string.section_resolution_custom));
-            for (ResolutionItem item : customList) {
-                choices.add(item.iconRes, item.label, item.subtitle, item.value.equals(current), () -> selectResolution(item.value));
-            }
+        // NOTE: The Custom Resolution section always has the row that opens the custom size dialog, because that setting sits in a collapsed group of the Video section and is hard to find.
+        // NOTE: A saved custom size that differs from every standard and native size is listed above it.
+        choices.addSectionHeader(context.getString(R.string.section_resolution_custom));
+        for (ResolutionItem item : customList) {
+            choices.add(item.iconRes, item.label, item.subtitle, item.value.equals(current), () -> selectResolution(item.value));
         }
+        choices.add(R.drawable.ic_sa_edit, context.getString(R.string.title_custom_resolution), false, this::openCustomResolution);
 
         choices.show();
+    }
+
+    // The heading with the shared ratio, such as "Standard Resolutions (16:9)", or the plain heading when the ratios differ
+    private static String standardHeading(String heading, List<ResolutionItem> items) {
+        String ratio = null;
+        for (ResolutionItem item : items) {
+            int[] dims = parseDimensions(item.value);
+            String own = formatAspectRatio(dims[0], dims[1]);
+            if (ratio == null) {
+                ratio = own;
+            }
+            else if (!ratio.equals(own)) {
+                return heading;
+            }
+        }
+        return ratio == null || ratio.isEmpty() ? heading : heading + " (" + ratio + ")";
+    }
+
+    // The custom size dialog belongs to the Custom resolution row, so this opens it through that row
+    private void openCustomResolution() {
+        androidx.preference.Preference custom = getPreferenceManager() != null ? getPreferenceManager().findPreference("edit_diy_w_h") : null;
+        if (custom != null) {
+            custom.performClick();
+        }
     }
 
     private void selectResolution(String val) {
