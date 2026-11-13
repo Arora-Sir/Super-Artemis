@@ -601,8 +601,8 @@ The test JVM ran with Gradle's default 512 MB heap. Robolectric with this many l
 - **Evidence:** Screenshot from the owner on the S24 Ultra. The dialog is shown from `onResume`, while the activity can still hold the landscape metrics of the stream.
 - **Root Cause:** `Dialogs.sizeWindow` read `widthPixels` from the resources of the dialog context, which were stale, so the window was sized for the landscape width.
 - **Fix Applied:** `Dialogs.availableWidth` reads the current window bounds from the window manager on Android 11 and later, and the dialog is fitted again once on the next frame for older versions.
-- **Verification:** `DialogsBehaviorTest.aDialogNeverGetsWiderThanTheRealScreenWhenTheResourcesAreStale`. Needs the PiP close, then open in portrait check on the S24.
-- **Status:** Fixed in code, owner check pending.
+- **Verification:** `DialogsBehaviorTest.aDialogNeverGetsWiderThanTheRealScreenWhenTheResourcesAreStale`, and the owner checked it on the S24 Ultra.
+- **Status:** Fixed. The owner confirmed on the S24 Ultra that the dialog fits the screen (2026-11-13).
 
 ## BUG-076: The stream closed by itself right after swiping into picture-in-picture
 

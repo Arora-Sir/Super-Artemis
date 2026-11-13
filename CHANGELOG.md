@@ -34,6 +34,7 @@ All notable changes to Super Artemis are listed here. The format follows [Keep a
 
 ### Fixed
 
+- Ported six fixes from moonlight-common-c into the native core. A video frame can no longer grow without a limit from a flood of continuation packets without a start of frame (32 MB and 65536 fragments per frame), clearing a POSIX event takes its mutex, a failed audio start no longer closes its socket twice, the frame index is compared as 32-bit, a new stream resets the RTSP encryption counter and the frame drop count, and a full or shutting down queue frees what it could not take. Thanks to [@repparw](https://github.com/repparw) and [@cgutman](https://github.com/cgutman). The larger upstream changes (the depacketizer lock, the RTT race, ENet short headers) are not taken yet because they need a longer stream test.
 - Fixed the Stream closed reconnect dialog being wider than the screen, with its message and buttons cut off, when the app opened in portrait right after a landscape stream. Dialogs now take the width from the window manager at show time and fit it again once the screen has settled.
 - Fixed the quick bars dimming or hiding while a finger was on the stream, for example during a scroll or a long press. The idle time now starts when the last finger lifts.
 - Fixed the hard white lines across the Quick-action bars editor on a tablet. The two panes fade out softly at their edges instead.

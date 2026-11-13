@@ -413,6 +413,19 @@
         { "label": "moonlight-stream/moonlight-common-c@20c05eda6", "url": "https://github.com/moonlight-stream/moonlight-common-c/commit/20c05eda6a0d410d84fe97a3a79d04fb70609d48" },
         { "label": "moonlight-stream/moonlight-common-c@7b026e77b", "url": "https://github.com/moonlight-stream/moonlight-common-c/commit/7b026e77be62175104640e7e722b758df6d3d0d7" }
       ]
+    },
+    {
+      "feature": "Bounded video frame reassembly, a locked POSIX event clear, one audio socket close, a clean reset for each new stream and queue shutdown leak fixes in moonlight-common-c",
+      "role": "code",
+      "people": [{ "handle": "repparw", "name": "Ulises Britos" }, { "handle": "cgutman" }],
+      "links": [
+        { "label": "moonlight-stream/moonlight-common-c#169", "url": "https://github.com/moonlight-stream/moonlight-common-c/pull/169" },
+        { "label": "moonlight-stream/moonlight-common-c#172", "url": "https://github.com/moonlight-stream/moonlight-common-c/pull/172" },
+        { "label": "moonlight-stream/moonlight-common-c@4aa7ea4e8", "url": "https://github.com/moonlight-stream/moonlight-common-c/commit/4aa7ea4e8459a8cacd1867a3cf8c08405b1809cd" },
+        { "label": "moonlight-stream/moonlight-common-c@3387805de", "url": "https://github.com/moonlight-stream/moonlight-common-c/commit/3387805debc1d6ce4acc9c5c8d7f2bf53137884f" },
+        { "label": "moonlight-stream/moonlight-common-c@0b4a44d19", "url": "https://github.com/moonlight-stream/moonlight-common-c/commit/0b4a44d19c9e97480b069db91cb7abd168af2097" },
+        { "label": "moonlight-stream/moonlight-common-c@348d5d1e3", "url": "https://github.com/moonlight-stream/moonlight-common-c/commit/348d5d1e32032fefb87c3e32f6ad8240611ea0fe" }
+      ]
     }
   ]
 }
