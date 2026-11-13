@@ -35,12 +35,35 @@ final class SettingsListStyle {
         list.setPadding(list.getPaddingLeft(), list.getPaddingTop(), list.getPaddingRight(), (int) dp(context, 24));
         // NOTE: A settings list needs no item animations. Rows such as the microphone preview change all the time, and the default animator slid them from their old position (BUG-045).
         list.setItemAnimator(null);
+        // NOTE: A switch row keeps its title on one line by default, so a long title was cut with dots on a phone in portrait. Every row gets two lines for its title.
+        list.addOnChildAttachStateChangeListener(new RecyclerView.OnChildAttachStateChangeListener() {
+            @Override
+            public void onChildViewAttachedToWindow(@NonNull View view) {
+                allowTwoLineTitle(view);
+            }
+
+            @Override
+            public void onChildViewDetachedFromWindow(@NonNull View view) {
+            }
+        });
         TypedValue value = new TypedValue();
         if (context.getTheme().resolveAttribute(R.attr.saGroupedSettings, value, true) && value.data != 0) {
             list.addItemDecoration(new GroupedSections(context));
             return true;
         }
         return false;
+    }
+
+    static final int TITLE_MAX_LINES = 2;
+
+    // A row title wraps to a second line and is cut only after that, like the choice and slider rows already do
+    static void allowTwoLineTitle(View row) {
+        android.widget.TextView title = row.findViewById(android.R.id.title);
+        if (title != null) {
+            title.setSingleLine(false);
+            title.setMaxLines(TITLE_MAX_LINES);
+            title.setEllipsize(android.text.TextUtils.TruncateAt.END);
+        }
     }
 
     static float dp(Context context, float value) {
