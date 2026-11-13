@@ -84,6 +84,21 @@ public class DialogsBehaviorTest {
         assertNotEquals(0, page.getScrollIndicators());
     }
 
+    // NOTE: An activity resumed right after a landscape stream can still hold landscape metrics, which made the Stream closed dialog wider than the portrait screen.
+    @Test
+    @Config(sdk = 33, shadows = {ShadowMoonBridge.class}, qualifiers = "w411dp-h891dp-port-xxhdpi")
+    public void aDialogNeverGetsWiderThanTheRealScreenWhenTheResourcesAreStale() {
+        AppCompatActivity activity = Robolectric.buildActivity(AppCompatActivity.class).setup().get();
+        int screen = ((WindowManager) activity.getSystemService(android.content.Context.WINDOW_SERVICE))
+                .getCurrentWindowMetrics().getBounds().width();
+        // Landscape width left over in the resources
+        activity.getResources().getDisplayMetrics().widthPixels = screen * 2;
+
+        AlertDialog dialog = show(activity, new LinearLayout(activity));
+
+        assertTrue(dialog.getWindow().getAttributes().width <= screen);
+    }
+
     @Test
     public void theSearchBoxNeverAsksForAFullscreenKeyboard() {
         AppCompatActivity activity = Robolectric.buildActivity(AppCompatActivity.class).setup().get();

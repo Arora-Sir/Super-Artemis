@@ -56,6 +56,12 @@ public final class Dialogs {
             return;
         }
         sizeWindow(dialog, window, maxWidthDp);
+        // The orientation can still be changing, so the width is fitted once more when the screen has settled
+        window.getDecorView().post(() -> {
+            if (dialog.isShowing()) {
+                sizeWindow(dialog, window, maxWidthDp);
+            }
+        });
         // The dialog shrinks above the keyboard, so a search or a text field never ends up hidden behind it
         if (OPEN.add(dialog)) {
             followRotation(dialog, window, maxWidthDp);
@@ -73,7 +79,22 @@ public final class Dialogs {
     private static void sizeWindow(Dialog dialog, Window window, int maxWidthDp) {
         DisplayMetrics metrics = dialog.getContext().getResources().getDisplayMetrics();
         int max = (int) ((maxWidthDp + BACKGROUND_INSET_DP) * metrics.density);
-        window.setLayout(Math.min(metrics.widthPixels, max), WindowManager.LayoutParams.WRAP_CONTENT);
+        window.setLayout(Math.min(availableWidth(dialog, metrics), max), WindowManager.LayoutParams.WRAP_CONTENT);
+    }
+
+    // NOTE: The screen width as the window manager reports it now, because the resources of an activity that was just resumed can still hold the width of the previous orientation.
+    // NOTE: That stale width made a dialog shown right after a landscape stream closed wider than the portrait screen, with its buttons off the edge.
+    private static int availableWidth(Dialog dialog, DisplayMetrics metrics) {
+        if (android.os.Build.VERSION.SDK_INT >= 30) {
+            Object service = dialog.getContext().getSystemService(Context.WINDOW_SERVICE);
+            if (service instanceof WindowManager) {
+                int width = ((WindowManager) service).getCurrentWindowMetrics().getBounds().width();
+                if (width > 0) {
+                    return width;
+                }
+            }
+        }
+        return metrics.widthPixels;
     }
 
     // NOTE: A dialog that stays open through a rotation kept the width of the old orientation and looked too small or cut off.
