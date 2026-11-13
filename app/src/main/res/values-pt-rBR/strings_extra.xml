@@ -482,7 +482,7 @@ Para receber alertas automáticos de atualização sem isso, acompanhe o app com
     <string name="game_menu_customize_quick_bar">Personalizar barra de ação rápida</string>
     <string name="title_quick_bar">Barras de ação rápida</string>
     <string name="summary_quick_bar">Fixe ações e teclas como botões pequenos em qualquer lugar da tela, em linhas ou colunas e em conjuntos alternáveis</string>
-    <string name="quick_bar_editor_hint">Os botões preenchem a grade linha por linha a partir do canto da sua posição. Os botões verdes estão ativados, um toque longo em um botão abre o menu da barra, e as barras escurecem e são ocultadas quando ficam inativas (definido em Configurações). Desconectar e Sair ficam de fora, para que um toque acidental não possa encerrar a transmissão.</string>
+    <string name="quick_bar_editor_hint">Os botões preenchem a grade linha por linha a partir do canto da sua posição. Os botões verdes estão ativados, um toque longo em um botão abre o menu da barra, e as barras escurecem e são ocultadas quando ficam inativas (definido com o botão de inatividade acima). Desconectar e Sair ficam de fora, para que um toque acidental não possa encerrar a transmissão.</string>
     <string name="quick_bar_set_label">Conjunto</string>
     <string name="quick_bar_set_options">Opções do conjunto</string>
     <string name="quick_bar_set_active">%1$s (ativo)</string>
@@ -602,8 +602,6 @@ Para receber alertas automáticos de atualização sem isso, acompanhe o app com
     <string name="game_menu_toggle_floating_button">Alternar botão flutuante</string>
     <string name="game_menu_toggle_quick_bar">Mostrar ou ocultar barras rápidas</string>
     <string name="title_quick_bar_auto_hide">Ocultar barras rápidas quando inativas</string>
-    <string name="summary_quick_bar_auto_hide">Esmaece as barras rápidas após uma pausa na entrada por toque e as traz de volta no próximo toque</string>
-    <string name="keywords_quick_bar_auto_hide">barra rápida, ocultar automaticamente, inativo, esmaecer, inatividade, tempo limite, sobreposição</string>
     <string name="quick_bar_auto_hide_off">Nunca</string>
     <string name="game_menu_select_mouse_mode">Selecionar modo do mouse</string>
     <string name="game_menu_select_steam_mode">Selecionar modo do stream</string>
@@ -1085,11 +1083,8 @@ Para receber alertas automáticos de atualização sem isso, acompanhe o app com
     <string name="more_key_win_minus">Lupa Diminuir (Win + -)</string>
     <string name="more_key_win_esc">Sair da lupa (Win + Esc)</string>
     <string name="title_menu_section_order">Ordem das seções do Menu rápido</string>
-    <string name="summary_menu_section_order">Escolha se Ações, Sessão ou Menu aparece primeiro no Menu rápido</string>
-    <string name="keywords_menu_section_order">menu rápido, seção, ordem, reordenar, ações, sessão, menu, arrastar</string>
     <string name="menu_section_order_hint">Arraste uma seção para movê-la. O Menu rápido as mostra nesta ordem.</string>
     <string name="title_quick_bar_style">Estilo da barra rápida</string>
-    <string name="keywords_quick_bar_style">barra rápida, estilo, aparência, trilho, dock, redondo, botões, alça, expandir, recolher, toque</string>
     <string name="quick_bar_style_rail">Trilho fixo</string>
     <string name="quick_bar_style_round">Botões redondos</string>
     <string name="quick_bar_style_handle">Toque para expandir</string>

@@ -459,7 +459,7 @@
     <string name="game_menu_customize_quick_bar">Tùy chỉnh thanh tác vụ nhanh</string>
     <string name="title_quick_bar">Thanh tác vụ nhanh</string>
     <string name="summary_quick_bar">Ghim hành động và phím thành nút nhỏ ở bất kỳ đâu trên màn hình, theo hàng hoặc cột và các bộ có thể chuyển đổi</string>
-    <string name="quick_bar_editor_hint">Các nút lấp đầy lưới theo từng hàng, bắt đầu từ góc của vị trí đó. Nút màu xanh lá đang bật, nhấn giữ một nút sẽ mở menu của thanh, và các thanh sẽ mờ đi rồi ẩn khi không hoạt động (đặt trong Cài đặt). Ngắt kết nối và Thoát bị loại ra, để một lần chạm nhầm không thể kết thúc luồng.</string>
+    <string name="quick_bar_editor_hint">Các nút lấp đầy lưới theo từng hàng, bắt đầu từ góc của vị trí đó. Nút màu xanh lá đang bật, nhấn giữ một nút sẽ mở menu của thanh, và các thanh sẽ mờ đi rồi ẩn khi không hoạt động (đặt bằng nút không hoạt động ở trên). Ngắt kết nối và Thoát bị loại ra, để một lần chạm nhầm không thể kết thúc luồng.</string>
     <string name="quick_bar_set_label">Bộ</string>
     <string name="quick_bar_set_options">Tùy chọn bộ</string>
     <string name="quick_bar_set_active">%1$s (đang dùng)</string>
@@ -552,8 +552,6 @@
     <string name="game_menu_toggle_floating_button">Bật/tắt nút nổi</string>
     <string name="game_menu_toggle_quick_bar">Hiện hoặc ẩn thanh tác vụ nhanh</string>
     <string name="title_quick_bar_auto_hide">Ẩn thanh tác vụ nhanh khi rảnh</string>
-    <string name="summary_quick_bar_auto_hide">Làm mờ thanh tác vụ nhanh sau khi ngừng chạm và hiện lại ở lần chạm tiếp theo</string>
-    <string name="keywords_quick_bar_auto_hide">thanh nhanh, tự động ẩn, rảnh, mờ dần, không hoạt động, hết thời gian, lớp phủ</string>
     <string name="quick_bar_auto_hide_off">Không bao giờ</string>
     <string name="game_menu_select_steam_mode">Chọn chế độ Stream</string>
     <string name="toggle_pan_zoom_mode">Bật/tắt chế độ Kéo/Thu phóng</string>
@@ -771,11 +769,8 @@
     <string name="more_key_win_minus">Kính lúp Thu nhỏ (Win + -)</string>
     <string name="more_key_win_esc">Thoát kính lúp (Win + Esc)</string>
     <string name="title_menu_section_order">Thứ tự các mục của Menu nhanh</string>
-    <string name="summary_menu_section_order">Chọn mục Hành động, Phiên hay Menu hiển thị đầu tiên trong Menu nhanh</string>
-    <string name="keywords_menu_section_order">menu nhanh, mục, thứ tự, sắp xếp lại, hành động, phiên, menu, kéo</string>
     <string name="menu_section_order_hint">Kéo một mục để di chuyển. Menu nhanh hiển thị các mục theo thứ tự này.</string>
     <string name="title_quick_bar_style">Kiểu thanh nhanh</string>
-    <string name="keywords_quick_bar_style">thanh nhanh, kiểu, giao diện, thanh ray, dock, tròn, nút, tay cầm, mở rộng, thu gọn, chạm</string>
     <string name="quick_bar_style_rail">Thanh ray gắn cạnh</string>
     <string name="quick_bar_style_round">Nút tròn</string>
     <string name="quick_bar_style_handle">Chạm để mở rộng</string>

@@ -503,7 +503,7 @@ Automatikus frissítési értesítésekhez ennek nélkül kövesd az alkalmazás
     <string name="game_menu_customize_quick_bar">Gyorssáv testreszabása</string>
     <string name="title_quick_bar">Gyorssávok</string>
     <string name="summary_quick_bar">Műveletek és billentyűk rögzítése kis gombokként a képernyő bármely pontján, sorokban vagy oszlopokban és váltható készletekben</string>
-    <string name="quick_bar_editor_hint">A gombok soronként töltik ki a rácsot a pozíciójának sarkától kezdve. A zöld gombok be vannak kapcsolva, egy gomb hosszú megnyomása megnyitja a sáv menüjét, a sávok pedig tétlenség esetén elhalványulnak és elrejtőznek (a Beállításokban adható meg). A Kapcsolat bontása és a Kilépés kimarad, hogy egy véletlen koppintás ne tudja befejezni a streamet.</string>
+    <string name="quick_bar_editor_hint">A gombok soronként töltik ki a rácsot a pozíciójának sarkától kezdve. A zöld gombok be vannak kapcsolva, egy gomb hosszú megnyomása megnyitja a sáv menüjét, a sávok pedig tétlenség esetén elhalványulnak és elrejtőznek (a fenti tétlenség gombbal adható meg). A Kapcsolat bontása és a Kilépés kimarad, hogy egy véletlen koppintás ne tudja befejezni a streamet.</string>
     <string name="quick_bar_set_label">Készlet</string>
     <string name="quick_bar_set_options">Készlet beállításai</string>
     <string name="quick_bar_set_active">%1$s (aktív)</string>
@@ -616,8 +616,6 @@ Automatikus frissítési értesítésekhez ennek nélkül kövesd az alkalmazás
     <string name="game_menu_toggle_floating_button">Lebegő gomb váltása</string>
     <string name="game_menu_toggle_quick_bar">Gyorssávok megjelenítése vagy elrejtése</string>
     <string name="title_quick_bar_auto_hide">Gyorssávok elrejtése tétlenség esetén</string>
-    <string name="summary_quick_bar_auto_hide">A gyorssávok elhalványulnak az érintés szünetében, és a következő érintésre visszatérnek</string>
-    <string name="keywords_quick_bar_auto_hide">gyorssáv, automatikus elrejtés, tétlen, elhalványulás, inaktivitás, időtúllépés, fedvény</string>
     <string name="quick_bar_auto_hide_off">Soha</string>
     <string name="game_menu_select_mouse_mode">Egérmód kiválasztása</string>
     <string name="game_menu_select_steam_mode">Streammód kiválasztása</string>
@@ -1074,11 +1072,8 @@ Automatikus frissítési értesítésekhez ennek nélkül kövesd az alkalmazás
     <string name="more_key_win_minus">Nagyító ki (Win + -)</string>
     <string name="more_key_win_esc">Kilépés a nagyítóból (Win + Esc)</string>
     <string name="title_menu_section_order">Gyorsmenü szakaszainak sorrendje</string>
-    <string name="summary_menu_section_order">Válaszd ki, hogy a Műveletek, a Munkamenet vagy a Menü szerepeljen elöl a Gyorsmenüben</string>
-    <string name="keywords_menu_section_order">gyorsmenü, szakasz, sorrend, átrendezés, műveletek, munkamenet, menü, húzás</string>
     <string name="menu_section_order_hint">Húzz egy szakaszt az áthelyezéséhez. A Gyorsmenü ebben a sorrendben jeleníti meg őket.</string>
     <string name="title_quick_bar_style">Gyorssáv stílusa</string>
-    <string name="keywords_quick_bar_style">gyorssáv, stílus, megjelenés, sín, dokk, kerek, gombok, fogantyú, kibontás, összecsukás, koppintás</string>
     <string name="quick_bar_style_rail">Dokkolt sín</string>
     <string name="quick_bar_style_round">Kerek gombok</string>
     <string name="quick_bar_style_handle">Koppintás a kibontáshoz</string>

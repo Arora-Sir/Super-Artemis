@@ -478,7 +478,7 @@
     <string name="game_menu_customize_quick_bar">Налаштувати панель швидких дій</string>
     <string name="title_quick_bar">Панелі швидких дій</string>
     <string name="summary_quick_bar">Закріплюйте дії та клавіші як малі кнопки будь-де на екрані, у рядках або стовпцях і з перемикними наборами</string>
-    <string name="quick_bar_editor_hint">Кнопки заповнюють сітку рядок за рядком від кута її позиції. Зелені кнопки ввімкнені, довге натискання кнопки відкриває меню її панелі, а панелі затемнюються й приховуються за бездіяльності (налаштовується в Налаштуваннях). Відключення та Вихід пропущено, щоб випадковий дотик не міг завершити потік.</string>
+    <string name="quick_bar_editor_hint">Кнопки заповнюють сітку рядок за рядком від кута її позиції. Зелені кнопки ввімкнені, довге натискання кнопки відкриває меню її панелі, а панелі затемнюються й приховуються за бездіяльності (налаштовується кнопкою бездіяльності вище). Відключення та Вихід пропущено, щоб випадковий дотик не міг завершити потік.</string>
     <string name="quick_bar_set_label">Набір</string>
     <string name="quick_bar_set_options">Параметри набору</string>
     <string name="quick_bar_set_active">%1$s (активний)</string>
@@ -585,8 +585,6 @@
     <string name="game_menu_toggle_floating_button">Перемкнути плаваючу кнопку</string>
     <string name="game_menu_toggle_quick_bar">Показати або сховати панелі швидких дій</string>
     <string name="title_quick_bar_auto_hide">Ховати панелі швидких дій у бездіяльності</string>
-    <string name="summary_quick_bar_auto_hide">Згасати панелі після паузи в сенсорному введенні та повертати їх при наступному дотику</string>
-    <string name="keywords_quick_bar_auto_hide">панель швидких дій, автоприховування, бездіяльність, згасання, неактивність, тайм-аут, накладення</string>
     <string name="quick_bar_auto_hide_off">Ніколи</string>
     <string name="game_menu_select_mouse_mode">Вибрати режим миші</string>
     <string name="game_menu_select_steam_mode">Вибрати режим трансляції</string>
@@ -1074,11 +1072,8 @@
     <string name="more_key_win_minus">Лупа зменшити (Win + -)</string>
     <string name="more_key_win_esc">Вийти з лупи (Win + Esc)</string>
     <string name="title_menu_section_order">Порядок розділів швидкого меню</string>
-    <string name="summary_menu_section_order">Виберіть, що буде першим у швидкому меню: Дії, Сеанс чи Меню</string>
-    <string name="keywords_menu_section_order">швидке меню, розділ, порядок, змінити порядок, дії, сеанс, меню, перетягнути</string>
     <string name="menu_section_order_hint">Перетягніть розділ, щоб перемістити його. Швидке меню показує їх у цьому порядку.</string>
     <string name="title_quick_bar_style">Стиль швидкої панелі</string>
-    <string name="keywords_quick_bar_style">швидка панель, стиль, вигляд, рейка, док, круглі, кнопки, ручка, розгорнути, згорнути, дотик</string>
     <string name="quick_bar_style_rail">Рейка в доку</string>
     <string name="quick_bar_style_round">Круглі кнопки</string>
     <string name="quick_bar_style_handle">Торкніться, щоб розгорнути</string>

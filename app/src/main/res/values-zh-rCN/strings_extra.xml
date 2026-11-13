@@ -448,7 +448,7 @@
     <string name="game_menu_customize_quick_bar">自定义快捷操作栏</string>
     <string name="title_quick_bar">快捷操作栏</string>
     <string name="summary_quick_bar">将操作和按键固定为小按钮，可放在屏幕任意位置，支持行或列排列以及可切换的组合</string>
-    <string name="quick_bar_editor_hint">按钮从其位置的角落开始，逐行填充网格。绿色按钮表示已开启，长按按钮可打开其工具栏菜单，工具栏在空闲时会变暗并隐藏（在设置中调整）。断开连接和退出已被排除，以免误触结束串流。</string>
+    <string name="quick_bar_editor_hint">按钮从其位置的角落开始，逐行填充网格。绿色按钮表示已开启，长按按钮可打开其工具栏菜单，工具栏在空闲时会变暗并隐藏（通过上方的空闲按钮设置）。断开连接和退出已被排除，以免误触结束串流。</string>
     <string name="quick_bar_set_label">组合</string>
     <string name="quick_bar_set_options">组合选项</string>
     <string name="quick_bar_set_active">%1$s（使用中）</string>
@@ -636,8 +636,6 @@
     <string name="lock_key_hint">Windows 会忽略串流发来的 Win+L。请在 Apollo 中添加 Lock 命令，或查看\"设置\"&gt;\"主机\"&gt;\"锁定键没有反应？\"</string>
     <string name="game_menu_toggle_quick_bar">显示或隐藏快捷操作栏</string>
     <string name="title_quick_bar_auto_hide">空闲时隐藏快捷操作栏</string>
-    <string name="summary_quick_bar_auto_hide">触摸暂停一段时间后淡出快捷操作栏，下次触摸时重新显示</string>
-    <string name="keywords_quick_bar_auto_hide">快捷栏, 自动隐藏, 空闲, 淡出, 无操作, 超时, 悬浮</string>
     <string name="quick_bar_auto_hide_off">从不</string>
     <string name="picker_search_hint">搜索</string>
     <string name="gesture_duplicate_warning">%1$s 也会由 %2$s 触发</string>
@@ -653,11 +651,8 @@
     <string name="more_key_win_minus">放大镜 缩小 (Win + -)</string>
     <string name="more_key_win_esc">退出放大镜 (Win + Esc)</string>
     <string name="title_menu_section_order">快捷菜单分区顺序</string>
-    <string name="summary_menu_section_order">选择快捷菜单中操作、会话或菜单哪个排在最前</string>
-    <string name="keywords_menu_section_order">快捷菜单, 分区, 顺序, 重新排序, 操作, 会话, 菜单, 拖动</string>
     <string name="menu_section_order_hint">拖动分区即可移动。快捷菜单将按此顺序显示。</string>
     <string name="title_quick_bar_style">快捷栏样式</string>
-    <string name="keywords_quick_bar_style">快捷栏, 样式, 外观, 侧边条, 停靠, 圆形, 按钮, 把手, 展开, 收起, 点按</string>
     <string name="quick_bar_style_rail">停靠侧边条</string>
     <string name="quick_bar_style_round">圆形按钮</string>
     <string name="quick_bar_style_handle">点按展开</string>

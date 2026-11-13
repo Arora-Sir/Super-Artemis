@@ -1070,7 +1070,7 @@
     <string name="game_menu_customize_quick_bar">クイックアクションバーをカスタマイズ</string>
     <string name="title_quick_bar">クイックアクションバー</string>
     <string name="summary_quick_bar">アクションやキーを小さなボタンとして画面上の好きな場所に固定できます。行や列、切り替え可能なセットに対応しています</string>
-    <string name="quick_bar_editor_hint">ボタンは、その位置の角から1行ずつグリッドを埋めていきます。緑のボタンはオンの状態です。ボタンを長押しするとそのバーのメニューが開き、バーは操作がないと暗くなり非表示になります(設定で変更できます)。誤タップでストリームが終了しないよう、切断と終了は含まれません。</string>
+    <string name="quick_bar_editor_hint">ボタンは、その位置の角から1行ずつグリッドを埋めていきます。緑のボタンはオンの状態です。ボタンを長押しするとそのバーのメニューが開き、バーは操作がないと暗くなり非表示になります(上のアイドル用ボタンで設定できます)。誤タップでストリームが終了しないよう、切断と終了は含まれません。</string>
     <string name="quick_bar_set_label">セット</string>
     <string name="quick_bar_set_options">セットのオプション</string>
     <string name="quick_bar_set_active">%1$s(有効)</string>
@@ -1139,8 +1139,6 @@
     <string name="icon_group_capture">キャプチャ</string>
     <string name="game_menu_toggle_quick_bar">クイックバーを表示または非表示</string>
     <string name="title_quick_bar_auto_hide">操作がないときにクイックバーを非表示</string>
-    <string name="summary_quick_bar_auto_hide">タッチ入力が止まるとクイックバーをフェードアウトし、次のタッチで再表示します</string>
-    <string name="keywords_quick_bar_auto_hide">クイックバー, 自動非表示, アイドル, フェード, 無操作, タイムアウト, オーバーレイ</string>
     <string name="quick_bar_auto_hide_off">しない</string>
     <string name="picker_search_hint">検索</string>
     <string name="gesture_duplicate_warning">%1$s は %2$s でも実行されます</string>
@@ -1156,11 +1154,8 @@
     <string name="more_key_win_minus">拡大鏡 縮小 (Win + -)</string>
     <string name="more_key_win_esc">拡大鏡を終了 (Win + Esc)</string>
     <string name="title_menu_section_order">クイックメニューのセクション順</string>
-    <string name="summary_menu_section_order">クイックメニューで、アクション、セッション、メニューのどれを先頭にするか選択します</string>
-    <string name="keywords_menu_section_order">クイックメニュー, セクション, 順序, 並べ替え, アクション, セッション, メニュー, ドラッグ</string>
     <string name="menu_section_order_hint">セクションをドラッグして移動します。クイックメニューにはこの順序で表示されます。</string>
     <string name="title_quick_bar_style">クイックバーのスタイル</string>
-    <string name="keywords_quick_bar_style">クイックバー, スタイル, 見た目, レール, ドック, 丸, ボタン, ハンドル, 展開, 折りたたみ, タップ</string>
     <string name="quick_bar_style_rail">ドックレール</string>
     <string name="quick_bar_style_round">丸いボタン</string>
     <string name="quick_bar_style_handle">タップで展開</string>

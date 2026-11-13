@@ -511,7 +511,7 @@ Pentru alerte automate de actualizare fără aceasta, urmărește aplicația cu 
     <string name="game_menu_customize_quick_bar">Personalizează bara de acțiuni rapide</string>
     <string name="title_quick_bar">Bare de acțiuni rapide</string>
     <string name="summary_quick_bar">Fixează acțiuni și taste ca butoane mici oriunde pe ecran, în rânduri sau coloane și în seturi comutabile</string>
-    <string name="quick_bar_editor_hint">Butoanele umplu grila rând cu rând din colțul poziției sale. Butoanele verzi sunt activate, o apăsare lungă pe un buton deschide meniul barei sale, iar barele se estompează și se ascund când sunt inactive (se setează în Setări). Deconectare și Ieșire sunt omise, astfel încât o atingere accidentală să nu poată încheia fluxul.</string>
+    <string name="quick_bar_editor_hint">Butoanele umplu grila rând cu rând din colțul poziției sale. Butoanele verzi sunt activate, o apăsare lungă pe un buton deschide meniul barei sale, iar barele se estompează și se ascund când sunt inactive (se setează cu butonul de inactivitate de mai sus). Deconectare și Ieșire sunt omise, astfel încât o atingere accidentală să nu poată încheia fluxul.</string>
     <string name="quick_bar_set_label">Set</string>
     <string name="quick_bar_set_options">Opțiunile setului</string>
     <string name="quick_bar_set_active">%1$s (activ)</string>
@@ -668,8 +668,6 @@ Pentru alerte automate de actualizare fără aceasta, urmărește aplicația cu 
     <string name="game_menu_toggle_floating_button">Comută butonul plutitor</string>
     <string name="game_menu_toggle_quick_bar">Arată sau ascunde barele rapide</string>
     <string name="title_quick_bar_auto_hide">Ascunde barele rapide când sunt inactive</string>
-    <string name="summary_quick_bar_auto_hide">Estompează barele rapide după o pauză în atingeri și le readuce la următoarea atingere</string>
-    <string name="keywords_quick_bar_auto_hide">bară rapidă, ascundere automată, inactiv, estompare, inactivitate, timeout, suprapunere</string>
     <string name="quick_bar_auto_hide_off">Niciodată</string>
     <string name="game_menu_select_mouse_mode">Alege modul mouse</string>
     <string name="game_menu_select_steam_mode">Alege modul transmisiei</string>
@@ -1156,11 +1154,8 @@ Pentru alerte automate de actualizare fără aceasta, urmărește aplicația cu 
     <string name="more_key_win_minus">Lupă Micșorare (Win + -)</string>
     <string name="more_key_win_esc">Ieșire din lupă (Win + Esc)</string>
     <string name="title_menu_section_order">Ordinea secțiunilor din Meniul rapid</string>
-    <string name="summary_menu_section_order">Alege dacă Acțiuni, Sesiune sau Meniu apare primul în Meniul rapid</string>
-    <string name="keywords_menu_section_order">meniu rapid, secțiune, ordine, reordonare, acțiuni, sesiune, meniu, tragere</string>
     <string name="menu_section_order_hint">Trage o secțiune pentru a o muta. Meniul rapid le afișează în această ordine.</string>
     <string name="title_quick_bar_style">Stilul barei rapide</string>
-    <string name="keywords_quick_bar_style">bară rapidă, stil, aspect, șină, dock, rotund, butoane, mâner, extinde, restrânge, atingere</string>
     <string name="quick_bar_style_rail">Șină ancorată</string>
     <string name="quick_bar_style_round">Butoane rotunde</string>
     <string name="quick_bar_style_handle">Atinge pentru a extinde</string>

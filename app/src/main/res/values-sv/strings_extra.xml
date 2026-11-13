@@ -478,7 +478,7 @@ För automatiska uppdateringsaviseringar utan detta kan du följa appen med Obta
     <string name="game_menu_customize_quick_bar">Anpassa snabbåtgärdsfält</string>
     <string name="title_quick_bar">Snabbåtgärdsfält</string>
     <string name="summary_quick_bar">Fäst åtgärder och tangenter som små knappar var som helst på skärmen, i rader eller kolumner och i växlingsbara uppsättningar</string>
-    <string name="quick_bar_editor_hint">Knapparna fyller rutnätet rad för rad från hörnet av sin position. Gröna knappar är påslagna, ett långt tryck på en knapp öppnar fältets meny, och fälten dimmas och döljs när de är inaktiva (ställs in i Inställningar). Koppla från och Avsluta utelämnas, så att ett oavsiktligt tryck inte kan avsluta strömmen.</string>
+    <string name="quick_bar_editor_hint">Knapparna fyller rutnätet rad för rad från hörnet av sin position. Gröna knappar är påslagna, ett långt tryck på en knapp öppnar fältets meny, och fälten dimmas och döljs när de är inaktiva (ställs in med inaktivitetsknappen ovan). Koppla från och Avsluta utelämnas, så att ett oavsiktligt tryck inte kan avsluta strömmen.</string>
     <string name="quick_bar_set_label">Uppsättning</string>
     <string name="quick_bar_set_options">Uppsättningsalternativ</string>
     <string name="quick_bar_set_active">%1$s (aktiv)</string>
@@ -585,8 +585,6 @@ För automatiska uppdateringsaviseringar utan detta kan du följa appen med Obta
     <string name="game_menu_toggle_floating_button">Växla flytande knapp</string>
     <string name="game_menu_toggle_quick_bar">Visa eller dölj snabbfält</string>
     <string name="title_quick_bar_auto_hide">Dölj snabbfält vid inaktivitet</string>
-    <string name="summary_quick_bar_auto_hide">Tona ut snabbfälten efter en paus i beröring och visa dem igen vid nästa beröring</string>
-    <string name="keywords_quick_bar_auto_hide">snabbfält, dölj automatiskt, inaktiv, tona ut, inaktivitet, timeout, överlägg</string>
     <string name="quick_bar_auto_hide_off">Aldrig</string>
     <string name="game_menu_select_mouse_mode">Välj musläge</string>
     <string name="game_menu_select_steam_mode">Välj strömläge</string>
@@ -1062,11 +1060,8 @@ För automatiska uppdateringsaviseringar utan detta kan du följa appen med Obta
     <string name="more_key_win_minus">Förstoringsglas Ut (Win + -)</string>
     <string name="more_key_win_esc">Avsluta förstoringsglas (Win + Esc)</string>
     <string name="title_menu_section_order">Ordning på snabbmenyns avsnitt</string>
-    <string name="summary_menu_section_order">Välj om Åtgärder, Session eller Meny ska komma först i snabbmenyn</string>
-    <string name="keywords_menu_section_order">snabbmeny, avsnitt, ordning, ändra ordning, åtgärder, session, meny, dra</string>
     <string name="menu_section_order_hint">Dra ett avsnitt för att flytta det. Snabbmenyn visar dem i den här ordningen.</string>
     <string name="title_quick_bar_style">Snabbfältets stil</string>
-    <string name="keywords_quick_bar_style">snabbfält, stil, utseende, skena, docka, rund, knappar, handtag, expandera, fäll ihop, tryck</string>
     <string name="quick_bar_style_rail">Dockad skena</string>
     <string name="quick_bar_style_round">Runda knappar</string>
     <string name="quick_bar_style_handle">Tryck för att expandera</string>

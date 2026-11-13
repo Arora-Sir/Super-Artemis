@@ -670,7 +670,7 @@
     <string name="game_menu_customize_quick_bar">Настроить панель быстрых действий</string>
     <string name="title_quick_bar">Панели быстрых действий</string>
     <string name="summary_quick_bar">Закрепляйте действия и клавиши маленькими кнопками в любом месте экрана — строками или столбцами, в переключаемых наборах</string> <!-- no-dash-lint -->
-    <string name="quick_bar_editor_hint">Кнопки заполняют сетку строка за строкой от угла ее позиции. Зеленые кнопки включены, долгое нажатие на кнопку открывает меню ее панели, а панели затемняются и скрываются при бездействии (настраивается в Настройках). Отключение и Выход исключены, чтобы случайное касание не могло завершить поток.</string>
+    <string name="quick_bar_editor_hint">Кнопки заполняют сетку строка за строкой от угла ее позиции. Зеленые кнопки включены, долгое нажатие на кнопку открывает меню ее панели, а панели затемняются и скрываются при бездействии (настраивается кнопкой бездействия выше). Отключение и Выход исключены, чтобы случайное касание не могло завершить поток.</string>
     <string name="quick_bar_set_label">Набор</string>
     <string name="quick_bar_set_options">Параметры набора</string>
     <string name="quick_bar_set_active">%1$s (активный)</string>
@@ -915,11 +915,8 @@
     <string name="summary_keyboard_on_top">Рисует виртуальную клавиатуру поверх быстрых панелей, пока она открыта, чтобы нажатия на клавиши не попадали на панели</string>
     <string name="keywords_keyboard_on_top">клавиатура, быстрая панель, наложение, слой, поверх</string>
     <string name="title_menu_section_order">Порядок разделов быстрого меню</string>
-    <string name="summary_menu_section_order">Выберите, что идёт первым в быстром меню: действия, сеанс или меню</string>
-    <string name="keywords_menu_section_order">быстрое меню, раздел, порядок, действия, сеанс, меню, перетащить</string>
     <string name="menu_section_order_hint">Перетащите раздел, чтобы переместить его. Быстрое меню показывает их в этом порядке.</string>
     <string name="title_quick_bar_style">Стиль быстрых панелей</string>
-    <string name="keywords_quick_bar_style">быстрая панель, стиль, вид, док, круглые кнопки, ручка, развернуть, свернуть</string>
     <string name="quick_bar_style_rail">Док-панель</string>
     <string name="quick_bar_style_round">Круглые кнопки</string>
     <string name="quick_bar_style_handle">Нажать, чтобы развернуть</string>
@@ -937,8 +934,6 @@
     <string name="find_state_not_added">Не добавлено</string>
     <string name="game_menu_toggle_quick_bar">Показать или скрыть быстрые панели</string>
     <string name="title_quick_bar_auto_hide">Скрывать быстрые панели при бездействии</string>
-    <string name="summary_quick_bar_auto_hide">Панели гаснут после паузы в касаниях и возвращаются при следующем касании</string>
-    <string name="keywords_quick_bar_auto_hide">быстрая панель, автоскрытие, бездействие, затухание, таймаут, оверлей</string>
     <string name="quick_bar_auto_hide_off">Никогда</string>
     <string name="game_menu_select_mouse_mode">Выбрать режим мыши</string>
     <string name="game_menu_select_steam_mode">Выбрать режим стрима</string>

@@ -468,7 +468,6 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
             setupBackupRestore();
             setupGameMenuEditor();
             setupCustomKeys();
-            setupQuickBarIdle();
             setupQuickBar();
             setupGestures();
             setupBackgroundPolicy();
@@ -1280,16 +1279,8 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
             }
         }
 
-        // The editor holds the menu style picker with its live preview, so there is no separate style setting
+        // The editor holds the menu style picker and the section order with their live preview, so there is no separate setting for either
         private void setupGameMenuEditor() {
-            Preference sectionOrder = findPreference("pref_menu_section_order");
-            if (sectionOrder != null) {
-                sectionOrder.setOnPreferenceClickListener(preference -> {
-                    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(requireContext());
-                    com.limelight.ui.SafeRun.run(requireContext(), preference.getKey(), () -> com.limelight.menu.MenuSectionOrderDialog.show(ThemeManager.dialogContext(requireContext()), prefs));
-                    return true;
-                });
-            }
             Preference customize = findPreference("pref_customize_game_menu");
             if (customize != null) {
                 customize.setOnPreferenceClickListener(preference -> {
@@ -1378,18 +1369,6 @@ public class StreamSettings extends AppCompatActivity implements SearchPreferenc
             if (quickBar != null) {
                 quickBar.setOnPreferenceClickListener(preference -> {
                     com.limelight.ui.SafeRun.run(requireContext(), preference.getKey(), () -> QuickBarEditor.show(ThemeManager.dialogContext(requireContext()), PreferenceManager.getDefaultSharedPreferences(requireContext()), null));
-                    return true;
-                });
-            }
-        }
-
-        // NOTE: The idle behavior of the quick bars has four values, so it opens its own dialog instead of a single field.
-        private void setupQuickBarIdle() {
-            Preference idle = findPreference("quick_bar_idle_behavior");
-            if (idle != null) {
-                idle.setOnPreferenceClickListener(preference -> {
-                    com.limelight.ui.SafeRun.run(requireContext(), preference.getKey(), () -> com.limelight.menu.QuickBarIdleEditor.show(
-                            ThemeManager.dialogContext(requireContext()), PreferenceManager.getDefaultSharedPreferences(requireContext()), null));
                     return true;
                 });
             }

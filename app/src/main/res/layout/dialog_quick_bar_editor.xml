@@ -115,6 +115,13 @@
                     android:text="@string/quick_bar_style_handle" />
             </LinearLayout>
 
+            <!-- Dimming and hiding when idle are the other half of how the bars look, so their dialog opens from here -->
+            <LinearLayout
+                android:id="@+id/quick_bar_idle_host"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+
             <com.limelight.ui.FlowRow
                 android:id="@+id/quick_bar_bars"
                 android:layout_width="match_parent"

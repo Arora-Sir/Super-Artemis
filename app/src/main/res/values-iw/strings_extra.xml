@@ -480,7 +480,7 @@
     <string name="game_menu_customize_quick_bar">התאמת סרגל הפעולה המהירה</string>
     <string name="title_quick_bar">סרגלי פעולה מהירה</string>
     <string name="summary_quick_bar">הצמדת פעולות ומקשים ככפתורים קטנים בכל מקום במסך, בשורות או בעמודות ובסטים שאפשר להחליף</string>
-    <string name="quick_bar_editor_hint">הכפתורים ממלאים את הרשת שורה אחר שורה מהפינה של מיקומה. כפתורים ירוקים מופעלים, לחיצה ארוכה על כפתור פותחת את תפריט הסרגל שלו, והסרגלים מתעממים ומוסתרים כשאין פעילות (מוגדר בהגדרות). התנתקות ויציאה מושמטות, כדי שנגיעה בטעות לא תסיים את הזרם.</string>
+    <string name="quick_bar_editor_hint">הכפתורים ממלאים את הרשת שורה אחר שורה מהפינה של מיקומה. כפתורים ירוקים מופעלים, לחיצה ארוכה על כפתור פותחת את תפריט הסרגל שלו, והסרגלים מתעממים ומוסתרים כשאין פעילות (מוגדר בכפתור הפעילות שלמעלה). התנתקות ויציאה מושמטות, כדי שנגיעה בטעות לא תסיים את הזרם.</string>
     <string name="quick_bar_set_label">סט</string>
     <string name="quick_bar_set_options">אפשרויות הסט</string>
     <string name="quick_bar_set_active">%1$s (פעיל)</string>
@@ -695,8 +695,6 @@
     <string name="game_menu_toggle_floating_button">הצגה או הסתרה של הכפתור הצף</string>
     <string name="game_menu_toggle_quick_bar">הצגה או הסתרה של סרגלים מהירים</string>
     <string name="title_quick_bar_auto_hide">הסתרת סרגלים מהירים בחוסר פעילות</string>
-    <string name="summary_quick_bar_auto_hide">מעלים את הסרגלים המהירים אחרי הפסקה בקלט מגע ומחזיר אותם במגע הבא</string>
-    <string name="keywords_quick_bar_auto_hide">סרגל מהיר, הסתרה אוטומטית, חוסר פעילות, דהייה, זמן קצוב, שכבה צפה</string>
     <string name="quick_bar_auto_hide_off">אף פעם</string>
     <string name="game_menu_select_mouse_mode">בחירת מצב עכבר</string>
     <string name="game_menu_select_steam_mode">בחירת מצב סטרים</string>
@@ -1183,11 +1181,8 @@
     <string name="more_key_win_minus">זכוכית מגדלת הקטן (Win + -)</string>
     <string name="more_key_win_esc">יציאה מזכוכית מגדלת (Win + Esc)</string>
     <string name="title_menu_section_order">סדר הקטעים בתפריט המהיר</string>
-    <string name="summary_menu_section_order">בחרו אם פעולות, סשן או תפריט יופיעו ראשונים בתפריט המהיר</string>
-    <string name="keywords_menu_section_order">תפריט מהיר, קטע, סדר, סידור מחדש, פעולות, סשן, תפריט, גרירה</string>
     <string name="menu_section_order_hint">גררו קטע כדי להזיז אותו. התפריט המהיר מציג אותם לפי סדר זה.</string>
     <string name="title_quick_bar_style">סגנון הסרגל המהיר</string>
-    <string name="keywords_quick_bar_style">סרגל מהיר, סגנון, מראה, פס, עגינה, עגול, כפתורים, ידית, הרחבה, כיווץ, הקשה</string>
     <string name="quick_bar_style_rail">פס מעוגן</string>
     <string name="quick_bar_style_round">כפתורים עגולים</string>
     <string name="quick_bar_style_handle">הקשה להרחבה</string>

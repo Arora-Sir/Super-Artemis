@@ -513,7 +513,7 @@ Volg de app met Obtainium voor automatische updatemeldingen zonder dit.</string>
     <string name="game_menu_customize_quick_bar">Snelle actiebalk aanpassen</string>
     <string name="title_quick_bar">Snelle actiebalken</string>
     <string name="summary_quick_bar">Zet acties en toetsen als kleine knoppen overal op het scherm vast, in rijen of kolommen en wisselbare sets</string>
-    <string name="quick_bar_editor_hint">Knoppen vullen het raster rij voor rij vanaf de hoek van de positie. Groene knoppen staan aan, een lange druk op een knop opent het menu van de balk en de balken worden gedimd en verborgen bij inactiviteit (in te stellen in Instellingen). Verbinding verbreken en Afsluiten zijn weggelaten, zodat een verkeerde tik de stream niet kan beëindigen.</string>
+    <string name="quick_bar_editor_hint">Knoppen vullen het raster rij voor rij vanaf de hoek van de positie. Groene knoppen staan aan, een lange druk op een knop opent het menu van de balk en de balken worden gedimd en verborgen bij inactiviteit (in te stellen met de inactiviteitsknop hierboven). Verbinding verbreken en Afsluiten zijn weggelaten, zodat een verkeerde tik de stream niet kan beëindigen.</string>
     <string name="quick_bar_set_label">Set</string>
     <string name="quick_bar_set_options">Setopties</string>
     <string name="quick_bar_set_active">%1$s (actief)</string>
@@ -1108,8 +1108,6 @@ Volg de app met Obtainium voor automatische updatemeldingen zonder dit.</string>
     <string name="lock_key_hint">Windows negeert Win+L vanuit een stream. Voeg een Lock-opdracht toe in Apollo, of zie Instellingen, Host, Doet de vergrendeltoets niets?</string>
     <string name="game_menu_toggle_quick_bar">Snelle balken tonen of verbergen</string>
     <string name="title_quick_bar_auto_hide">Snelle balken verbergen bij inactiviteit</string>
-    <string name="summary_quick_bar_auto_hide">Laat de snelle balken vervagen na een pauze in de aanraakinvoer en breng ze bij de volgende aanraking terug</string>
-    <string name="keywords_quick_bar_auto_hide">snelle balk, automatisch verbergen, inactief, vervagen, inactiviteit, time-out, overlay</string>
     <string name="quick_bar_auto_hide_off">Nooit</string>
     <string name="picker_search_hint">Zoeken</string>
     <string name="gesture_duplicate_warning">%1$s wordt ook uitgevoerd door %2$s</string>
@@ -1125,11 +1123,8 @@ Volg de app met Obtainium voor automatische updatemeldingen zonder dit.</string>
     <string name="more_key_win_minus">Vergroter Uit (Win + -)</string>
     <string name="more_key_win_esc">Vergroter sluiten (Win + Esc)</string>
     <string name="title_menu_section_order">Volgorde van Snelmenu-secties</string>
-    <string name="summary_menu_section_order">Kies of Acties, Sessie of Menu als eerste in het Snelmenu staat</string>
-    <string name="keywords_menu_section_order">snelmenu, sectie, volgorde, herschikken, acties, sessie, menu, slepen</string>
     <string name="menu_section_order_hint">Sleep een sectie om die te verplaatsen. Het Snelmenu toont ze in deze volgorde.</string>
     <string name="title_quick_bar_style">Stijl van de snelbalk</string>
-    <string name="keywords_quick_bar_style">snelbalk, stijl, uiterlijk, rail, dock, rond, knoppen, handvat, uitklappen, inklappen, tikken</string>
     <string name="quick_bar_style_rail">Dockrail</string>
     <string name="quick_bar_style_round">Ronde knoppen</string>
     <string name="quick_bar_style_handle">Tik om uit te klappen</string>

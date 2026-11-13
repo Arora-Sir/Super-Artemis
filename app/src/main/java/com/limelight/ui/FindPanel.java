@@ -78,10 +78,14 @@ public final class FindPanel {
 
     // NOTE: The button that opens the panel, drawn like the Add key or flow button so every action button of the editors feels the same.
     public static android.widget.Button openButton(Context context, int labelRes, Runnable onClick) {
+        return openButton(context, labelRes, R.drawable.ic_ck_search, onClick);
+    }
+
+    public static android.widget.Button openButton(Context context, int labelRes, int iconRes, Runnable onClick) {
         android.widget.Button button = new android.widget.Button(context, null, 0, R.style.Widget_SuperArtemis_Button_Tonal);
         button.setText(labelRes);
         button.setGravity(android.view.Gravity.CENTER);
-        android.graphics.drawable.Drawable icon = context.getDrawable(R.drawable.ic_ck_search);
+        android.graphics.drawable.Drawable icon = context.getDrawable(iconRes);
         if (icon != null) {
             int size = (int) Dialogs.dp(context, 18);
             icon.setBounds(0, 0, size, size);

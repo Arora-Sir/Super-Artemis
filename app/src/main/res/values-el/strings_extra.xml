@@ -486,7 +486,7 @@
     <string name="game_menu_customize_quick_bar">Προσαρμογή γραμμής γρήγορων ενεργειών</string>
     <string name="title_quick_bar">Γραμμές γρήγορων ενεργειών</string>
     <string name="summary_quick_bar">Καρφίτσωσε ενέργειες και πλήκτρα ως μικρά κουμπιά οπουδήποτε στην οθόνη, σε σειρές ή στήλες και σε σύνολα που εναλλάσσονται</string>
-    <string name="quick_bar_editor_hint">Τα κουμπιά γεμίζουν το πλέγμα γραμμή προς γραμμή από τη γωνία της θέσης του. Τα πράσινα κουμπιά είναι ενεργοποιημένα, παρατεταμένο πάτημα σε ένα κουμπί ανοίγει το μενού της μπάρας του και οι μπάρες θαμπώνουν και κρύβονται όταν δεν χρησιμοποιούνται (ρυθμίζεται στις Ρυθμίσεις). Η Αποσύνδεση και η Έξοδος παραλείπονται, ώστε ένα τυχαίο άγγιγμα να μην τερματίσει τη ροή.</string>
+    <string name="quick_bar_editor_hint">Τα κουμπιά γεμίζουν το πλέγμα γραμμή προς γραμμή από τη γωνία της θέσης του. Τα πράσινα κουμπιά είναι ενεργοποιημένα, παρατεταμένο πάτημα σε ένα κουμπί ανοίγει το μενού της μπάρας του και οι μπάρες θαμπώνουν και κρύβονται όταν δεν χρησιμοποιούνται (ρυθμίζεται με το κουμπί αδράνειας παραπάνω). Η Αποσύνδεση και η Έξοδος παραλείπονται, ώστε ένα τυχαίο άγγιγμα να μην τερματίσει τη ροή.</string>
     <string name="quick_bar_set_label">Σύνολο</string>
     <string name="quick_bar_set_options">Επιλογές συνόλου</string>
     <string name="quick_bar_set_active">%1$s (ενεργό)</string>
@@ -642,8 +642,6 @@
     <string name="game_menu_toggle_floating_button">Εναλλαγή αιωρούμενου κουμπιού</string>
     <string name="game_menu_toggle_quick_bar">Εμφάνιση ή απόκρυψη γρήγορων γραμμών</string>
     <string name="title_quick_bar_auto_hide">Απόκρυψη γρήγορων γραμμών σε αδράνεια</string>
-    <string name="summary_quick_bar_auto_hide">Οι γρήγορες γραμμές εξαφανίζονται σταδιακά μετά από παύση στην αφή και επανεμφανίζονται στο επόμενο άγγιγμα</string>
-    <string name="keywords_quick_bar_auto_hide">γρήγορη γραμμή, αυτόματη απόκρυψη, αδράνεια, σβήσιμο, αδράνεια χρήστη, timeout, επικάλυψη</string>
     <string name="quick_bar_auto_hide_off">Ποτέ</string>
     <string name="game_menu_select_mouse_mode">Επιλογή λειτουργίας ποντικιού</string>
     <string name="game_menu_select_steam_mode">Επιλογή λειτουργίας ροής</string>
@@ -1124,11 +1122,8 @@
     <string name="more_key_win_minus">Μεγεθυντής Σμίκρυνση (Win + -)</string>
     <string name="more_key_win_esc">Έξοδος από μεγεθυντή (Win + Esc)</string>
     <string name="title_menu_section_order">Σειρά ενοτήτων του Γρήγορου μενού</string>
-    <string name="summary_menu_section_order">Επιλέξτε αν θα εμφανίζονται πρώτα οι Ενέργειες, η Συνεδρία ή το Μενού στο Γρήγορο μενού</string>
-    <string name="keywords_menu_section_order">γρήγορο μενού, ενότητα, σειρά, αναδιάταξη, ενέργειες, συνεδρία, μενού, σύρσιμο</string>
     <string name="menu_section_order_hint">Σύρετε μια ενότητα για να τη μετακινήσετε. Το Γρήγορο μενού τις εμφανίζει με αυτή τη σειρά.</string>
     <string name="title_quick_bar_style">Στυλ γρήγορης γραμμής</string>
-    <string name="keywords_quick_bar_style">γρήγορη γραμμή, στυλ, εμφάνιση, ράγα, dock, στρογγυλά, κουμπιά, λαβή, ανάπτυξη, σύμπτυξη, πάτημα</string>
     <string name="quick_bar_style_rail">Ράγα dock</string>
     <string name="quick_bar_style_round">Στρογγυλά κουμπιά</string>
     <string name="quick_bar_style_handle">Πατήστε για ανάπτυξη</string>

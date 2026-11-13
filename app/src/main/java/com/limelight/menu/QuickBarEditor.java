@@ -155,6 +155,8 @@ public final class QuickBarEditor {
         int selected;
         // NOTE: The look of the bars is a draft until Save, so the preview can show it and Cancel leaves the setting alone.
         String style;
+        // The bars drawn open in the Tap to expand preview, by index in the shown set
+        final java.util.Set<Integer> expandedPreview = new java.util.HashSet<>();
 
         View body;
         Context dialogContext;
@@ -270,6 +272,9 @@ public final class QuickBarEditor {
 
             RecyclerView list = new RecyclerView(dialogContext);
             listView = list;
+            if (twoPane) {
+                Dialogs.softFade(list, context);
+            }
             list.setLayoutManager(new LinearLayoutManager(dialogContext));
             LinearLayout listColumn = new LinearLayout(dialogContext);
             listColumn.setOrientation(LinearLayout.VERTICAL);
@@ -302,6 +307,7 @@ public final class QuickBarEditor {
             itemsHeader.addView(FindPanel.openButton(dialogContext, R.string.find_button, this::openFind));
 
             wireStyle();
+            addIdleButton();
             buildAnchorPicker();
             wireSliders();
             body.findViewById(R.id.quick_bar_reset_offset).setOnClickListener(v -> {
@@ -449,6 +455,9 @@ public final class QuickBarEditor {
 
             androidx.core.widget.NestedScrollView left = new androidx.core.widget.NestedScrollView(dialogContext);
             left.setVerticalScrollBarEnabled(true);
+            // NOTE: Each pane is cut by the dialog edge, and a hard line at that edge looked like a stray line across the editor. Both panes fade out softly instead, and the lists inside skip the dialog's lines.
+            left.setTag(Dialogs.NO_SCROLL_EDGES);
+            Dialogs.softFade(left, context);
             left.addView(controls, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
             LinearLayout.LayoutParams leftParams = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f);
             leftParams.rightMargin = side;
@@ -456,6 +465,7 @@ public final class QuickBarEditor {
 
             items.findViewById(R.id.quick_bar_list).setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
             row.addView(items, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f));
+            row.setTag(Dialogs.NO_LIST_EDGES);
             body = row;
         }
 
@@ -724,10 +734,23 @@ public final class QuickBarEditor {
                 CharSequence description = context.getString(R.string.quick_bar_bar_items, context.getString(anchorNameFor(fitted.anchor))) + ", " + items.size();
                 shown.add(new QuickBarPreview.PreviewBar(fitted, items, icons, description));
             }
-            QuickBarPreview.render(dialogContext, preview, screen, shown, selected, context.getString(R.string.quick_bar_no_bars), style, index -> {
+            QuickBarPreview.render(dialogContext, preview, screen, shown, selected, context.getString(R.string.quick_bar_no_bars), style, expandedPreview, index -> {
+                // NOTE: In the Tap to expand style a tap on the handle of the selected bar opens or closes it in the preview, like in the stream, and a tap on another bar selects it.
+                if (QuickBarLook.STYLE_HANDLE.equals(style) && index == selected && !expandedPreview.remove(index)) {
+                    expandedPreview.add(index);
+                }
                 selected = index;
                 refresh();
             });
+        }
+
+        // NOTE: The dim and hide settings open from the bars editor, which is the screen reached from the stream menu, so they can be changed in the middle of a stream.
+        void addIdleButton() {
+            ViewGroup host = body.findViewById(R.id.quick_bar_idle_host);
+            android.widget.Button button = FindPanel.openButton(dialogContext, R.string.title_quick_bar_auto_hide, R.drawable.ic_sa_tune,
+                    () -> QuickBarIdleEditor.show(context, prefs, onChanged));
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            host.addView(button, params);
         }
 
         // Dock rail, Round buttons and Tap to expand work as one segmented button above the bars, and every choice redraws the preview
@@ -738,6 +761,7 @@ public final class QuickBarEditor {
                 String value = values[i];
                 body.findViewById(ids[i]).setOnClickListener(v -> {
                     style = value;
+                    expandedPreview.clear();
                     markStyle();
                     drawPreview();
                 });

@@ -469,7 +469,7 @@ Für automatische Update-Benachrichtigungen ohne dies verfolge die App stattdess
     <string name="game_menu_customize_quick_bar">Schnellaktionsleiste anpassen</string>
     <string name="title_quick_bar">Schnellaktionsleisten</string>
     <string name="summary_quick_bar">Hefte Aktionen und Tasten als kleine Schaltflächen an beliebiger Stelle des Bildschirms an, in Zeilen oder Spalten und umschaltbaren Sets</string>
-    <string name="quick_bar_editor_hint">Schaltflächen füllen das Raster zeilenweise von der Ecke ihrer Position aus. Grüne Schaltflächen sind eingeschaltet, ein langer Druck auf eine Schaltfläche öffnet das Menü ihrer Leiste, und die Leisten werden bei Inaktivität abgedunkelt und ausgeblendet (einstellbar in den Einstellungen). Trennen und Beenden fehlen, damit ein versehentliches Tippen den Stream nicht beenden kann.</string>
+    <string name="quick_bar_editor_hint">Schaltflächen füllen das Raster zeilenweise von der Ecke ihrer Position aus. Grüne Schaltflächen sind eingeschaltet, ein langer Druck auf eine Schaltfläche öffnet das Menü ihrer Leiste, und die Leisten werden bei Inaktivität abgedunkelt und ausgeblendet (einstellbar mit der Inaktivitäts-Schaltfläche oben). Trennen und Beenden fehlen, damit ein versehentliches Tippen den Stream nicht beenden kann.</string>
     <string name="quick_bar_set_label">Set</string>
     <string name="quick_bar_set_options">Set-Optionen</string>
     <string name="quick_bar_set_active">%1$s (aktiv)</string>
@@ -1030,8 +1030,6 @@ Für automatische Update-Benachrichtigungen ohne dies verfolge die App stattdess
     <string name="quick_bar_duplicate_warning">%1$s ist auch an eine andere Leiste in diesem Satz angeheftet</string>
     <string name="game_menu_toggle_quick_bar">Schnellleisten ein- oder ausblenden</string>
     <string name="title_quick_bar_auto_hide">Schnellleisten bei Inaktivität ausblenden</string>
-    <string name="summary_quick_bar_auto_hide">Blendet die Schnellleisten nach einer Pause bei der Touch-Eingabe aus und bei der nächsten Berührung wieder ein</string>
-    <string name="keywords_quick_bar_auto_hide">Schnellleiste, automatisch ausblenden, inaktiv, ausblenden, Inaktivität, Zeitlimit, Overlay</string>
     <string name="quick_bar_auto_hide_off">Nie</string>
     <string name="title_keyboard_f13_f24_row">Reihe F13 bis F24 auf der Tastatur</string>
     <string name="summary_keyboard_f13_f24_row">Fügt unter F1 bis F12 auf der virtuellen Volltastatur eine zweite Reihe Funktionstasten hinzu. Die Fn-Taste tauscht außerdem F1 bis F12 gegen F13 bis F24.</string>
@@ -1044,11 +1042,8 @@ Für automatische Update-Benachrichtigungen ohne dies verfolge die App stattdess
     <string name="more_key_win_minus">Lupe Aus (Win + -)</string>
     <string name="more_key_win_esc">Lupe beenden (Win + Esc)</string>
     <string name="title_menu_section_order">Reihenfolge der Schnellmenü-Bereiche</string>
-    <string name="summary_menu_section_order">Legt fest, ob Aktionen, Sitzung oder Menü im Schnellmenü zuerst steht</string>
-    <string name="keywords_menu_section_order">schnellmenü, bereich, reihenfolge, anordnen, aktionen, sitzung, menü, ziehen</string>
     <string name="menu_section_order_hint">Ziehe einen Bereich, um ihn zu verschieben. Das Schnellmenü zeigt sie in dieser Reihenfolge an.</string>
     <string name="title_quick_bar_style">Stil der Schnellleiste</string>
-    <string name="keywords_quick_bar_style">Schnellleiste, Stil, Aussehen, Schiene, Dock, rund, Schaltflächen, Griff, ausklappen, einklappen, tippen</string>
     <string name="quick_bar_style_rail">Dock-Schiene</string>
     <string name="quick_bar_style_round">Runde Schaltflächen</string>
     <string name="quick_bar_style_handle">Zum Ausklappen tippen</string>

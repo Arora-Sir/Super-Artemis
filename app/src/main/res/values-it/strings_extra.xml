@@ -508,7 +508,7 @@ Per avvisi di aggiornamento automatici senza questo, segui invece l\'app con Obt
     <string name="game_menu_customize_quick_bar">Personalizza la barra di azioni rapide</string>
     <string name="title_quick_bar">Barre di azioni rapide</string>
     <string name="summary_quick_bar">Fissa azioni e tasti come piccoli pulsanti ovunque sullo schermo, in righe o colonne e in set intercambiabili</string>
-    <string name="quick_bar_editor_hint">I pulsanti riempiono la griglia riga per riga a partire dall\'angolo della sua posizione. I pulsanti verdi sono attivi, una pressione prolungata su un pulsante apre il menu della barra e le barre si attenuano e si nascondono quando inattive (impostabile in Impostazioni). Disconnetti ed Esci sono esclusi, così un tocco accidentale non può terminare lo stream.</string>
+    <string name="quick_bar_editor_hint">I pulsanti riempiono la griglia riga per riga a partire dall\'angolo della sua posizione. I pulsanti verdi sono attivi, una pressione prolungata su un pulsante apre il menu della barra e le barre si attenuano e si nascondono quando inattive (impostabile con il pulsante di inattività qui sopra). Disconnetti ed Esci sono esclusi, così un tocco accidentale non può terminare lo stream.</string>
     <string name="quick_bar_set_label">Set</string>
     <string name="quick_bar_set_options">Opzioni del set</string>
     <string name="quick_bar_set_active">%1$s (attivo)</string>
@@ -1051,8 +1051,6 @@ Per avvisi di aggiornamento automatici senza questo, segui invece l\'app con Obt
     <string name="lock_key_hint">Windows ignora Win+L da uno stream. Aggiungi un comando Lock in Apollo oppure vedi Impostazioni, Host, Il tasto Blocca non fa nulla?</string>
     <string name="game_menu_toggle_quick_bar">Mostra o nascondi le barre rapide</string>
     <string name="title_quick_bar_auto_hide">Nascondi le barre rapide da inattive</string>
-    <string name="summary_quick_bar_auto_hide">Fa svanire le barre rapide dopo una pausa nell\'input touch e le riporta al tocco successivo</string>
-    <string name="keywords_quick_bar_auto_hide">barra rapida, nascondi automaticamente, inattività, dissolvenza, timeout, overlay</string>
     <string name="quick_bar_auto_hide_off">Mai</string>
     <string name="picker_search_hint">Cerca</string>
     <string name="gesture_duplicate_warning">%1$s viene eseguito anche con %2$s</string>
@@ -1068,11 +1066,8 @@ Per avvisi di aggiornamento automatici senza questo, segui invece l\'app con Obt
     <string name="more_key_win_minus">Lente Riduci (Win + -)</string>
     <string name="more_key_win_esc">Esci dalla lente (Win + Esc)</string>
     <string name="title_menu_section_order">Ordine delle sezioni del Menu rapido</string>
-    <string name="summary_menu_section_order">Scegli se Azioni, Sessione o Menu compare per primo nel Menu rapido</string>
-    <string name="keywords_menu_section_order">menu rapido, sezione, ordine, riordina, azioni, sessione, menu, trascina</string>
     <string name="menu_section_order_hint">Trascina una sezione per spostarla. Il Menu rapido le mostra in questo ordine.</string>
     <string name="title_quick_bar_style">Stile della barra rapida</string>
-    <string name="keywords_quick_bar_style">barra rapida, stile, aspetto, binario, dock, rotondo, pulsanti, maniglia, espandi, comprimi, tocco</string>
     <string name="quick_bar_style_rail">Binario dock</string>
     <string name="quick_bar_style_round">Pulsanti rotondi</string>
     <string name="quick_bar_style_handle">Tocca per espandere</string>

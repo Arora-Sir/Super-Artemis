@@ -496,7 +496,7 @@
     <string name="game_menu_customize_quick_bar">빠른 동작 바 사용자 지정</string>
     <string name="title_quick_bar">빠른 동작 바</string>
     <string name="summary_quick_bar">동작과 키를 작은 버튼으로 화면 어디에나 고정하고, 행이나 열과 전환 가능한 세트로 구성합니다</string>
-    <string name="quick_bar_editor_hint">버튼은 해당 위치의 모서리에서 시작해 한 줄씩 격자를 채웁니다. 초록색 버튼은 켜진 상태이며, 버튼을 길게 누르면 해당 바의 메뉴가 열리고, 바는 유휴 상태에서 흐려지고 숨겨집니다(설정에서 지정). 실수로 탭해서 스트림이 종료되지 않도록 연결 끊기와 종료는 제외됩니다.</string>
+    <string name="quick_bar_editor_hint">버튼은 해당 위치의 모서리에서 시작해 한 줄씩 격자를 채웁니다. 초록색 버튼은 켜진 상태이며, 버튼을 길게 누르면 해당 바의 메뉴가 열리고, 바는 유휴 상태에서 흐려지고 숨겨집니다(위의 유휴 버튼으로 지정). 실수로 탭해서 스트림이 종료되지 않도록 연결 끊기와 종료는 제외됩니다.</string>
     <string name="quick_bar_set_label">세트</string>
     <string name="quick_bar_set_options">세트 옵션</string>
     <string name="quick_bar_set_active">%1$s (활성)</string>
@@ -1039,8 +1039,6 @@
     <string name="lock_key_hint">Windows는 스트림에서 온 Win+L을 무시합니다. Apollo에 잠금 명령을 추가하거나 설정, 호스트, 잠금 키가 작동하지 않나요?를 참고하세요.</string>
     <string name="game_menu_toggle_quick_bar">빠른 바 표시 또는 숨기기</string>
     <string name="title_quick_bar_auto_hide">유휴 시 빠른 바 숨기기</string>
-    <string name="summary_quick_bar_auto_hide">터치 입력이 잠시 멈추면 빠른 바를 흐리게 하고 다음 터치 때 다시 표시합니다</string>
-    <string name="keywords_quick_bar_auto_hide">빠른 바, 자동 숨김, 유휴, 페이드, 비활성, 타임아웃, 오버레이</string>
     <string name="quick_bar_auto_hide_off">사용 안 함</string>
     <string name="picker_search_hint">검색</string>
     <string name="gesture_duplicate_warning">%1$s 동작은 %2$s에서도 실행됩니다</string>
@@ -1056,11 +1054,8 @@
     <string name="more_key_win_minus">돋보기 축소 (Win + -)</string>
     <string name="more_key_win_esc">돋보기 종료 (Win + Esc)</string>
     <string name="title_menu_section_order">빠른 메뉴 섹션 순서</string>
-    <string name="summary_menu_section_order">빠른 메뉴에서 동작, 세션, 메뉴 중 무엇을 먼저 표시할지 선택합니다</string>
-    <string name="keywords_menu_section_order">빠른 메뉴, 섹션, 순서, 재정렬, 동작, 세션, 메뉴, 드래그</string>
     <string name="menu_section_order_hint">섹션을 드래그하여 이동합니다. 빠른 메뉴에 이 순서대로 표시됩니다.</string>
     <string name="title_quick_bar_style">빠른 바 스타일</string>
-    <string name="keywords_quick_bar_style">빠른 바, 스타일, 모양, 레일, 독, 원형, 버튼, 핸들, 펼치기, 접기, 탭</string>
     <string name="quick_bar_style_rail">독 레일</string>
     <string name="quick_bar_style_round">원형 버튼</string>
     <string name="quick_bar_style_handle">탭하여 펼치기</string>

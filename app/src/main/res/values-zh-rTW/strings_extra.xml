@@ -430,7 +430,7 @@
     <string name="game_menu_customize_quick_bar">自訂快速動作列</string>
     <string name="title_quick_bar">快速動作列</string>
     <string name="summary_quick_bar">將動作和按鍵釘選為螢幕任意位置的小按鈕，可排成橫列或直欄，並可切換組合</string>
-    <string name="quick_bar_editor_hint">按鈕從其位置的角落開始，逐列填滿格線。綠色按鈕表示已開啟，長按按鈕可開啟其工具列選單，工具列閒置時會變暗並隱藏（在設定中調整）。中斷連線和結束已被排除，以免誤觸而結束串流。</string>
+    <string name="quick_bar_editor_hint">按鈕從其位置的角落開始，逐列填滿格線。綠色按鈕表示已開啟，長按按鈕可開啟其工具列選單，工具列閒置時會變暗並隱藏（透過上方的閒置按鈕設定）。中斷連線和結束已被排除，以免誤觸而結束串流。</string>
     <string name="quick_bar_set_label">組合</string>
     <string name="quick_bar_set_options">組合選項</string>
     <string name="quick_bar_set_active">%1$s (使用中)</string>
@@ -631,8 +631,6 @@
     </plurals>
     <string name="game_menu_toggle_quick_bar">顯示或隱藏快速動作列</string>
     <string name="title_quick_bar_auto_hide">閒置時隱藏快速動作列</string>
-    <string name="summary_quick_bar_auto_hide">觸控暫停一段時間後淡出快速動作列，下次觸控時再顯示</string>
-    <string name="keywords_quick_bar_auto_hide">快速列, 自動隱藏, 閒置, 淡出, 無操作, 逾時, 浮動層</string>
     <string name="quick_bar_auto_hide_off">永不</string>
     <string name="picker_search_hint">搜尋</string>
     <string name="gesture_duplicate_warning">%1$s 也會由 %2$s 觸發</string>
@@ -648,11 +646,8 @@
     <string name="more_key_win_minus">放大鏡 縮小 (Win + -)</string>
     <string name="more_key_win_esc">結束放大鏡 (Win + Esc)</string>
     <string name="title_menu_section_order">快速選單區段順序</string>
-    <string name="summary_menu_section_order">選擇快速選單中動作、工作階段或選單哪個排在最前</string>
-    <string name="keywords_menu_section_order">快速選單, 區段, 順序, 重新排序, 動作, 工作階段, 選單, 拖曳</string>
     <string name="menu_section_order_hint">拖曳區段即可移動。快速選單將依此順序顯示。</string>
     <string name="title_quick_bar_style">快速動作列樣式</string>
-    <string name="keywords_quick_bar_style">快速動作列, 樣式, 外觀, 側邊條, 停駐, 圓形, 按鈕, 把手, 展開, 收合, 點按</string>
     <string name="quick_bar_style_rail">停駐側邊條</string>
     <string name="quick_bar_style_round">圓形按鈕</string>
     <string name="quick_bar_style_handle">點按展開</string>

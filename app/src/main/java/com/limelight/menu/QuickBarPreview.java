@@ -54,6 +54,12 @@ final class QuickBarPreview {
     // NOTE: A screen wider than the room is shown as wide as the room, and one taller than it as tall as the room.
     static void render(Context context, FrameLayout host, float[] screenDp, List<PreviewBar> bars, int selected,
                        CharSequence emptyText, String style, IntConsumer onSelect) {
+        render(context, host, screenDp, bars, selected, emptyText, style, java.util.Collections.emptySet(), onSelect);
+    }
+
+    // NOTE: The Tap to expand style draws every bar as its small handle, the way the stream shows it, and a bar in expanded is drawn open, the way it looks after a tap on its handle.
+    static void render(Context context, FrameLayout host, float[] screenDp, List<PreviewBar> bars, int selected,
+                       CharSequence emptyText, String style, java.util.Set<Integer> expanded, IntConsumer onSelect) {
         host.removeAllViews();
         int roomWidth = host.getWidth() - host.getPaddingLeft() - host.getPaddingRight();
         int roomHeight = host.getHeight() - host.getPaddingTop() - host.getPaddingBottom();
@@ -82,7 +88,8 @@ final class QuickBarPreview {
 
         for (int i = 0; i < bars.size(); i++) {
             PreviewBar preview = bars.get(i);
-            LinearLayout grid = buildBar(context, preview, style, density);
+            boolean collapsed = QuickBarLook.STYLE_HANDLE.equals(style) && !expanded.contains(i);
+            View grid = collapsed ? buildHandle(context, density) : buildBar(context, preview, style, density);
             if (i == selected) {
                 markSelected(context, grid, density, scale);
             }
@@ -92,7 +99,12 @@ final class QuickBarPreview {
             int index = i;
             grid.setOnClickListener(v -> onSelect.accept(index));
             grid.setContentDescription(preview.description);
-            layer.addView(grid, cornerParams(preview.bar, density));
+            FrameLayout.LayoutParams placement = cornerParams(preview.bar, density);
+            if (collapsed) {
+                placement.width = (int) (BarFit.BUTTON_DP * density);
+                placement.height = (int) (BarFit.BUTTON_DP * density);
+            }
+            layer.addView(grid, placement);
             QuickActionBar.placeInside(grid, preview.bar.offsetXDp * density, preview.bar.offsetYDp * density);
         }
         if (bars.isEmpty()) {
@@ -102,6 +114,19 @@ final class QuickBarPreview {
             TextViewCompat.setTextAppearance(empty, R.style.TextAppearance_SuperArtemis_BodySmall);
             host.addView(empty, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER));
         }
+    }
+
+    // The collapsed handle of a bar of the Tap to expand style, the same round button with three dots that the stream draws
+    private static View buildHandle(Context context, float density) {
+        ImageButton chip = new ImageButton(context);
+        chip.setImageResource(R.drawable.ic_sa_more_horiz);
+        chip.setBackgroundResource(R.drawable.floating_menu_button);
+        int padding = (int) (QuickBarLook.ICON_PADDING_DP * density);
+        chip.setPadding(padding, padding, padding, padding);
+        chip.setScaleType(ImageButton.ScaleType.FIT_CENTER);
+        chip.setClickable(false);
+        chip.setFocusable(false);
+        return chip;
     }
 
     // One bar at real size: the rail or round look, then the grid the stream fills by BarSets.grid
@@ -179,7 +204,7 @@ final class QuickBarPreview {
     }
 
     // NOTE: An accent outline around the selected bar. The layer is shrunk, so the stroke is made thicker by the same factor and still reads as 2dp.
-    private static void markSelected(Context context, LinearLayout grid, float density, float scale) {
+    private static void markSelected(Context context, View grid, float density, float scale) {
         if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.M) {
             return;
         }

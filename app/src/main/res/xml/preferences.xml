@@ -284,12 +284,6 @@
             android:icon="@drawable/ic_sa_menu_open"
             search:keywords="@string/keywords_game_menu" />
         <Preference
-            android:key="pref_menu_section_order"
-            android:summary="@string/summary_menu_section_order"
-            android:title="@string/title_menu_section_order"
-            android:icon="@drawable/ic_ck_view_agenda"
-            search:keywords="@string/keywords_menu_section_order" />
-        <Preference
             android:key="pref_quick_bar"
             android:summary="@string/summary_quick_bar"
             android:title="@string/title_quick_bar"
@@ -308,21 +302,6 @@
             android:title="@string/title_custom_keys"
             android:icon="@drawable/ic_sa_keyboard"
             search:keywords="@string/keywords_special_keys" />
-        <ListPreference
-            android:defaultValue="rail"
-            android:entries="@array/quick_bar_style_names"
-            android:entryValues="@array/quick_bar_style_values"
-            android:key="quick_bar_style"
-            android:title="@string/title_quick_bar_style"
-            app:iconSpaceReserved="false"
-            app:useSimpleSummaryProvider="true"
-            search:keywords="@string/keywords_quick_bar_style" />
-        <Preference
-            android:key="quick_bar_idle_behavior"
-            android:title="@string/title_quick_bar_auto_hide"
-            android:summary="@string/summary_quick_bar_auto_hide"
-            android:icon="@drawable/ic_sa_tune"
-            search:keywords="@string/keywords_quick_bar_auto_hide" />
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="checkbox_enable_quit_dialog"

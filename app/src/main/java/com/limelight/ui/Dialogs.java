@@ -32,6 +32,13 @@ public final class Dialogs {
     // NOTE: An editor body with this tag keeps the scroll dividers for the dialog itself, but not for the lists and previews inside it.
     // NOTE: Those inner lists are boxes of their own, and a divider drawn on their edge looked like a stray line cutting through a row.
     public static final String NO_LIST_EDGES = "sa_no_list_edges";
+    // NOTE: A soft fade at the top and bottom of a pane that scrolls beside another pane, where a hard divider line would run across the dialog.
+    public static void softFade(View view, Context context) {
+        view.setVerticalFadingEdgeEnabled(true);
+        view.setFadingEdgeLength((int) dp(context, FADE_EDGE_DP));
+        view.setOverScrollMode(View.OVER_SCROLL_NEVER);
+    }
+
     // NOTE: A scroll view with this tag draws no divider of its own, for a pane that sits beside another pane where the line would run across the dialog.
     public static final String NO_SCROLL_EDGES = "sa_no_scroll_edges";
     // Dialogs that are open, so a stream that shrinks into picture-in-picture can close them instead of drawing them in the small window

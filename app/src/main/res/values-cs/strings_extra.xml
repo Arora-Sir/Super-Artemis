@@ -380,8 +380,6 @@
     <string name="game_menu_toggle_floating_button">Přepnout plovoucí tlačítko</string>
     <string name="game_menu_toggle_quick_bar">Zobrazit nebo skrýt rychlé panely</string>
     <string name="title_quick_bar_auto_hide">Skrýt rychlé panely při nečinnosti</string>
-    <string name="summary_quick_bar_auto_hide">Po pauze v dotykovém vstupu rychlé panely zeslábnou a při dalším dotyku se vrátí</string>
-    <string name="keywords_quick_bar_auto_hide">rychlý panel, automatické skrytí, nečinnost, zeslábnutí, neaktivita, timeout, překryv</string>
     <string name="quick_bar_auto_hide_off">Nikdy</string>
     <string name="game_menu_select_mouse_mode">Vybrat režim myši</string>
     <string name="game_menu_select_steam_mode">Vybrat režim streamu</string>
@@ -1044,7 +1042,7 @@ Pro automatická upozornění na aktualizace bez toho místo toho sledujte aplik
     <string name="game_menu_customize_quick_bar">Přizpůsobit panel rychlých akcí</string>
     <string name="title_quick_bar">Panely rychlých akcí</string>
     <string name="summary_quick_bar">Připínejte akce a klávesy jako malá tlačítka kamkoli na obrazovku, v řádcích nebo sloupcích a přepínatelných sadách</string>
-    <string name="quick_bar_editor_hint">Tlačítka vyplňují mřížku řádek po řádku od rohu její pozice. Zelená tlačítka jsou zapnutá, dlouhé stisknutí tlačítka otevře nabídku jeho lišty a lišty se při nečinnosti ztlumí a skryjí (nastavuje se v Nastavení). Odpojit a Ukončit jsou vynechány, aby náhodné klepnutí nemohlo ukončit stream.</string>
+    <string name="quick_bar_editor_hint">Tlačítka vyplňují mřížku řádek po řádku od rohu její pozice. Zelená tlačítka jsou zapnutá, dlouhé stisknutí tlačítka otevře nabídku jeho lišty a lišty se při nečinnosti ztlumí a skryjí (nastavuje se tlačítkem nečinnosti výše). Odpojit a Ukončit jsou vynechány, aby náhodné klepnutí nemohlo ukončit stream.</string>
     <string name="quick_bar_set_label">Sada</string>
     <string name="quick_bar_set_options">Možnosti sady</string>
     <string name="quick_bar_set_active">%1$s (aktivní)</string>
@@ -1100,11 +1098,8 @@ Pro automatická upozornění na aktualizace bez toho místo toho sledujte aplik
     <string name="more_key_win_minus">Lupa Oddálit (Win + -)</string>
     <string name="more_key_win_esc">Ukončit lupu (Win + Esc)</string>
     <string name="title_menu_section_order">Pořadí sekcí Rychlé nabídky</string>
-    <string name="summary_menu_section_order">Vyberte, zda bude v Rychlé nabídce první Akce, Relace nebo Nabídka</string>
-    <string name="keywords_menu_section_order">rychlá nabídka, sekce, pořadí, změnit pořadí, akce, relace, nabídka, přetáhnout</string>
     <string name="menu_section_order_hint">Přetažením sekce ji přesunete. Rychlá nabídka je zobrazuje v tomto pořadí.</string>
     <string name="title_quick_bar_style">Styl rychlého panelu</string>
-    <string name="keywords_quick_bar_style">rychlý panel, styl, vzhled, lišta, dock, kulaté, tlačítka, úchyt, rozbalit, sbalit, klepnutí</string>
     <string name="quick_bar_style_rail">Ukotvená lišta</string>
     <string name="quick_bar_style_round">Kulatá tlačítka</string>
     <string name="quick_bar_style_handle">Klepnutím rozbalit</string>

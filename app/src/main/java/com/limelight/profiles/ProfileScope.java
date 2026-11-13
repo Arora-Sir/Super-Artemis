@@ -25,7 +25,6 @@ public final class ProfileScope {
             "checkbox_auto_connect_last",
             "checkbox_gestures_enabled",
             "pref_customize_game_menu",
-            "pref_menu_section_order",
             "pref_custom_keys",
             "option_help_custom_keys",
             "import_keyboard_file",

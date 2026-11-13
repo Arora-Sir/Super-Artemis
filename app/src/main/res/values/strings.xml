@@ -389,8 +389,8 @@
     <string name="search_settings_hint">Search settings</string>
     <string name="expand_button_title">Show more</string>
     <string name="keywords_gestures">three finger, four finger, five finger, 3 finger, 4 finger, 5 finger, multi-finger, multitouch, gesture, tap, double tap, swipe, touch shortcut, multi-touch gestures, multitouch mode</string>
-    <string name="keywords_quick_bar">quick bar, toolbar, buttons, corner, pin, shortcut, overlay, row, column, pan zoom button, mic button</string>
-    <string name="keywords_game_menu">quick menu, in-stream menu, menu style, grid, list, compact, customize, layout, actions</string>
+    <string name="keywords_quick_bar">quick bar, toolbar, buttons, corner, pin, shortcut, overlay, row, column, pan zoom button, mic button, style, look, dock rail, round buttons, tap to expand, handle, idle, hide, dim, opacity, fade, edge tab, inactivity, timeout</string>
+    <string name="keywords_game_menu">quick menu, in-stream menu, menu style, grid, list, compact, customize, layout, actions, section order, reorder sections</string>
     <string name="keywords_special_keys">special keys, custom keys, shortcut, hotkey, key combination, macro, keyboard shortcut, esc, alt f4, ctrl, icons</string>
     <string name="keywords_back_menu">back button, back key, back gesture, menu</string>
     <string name="keywords_floating_button">menu button, floating, bubble, overlay button</string>
@@ -671,7 +671,7 @@ For automatic update alerts without this, follow the app with Obtainium instead.
     <string name="game_menu_customize_quick_bar">Customize quick-action bar</string>
     <string name="title_quick_bar">Quick-action bars</string>
     <string name="summary_quick_bar">Pin actions and keys as small buttons anywhere on screen, in rows or columns and switchable sets</string>
-    <string name="quick_bar_editor_hint">Buttons fill the grid row by row from the corner of its position. Green buttons are switched on, a long press on a button opens its bar menu, and the bars dim and hide when idle (set in Settings). Disconnect and Quit are left out, so a stray tap cannot end the stream.</string>
+    <string name="quick_bar_editor_hint">Buttons fill the grid row by row from the corner of its position. Green buttons are switched on, a long press on a button opens its bar menu, and the bars dim and hide when idle (set with the idle button above). Disconnect and Quit are left out, so a stray tap cannot end the stream.</string>
     <string name="quick_bar_set_label">Set</string>
     <string name="quick_bar_set_options">Set options</string>
     <string name="quick_bar_set_active">%1$s (active)</string>
@@ -918,11 +918,8 @@ For automatic update alerts without this, follow the app with Obtainium instead.
     <string name="summary_keyboard_on_top">Draws the virtual full keyboard over the quick-action bars while it is open, so taps on the keys never reach a bar</string>
     <string name="keywords_keyboard_on_top">keyboard, quick bar, overlap, layer, on top, elevation</string>
     <string name="title_menu_section_order">Quick Menu section order</string>
-    <string name="summary_menu_section_order">Choose whether Actions, Session or Menu comes first in the Quick Menu</string>
-    <string name="keywords_menu_section_order">quick menu, section, order, reorder, actions, session, menu, drag</string>
     <string name="menu_section_order_hint">Drag a section to move it. The Quick Menu shows them in this order.</string>
     <string name="title_quick_bar_style">Quick bar style</string>
-    <string name="keywords_quick_bar_style">quick bar, style, look, rail, dock, round, buttons, handle, expand, collapse, tap</string>
     <string name="quick_bar_style_rail">Dock rail</string>
     <string name="quick_bar_style_round">Round buttons</string>
     <string name="quick_bar_style_handle">Tap to expand</string>
@@ -940,8 +937,6 @@ For automatic update alerts without this, follow the app with Obtainium instead.
     <string name="find_state_not_added">Not added</string>
     <string name="game_menu_toggle_quick_bar">Show or Hide Quick Bars</string>
     <string name="title_quick_bar_auto_hide">Hide quick bars when idle</string>
-    <string name="summary_quick_bar_auto_hide">Fade the quick bars out after a pause in touch input and bring them back on the next touch</string>
-    <string name="keywords_quick_bar_auto_hide">quick bar, auto hide, idle, fade, inactivity, timeout, overlay</string>
     <string name="quick_bar_auto_hide_off">Never</string>
     <string name="quick_bar_idle_dim_after">Dim after</string>
     <string name="quick_bar_idle_dim_level">Dimmed opacity</string>

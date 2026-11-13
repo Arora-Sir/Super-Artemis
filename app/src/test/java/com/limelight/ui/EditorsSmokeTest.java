@@ -1,5 +1,6 @@
 package com.limelight.ui;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -104,6 +105,30 @@ public class EditorsSmokeTest {
             inScrollingRightPane |= parent instanceof android.widget.ScrollView;
         }
         assertTrue(inScrollingRightPane);
+        dialog.dismiss();
+    }
+
+    // NOTE: In the two pane layout of a tablet the left page and the key list are cut by the dialog edge, and a hard divider line at that edge looked like a stray line across the editor.
+    @Test
+    public void quickBarEditorPanesOnATabletDrawNoDividerLines() {
+        org.robolectric.RuntimeEnvironment.setQualifiers("w1480dp-h924dp-xhdpi");
+        AppCompatActivity activity = activity(true);
+        QuickBarEditor.show(activity, PreferenceManager.getDefaultSharedPreferences(activity), () -> { });
+        ShadowLooper.idleMainLooper();
+        Dialog dialog = ShadowDialog.getLatestDialog();
+        android.view.View controls = dialog.findViewById(R.id.quick_bar_controls);
+        android.view.View page = (android.view.View) controls.getParent();
+        assertEquals("the left pane page has no divider", 0, page.getScrollIndicators());
+        android.view.ViewGroup listHost = dialog.findViewById(R.id.quick_bar_list);
+        android.view.View list = listHost;
+        while (list instanceof android.view.ViewGroup && !(list instanceof androidx.recyclerview.widget.RecyclerView)) {
+            list = ((android.view.ViewGroup) list).getChildAt(0);
+            if (list instanceof android.view.ViewGroup && ((android.view.ViewGroup) list).getChildCount() == 0) {
+                break;
+            }
+        }
+        org.junit.Assert.assertTrue(list instanceof androidx.recyclerview.widget.RecyclerView);
+        assertEquals("the key list has no divider", 0, list.getScrollIndicators());
         dialog.dismiss();
     }
 

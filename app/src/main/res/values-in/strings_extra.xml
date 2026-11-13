@@ -481,7 +481,7 @@ Untuk pemberitahuan pembaruan otomatis tanpa ini, ikuti aplikasi ini dengan Obta
     <string name="game_menu_customize_quick_bar">Kustomisasi bilah aksi cepat</string>
     <string name="title_quick_bar">Bilah aksi cepat</string>
     <string name="summary_quick_bar">Sematkan aksi dan tombol sebagai tombol kecil di mana saja di layar, dalam baris atau kolom dan set yang bisa diganti</string>
-    <string name="quick_bar_editor_hint">Tombol mengisi kisi baris demi baris dari sudut posisinya. Tombol hijau sedang aktif, tekan lama pada tombol membuka menu bilahnya, dan bilah meredup lalu tersembunyi saat tidak aktif (diatur di Pengaturan). Putuskan Koneksi dan Keluar tidak disertakan, agar ketukan tidak sengaja tidak dapat mengakhiri stream.</string>
+    <string name="quick_bar_editor_hint">Tombol mengisi kisi baris demi baris dari sudut posisinya. Tombol hijau sedang aktif, tekan lama pada tombol membuka menu bilahnya, dan bilah meredup lalu tersembunyi saat tidak aktif (diatur dengan tombol tidak aktif di atas). Putuskan Koneksi dan Keluar tidak disertakan, agar ketukan tidak sengaja tidak dapat mengakhiri stream.</string>
     <string name="quick_bar_set_label">Set</string>
     <string name="quick_bar_set_options">Opsi set</string>
     <string name="quick_bar_set_active">%1$s (aktif)</string>
@@ -641,8 +641,6 @@ Untuk pemberitahuan pembaruan otomatis tanpa ini, ikuti aplikasi ini dengan Obta
     <string name="game_menu_toggle_floating_button">Alihkan Tombol Mengambang</string>
     <string name="game_menu_toggle_quick_bar">Tampilkan atau Sembunyikan Bilah Cepat</string>
     <string name="title_quick_bar_auto_hide">Sembunyikan bilah cepat saat diam</string>
-    <string name="summary_quick_bar_auto_hide">Pudarkan bilah cepat setelah jeda tanpa sentuhan dan munculkan lagi pada sentuhan berikutnya</string>
-    <string name="keywords_quick_bar_auto_hide">bilah cepat, sembunyi otomatis, diam, pudar, tidak aktif, timeout, hamparan</string>
     <string name="quick_bar_auto_hide_off">Tidak pernah</string>
     <string name="game_menu_select_mouse_mode">Pilih mode Mouse</string>
     <string name="game_menu_select_steam_mode">Pilih mode Stream</string>
@@ -1117,11 +1115,8 @@ Untuk pemberitahuan pembaruan otomatis tanpa ini, ikuti aplikasi ini dengan Obta
     <string name="more_key_win_minus">Kaca Pembesar Perkecil (Win + -)</string>
     <string name="more_key_win_esc">Keluar dari Kaca Pembesar (Win + Esc)</string>
     <string name="title_menu_section_order">Urutan bagian Menu Cepat</string>
-    <string name="summary_menu_section_order">Pilih apakah Aksi, Sesi, atau Menu tampil pertama di Menu Cepat</string>
-    <string name="keywords_menu_section_order">menu cepat, bagian, urutan, atur ulang, aksi, sesi, menu, seret</string>
     <string name="menu_section_order_hint">Seret bagian untuk memindahkannya. Menu Cepat menampilkan bagian dalam urutan ini.</string>
     <string name="title_quick_bar_style">Gaya bilah cepat</string>
-    <string name="keywords_quick_bar_style">bilah cepat, gaya, tampilan, rel, dok, bulat, tombol, gagang, perluas, ciutkan, ketuk</string>
     <string name="quick_bar_style_rail">Rel dok</string>
     <string name="quick_bar_style_round">Tombol bulat</string>
     <string name="quick_bar_style_handle">Ketuk untuk memperluas</string>

@@ -489,7 +489,7 @@ For automatiske oppdateringsvarsler uten dette kan du følge appen med Obtainium
     <string name="game_menu_customize_quick_bar">Tilpass hurtigfelt</string>
     <string name="title_quick_bar">Hurtigfelt</string>
     <string name="summary_quick_bar">Fest handlinger og taster som små knapper hvor som helst på skjermen, i rader eller kolonner og sett du kan bytte mellom</string>
-    <string name="quick_bar_editor_hint">Knappene fyller rutenettet rad for rad fra hjørnet av posisjonen. Grønne knapper er slått på, et langt trykk på en knapp åpner menyen til linjen, og linjene dimmes og skjules når de er inaktive (angis i Innstillinger). Koble fra og Avslutt er utelatt, slik at et utilsiktet trykk ikke kan avslutte strømmen.</string>
+    <string name="quick_bar_editor_hint">Knappene fyller rutenettet rad for rad fra hjørnet av posisjonen. Grønne knapper er slått på, et langt trykk på en knapp åpner menyen til linjen, og linjene dimmes og skjules når de er inaktive (angis med inaktivitetsknappen ovenfor). Koble fra og Avslutt er utelatt, slik at et utilsiktet trykk ikke kan avslutte strømmen.</string>
     <string name="quick_bar_set_label">Sett</string>
     <string name="quick_bar_set_options">Settalternativer</string>
     <string name="quick_bar_set_active">%1$s (aktivt)</string>
@@ -644,8 +644,6 @@ For automatiske oppdateringsvarsler uten dette kan du følge appen med Obtainium
     <string name="game_menu_toggle_floating_button">Slå flytende knapp av/på</string>
     <string name="game_menu_toggle_quick_bar">Vis eller skjul hurtigfelt</string>
     <string name="title_quick_bar_auto_hide">Skjul hurtigfelt ved inaktivitet</string>
-    <string name="summary_quick_bar_auto_hide">Tone ut hurtigfeltene etter en pause i berøringsinndata og hent dem tilbake ved neste berøring</string>
-    <string name="keywords_quick_bar_auto_hide">hurtigfelt, skjul automatisk, inaktiv, tone ut, inaktivitet, tidsavbrudd, overlegg</string>
     <string name="quick_bar_auto_hide_off">Aldri</string>
     <string name="game_menu_select_mouse_mode">Velg musemodus</string>
     <string name="game_menu_select_steam_mode">Velg strømmemodus</string>
@@ -1126,11 +1124,8 @@ For automatiske oppdateringsvarsler uten dette kan du følge appen med Obtainium
     <string name="more_key_win_minus">Forstørrelsesglass ut (Win + -)</string>
     <string name="more_key_win_esc">Avslutt forstørrelsesglass (Win + Esc)</string>
     <string name="title_menu_section_order">Rekkefølge på hurtigmenyens seksjoner</string>
-    <string name="summary_menu_section_order">Velg om Handlinger, Økt eller Meny kommer først i hurtigmenyen</string>
-    <string name="keywords_menu_section_order">hurtigmeny, seksjon, rekkefølge, omorganiser, handlinger, økt, meny, dra</string>
     <string name="menu_section_order_hint">Dra en seksjon for å flytte den. Hurtigmenyen viser dem i denne rekkefølgen.</string>
     <string name="title_quick_bar_style">Stil for hurtigfelt</string>
-    <string name="keywords_quick_bar_style">hurtigfelt, stil, utseende, skinne, dokk, rund, knapper, håndtak, utvid, skjul, trykk</string>
     <string name="quick_bar_style_rail">Dokkskinne</string>
     <string name="quick_bar_style_round">Runde knapper</string>
     <string name="quick_bar_style_handle">Trykk for å utvide</string>
