@@ -54,7 +54,19 @@ public class ProfilesAdapter extends RecyclerView.Adapter<ProfilesAdapter.Profil
         SettingsProfile profile = profiles.get(position);
         SettingsProfile activeProfile = profilesManager.getActive();
 
+        // NOTE: The profile that new profiles start from carries a star after its name. A text note was cut off by the narrow name column in portrait.
         holder.profileName.setText(profile.getName());
+        boolean isTemplate = profilesManager.isDefaultTemplate(profile.getUuid());
+        android.graphics.drawable.Drawable star = isTemplate ? context.getDrawable(R.drawable.ic_sa_star) : null;
+        if (star != null) {
+            int size = (int) (18 * context.getResources().getDisplayMetrics().density);
+            star = star.mutate();
+            star.setBounds(0, 0, size, size);
+            star.setTint(com.limelight.ui.Dialogs.color(holder.itemView.getContext(), R.attr.saPrimary));
+        }
+        holder.profileName.setCompoundDrawablesRelative(null, null, star, null);
+        holder.profileName.setCompoundDrawablePadding((int) (6 * context.getResources().getDisplayMetrics().density));
+        holder.profileName.setContentDescription(isTemplate ? context.getString(R.string.profile_manager_template_name, profile.getName()) : profile.getName());
         holder.profileTimestamp.setText(DateUtils.getRelativeTimeSpanString(
             profile.getModifiedUtc(), System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS));
 
@@ -107,10 +119,26 @@ public class ProfilesAdapter extends RecyclerView.Adapter<ProfilesAdapter.Profil
         });
     }
 
-    // Duplicate makes a new profile, Copy settings into overwrites another profile after a confirmation
+    // NOTE: The Copy profile menu is the app's own choice list, not a system popup, so it has its own surface and stays readable in Pure black, where a popup merged with the black screen behind it.
+    // NOTE: Duplicate makes a new profile, the template item marks the profile that new profiles start from, and Copy settings into overwrites another profile after a confirmation.
     private void showCopyMenu(View anchor, SettingsProfile profile) {
-        android.widget.PopupMenu popup = new android.widget.PopupMenu(context, anchor);
-        popup.getMenu().add(0, 1, 0, R.string.profile_manager_duplicate);
+        com.limelight.ui.ChoiceList choices = new com.limelight.ui.ChoiceList(new AlertDialog.Builder(context), R.drawable.ic_sa_content_copy,
+                profile.getName(), R.string.cancel);
+        choices.add(R.drawable.ic_sa_content_copy, context.getString(R.string.profile_manager_duplicate), false, () -> {
+            SettingsProfile copy = profilesManager.duplicate(profile.getUuid(),
+                    context.getString(R.string.profile_manager_copy_name, profile.getName()));
+            if (copy != null) {
+                profilesManager.save(context);
+                Toast.makeText(context, context.getString(R.string.profile_manager_duplicated, copy.getName()), Toast.LENGTH_SHORT).show();
+            }
+        });
+        boolean isTemplate = profilesManager.isDefaultTemplate(profile.getUuid());
+        choices.add(R.drawable.ic_sa_star, context.getString(isTemplate ? R.string.profile_manager_template_clear : R.string.profile_manager_template_set), isTemplate, () -> {
+            profilesManager.setDefaultTemplate(isTemplate ? null : profile.getUuid());
+            profilesManager.save(context);
+            Toast.makeText(context, isTemplate ? context.getString(R.string.profile_manager_template_cleared)
+                    : context.getString(R.string.profile_manager_template_is_set, profile.getName()), Toast.LENGTH_SHORT).show();
+        });
         List<SettingsProfile> others = new java.util.ArrayList<>();
         for (SettingsProfile other : profilesManager.getProfiles()) {
             if (!other.getUuid().equals(profile.getUuid())) {
@@ -118,28 +146,19 @@ public class ProfilesAdapter extends RecyclerView.Adapter<ProfilesAdapter.Profil
             }
         }
         if (!others.isEmpty()) {
-            popup.getMenu().add(0, 2, 1, R.string.profile_manager_copy_into);
+            choices.add(R.drawable.ic_sa_content_paste, context.getString(R.string.profile_manager_copy_into), false, () -> showCopyIntoPicker(profile, others));
         }
-        popup.setOnMenuItemClickListener(item -> {
-            if (item.getItemId() == 1) {
-                SettingsProfile copy = profilesManager.duplicate(profile.getUuid(),
-                        context.getString(R.string.profile_manager_copy_name, profile.getName()));
-                if (copy != null) {
-                    profilesManager.save(context);
-                    Toast.makeText(context, context.getString(R.string.profile_manager_duplicated, copy.getName()), Toast.LENGTH_SHORT).show();
-                }
-                return true;
-            }
-            // Same picker look as every other Super Artemis choice list: header with icon, one row per profile
-            com.limelight.ui.ChoiceList choices = new com.limelight.ui.ChoiceList(new AlertDialog.Builder(context), R.drawable.ic_sa_content_copy,
-                    context.getString(R.string.profile_manager_copy_into_title, profile.getName()), R.string.cancel);
-            for (SettingsProfile other : others) {
-                choices.add(R.drawable.ic_sa_person, other.getName(), false, () -> confirmCopyInto(profile, other));
-            }
-            choices.show();
-            return true;
-        });
-        popup.show();
+        choices.show();
+    }
+
+    // Same picker look as every other Super Artemis choice list: header with icon, one row per profile
+    private void showCopyIntoPicker(SettingsProfile profile, List<SettingsProfile> others) {
+        com.limelight.ui.ChoiceList choices = new com.limelight.ui.ChoiceList(new AlertDialog.Builder(context), R.drawable.ic_sa_content_copy,
+                context.getString(R.string.profile_manager_copy_into_title, profile.getName()), R.string.cancel);
+        for (SettingsProfile other : others) {
+            choices.add(R.drawable.ic_sa_person, other.getName(), false, () -> confirmCopyInto(profile, other));
+        }
+        choices.show();
     }
 
     private void confirmCopyInto(SettingsProfile from, SettingsProfile to) {

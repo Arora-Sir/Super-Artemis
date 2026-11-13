@@ -675,4 +675,9 @@
     <string name="quick_bar_idle_seconds">秒</string>
     <string name="quick_bar_idle_dialog_hint">两个时间都从您最后一次触摸开始计算。时间设为0会跳过该阶段，即工具栏永不变暗或永不隐藏。工具栏隐藏后，屏幕边缘会保留一个淡淡的标签，不透明度设为0则会移除该标签。触摸视频流始终会让工具栏重新出现。</string>
     <string name="game_menu_editor_tab_section_order">分区排序</string>
+    <string name="profile_manager_template_set">用作新配置文件的起点</string>
+    <string name="profile_manager_template_clear">不再用作新配置文件的起点</string>
+    <string name="profile_manager_template_name">%1$s（新配置文件的起点）</string>
+    <string name="profile_manager_template_is_set">新配置文件现在以 %1$s 为起点</string>
+    <string name="profile_manager_template_cleared">新配置文件重新以当前设置为起点</string>
 </resources>

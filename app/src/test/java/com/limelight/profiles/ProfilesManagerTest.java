@@ -54,6 +54,43 @@ public class ProfilesManagerTest {
         assertEquals(p.getUuid(), manager.getProfiles().get(0).getUuid());
     }
 
+    // NOTE: The default template is the profile that new profiles start from. It survives a reload, never touches other profiles, and clears itself when that profile is deleted.
+    @Test
+    public void theDefaultTemplateSurvivesAReloadAndClearsWhenItsProfileIsDeleted() {
+        java.util.Map<String, Object> options = new java.util.HashMap<>();
+        options.put("list_fps", "90");
+        SettingsProfile template = new SettingsProfile(UUID.randomUUID(), "Base", 1L, 1L, options);
+        SettingsProfile other = new SettingsProfile(UUID.randomUUID(), "Other", 1L, 1L, new java.util.HashMap<>());
+        manager.add(template);
+        manager.add(other);
+        assertNull(manager.getDefaultTemplateId());
+        assertNull(manager.defaultTemplateOptions());
+
+        manager.setDefaultTemplate(template.getUuid());
+        assertTrue(manager.isDefaultTemplate(template.getUuid()));
+        assertFalse(manager.isDefaultTemplate(other.getUuid()));
+        assertEquals("90", manager.defaultTemplateOptions().get("list_fps"));
+        // The copy handed out is its own, so editing it never changes the template
+        manager.defaultTemplateOptions().put("list_fps", "30");
+        assertEquals("90", manager.defaultTemplateOptions().get("list_fps"));
+
+        assertTrue(manager.save(context));
+        ProfilesManager.instance = null;
+        ProfilesManager reloaded = ProfilesManager.getInstance();
+        reloaded.load(context);
+        assertEquals(template.getUuid(), reloaded.getDefaultTemplateId());
+
+        reloaded.delete(template.getUuid());
+        assertNull(reloaded.getDefaultTemplateId());
+        assertNull(reloaded.defaultTemplateOptions());
+    }
+
+    @Test
+    public void anUnknownProfileCannotBecomeTheTemplate() {
+        manager.setDefaultTemplate(UUID.randomUUID());
+        assertNull(manager.getDefaultTemplateId());
+    }
+
     @Test
     public void setActivePersists() {
         SettingsProfile p = new SettingsProfile(UUID.randomUUID(), "Active", System.currentTimeMillis(), System.currentTimeMillis(), null);

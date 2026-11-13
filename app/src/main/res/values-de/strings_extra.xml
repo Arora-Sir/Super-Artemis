@@ -1066,4 +1066,9 @@ Für automatische Update-Benachrichtigungen ohne dies verfolge die App stattdess
     <string name="quick_bar_idle_seconds">s</string>
     <string name="quick_bar_idle_dialog_hint">Beide Zeiten zählen ab Ihrer letzten Berührung. Eine Zeit von 0 überspringt diese Stufe, sodass die Leisten nie abgedunkelt oder nie ausgeblendet werden. Nach dem Ausblenden der Leisten bleibt eine blasse Lasche am Bildschirmrand, und eine Deckkraft von 0 entfernt die Lasche. Eine Berührung des Streams bringt die Leisten immer zurück.</string>
     <string name="game_menu_editor_tab_section_order">Bereichsreihenfolge</string>
+    <string name="profile_manager_template_set">Als Start für neue Profile verwenden</string>
+    <string name="profile_manager_template_clear">Nicht mehr als Start für neue Profile verwenden</string>
+    <string name="profile_manager_template_name">%1$s (Start für neue Profile)</string>
+    <string name="profile_manager_template_is_set">Neue Profile starten jetzt mit %1$s</string>
+    <string name="profile_manager_template_cleared">Neue Profile starten wieder mit den aktuellen Einstellungen</string>
 </resources>

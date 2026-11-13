@@ -1096,4 +1096,9 @@ Automatikus frissítési értesítésekhez ennek nélkül kövesd az alkalmazás
     <string name="quick_bar_idle_seconds">mp</string>
     <string name="quick_bar_idle_dialog_hint">Mindkét idő az utolsó érintéstől számít. A 0 idő kihagyja az adott szakaszt, így a sávok soha nem halványulnak el vagy soha nem rejtőznek el. A sávok elrejtése után egy halvány fül marad a képernyő szélén, a 0 átlátszatlanság pedig eltávolítja a fület. A streamre való érintés mindig visszahozza a sávokat.</string>
     <string name="game_menu_editor_tab_section_order">Szakaszok sorrendje</string>
+    <string name="profile_manager_template_set">Használat az új profilok kiindulópontjaként</string>
+    <string name="profile_manager_template_clear">Ne legyen az új profilok kiindulópontja</string>
+    <string name="profile_manager_template_name">%1$s (az új profilok kiindulópontja)</string>
+    <string name="profile_manager_template_is_set">Az új profilok mostantól ebből indulnak: %1$s</string>
+    <string name="profile_manager_template_cleared">Az új profilok újra a jelenlegi beállításokból indulnak</string>
 </resources>

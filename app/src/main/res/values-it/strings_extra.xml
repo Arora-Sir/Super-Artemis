@@ -1090,4 +1090,9 @@ Per avvisi di aggiornamento automatici senza questo, segui invece l\'app con Obt
     <string name="quick_bar_idle_seconds">s</string>
     <string name="quick_bar_idle_dialog_hint">Entrambi i tempi partono dall\'ultimo tocco. Un tempo pari a 0 salta quella fase, quindi le barre non si attenuano o non si nascondono mai. Dopo che le barre si nascondono, una linguetta tenue resta sul bordo dello schermo e un\'opacità pari a 0 rimuove la linguetta. Un tocco sullo stream riporta sempre le barre.</string>
     <string name="game_menu_editor_tab_section_order">Ordine sezioni</string>
+    <string name="profile_manager_template_set">Usa come base per i nuovi profili</string>
+    <string name="profile_manager_template_clear">Smetti di usare come base per i nuovi profili</string>
+    <string name="profile_manager_template_name">%1$s (base per i nuovi profili)</string>
+    <string name="profile_manager_template_is_set">I nuovi profili ora partono da %1$s</string>
+    <string name="profile_manager_template_cleared">I nuovi profili partono di nuovo dalle impostazioni attuali</string>
 </resources>

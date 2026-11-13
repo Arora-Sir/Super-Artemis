@@ -1122,4 +1122,9 @@ Pro automatická upozornění na aktualizace bez toho místo toho sledujte aplik
     <string name="quick_bar_idle_seconds">s</string>
     <string name="quick_bar_idle_dialog_hint">Oba časy se počítají od vašeho posledního dotyku. Čas 0 tuto fázi přeskočí, takže se lišty nikdy neztlumí nebo se nikdy neskryjí. Po skrytí lišt zůstane na okraji obrazovky slabá záložka a průhlednost 0 záložku odstraní. Dotyk na stream lišty vždy vrátí.</string>
     <string name="game_menu_editor_tab_section_order">Pořadí sekcí</string>
+    <string name="profile_manager_template_set">Použít jako výchozí bod pro nové profily</string>
+    <string name="profile_manager_template_clear">Přestat používat jako výchozí bod pro nové profily</string>
+    <string name="profile_manager_template_name">%1$s (výchozí bod pro nové profily)</string>
+    <string name="profile_manager_template_is_set">Nové profily nyní vycházejí z profilu %1$s</string>
+    <string name="profile_manager_template_cleared">Nové profily opět vycházejí z aktuálního nastavení</string>
 </resources>

@@ -151,6 +151,14 @@
       ]
     },
     {
+      "feature": "A profile that new profiles start from",
+      "role": "idea",
+      "people": [{ "handle": "MikalaiKryvusha", "name": "Mikalai Kryvusha" }],
+      "links": [
+        { "label": "Super-Artemis issue 5", "url": "https://github.com/Arora-Sir/Super-Artemis/issues/5" }
+      ]
+    },
+    {
       "feature": "Settings search",
       "role": "library",
       "people": [{ "handle": "ByteHamster", "name": "Hans-Peter Lehmann" }],

@@ -1085,4 +1085,9 @@ Para recibir alertas de actualización automáticas sin esto, sigue la app con O
     <string name="quick_bar_idle_seconds">s</string>
     <string name="quick_bar_idle_dialog_hint">Ambos tiempos cuentan desde tu último toque. Un tiempo de 0 omite esa fase, así que las barras nunca se atenúan o nunca se ocultan. Cuando las barras se ocultan, queda una pestaña tenue en el borde de la pantalla, y una opacidad de 0 elimina la pestaña. Un toque en la transmisión siempre devuelve las barras.</string>
     <string name="game_menu_editor_tab_section_order">Orden de secciones</string>
+    <string name="profile_manager_template_set">Usar como inicio para perfiles nuevos</string>
+    <string name="profile_manager_template_clear">Dejar de usar como inicio para perfiles nuevos</string>
+    <string name="profile_manager_template_name">%1$s (inicio para perfiles nuevos)</string>
+    <string name="profile_manager_template_is_set">Los perfiles nuevos ahora parten de %1$s</string>
+    <string name="profile_manager_template_cleared">Los perfiles nuevos vuelven a partir de los ajustes actuales</string>
 </resources>

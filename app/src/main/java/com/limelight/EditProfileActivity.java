@@ -217,8 +217,13 @@ public class EditProfileActivity extends AppCompatActivity implements com.limeli
             inMemoryPrefs = new InMemorySharedPreferences(currentProfile != null ? currentProfile.getOptions() : new HashMap<>());
         }
         else {
-            // A new profile starts from the current settings
-            inMemoryPrefs = new InMemorySharedPreferences(PreferenceManager.getDefaultSharedPreferences(this).getAll());
+            // NOTE: A new profile starts from the current settings, with the options of the default template laid over them when one is set.
+            Map<String, Object> start = new HashMap<>(PreferenceManager.getDefaultSharedPreferences(this).getAll());
+            Map<String, Object> template = ProfilesManager.getInstance().defaultTemplateOptions();
+            if (template != null) {
+                start.putAll(template);
+            }
+            inMemoryPrefs = new InMemorySharedPreferences(start);
         }
     }
 

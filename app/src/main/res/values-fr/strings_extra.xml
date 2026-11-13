@@ -799,4 +799,9 @@ Pour des alertes de mise à jour automatiques sans cela, suivez plutôt l\'app a
     <string name="quick_bar_idle_seconds">s</string>
     <string name="quick_bar_idle_dialog_hint">Les deux durées sont comptées depuis votre dernier toucher. Une durée de 0 ignore cette étape, donc les barres ne s\'atténuent jamais ou ne se masquent jamais. Une fois les barres masquées, un onglet discret reste sur le bord de l\'écran, et une opacité de 0 supprime l\'onglet. Un toucher sur le flux ramène toujours les barres.</string>
     <string name="game_menu_editor_tab_section_order">Ordre des sections</string>
+    <string name="profile_manager_template_set">Utiliser comme base des nouveaux profils</string>
+    <string name="profile_manager_template_clear">Ne plus utiliser comme base des nouveaux profils</string>
+    <string name="profile_manager_template_name">%1$s (base des nouveaux profils)</string>
+    <string name="profile_manager_template_is_set">Les nouveaux profils partent désormais de %1$s</string>
+    <string name="profile_manager_template_cleared">Les nouveaux profils repartent des réglages actuels</string>
 </resources>

@@ -670,4 +670,9 @@
     <string name="quick_bar_idle_seconds">秒</string>
     <string name="quick_bar_idle_dialog_hint">兩個時間都從您最後一次觸碰開始計算。時間設為0會略過該階段，即工具列永不變暗或永不隱藏。工具列隱藏後，螢幕邊緣會保留一個淡淡的標籤，不透明度設為0則會移除該標籤。觸碰串流畫面一律會讓工具列重新出現。</string>
     <string name="game_menu_editor_tab_section_order">分區排序</string>
+    <string name="profile_manager_template_set">作為新設定檔的起點</string>
+    <string name="profile_manager_template_clear">不再作為新設定檔的起點</string>
+    <string name="profile_manager_template_name">%1$s（新設定檔的起點）</string>
+    <string name="profile_manager_template_is_set">新設定檔現在以 %1$s 為起點</string>
+    <string name="profile_manager_template_cleared">新設定檔重新以目前設定為起點</string>
 </resources>

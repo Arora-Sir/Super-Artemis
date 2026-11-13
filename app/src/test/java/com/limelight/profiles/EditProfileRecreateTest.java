@@ -29,4 +29,22 @@ public class EditProfileRecreateTest {
                 instanceof EditProfileActivity.ProfilePreferenceFragment);
         assertNotNull(activity.getInMemoryPrefs());
     }
+
+    // NOTE: A new profile starts from the current settings, and the options of the default template win over them.
+    @Test
+    public void aNewProfileStartsFromTheDefaultTemplateWhenOneIsSet() {
+        ProfilesManager.instance = null;
+        ProfilesManager manager = ProfilesManager.getInstance();
+        java.util.Map<String, Object> options = new java.util.HashMap<>();
+        // A marker key the settings screen never rewrites, unlike the frame rate list that follows the display
+        options.put("template_marker", "from-template");
+        SettingsProfile template = new SettingsProfile(java.util.UUID.randomUUID(), "Base", 1L, 1L, options);
+        manager.add(template);
+        manager.setDefaultTemplate(template.getUuid());
+
+        EditProfileActivity activity = Robolectric.buildActivity(EditProfileActivity.class).setup().get();
+
+        org.junit.Assert.assertEquals("from-template", activity.getInMemoryPrefs().getString("template_marker", null));
+        ProfilesManager.instance = null;
+    }
 }

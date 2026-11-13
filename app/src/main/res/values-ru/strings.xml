@@ -1378,4 +1378,9 @@
     <string name="section_resolution_standard">Стандартные разрешения</string>
     <string name="section_resolution_native">Экран устройства</string>
     <string name="section_resolution_custom">Пользовательское разрешение</string>
+    <string name="profile_manager_template_set">Использовать как основу для новых профилей</string>
+    <string name="profile_manager_template_clear">Больше не использовать как основу для новых профилей</string>
+    <string name="profile_manager_template_name">%1$s (основа для новых профилей)</string>
+    <string name="profile_manager_template_is_set">Новые профили теперь создаются на основе профиля «%1$s»</string>
+    <string name="profile_manager_template_cleared">Новые профили снова создаются на основе текущих настроек</string>
 </resources>

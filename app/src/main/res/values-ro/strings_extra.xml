@@ -1178,4 +1178,9 @@ Pentru alerte automate de actualizare fără aceasta, urmărește aplicația cu 
     <string name="quick_bar_idle_seconds">s</string>
     <string name="quick_bar_idle_dialog_hint">Ambele durate se numără de la ultima ta atingere. O durată de 0 sare peste acea etapă, deci barele nu se estompează niciodată sau nu se ascund niciodată. După ce barele se ascund, o filă discretă rămâne pe marginea ecranului, iar o opacitate de 0 elimină fila. O atingere pe flux readuce întotdeauna barele.</string>
     <string name="game_menu_editor_tab_section_order">Ordinea secțiunilor</string>
+    <string name="profile_manager_template_set">Folosește ca punct de pornire pentru profilurile noi</string>
+    <string name="profile_manager_template_clear">Nu mai folosi ca punct de pornire pentru profilurile noi</string>
+    <string name="profile_manager_template_name">%1$s (punct de pornire pentru profilurile noi)</string>
+    <string name="profile_manager_template_is_set">Profilurile noi pornesc acum de la %1$s</string>
+    <string name="profile_manager_template_cleared">Profilurile noi pornesc din nou de la setările curente</string>
 </resources>

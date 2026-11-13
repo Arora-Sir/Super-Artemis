@@ -271,4 +271,10 @@
     <string name="custom_resolution_error_range">Largura e altura entre %1$d e %2$d</string>
     <string name="custom_resolution_error_odd">A largura e a altura devem ser números pares</string>
     <string name="custom_resolution_error_decoder">Este dispositivo não suporta descodificar %1$d×%2$d</string>
+    <string name="profile_manager_template_set">Usar como base para novos perfis</string>
+    <string name="profile_manager_template_clear">Deixar de usar como base para novos perfis</string>
+    <string name="profile_manager_template_name">%1$s (base para novos perfis)</string>
+    <string name="profile_manager_template_is_set">Os novos perfis passam a partir de %1$s</string>
+    <string name="profile_manager_template_cleared">Os novos perfis voltam a partir das definições atuais</string>
+    <string name="quick_bar_editor_hint">Os botões preenchem a grelha linha por linha a partir do canto da sua posição. Os botões verdes estão ativados, um toque longo num botão abre o menu da barra, e as barras escurecem e ficam ocultas quando estão inativas (definido com o botão de inatividade acima). Desligar e Sair ficam de fora, para que um toque acidental não possa terminar a transmissão.</string>
 </resources>

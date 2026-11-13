@@ -1139,4 +1139,9 @@ Untuk pemberitahuan pembaruan otomatis tanpa ini, ikuti aplikasi ini dengan Obta
     <string name="quick_bar_idle_seconds">dtk</string>
     <string name="quick_bar_idle_dialog_hint">Kedua waktu dihitung sejak sentuhan terakhir Anda. Waktu 0 melewati tahap itu, sehingga bilah tidak pernah diredupkan atau tidak pernah disembunyikan. Setelah bilah disembunyikan, tab samar tetap ada di tepi layar, dan opasitas 0 menghapus tab tersebut. Sentuhan pada stream selalu memunculkan kembali bilah.</string>
     <string name="game_menu_editor_tab_section_order">Urutan bagian</string>
+    <string name="profile_manager_template_set">Gunakan sebagai awal untuk profil baru</string>
+    <string name="profile_manager_template_clear">Berhenti menggunakan sebagai awal untuk profil baru</string>
+    <string name="profile_manager_template_name">%1$s (awal untuk profil baru)</string>
+    <string name="profile_manager_template_is_set">Profil baru kini dimulai dari %1$s</string>
+    <string name="profile_manager_template_cleared">Profil baru kembali dimulai dari pengaturan saat ini</string>
 </resources>

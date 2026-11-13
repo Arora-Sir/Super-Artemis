@@ -1148,4 +1148,9 @@ For automatiske oppdateringsvarsler uten dette kan du følge appen med Obtainium
     <string name="quick_bar_idle_seconds">s</string>
     <string name="quick_bar_idle_dialog_hint">Begge tidene telles fra din siste berøring. En tid på 0 hopper over det trinnet, slik at linjene aldri dimmes eller aldri skjules. Etter at linjene er skjult, blir en svak fane igjen på skjermkanten, og en opasitet på 0 fjerner fanen. En berøring på strømmen henter alltid linjene tilbake.</string>
     <string name="game_menu_editor_tab_section_order">Seksjonsrekkefølge</string>
+    <string name="profile_manager_template_set">Bruk som start for nye profiler</string>
+    <string name="profile_manager_template_clear">Slutt å bruke som start for nye profiler</string>
+    <string name="profile_manager_template_name">%1$s (start for nye profiler)</string>
+    <string name="profile_manager_template_is_set">Nye profiler starter nå fra %1$s</string>
+    <string name="profile_manager_template_cleared">Nye profiler starter fra gjeldende innstillinger igjen</string>
 </resources>

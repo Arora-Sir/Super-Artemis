@@ -793,4 +793,9 @@
     <string name="quick_bar_idle_seconds">giây</string>
     <string name="quick_bar_idle_dialog_hint">Cả hai thời gian đều tính từ lần chạm cuối của bạn. Thời gian bằng 0 sẽ bỏ qua giai đoạn đó, nên thanh không bao giờ mờ đi hoặc không bao giờ ẩn. Sau khi thanh ẩn, một thẻ mờ nhạt vẫn nằm ở cạnh màn hình, và độ mờ bằng 0 sẽ xóa thẻ này. Chạm vào luồng luôn đưa các thanh trở lại.</string>
     <string name="game_menu_editor_tab_section_order">Thứ tự phần</string>
+    <string name="profile_manager_template_set">Dùng làm điểm bắt đầu cho hồ sơ mới</string>
+    <string name="profile_manager_template_clear">Ngừng dùng làm điểm bắt đầu cho hồ sơ mới</string>
+    <string name="profile_manager_template_name">%1$s (điểm bắt đầu cho hồ sơ mới)</string>
+    <string name="profile_manager_template_is_set">Hồ sơ mới giờ bắt đầu từ %1$s</string>
+    <string name="profile_manager_template_cleared">Hồ sơ mới lại bắt đầu từ cài đặt hiện tại</string>
 </resources>

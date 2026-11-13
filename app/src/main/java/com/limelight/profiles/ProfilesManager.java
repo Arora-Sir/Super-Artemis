@@ -34,6 +34,8 @@ public class ProfilesManager {
 
     private final Map<UUID, SettingsProfile> profiles = new LinkedHashMap<>();
     private UUID activeProfileId;
+    // NOTE: The profile whose options a new profile starts from. Null means a new profile starts from the current settings, as before.
+    private UUID defaultTemplateId;
     private final List<ProfileChangeListener> listeners = new ArrayList<>();
     private Context appContext; // Application context for auto-save
 
@@ -84,6 +86,7 @@ public class ProfilesManager {
                         profiles.put(p.getUuid(), p);
                     }
                     activeProfileId = data.activeProfileId;
+                    defaultTemplateId = data.defaultTemplateId;
                 }
             } catch (IOException e) {
                 LimeLog.warning("ArtemisProfile: Failed to load profiles from file:" + e);
@@ -115,6 +118,7 @@ public class ProfilesManager {
                 ProfilesData data = new ProfilesData();
                 data.profiles = new ArrayList<>(profiles.values());
                 data.activeProfileId = activeProfileId;
+                data.defaultTemplateId = defaultTemplateId;
                 gson.toJson(data, writer);
             } catch (IOException e) {
                 LimeLog.warning("ArtemisProfile: Failed to save profiles to file:" + e);
@@ -151,6 +155,9 @@ public class ProfilesManager {
         if (uuid.equals(activeProfileId)) {
             activeProfileId = null;
         }
+        if (uuid.equals(defaultTemplateId)) {
+            defaultTemplateId = null;
+        }
         notifyListeners();
         saveIfPossible();
     }
@@ -183,6 +190,28 @@ public class ProfilesManager {
             copy.put(entry.getKey(), value);
         }
         return copy;
+    }
+
+    public UUID getDefaultTemplateId() {
+        return defaultTemplateId != null && profiles.containsKey(defaultTemplateId) ? defaultTemplateId : null;
+    }
+
+    public boolean isDefaultTemplate(UUID uuid) {
+        return uuid != null && uuid.equals(getDefaultTemplateId());
+    }
+
+    // NOTE: Marks one profile as the base that every new profile starts from, or clears the mark with null. Existing profiles are never changed by it.
+    public void setDefaultTemplate(UUID uuid) {
+        defaultTemplateId = uuid != null && profiles.containsKey(uuid) ? uuid : null;
+        notifyListeners();
+        saveIfPossible();
+    }
+
+    // A copy of the options of the default template, or null when none is set
+    public Map<String, Object> defaultTemplateOptions() {
+        UUID id = getDefaultTemplateId();
+        SettingsProfile template = id != null ? profiles.get(id) : null;
+        return template != null ? copyOptions(template.getOptions()) : null;
     }
 
     // A new profile with every option of the given one, which stays as it is
@@ -258,6 +287,7 @@ public class ProfilesManager {
     private static class ProfilesData {
         List<SettingsProfile> profiles;
         UUID activeProfileId;
+        UUID defaultTemplateId;
     }
 
     public interface ProfileChangeListener {

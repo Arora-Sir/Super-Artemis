@@ -1084,4 +1084,9 @@ För automatiska uppdateringsaviseringar utan detta kan du följa appen med Obta
     <string name="quick_bar_idle_seconds">s</string>
     <string name="quick_bar_idle_dialog_hint">Båda tiderna räknas från din senaste beröring. En tid på 0 hoppar över det steget, så fälten dimmas eller döljs aldrig. När fälten har dolts finns en svag flik kvar på skärmkanten, och en opacitet på 0 tar bort fliken. En beröring på strömmen tar alltid tillbaka fälten.</string>
     <string name="game_menu_editor_tab_section_order">Avsnittsordning</string>
+    <string name="profile_manager_template_set">Använd som start för nya profiler</string>
+    <string name="profile_manager_template_clear">Sluta använda som start för nya profiler</string>
+    <string name="profile_manager_template_name">%1$s (start för nya profiler)</string>
+    <string name="profile_manager_template_is_set">Nya profiler utgår nu från %1$s</string>
+    <string name="profile_manager_template_cleared">Nya profiler utgår från de aktuella inställningarna igen</string>
 </resources>

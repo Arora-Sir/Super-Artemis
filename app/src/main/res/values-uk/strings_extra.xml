@@ -1096,4 +1096,9 @@
     <string name="quick_bar_idle_seconds">с</string>
     <string name="quick_bar_idle_dialog_hint">Обидва часи відраховуються від вашого останнього дотику. Час 0 пропускає цей етап, тож панелі ніколи не затемнюються або ніколи не приховуються. Після приховування панелей на краю екрана залишається ледь помітна вкладка, а непрозорість 0 прибирає вкладку. Дотик до потоку завжди повертає панелі.</string>
     <string name="game_menu_editor_tab_section_order">Порядок розділів</string>
+    <string name="profile_manager_template_set">Використовувати як основу для нових профілів</string>
+    <string name="profile_manager_template_clear">Більше не використовувати як основу для нових профілів</string>
+    <string name="profile_manager_template_name">%1$s (основа для нових профілів)</string>
+    <string name="profile_manager_template_is_set">Нові профілі тепер створюються на основі %1$s</string>
+    <string name="profile_manager_template_cleared">Нові профілі знову створюються на основі поточних налаштувань</string>
 </resources>

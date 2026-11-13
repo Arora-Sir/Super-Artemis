@@ -1147,4 +1147,9 @@ Volg de app met Obtainium voor automatische updatemeldingen zonder dit.</string>
     <string name="quick_bar_idle_seconds">s</string>
     <string name="quick_bar_idle_dialog_hint">Beide tijden tellen vanaf je laatste aanraking. Een tijd van 0 slaat die fase over, dus de balken worden nooit gedimd of nooit verborgen. Nadat de balken zijn verborgen, blijft er een vage tab op de schermrand staan en een dekking van 0 verwijdert de tab. Een aanraking van de stream haalt de balken altijd terug.</string>
     <string name="game_menu_editor_tab_section_order">Sectievolgorde</string>
+    <string name="profile_manager_template_set">Gebruiken als start voor nieuwe profielen</string>
+    <string name="profile_manager_template_clear">Niet meer gebruiken als start voor nieuwe profielen</string>
+    <string name="profile_manager_template_name">%1$s (start voor nieuwe profielen)</string>
+    <string name="profile_manager_template_is_set">Nieuwe profielen starten nu vanaf %1$s</string>
+    <string name="profile_manager_template_cleared">Nieuwe profielen starten weer vanaf de huidige instellingen</string>
 </resources>
