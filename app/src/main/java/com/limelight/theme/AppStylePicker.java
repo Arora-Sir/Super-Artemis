@@ -40,6 +40,10 @@ public final class AppStylePicker {
     }
 
     public static void show(Context context, String current, OnPicked onPicked) {
+        show(context, current, ThemeManager.currentScheme(context), onPicked);
+    }
+
+    public static void show(Context context, String current, String scheme, OnPicked onPicked) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         Context dialogContext = builder.getContext();
         View body = LayoutInflater.from(dialogContext).inflate(R.layout.dialog_app_style, null);
@@ -51,7 +55,7 @@ public final class AppStylePicker {
 
         // NOTE: Taps only change what is shown. The two cards and the dots redraw with the pending choice, and Apply is what changes the app, so a mis-tap never recreates the screen.
         String[] pendingStyle = {current};
-        String[] pendingScheme = {ThemeManager.currentScheme(context)};
+        String[] pendingScheme = {scheme};
         // NOTE: The ten tiles (Wallpaper, eight schemes and the custom tile) sit on one line in a wide dialog and in two rows of five on a phone.
         // NOTE: Every tile has the same weight, so both layouts stay symmetric on any screen and nothing scrolls sideways.
         boolean twoRows = Dialogs.isCompact(dialogContext);
@@ -59,12 +63,17 @@ public final class AppStylePicker {
         dots.setOrientation(twoRows ? LinearLayout.VERTICAL : LinearLayout.HORIZONTAL);
         TextView schemeLabel = body.findViewById(R.id.app_style_schemes_label);
         Runnable[] render = new Runnable[1];
-        Runnable openPicker = () -> ColorPickerDialog.show(context, ThemeManager.customSeed(context), color -> {
-            ThemeManager.chooseCustomColor(context, color);
-            pendingStyle[0] = ThemeManager.MATERIAL_YOU;
-            pendingScheme[0] = ThemeManager.SCHEME_CUSTOM;
-            render[0].run();
-        });
+        final AlertDialog[] styleDialog = new AlertDialog[1];
+        // NOTE: The color picker takes the place of this dialog instead of opening on top of it, and this dialog comes back with the pending choice when the picker closes.
+        Runnable openPicker = () -> {
+            if (styleDialog[0] != null) {
+                styleDialog[0].dismiss();
+            }
+            ColorPickerDialog.show(context, ThemeManager.customSeed(context), color -> {
+                ThemeManager.chooseCustomColor(context, color);
+                show(context, ThemeManager.MATERIAL_YOU, ThemeManager.SCHEME_CUSTOM, onPicked);
+            }, () -> show(context, pendingStyle[0], pendingScheme[0], onPicked));
+        };
         render[0] = () -> {
             cards.removeAllViews();
             cards.addView(card(context, dialogContext, cards, ThemeManager.CLASSIC, pendingStyle[0], pendingScheme[0], sideBySide, () -> {
@@ -124,7 +133,7 @@ public final class AppStylePicker {
                 .setView(body)
                 .setPositiveButton(R.string.app_style_apply, (d, which) -> onPicked.onPicked(pendingStyle[0], pendingScheme[0]))
                 .setNegativeButton(R.string.game_menu_cancel, null);
-        Dialogs.show(builder, Dialogs.WIDTH_STANDARD_DP + 120);
+        styleDialog[0] = Dialogs.show(builder, Dialogs.WIDTH_STANDARD_DP + 120);
     }
 
     private static View emptyTile(Context context) {

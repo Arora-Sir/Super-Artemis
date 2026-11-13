@@ -27,6 +27,11 @@ public final class ColorPickerDialog {
     }
 
     public static void show(Context context, int initialColor, OnPicked onPicked) {
+        show(context, initialColor, onPicked, null);
+    }
+
+    // NOTE: onCancel runs when the picker is closed without a color, by Cancel or Back, so the dialog that opened it can come back.
+    public static void show(Context context, int initialColor, OnPicked onPicked, Runnable onCancel) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         Context dialogContext = builder.getContext();
         View body = LayoutInflater.from(dialogContext).inflate(R.layout.dialog_color_picker, null);
@@ -117,6 +122,9 @@ public final class ColorPickerDialog {
                 .setPositiveButton(R.string.color_picker_use, (d, which) -> onPicked.onPicked(current[0]))
                 .setNegativeButton(R.string.game_menu_cancel, null);
         dialog[0] = builder.create();
+        if (onCancel != null) {
+            dialog[0].setOnCancelListener(d -> onCancel.run());
+        }
         // The keyboard must not hide the hex field or the buttons
         dialog[0].getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         dialog[0].show();
