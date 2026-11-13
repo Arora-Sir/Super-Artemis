@@ -81,6 +81,8 @@ public final class QuickActionBar {
     private boolean manuallyHidden;
     // NOTE: Hidden after the idle time ran out, and the next touch on the stream brings the bars back.
     private boolean idleHidden;
+    // A finger is on the stream right now, so the idle stages wait
+    private boolean touching;
 
     // Keeps the item each button runs, so state refreshes know which action a button shows
     private static final class Binding {
@@ -116,6 +118,7 @@ public final class QuickActionBar {
     // Hidden in picture-in-picture, restored afterwards
     public void setHidden(boolean hidden) {
         this.hidden = hidden;
+        touching = false;
         applyVisibility();
     }
 
@@ -126,6 +129,7 @@ public final class QuickActionBar {
     // The toggle action: hides every bar until it is called again
     public void toggleManualHidden() {
         manuallyHidden = !manuallyHidden;
+        touching = false;
         idleHidden = false;
         cancelIdle();
         for (LinearLayout bar : bars) {
@@ -135,6 +139,21 @@ public final class QuickActionBar {
         applyVisibility();
         if (!manuallyHidden) {
             wake();
+        }
+    }
+
+    // NOTE: While a finger is on the stream the bars stay as they are and no idle timer runs, so a long press or a scroll never dims or hides them.
+    // NOTE: The idle clock starts again when the last finger lifts. A lost lift event is cleared by a reload, a manual hide or a hidden state, so the bars cannot stay awake for good.
+    public void onStreamTouchAction(int actionMasked) {
+        if (actionMasked == android.view.MotionEvent.ACTION_DOWN) {
+            touching = true;
+            onStreamTouch();
+        }
+        else if (actionMasked == android.view.MotionEvent.ACTION_UP || actionMasked == android.view.MotionEvent.ACTION_CANCEL) {
+            touching = false;
+            if (!manuallyHidden && !bars.isEmpty()) {
+                wake();
+            }
         }
     }
 
@@ -194,6 +213,7 @@ public final class QuickActionBar {
 
     // Rebuilds every corner from the saved items and directions, for example after the bar editor saved
     public void reload() {
+        touching = false;
         for (LinearLayout bar : bars) {
             parent.removeView(bar);
         }
@@ -465,7 +485,7 @@ public final class QuickActionBar {
             bar.animate().cancel();
             bar.setAlpha(1f);
         }
-        if (bars.isEmpty()) {
+        if (bars.isEmpty() || touching) {
             return;
         }
         IdlePlan plan = idlePlan();
@@ -488,6 +508,9 @@ public final class QuickActionBar {
     }
 
     private void dim() {
+        if (touching) {
+            return;
+        }
         float alpha = idlePlan().dimAlpha();
         for (LinearLayout bar : bars) {
             bar.animate().alpha(alpha).setDuration(300).start();
@@ -495,6 +518,9 @@ public final class QuickActionBar {
     }
 
     private void hideIdle() {
+        if (touching) {
+            return;
+        }
         for (LinearLayout bar : bars) {
             bar.animate().alpha(0f).setDuration(300).withEndAction(() -> {
                 if (bar.getAlpha() == 0f && !idleHidden) {

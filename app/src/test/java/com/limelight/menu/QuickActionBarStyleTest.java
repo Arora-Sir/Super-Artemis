@@ -207,6 +207,26 @@ public class QuickActionBarStyleTest {
         assertEquals(View.VISIBLE, barView().getVisibility());
     }
 
+    // NOTE: The bars waited for the idle time even while a finger was scrolling or holding on the stream, because only the first touch restarted the clock.
+    @Test
+    public void barsStayAsTheyAreWhileAFingerIsOnTheStreamAndTheClockRestartsWhenItLifts() {
+        new IdlePlan(2, 30, 6, 100).save(prefs);
+        connectWith("rail", 6);
+        bar.onStreamTouchAction(android.view.MotionEvent.ACTION_DOWN);
+
+        // A long hold passes both idle times and nothing changes
+        ShadowLooper.idleMainLooper(20, TimeUnit.SECONDS);
+        assertEquals(View.VISIBLE, barView().getVisibility());
+        assertEquals(1f, barView().getAlpha(), 0.01f);
+
+        // The clock starts when the finger lifts
+        bar.onStreamTouchAction(android.view.MotionEvent.ACTION_UP);
+        ShadowLooper.idleMainLooper(2500, TimeUnit.MILLISECONDS);
+        assertEquals(0.3f, barView().getAlpha(), 0.01f);
+        ShadowLooper.idleMainLooper(6, TimeUnit.SECONDS);
+        assertEquals(View.GONE, barView().getVisibility());
+    }
+
     @Test
     public void aTouchOnTheStreamAlsoBringsBackAHiddenRail() {
         connectWith("rail", 3);

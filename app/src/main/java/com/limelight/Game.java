@@ -3559,10 +3559,13 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
             // This case is for fingers
             else {
                 if (eventSource == InputDevice.SOURCE_TOUCHPAD) {
+                    if (quickActionBar != null) {
+                        quickActionBar.onStreamTouchAction(event.getActionMasked());
+                    }
                     return handleTouchInput(event, trackpadContextMap, false);
                 } else {
-                    if (quickActionBar != null && event.getActionMasked() == MotionEvent.ACTION_DOWN) {
-                        quickActionBar.onStreamTouch();
+                    if (quickActionBar != null) {
+                        quickActionBar.onStreamTouchAction(event.getActionMasked());
                     }
                     // Multi-finger gestures come first, so they work in every touch mode, including pan and zoom and on-screen control editing
                     // One switch on the Settings row turns them all off, which hands every touch to the touch mode
