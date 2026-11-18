@@ -4,6 +4,7 @@ This is the handoff file for anyone (human or AI) resuming work on Super Artemis
 
 ## Current state
 
+- Release 1.2.0 is prepared and not tagged (2026-11-18): `versionName` 1.2.0, `versionCode` 3, a dated CHANGELOG entry and `.github/release-notes/v1.2.0.md`. `v1.1.0` is the latest published release. BUG-077, BUG-078 and BUG-079 are fixed (commit `9d63d264`), with BUG-078 and BUG-079 verified on a Galaxy S24 Ultra and BUG-077 not reproducible on a device. The tag, the signed build and the publish are owner steps, and the upstream moonlight-common-c merge decision is still open.
 - Branch `unified-main` is based on Artemis `moonlight-noir` (commit `c5cf27f`). Nothing in this repository is published yet. The native core branch `super-artemis` is pushed to `Arora-Sir/moonlight-common-c`, and the common-c fixes from W17 are committed there as `8c83fe9` but not pushed yet.
 - Every planned feature for 1.0.0 is implemented. Workstreams after the backup commit (`6f810d67`) are prepared as one cumulative patch per workstream and wait for the commit review.
 - Version `1.0.0` (versionCode 1) is set but not released. The package IDs are `com.mohitarora.superartemis` (release) and `com.mohitarora.superartemis.debug` (debug). Earlier test installs used `com.limelight.superartemisdebug`, which can be uninstalled.
