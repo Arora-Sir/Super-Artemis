@@ -136,6 +136,7 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
     private volatile boolean stopping;
     private CrashListener crashListener;
     private boolean reportedCrash;
+    private boolean decoderReclaimReported;
     private int consecutiveCrashCount;
     private String glRenderer;
     private boolean foreground = true;
@@ -999,6 +1000,18 @@ public class MediaCodecDecoderRenderer extends VideoDecoderRenderer implements C
             }
 
             LimeLog.severe(codecExc.getDiagnosticInfo());
+
+            // NOTE: Another app took the hardware decoder (BUG-077), so retrying only floods the log and the host with IDR requests, and the 3 second delay below would then crash the process.
+            // NOTE: Stopping here makes submitDecodeUnit drop frames without asking for IDR frames, and the activity ends the stream cleanly.
+            if (DecoderReclaim.isReclaimed(codecExc)) {
+                if (!decoderReclaimReported) {
+                    decoderReclaimReported = true;
+                    stopping = true;
+                    LimeLog.warning("Hardware decoder reclaimed by the system, ending the stream");
+                    crashListener.onDecoderReclaimed();
+                }
+                return false;
+            }
 
             // We can attempt a recovery or reset at this stage to try to start decoding again
             if (codecRecoveryAttempts < CR_MAX_TRIES) {

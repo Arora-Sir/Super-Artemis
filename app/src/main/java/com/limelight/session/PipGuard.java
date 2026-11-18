@@ -56,15 +56,18 @@ public final class PipGuard {
         return new int[] {width, height};
     }
 
-    // A ringing phone, a call and a voice chat all put the audio system in one of these modes, and none of them is the user leaving the stream
-    public static boolean isCallMode(int audioMode) {
-        return audioMode == AudioManager.MODE_RINGTONE
-                || audioMode == AudioManager.MODE_IN_CALL
-                || audioMode == AudioManager.MODE_IN_COMMUNICATION;
+    // NOTE: Only a ringing phone is an interruption that must keep the stream full screen, because the incoming call alert covers it and is not the user leaving.
+    public static boolean isRingingMode(int audioMode) {
+        return audioMode == AudioManager.MODE_RINGTONE;
     }
 
-    // NOTE: Screen off, the lock screen, split screen, this app's own screens, a USB prompt and calls also pause the stream.
-    // NOTE: None of them is the user switching to another app, so the stream stays full screen for them.
+    // NOTE: A call or voice chat that is already running is steady state, so a user who swipes Home during it still expects the stream to shrink instead of ending (BUG-079).
+    public static boolean isCommunicationMode(int audioMode) {
+        return audioMode == AudioManager.MODE_IN_CALL || audioMode == AudioManager.MODE_IN_COMMUNICATION;
+    }
+
+    // NOTE: Screen off, the lock screen, split screen, this app's own screens, a USB prompt and a ringing phone also pause the stream.
+    // NOTE: None of them is the user switching to another app, so the stream stays full screen for them. A running call or voice chat does not block it.
     public static boolean mayEnterPip(State s) {
         if (!s.pipSupported || !s.pipEnabled || !s.connected) {
             return false;
@@ -75,7 +78,7 @@ public final class PipGuard {
         if (s.externalDisplay || s.pipSuppressed || s.openingOwnScreen) {
             return false;
         }
-        if (isCallMode(s.audioMode) || s.assistantRecently) {
+        if (isRingingMode(s.audioMode) || s.assistantRecently) {
             return false;
         }
         return s.interactive && !s.keyguardLocked;
@@ -83,7 +86,7 @@ public final class PipGuard {
 
     // Android 12 auto-enter starts the small window by itself, so it is armed only when a manual entry would be allowed
     public static boolean autoEnterArmed(boolean connected, boolean pipSuppressed, int audioMode, boolean assistantRecently) {
-        return connected && !pipSuppressed && !isCallMode(audioMode) && !assistantRecently;
+        return connected && !pipSuppressed && !isRingingMode(audioMode) && !assistantRecently;
     }
 
     // NOTE: One Hand Operation+ "previous app" hides the stream window and destroys its surface about a second before the app hears about it, so the stream cannot shrink and ends.

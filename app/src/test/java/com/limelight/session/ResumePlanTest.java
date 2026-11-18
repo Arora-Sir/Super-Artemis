@@ -104,4 +104,32 @@ public class ResumePlanTest {
         // The wait is short, as the owner asked
         assertTrue(ok <= 2000);
     }
+
+    // BUG-078: a switch from one Wi-Fi to another or to a hotspot leaves the old sockets silent
+    @Test
+    public void aSilentStreamAfterARealNetworkSwitchRestarts() {
+        assertTrue(ResumePlan.shouldRestartAfterNetworkSwitch(true, true, 11, 22, ResumePlan.SWITCH_SILENCE_MS));
+        assertTrue(ResumePlan.shouldRestartAfterNetworkSwitch(true, true, 11, 22, 4000));
+    }
+
+    @Test
+    public void aStreamThatKeptReceivingOverTheNewNetworkIsLeftAlone() {
+        assertFalse(ResumePlan.shouldRestartAfterNetworkSwitch(true, true, 11, 22, ResumePlan.SWITCH_SILENCE_MS - 1));
+        assertFalse(ResumePlan.shouldRestartAfterNetworkSwitch(true, true, 11, 22, 0));
+    }
+
+    @Test
+    public void theSameOrUnknownNetworkNeverCountsAsASwitch() {
+        assertFalse(ResumePlan.shouldRestartAfterNetworkSwitch(true, true, 11, 11, 5000));
+        assertFalse(ResumePlan.shouldRestartAfterNetworkSwitch(true, true, 0, 22, 5000));
+        assertFalse(ResumePlan.shouldRestartAfterNetworkSwitch(true, true, 11, 0, 5000));
+    }
+
+    @Test
+    public void aSwitchWaitsForTheNetworkAndHonoursTheSetting() {
+        assertFalse(ResumePlan.shouldRestartAfterNetworkSwitch(true, false, 11, 22, 5000));
+        assertFalse(ResumePlan.shouldRestartAfterNetworkSwitch(false, true, 11, 22, 5000));
+        // The check comes well before the 10 second silence rule would have fired
+        assertTrue(ResumePlan.SWITCH_CHECK_DELAY_MS + ResumePlan.SWITCH_SILENCE_MS < ResumePlan.RESTART_AFTER_SILENCE_MS);
+    }
 }

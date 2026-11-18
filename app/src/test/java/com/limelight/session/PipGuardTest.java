@@ -21,15 +21,46 @@ public class PipGuardTest {
     }
 
     @Test
-    public void callsAndVoiceChatsNeverEnter() {
-        for (int mode : new int[]{AudioManager.MODE_RINGTONE, AudioManager.MODE_IN_CALL, AudioManager.MODE_IN_COMMUNICATION}) {
-            PipGuard.State s = ready();
-            s.audioMode = mode;
-            assertFalse("mode " + mode, PipGuard.mayEnterPip(s));
-        }
+    public void aRingingPhoneNeverEnters() {
+        PipGuard.State s = ready();
+        s.audioMode = AudioManager.MODE_RINGTONE;
+        assertFalse(PipGuard.mayEnterPip(s));
         PipGuard.State normal = ready();
         normal.audioMode = AudioManager.MODE_NORMAL;
         assertTrue(PipGuard.mayEnterPip(normal));
+    }
+
+    // BUG-079: a call or voice chat that already runs must not turn Home into a closed stream
+    @Test
+    public void aRunningCallOrVoiceChatMayStillEnter() {
+        for (int mode : new int[]{AudioManager.MODE_IN_CALL, AudioManager.MODE_IN_COMMUNICATION}) {
+            PipGuard.State s = ready();
+            s.audioMode = mode;
+            assertTrue("mode " + mode, PipGuard.mayEnterPip(s));
+        }
+    }
+
+    @Test
+    public void ringingAndCommunicationModesAreDistinct() {
+        assertTrue(PipGuard.isRingingMode(AudioManager.MODE_RINGTONE));
+        assertFalse(PipGuard.isRingingMode(AudioManager.MODE_IN_CALL));
+        assertFalse(PipGuard.isRingingMode(AudioManager.MODE_IN_COMMUNICATION));
+        assertTrue(PipGuard.isCommunicationMode(AudioManager.MODE_IN_CALL));
+        assertTrue(PipGuard.isCommunicationMode(AudioManager.MODE_IN_COMMUNICATION));
+        assertFalse(PipGuard.isCommunicationMode(AudioManager.MODE_RINGTONE));
+        assertFalse(PipGuard.isCommunicationMode(AudioManager.MODE_NORMAL));
+    }
+
+    // A call that is still ringing together with another veto, such as the assistant, stays blocked
+    @Test
+    public void otherVetoesStillApplyDuringACall() {
+        PipGuard.State s = ready();
+        s.audioMode = AudioManager.MODE_IN_COMMUNICATION;
+        s.assistantRecently = true;
+        assertFalse(PipGuard.mayEnterPip(s));
+        s.assistantRecently = false;
+        s.keyguardLocked = true;
+        assertFalse(PipGuard.mayEnterPip(s));
     }
 
     @Test
@@ -115,10 +146,11 @@ public class PipGuardTest {
     }
 
     @Test
-    public void autoEnterIsOffWhileACallRuns() {
+    public void autoEnterIsOffOnlyWhileThePhoneRings() {
         assertTrue(PipGuard.autoEnterArmed(true, false, AudioManager.MODE_NORMAL, false));
         assertFalse(PipGuard.autoEnterArmed(true, false, AudioManager.MODE_RINGTONE, false));
-        assertFalse(PipGuard.autoEnterArmed(true, false, AudioManager.MODE_IN_CALL, false));
+        assertTrue(PipGuard.autoEnterArmed(true, false, AudioManager.MODE_IN_CALL, false));
+        assertTrue(PipGuard.autoEnterArmed(true, false, AudioManager.MODE_IN_COMMUNICATION, false));
         assertFalse(PipGuard.autoEnterArmed(false, false, AudioManager.MODE_NORMAL, false));
         assertFalse(PipGuard.autoEnterArmed(true, true, AudioManager.MODE_NORMAL, false));
     }

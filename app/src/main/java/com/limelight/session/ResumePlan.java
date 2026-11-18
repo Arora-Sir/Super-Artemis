@@ -61,6 +61,21 @@ public final class ResumePlan {
         return unmeteredForMs >= RESTART_AFTER_UNMETERED_MS && streamRunMs >= MIN_STREAM_MS_FOR_QUALITY_RESTART;
     }
 
+    // How long after a switch to another network the stream is checked, so a stream that carried on over the new network is left alone
+    public static final long SWITCH_CHECK_DELAY_MS = 1500L;
+    // The host has been silent at least this long when the check runs, so the old sockets are not coming back (BUG-078)
+    public static final long SWITCH_SILENCE_MS = 1000L;
+
+    // NOTE: A switch from one Wi-Fi to another or to a hotspot moves the device to a new subnet, and the sockets of the old stream stay bound to the old one.
+    // NOTE: Waiting for the 10 second silence rule then leaves a frozen frame, so a stream that is silent shortly after a real network change starts again at once.
+    // NOTE: A handle of 0 means unknown, which never counts as a change, and a stream that kept receiving over the new network is left alone.
+    public static boolean shouldRestartAfterNetworkSwitch(boolean enabled, boolean networkUp, int streamNetworkId, int currentNetworkId, long silenceMs) {
+        if (!enabled || !networkUp || streamNetworkId == 0 || currentNetworkId == 0 || streamNetworkId == currentNetworkId) {
+            return false;
+        }
+        return silenceMs >= SWITCH_SILENCE_MS;
+    }
+
     // The wait before check number attempt (0 is the first retry after a failed check), growing to a steady five seconds
     public static long delayBeforeCheck(int attempt) {
         int index = Math.max(0, Math.min(attempt, CHECK_DELAYS_MS.length - 1));

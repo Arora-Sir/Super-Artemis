@@ -601,6 +601,7 @@ For automatic update alerts without this, follow the app with Obtainium instead.
     <string name="pip_closed_title">Stream closed</string>
     <string name="pip_closed_message">The picture-in-picture window of %1$s on %2$s was closed. Reconnect to it?</string>
     <string name="pip_closed_not_now">Not now</string>
+    <string name="decoder_reclaimed">Another app took the video decoder, so the stream ended. Reconnect from the app list.</string>
     <string name="profile_scope_app_wide">Same for all profiles. Change it in Settings.</string>
     <string name="profile_scope_edit_when_active">Saved per profile. Edit it from the Quick Menu while this profile is active.</string>
     <string name="game_menu_back_to_quick_menu">Back to Quick Menu</string>

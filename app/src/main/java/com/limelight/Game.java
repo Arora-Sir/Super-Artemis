@@ -264,6 +264,16 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
     private boolean qualityProbeRunning;
     private long qualityProbeNotBeforeMs;
     private boolean statusLabelShown; // where the label is going, so the 500 ms ticks do not restart a running fade
+    // NOTE: The default network the stream started on, and the callback that sees it change (BUG-078). Zero means unknown.
+    private int streamNetworkId;
+    private int pendingSwitchNetworkId;
+    private ConnectivityManager.NetworkCallback defaultNetworkCallback;
+    private final Runnable networkSwitchCheck = new Runnable() {
+        @Override
+        public void run() {
+            checkNetworkSwitch();
+        }
+    };
     private final Runnable networkDropWatchdog = new Runnable() {
         @Override
         public void run() {
@@ -732,6 +742,26 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
                         // We must use commit because the app will crash when we return from this function
                         tombstonePrefs.edit().putInt("CrashCount", tombstonePrefs.getInt("CrashCount", 0) + 1).commit();
                         reportedCrash = true;
+                    }
+
+                    // NOTE: The system gave the hardware decoder to another app (BUG-077), which is no crash, so the stream ends and the app lists offer a reconnect.
+                    @Override
+                    public void onDecoderReclaimed() {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (displayedFailureDialog || isFinishing()) {
+                                    return;
+                                }
+                                displayedFailureDialog = true;
+                                if (conn != null) {
+                                    ResumeStore.markClosedFromPip(Game.this, System.currentTimeMillis());
+                                }
+                                Toast.makeText(Game.this, R.string.decoder_reclaimed, Toast.LENGTH_LONG).show();
+                                stopConnection();
+                                finish();
+                            }
+                        });
                     }
                 },
                 tombstonePrefs.getInt("CrashCount", 0),
@@ -3881,6 +3911,7 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
 
         // A drop card left on screen would keep counting a wait that is over, under the termination dialog or the automatic reconnect card
         timerHandler.removeCallbacks(networkDropWatchdog);
+        unregisterNetworkSwitchCallback();
         networkWentDownInDrop = false;
         networkBackSinceMs = 0;
         if (networkDropStartMs != 0) {
@@ -4358,6 +4389,96 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
         startAutoResume();
     }
 
+    // NOTE: The default network callback tells at once when the device moves to another network, which the 10 second silence rule would only notice late.
+    // NOTE: The first callback after registering names the network the stream runs on, and a later different one starts a check after a short delay.
+    private void registerNetworkSwitchCallback() {
+        unregisterNetworkSwitchCallback();
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N || !prefConfig.autoResumeNetwork) {
+            return;
+        }
+        ConnectivityManager manager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (manager == null) {
+            return;
+        }
+        streamNetworkId = 0;
+        pendingSwitchNetworkId = 0;
+        defaultNetworkCallback = new ConnectivityManager.NetworkCallback() {
+            @Override
+            public void onAvailable(android.net.Network network) {
+                final int id = network.hashCode();
+                timerHandler.post(() -> onDefaultNetworkAvailable(id));
+            }
+        };
+        try {
+            // NOTE: With a VPN such as Tailscale active, the default network of this app is the VPN, whose id stays the same when Wi-Fi gives way to mobile data.
+            // NOTE: On Android 12 and later the best matching network without a VPN is watched instead, which follows the physical network the stream really uses.
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                android.net.NetworkRequest physical = new android.net.NetworkRequest.Builder()
+                        .addCapability(android.net.NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                        .addCapability(android.net.NetworkCapabilities.NET_CAPABILITY_NOT_VPN)
+                        .build();
+                manager.registerBestMatchingNetworkCallback(physical, defaultNetworkCallback, timerHandler);
+            }
+            else {
+                manager.registerDefaultNetworkCallback(defaultNetworkCallback);
+            }
+        }
+        catch (RuntimeException e) {
+            // The silence rules alone still catch a dead stream, only later
+            LimeLog.warning(NETWORK_DROP_TAG + ": no default network callback: " + e.getMessage());
+            defaultNetworkCallback = null;
+        }
+    }
+
+    private void unregisterNetworkSwitchCallback() {
+        timerHandler.removeCallbacks(networkSwitchCheck);
+        if (defaultNetworkCallback == null) {
+            return;
+        }
+        ConnectivityManager manager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        try {
+            if (manager != null) {
+                manager.unregisterNetworkCallback(defaultNetworkCallback);
+            }
+        }
+        catch (RuntimeException e) {
+            // Already gone
+        }
+        defaultNetworkCallback = null;
+    }
+
+    private void onDefaultNetworkAvailable(int id) {
+        if (!connected || displayedFailureDialog) {
+            return;
+        }
+        if (streamNetworkId == 0) {
+            streamNetworkId = id;
+            return;
+        }
+        if (id == streamNetworkId) {
+            return;
+        }
+        LimeLog.info(NETWORK_DROP_TAG + ": default network changed from " + streamNetworkId + " to " + id);
+        pendingSwitchNetworkId = id;
+        timerHandler.removeCallbacks(networkSwitchCheck);
+        timerHandler.postDelayed(networkSwitchCheck, ResumePlan.SWITCH_CHECK_DELAY_MS);
+    }
+
+    private void checkNetworkSwitch() {
+        if (!connected || displayedFailureDialog || pendingSwitchNetworkId == 0) {
+            return;
+        }
+        int silenceMs = MoonBridge.getControlStreamSilenceMs();
+        if (ResumePlan.shouldRestartAfterNetworkSwitch(prefConfig.autoResumeNetwork, isNetworkUp(), streamNetworkId, pendingSwitchNetworkId, silenceMs)) {
+            LimeLog.info(NETWORK_DROP_TAG + ": restarting after a network switch, host silent for " + silenceMs + " ms");
+            restartForResume();
+            return;
+        }
+        // The stream carried on over the new network, so that network is now the one it runs on
+        streamNetworkId = pendingSwitchNetworkId;
+        pendingSwitchNetworkId = 0;
+    }
+
     private boolean isNetworkUp() {
         ConnectivityManager manager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         android.net.NetworkInfo info = manager != null ? manager.getActiveNetworkInfo() : null;
@@ -4548,6 +4669,7 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
                 streamStartedAtMs = android.os.SystemClock.elapsedRealtime();
                 unmeteredSinceMs = 0;
                 timerHandler.postDelayed(networkDropWatchdog, NETWORK_DROP_POLL_MS);
+                registerNetworkSwitchCallback();
             }
         });
 

@@ -8,7 +8,7 @@ import android.os.Build;
 import android.telephony.TelephonyCallback;
 import android.telephony.TelephonyManager;
 
-// NOTE: Tells the stream when a call starts or ends, so Android 12 auto-enter is turned off while the phone rings or a call runs.
+// NOTE: Tells the stream when a call starts or ends, so Android 12 auto-enter is turned off while the phone rings.
 // NOTE: Android 12 and later only. Older versions have no mode listener, and their manual entry paths read the mode directly through PipGuard.
 public final class CallModeWatcher {
     private final AudioManager audio;
@@ -29,11 +29,16 @@ public final class CallModeWatcher {
         return context.checkSelfPermission(Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED;
     }
 
-    // A ringing phone or a running call counts as the ringtone mode, which PipGuard treats as a call
+    // NOTE: A ringing phone reads as the ringtone mode and an answered call as the call mode, so PipGuard blocks only the ringing one (BUG-079).
     public int mode() {
         int mode = audio != null ? audio.getMode() : AudioManager.MODE_NORMAL;
-        if (mode == AudioManager.MODE_NORMAL && callState != TelephonyManager.CALL_STATE_IDLE) {
-            return AudioManager.MODE_RINGTONE;
+        if (mode == AudioManager.MODE_NORMAL) {
+            if (callState == TelephonyManager.CALL_STATE_RINGING) {
+                return AudioManager.MODE_RINGTONE;
+            }
+            if (callState == TelephonyManager.CALL_STATE_OFFHOOK) {
+                return AudioManager.MODE_IN_CALL;
+            }
         }
         return mode;
     }
