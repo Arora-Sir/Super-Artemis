@@ -7,119 +7,119 @@
       "branch": "moonlight-noir",
       "role": "base",
       "reviewed": "c5cf27f4dc82",
-      "reviewedOn": "2026-11-01"
+      "reviewedOn": "2026-11-18"
     },
     {
       "repo": "moonlight-stream/moonlight-android",
       "branch": "master",
       "role": "upstream",
       "reviewed": "b48494cb96bf",
-      "reviewedOn": "2026-11-01"
+      "reviewedOn": "2026-11-18"
     },
     {
       "repo": "ClassicOldSong/moonlight-common-c",
       "branch": "master",
       "role": "native base",
       "reviewed": "c99943685847",
-      "reviewedOn": "2026-11-01"
+      "reviewedOn": "2026-11-18"
     },
     {
       "repo": "moonlight-stream/moonlight-common-c",
       "branch": "master",
       "role": "native upstream",
-      "reviewed": "5d3c0ecca00c",
-      "reviewedOn": "2026-11-01"
+      "reviewed": "94c65fd364d1",
+      "reviewedOn": "2026-11-18"
     },
     {
       "repo": "ClassicOldSong/Apollo",
       "branch": "master",
       "role": "host",
       "reviewed": "adc5c5a0bd80",
-      "reviewedOn": "2026-11-01"
+      "reviewedOn": "2026-11-18"
     },
     {
       "repo": "qiin2333/moonlight-vplus",
       "branch": "master",
       "role": "fork",
-      "reviewed": "c1ca79cf2610",
-      "reviewedOn": "2026-11-01"
+      "reviewed": "c8619aaaf6f3",
+      "reviewedOn": "2026-11-18"
     },
     {
       "repo": "derflacco/moonlight-android",
       "branch": "moonlight-noir",
       "role": "fork",
       "reviewed": "8157555264bf",
-      "reviewedOn": "2026-11-01"
+      "reviewedOn": "2026-11-18"
     },
     {
       "repo": "derflacco/moonlight-android",
       "branch": "Artemide_Experimental_Async",
       "role": "fork",
-      "reviewed": "6648fe1b7c92",
-      "reviewedOn": "2026-11-01"
+      "reviewed": "32e38f0e80b3",
+      "reviewedOn": "2026-11-18"
     },
     {
       "repo": "Rafael-CN/VibeArtemis",
       "branch": "dev",
       "role": "fork",
-      "reviewed": "46de608abeb4",
-      "reviewedOn": "2026-11-01"
+      "reviewed": "16e735dda749",
+      "reviewedOn": "2026-11-18"
     },
     {
       "repo": "coroiu/twilight-android",
       "branch": "moonlight-noir",
       "role": "fork",
       "reviewed": "205adf5e2208",
-      "reviewedOn": "2026-11-01"
+      "reviewedOn": "2026-11-18"
     },
     {
       "repo": "logabell/moonlight-android",
       "branch": "moonlight-noir",
       "role": "fork",
       "reviewed": "3397ec775096",
-      "reviewedOn": "2026-11-01"
+      "reviewedOn": "2026-11-18"
     },
     {
       "repo": "MikalaiKryvusha/KAST",
       "branch": "moonlight-noir",
       "role": "fork",
-      "reviewed": "ff9de8273895",
-      "reviewedOn": "2026-11-01"
+      "reviewed": "1cda9cc31a62",
+      "reviewedOn": "2026-11-18"
     },
     {
       "repo": "4had45/moonlit-artemis",
       "branch": "moonlit",
       "role": "fork",
       "reviewed": "9b23b8c3295f",
-      "reviewedOn": "2026-11-01"
+      "reviewedOn": "2026-11-18"
     },
     {
       "repo": "MrOz59/Hestia-Android",
       "branch": "moonlight-noir",
       "role": "fork",
-      "reviewed": "38c73c510529",
-      "reviewedOn": "2026-11-01"
+      "reviewed": "b60607902b8e",
+      "reviewedOn": "2026-11-18"
     },
     {
       "repo": "kefrens/ariane-android",
       "branch": "ariane-main",
       "role": "fork",
       "reviewed": "1d3a8e74ecdc",
-      "reviewedOn": "2026-11-01"
+      "reviewedOn": "2026-11-18"
     },
     {
       "repo": "joemossjr16/artemis-android-pyrowave",
       "branch": "pyrowave",
       "role": "fork",
       "reviewed": "387d3a5ce1e3",
-      "reviewedOn": "2026-11-01"
+      "reviewedOn": "2026-11-18"
     },
     {
       "repo": "Taveszfito/Artemis-Extended-Native-Wireless-DualSense-Features",
       "branch": "agent/controller-emulation-settings",
       "role": "fork",
       "reviewed": "46431c506000",
-      "reviewedOn": "2026-11-01"
+      "reviewedOn": "2026-11-18"
     }
   ]
 }
