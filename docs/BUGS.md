@@ -697,7 +697,7 @@ The test JVM ran with Gradle's default 512 MB heap. Robolectric with this many l
   4. *Software Decoder Fallback:* Fall back to software HEVC decoding (`c2.android.hevc.decoder`) if the hardware decoder cannot be reallocated.
   5. *Diagnostic Log Dialog Alignment:* `CrashReporter.offerPendingReport()` already exports the full Java report. Update `UiHelper.showDecoderCrashDialog()` to also offer a direct button to view or copy recent logs from `diagnostics/last-crash.txt` when a tombstone is detected.
 - **Verification:** Reproduce by streaming in picture-in-picture mode, opening an app that plays hardware-accelerated video in the foreground, and confirming that Super Artemis handles `ERROR_RECLAIMED` gracefully without throwing a fatal exception or killing the process.
-- **Status:** Fixed in code and unit tests (`DecoderReclaimTest`). Not yet verified on a device, which is the Verification step above.
+- **Status:** Fixed in code and unit tests (`DecoderReclaimTest`). The crash could not be reproduced on a Galaxy S24 Ultra on 2026-11-18, so the device step is closed as not reproducible and the unit tests are the evidence.
 
 ## BUG-078: Stream freezes without auto-reconnecting when switching between Wi-Fi networks
 
@@ -768,4 +768,19 @@ The test JVM ran with Gradle's default 512 MB heap. Robolectric with this many l
   4. *Multi-PiP Platform Handling:* Android supports only one pinned PiP window at a time. If another app (such as WhatsApp video call) already holds the system PiP slot, catch `IllegalStateException` or check `enterPictureInPictureMode()` return status. If the system rejects PiP, keep the stream session alive in background or offer clean reconnect rather than crashing or terminating unexpectedly.
   5. *Update Unit Tests:* Update `PipGuardTest.java` to reflect the new distinction, ensuring incoming ringtones stay blocked while active user communication permits picture-in-picture navigation.
 - **Verification:** Start a stream in Super Artemis while connected to an active WhatsApp voice or video call. Swipe to Home. Verify that Super Artemis smoothly transitions into a picture-in-picture window without closing or tearing down the native stream.
-- **Status:** Fixed in code and unit tests (`PipGuardTest`). Not yet verified on a device, which is the Verification step above.
+- **Status:** Fixed in code and unit tests (`PipGuardTest`). Verified on a Galaxy S24 Ultra on 2026-11-18 (recorded in docs/CONTEXT.md).
+
+## BUG-080: The native depacketizer test ran an old binary
+
+- **Symptom:** `scripts/native_tests/run_depacketizer_test.sh` aborted with an assertion in `VideoDepacketizer.c` after the native sources changed, although the same sources passed when built by hand.
+- **Cause:** The script wrote its binary to `/tmp/depacketizer_test`. The Windows compiler put it in one folder and the MSYS `adb push` sent an older file from another `/tmp`, so a stale binary from 2026-11-13 was run.
+- **Fix Applied:** The script builds under `app/build` with a Windows style path that both tools resolve to the same file. The harness also stubs the new `PltBroadcastConditionVariable`.
+- **Verification:** The rebuilt binary is byte identical to the manual build and prints ALL PASSED on the a13 emulator.
+- **Status:** Fixed.
+
+## BUG-081: The host laptop panel stayed off after streaming tests (host side)
+
+- **Symptom:** After test sessions on 2026-11-19 the laptop that runs Apollo showed a black screen. Windows reported the Apollo virtual display (`HDP-V104`, SudoMaker adapter) as the only active display and the panel (`CMN1521`) as offline. A first connect right after the display change took about 12 seconds, because Apollo logged `Encoder reenumeration is required` and probed encoders. Later connects took about 2 seconds.
+- **Evidence:** The app setting `checkbox_use_virtual_display` was false and every paired client had `always_use_virtual_display = False` in Apollo, so the app did not ask for a virtual display. The app only sends the display mode of the session, as in every earlier release. Windows logged no graphics driver errors.
+- **Workaround:** Run `DisplaySwitch.exe /internal` on the laptop, or press `Win+P` and choose PC screen only.
+- **Status:** Open on the host side, with no app change. The cause inside Apollo's display handling is not known.

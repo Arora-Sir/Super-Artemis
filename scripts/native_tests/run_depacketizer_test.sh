@@ -17,7 +17,9 @@ case "$ABI" in
   arm64-v8a) CC="$NDK_BIN/aarch64-linux-android26-clang" ;;
   *) echo "unsupported abi $ABI"; exit 2 ;;
 esac
-OUT="${TMPDIR:-/tmp}/depacketizer_test"
+# NOTE: The output sits under app/build with a Windows style path, because the compiler and adb must resolve it to the same file. A /tmp path made adb push an old binary.
+mkdir -p "$ROOT/app/build"
+OUT="$ROOT/app/build/depacketizer_test"
 "$CC" -DLC_ANDROID -DHAS_SOCKLEN_T=1 $EXTRA_CFLAGS \
   -I"$CORE/src" -I"$CORE/reedsolomon" -I"$CORE/enet/include" \
   "$ROOT/scripts/native_tests/depacketizer_bounds.c" "$DEPACKETIZER" "$CORE/src/LinkedBlockingQueue.c" "$CORE/src/ByteBuffer.c" -o "$OUT"

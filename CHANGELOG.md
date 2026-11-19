@@ -13,6 +13,8 @@ All notable changes to Super Artemis are listed here. The format follows [Keep a
 ### Fixed
 
 - Stream encryption on ARM64 phones now reads the AES capability from the kernel hardware capability first, and logs which source decided it. The older CPU feature library stays as the fallback for other architectures. Ported from qiin2333/moonlight-vplus#835 by Yundi339.
+- Five small hardening fixes from moonlight-common-c by Cameron Gutman: the IPv6 subnet mask check, the check for invalid mouse motion types, ENet batching for mouse and UTF-8 input, waking every waiter of a queue or event instead of one, and a data race in the estimated round trip time. The decoder side stays on the fork's own bounded reassembly, because the upstream depacketizer lock needs newer interfaces.
+- The native depacketizer test script pushed an old binary because the compiler and adb resolved its output path differently. It now builds under `app/build`.
 
 ## [1.2.0] - 2026-11-18
 

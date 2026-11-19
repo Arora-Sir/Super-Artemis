@@ -19,6 +19,7 @@ Java stream layer
 Native (app/src/main/jni/moonlight-core)
   callbacks.c, simplejni.c .... JNI glue, Opus mic encoder thread
   moonlight-common-c .......... git submodule: Arora-Sir/moonlight-common-c, branch super-artemis
+                                (native test: scripts/native_tests/run_depacketizer_test.sh <adb serial>)
         |
 Host: Apollo (RTSP, video, audio, control stream over ENet, mic stream over UDP)
 ```

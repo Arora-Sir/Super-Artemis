@@ -87,6 +87,10 @@ void PltSignalConditionVariable(PLT_COND* cond) {
     pthread_cond_signal(cond);
 }
 
+void PltBroadcastConditionVariable(PLT_COND* cond) {
+    pthread_cond_broadcast(cond);
+}
+
 void PltWaitForConditionVariable(PLT_COND* cond, PLT_MUTEX* mutex) {
     pthread_cond_wait(cond, mutex);
 }

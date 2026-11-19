@@ -435,6 +435,18 @@
         { "label": "qiin2333/moonlight-vplus#835", "url": "https://github.com/qiin2333/moonlight-vplus/pull/835" },
         { "label": "qiin2333/moonlight-vplus@6c58f7a76", "url": "https://github.com/qiin2333/moonlight-vplus/commit/6c58f7a76d8b6d8587d3b40327f96747f5041bad" }
       ]
+    },
+    {
+      "feature": "IPv6 subnet mask fix, invalid mouse motion type check, ENet batching for mouse and UTF-8 input, waking every waiter of a queue or event, and a round trip time data race fix in moonlight-common-c",
+      "role": "code",
+      "people": [{ "handle": "cgutman" }],
+      "links": [
+        { "label": "moonlight-stream/moonlight-common-c@dc09c9f2e", "url": "https://github.com/moonlight-stream/moonlight-common-c/commit/dc09c9f2e8e90075c331796ae601147701839e75" },
+        { "label": "moonlight-stream/moonlight-common-c@f0df33caf", "url": "https://github.com/moonlight-stream/moonlight-common-c/commit/f0df33caf8239b8bfff566f6fdc62d99ea79b37c" },
+        { "label": "moonlight-stream/moonlight-common-c@d5b38a3ac", "url": "https://github.com/moonlight-stream/moonlight-common-c/commit/d5b38a3ac63927a11bebd8337df024f11eba34d5" },
+        { "label": "moonlight-stream/moonlight-common-c@eac4c469c", "url": "https://github.com/moonlight-stream/moonlight-common-c/commit/eac4c469c755dc4fcf6c4bac12e17c0d78881fb7" },
+        { "label": "moonlight-stream/moonlight-common-c@a0262e78e", "url": "https://github.com/moonlight-stream/moonlight-common-c/commit/a0262e78ebe493585729820b423d6a79043e413f" }
+      ]
     }
   ]
 }
