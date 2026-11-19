@@ -426,6 +426,15 @@
         { "label": "moonlight-stream/moonlight-common-c@0b4a44d19", "url": "https://github.com/moonlight-stream/moonlight-common-c/commit/0b4a44d19c9e97480b069db91cb7abd168af2097" },
         { "label": "moonlight-stream/moonlight-common-c@348d5d1e3", "url": "https://github.com/moonlight-stream/moonlight-common-c/commit/348d5d1e32032fefb87c3e32f6ad8240611ea0fe" }
       ]
+    },
+    {
+      "feature": "ARM64 AES detection from the kernel hardware capability, so the stream picks encryption by what the CPU really supports",
+      "role": "code",
+      "people": [{ "handle": "Yundi339" }],
+      "links": [
+        { "label": "qiin2333/moonlight-vplus#835", "url": "https://github.com/qiin2333/moonlight-vplus/pull/835" },
+        { "label": "qiin2333/moonlight-vplus@6c58f7a76", "url": "https://github.com/qiin2333/moonlight-vplus/commit/6c58f7a76d8b6d8587d3b40327f96747f5041bad" }
+      ]
     }
   ]
 }

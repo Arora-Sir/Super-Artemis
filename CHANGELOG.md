@@ -4,6 +4,16 @@ All notable changes to Super Artemis are listed here. The format follows [Keep a
 
 ## [Unreleased]
 
+### Changed
+
+- The Video resolution picker names the ratio once in the Native Display heading, such as "Native Display (16:10)" on a tablet, when every native mode shares it. Phones whose native modes differ keep the plain heading and show each ratio in the row.
+
+- Choice list dialogs, such as the Video resolution picker, use the one-line title on a window under 480 dp tall, so a phone in landscape shows all the resolution chips at once instead of one row.
+
+### Fixed
+
+- Stream encryption on ARM64 phones now reads the AES capability from the kernel hardware capability first, and logs which source decided it. The older CPU feature library stays as the fallback for other architectures. Ported from qiin2333/moonlight-vplus#835 by Yundi339.
+
 ## [1.2.0] - 2026-11-18
 
 ### Added

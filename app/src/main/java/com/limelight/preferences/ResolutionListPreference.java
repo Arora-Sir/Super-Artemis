@@ -97,7 +97,8 @@ public class ResolutionListPreference extends ValueListPreference {
         }
 
         if (!nativeList.isEmpty()) {
-            choices.addSectionHeader(context.getString(R.string.section_resolution_native));
+            // NOTE: Native modes that share one ratio, as on a tablet without a cutout, name it once in the heading. Different ratios stay in each row's subtitle.
+            choices.addSectionHeader(standardHeading(context.getString(R.string.section_resolution_native), nativeList));
             for (ResolutionItem item : nativeList) {
                 choices.add(item.iconRes, item.label, item.subtitle, item.value.equals(current), () -> selectResolution(item.value));
             }
@@ -116,9 +117,18 @@ public class ResolutionListPreference extends ValueListPreference {
 
     // The heading with the shared ratio, such as "Standard Resolutions (16:9)", or the plain heading when the ratios differ
     private static String standardHeading(String heading, List<ResolutionItem> items) {
-        String ratio = null;
+        List<String> values = new ArrayList<>();
         for (ResolutionItem item : items) {
-            int[] dims = parseDimensions(item.value);
+            values.add(item.value);
+        }
+        return sharedRatioHeading(heading, values);
+    }
+
+    // Package private so a unit test can reach it without building the dialog
+    static String sharedRatioHeading(String heading, List<String> values) {
+        String ratio = null;
+        for (String value : values) {
+            int[] dims = parseDimensions(value);
             String own = formatAspectRatio(dims[0], dims[1]);
             if (ratio == null) {
                 ratio = own;

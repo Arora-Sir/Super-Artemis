@@ -63,9 +63,19 @@ public final class ChoiceList {
         root = new LinearLayout(context);
         root.setOrientation(LinearLayout.VERTICAL);
         root.addView(scroll, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        builder.setCustomTitle(Dialogs.header(context, iconRes, title, null))
+        // NOTE: A short window, such as a phone in landscape, gets the one-line title, because the tall centered header would leave about 200 px for the choices.
+        View titleView = isShortWindow(context) && iconRes != 0
+                ? Dialogs.compactTitle(context, iconRes, title)
+                : Dialogs.header(context, iconRes, title, null);
+        builder.setCustomTitle(titleView)
                 .setView(root)
                 .setNegativeButton(cancelRes, null);
+    }
+
+    // True when the window is under 480 dp tall, so a choice list needs the height for its rows
+    static boolean isShortWindow(Context context) {
+        android.util.DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+        return metrics.heightPixels / metrics.density < 480;
     }
 
     // Themed context of the dialog, for views added below the rows such as section headings or an add button
