@@ -394,6 +394,13 @@
     <string name="gesture_action_none">없음 (PC로 전송)</string>
     <string name="gesture_action_quick_menu">빠른 메뉴 열기</string>
     <string name="gesture_action_middle_click">마우스 가운데 클릭</string>
+    <string name="action_mouse_left_click">마우스 왼쪽 클릭</string>
+    <string name="action_mouse_right_click">마우스 오른쪽 클릭</string>
+    <string name="action_mouse_middle_click">마우스 가운데 클릭</string>
+    <string name="action_mouse_back">마우스 뒤로 버튼</string>
+    <string name="action_mouse_forward">마우스 앞으로 버튼</string>
+    <string name="action_scroll_up">위로 스크롤</string>
+    <string name="action_scroll_down">아래로 스크롤</string>
     <string name="gesture_action_missing_key">삭제된 사용자 지정 키 (아무 동작 없음)</string>
     <string name="game_menu_style_list">목록</string>
     <string name="game_menu_style_grid">아이콘 격자</string>

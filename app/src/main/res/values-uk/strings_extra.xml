@@ -376,6 +376,13 @@
     <string name="gesture_action_none">Нічого (надіслати на ПК)</string>
     <string name="gesture_action_quick_menu">Відкрити швидке меню</string>
     <string name="gesture_action_middle_click">Середня кнопка миші</string>
+    <string name="action_mouse_left_click">Ліва кнопка миші</string>
+    <string name="action_mouse_right_click">Права кнопка миші</string>
+    <string name="action_mouse_middle_click">Середня кнопка миші</string>
+    <string name="action_mouse_back">Кнопка миші «Назад»</string>
+    <string name="action_mouse_forward">Кнопка миші «Вперед»</string>
+    <string name="action_scroll_up">Прокрутка вгору</string>
+    <string name="action_scroll_down">Прокрутка вниз</string>
     <string name="gesture_action_missing_key">Видалена власна клавіша (нічого не робить)</string>
     <string name="game_menu_style_list">Список</string>
     <string name="game_menu_style_grid">Сітка зі значками</string>

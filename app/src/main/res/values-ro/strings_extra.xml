@@ -409,6 +409,13 @@ Pentru alerte automate de actualizare fără aceasta, urmărește aplicația cu 
     <string name="gesture_action_none">Nimic (trimite la PC)</string>
     <string name="gesture_action_quick_menu">Deschide Meniul rapid</string>
     <string name="gesture_action_middle_click">Clic mijlociu de mouse</string>
+    <string name="action_mouse_left_click">Clic stânga de mouse</string>
+    <string name="action_mouse_right_click">Clic dreapta de mouse</string>
+    <string name="action_mouse_middle_click">Clic mijlociu de mouse</string>
+    <string name="action_mouse_back">Butonul Înapoi al mouse-ului</string>
+    <string name="action_mouse_forward">Butonul Înainte al mouse-ului</string>
+    <string name="action_scroll_up">Derulează în sus</string>
+    <string name="action_scroll_down">Derulează în jos</string>
     <string name="gesture_action_missing_key">Tastă personalizată ștearsă (nu face nimic)</string>
     <string name="game_menu_style_list">Listă</string>
     <string name="game_menu_style_grid">Grilă cu pictograme</string>

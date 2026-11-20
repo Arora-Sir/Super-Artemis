@@ -376,6 +376,13 @@ Para recibir alertas de actualización automáticas sin esto, sigue la app con O
     <string name="gesture_action_none">Nada (enviar al PC)</string>
     <string name="gesture_action_quick_menu">Abrir menú rápido</string>
     <string name="gesture_action_middle_click">Clic central del ratón</string>
+    <string name="action_mouse_left_click">Clic izquierdo del ratón</string>
+    <string name="action_mouse_right_click">Clic derecho del ratón</string>
+    <string name="action_mouse_middle_click">Clic central del ratón</string>
+    <string name="action_mouse_back">Botón Atrás del ratón</string>
+    <string name="action_mouse_forward">Botón Adelante del ratón</string>
+    <string name="action_scroll_up">Desplazar hacia arriba</string>
+    <string name="action_scroll_down">Desplazar hacia abajo</string>
     <string name="gesture_action_missing_key">Tecla personalizada eliminada (no hace nada)</string>
     <string name="game_menu_style_list">Lista</string>
     <string name="game_menu_style_grid">Cuadrícula con iconos</string>

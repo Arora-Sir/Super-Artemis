@@ -328,6 +328,13 @@
     <string name="gesture_action_none">無 (傳送到電腦)</string>
     <string name="gesture_action_quick_menu">開啟快速選單</string>
     <string name="gesture_action_middle_click">滑鼠中鍵點擊</string>
+    <string name="action_mouse_left_click">滑鼠左鍵點擊</string>
+    <string name="action_mouse_right_click">滑鼠右鍵點擊</string>
+    <string name="action_mouse_middle_click">滑鼠中鍵點擊</string>
+    <string name="action_mouse_back">滑鼠上一頁鍵</string>
+    <string name="action_mouse_forward">滑鼠下一頁鍵</string>
+    <string name="action_scroll_up">向上捲動</string>
+    <string name="action_scroll_down">向下捲動</string>
     <string name="gesture_action_missing_key">已刪除的自訂按鍵 (不執行任何動作)</string>
     <string name="game_menu_style_list">清單</string>
     <string name="game_menu_style_grid">含圖示的格狀</string>

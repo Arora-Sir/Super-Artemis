@@ -379,6 +379,13 @@ Untuk pemberitahuan pembaruan otomatis tanpa ini, ikuti aplikasi ini dengan Obta
     <string name="gesture_action_none">Tidak ada (kirim ke PC)</string>
     <string name="gesture_action_quick_menu">Buka Menu Cepat</string>
     <string name="gesture_action_middle_click">Klik tengah mouse</string>
+    <string name="action_mouse_left_click">Klik kiri mouse</string>
+    <string name="action_mouse_right_click">Klik kanan mouse</string>
+    <string name="action_mouse_middle_click">Klik tengah mouse</string>
+    <string name="action_mouse_back">Tombol kembali mouse</string>
+    <string name="action_mouse_forward">Tombol maju mouse</string>
+    <string name="action_scroll_up">Gulir ke atas</string>
+    <string name="action_scroll_down">Gulir ke bawah</string>
     <string name="gesture_action_missing_key">Tombol kustom yang dihapus (tidak melakukan apa-apa)</string>
     <string name="game_menu_style_list">Daftar</string>
     <string name="game_menu_style_grid">Kisi dengan ikon</string>

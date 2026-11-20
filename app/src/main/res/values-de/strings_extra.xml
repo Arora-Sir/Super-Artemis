@@ -367,6 +367,13 @@ Für automatische Update-Benachrichtigungen ohne dies verfolge die App stattdess
     <string name="gesture_action_none">Nichts (an den PC senden)</string>
     <string name="gesture_action_quick_menu">Schnellmenü öffnen</string>
     <string name="gesture_action_middle_click">Mittlere Maustaste</string>
+    <string name="action_mouse_left_click">Linksklick</string>
+    <string name="action_mouse_right_click">Rechtsklick</string>
+    <string name="action_mouse_middle_click">Mittlere Maustaste</string>
+    <string name="action_mouse_back">Maustaste Zurück</string>
+    <string name="action_mouse_forward">Maustaste Vorwärts</string>
+    <string name="action_scroll_up">Nach oben scrollen</string>
+    <string name="action_scroll_down">Nach unten scrollen</string>
     <string name="gesture_action_missing_key">Gelöschte benutzerdefinierte Taste (tut nichts)</string>
     <string name="game_menu_style_list">Liste</string>
     <string name="game_menu_style_grid">Raster mit Symbolen</string>

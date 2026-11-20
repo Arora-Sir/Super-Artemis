@@ -372,6 +372,13 @@ Pour des alertes de mise à jour automatiques sans cela, suivez plutôt l\'app a
     <string name="gesture_action_none">Rien (envoyer au PC)</string>
     <string name="gesture_action_quick_menu">Ouvrir le menu rapide</string>
     <string name="gesture_action_middle_click">Clic central de la souris</string>
+    <string name="action_mouse_left_click">Clic gauche de la souris</string>
+    <string name="action_mouse_right_click">Clic droit de la souris</string>
+    <string name="action_mouse_middle_click">Clic central de la souris</string>
+    <string name="action_mouse_back">Bouton Précédent de la souris</string>
+    <string name="action_mouse_forward">Bouton Suivant de la souris</string>
+    <string name="action_scroll_up">Défiler vers le haut</string>
+    <string name="action_scroll_down">Défiler vers le bas</string>
     <string name="gesture_action_missing_key">Touche personnalisée supprimée (ne fait rien)</string>
     <string name="game_menu_style_list">Liste</string>
     <string name="game_menu_style_grid">Grille avec icônes</string>

@@ -387,6 +387,13 @@ For automatiske oppdateringsvarsler uten dette kan du følge appen med Obtainium
     <string name="gesture_action_none">Ingenting (send til PC-en)</string>
     <string name="gesture_action_quick_menu">Åpne hurtigmenyen</string>
     <string name="gesture_action_middle_click">Midtklikk med musen</string>
+    <string name="action_mouse_left_click">Venstreklikk med musen</string>
+    <string name="action_mouse_right_click">Høyreklikk med musen</string>
+    <string name="action_mouse_middle_click">Midtklikk med musen</string>
+    <string name="action_mouse_back">Tilbake-knapp på musen</string>
+    <string name="action_mouse_forward">Fremover-knapp på musen</string>
+    <string name="action_scroll_up">Rull opp</string>
+    <string name="action_scroll_down">Rull ned</string>
     <string name="gesture_action_missing_key">Slettet egendefinert tast (gjør ingenting)</string>
     <string name="game_menu_style_list">Liste</string>
     <string name="game_menu_style_grid">Rutenett med ikoner</string>

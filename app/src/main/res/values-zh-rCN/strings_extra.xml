@@ -346,6 +346,13 @@
     <string name="gesture_action_none">无（发送到电脑）</string>
     <string name="gesture_action_quick_menu">打开快捷菜单</string>
     <string name="gesture_action_middle_click">鼠标中键点击</string>
+    <string name="action_mouse_left_click">鼠标左键点击</string>
+    <string name="action_mouse_right_click">鼠标右键点击</string>
+    <string name="action_mouse_middle_click">鼠标中键点击</string>
+    <string name="action_mouse_back">鼠标后退键</string>
+    <string name="action_mouse_forward">鼠标前进键</string>
+    <string name="action_scroll_up">向上滚动</string>
+    <string name="action_scroll_down">向下滚动</string>
     <string name="gesture_action_missing_key">已删除的自定义按键（不执行任何操作）</string>
     <string name="game_menu_style_list">列表</string>
     <string name="game_menu_style_grid">带图标的网格</string>

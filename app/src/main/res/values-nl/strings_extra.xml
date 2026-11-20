@@ -411,6 +411,13 @@ Volg de app met Obtainium voor automatische updatemeldingen zonder dit.</string>
     <string name="gesture_action_none">Niets (naar de pc sturen)</string>
     <string name="gesture_action_quick_menu">Snelmenu openen</string>
     <string name="gesture_action_middle_click">Middelste muisklik</string>
+    <string name="action_mouse_left_click">Linker muisklik</string>
+    <string name="action_mouse_right_click">Rechter muisklik</string>
+    <string name="action_mouse_middle_click">Middelste muisklik</string>
+    <string name="action_mouse_back">Muisknop Terug</string>
+    <string name="action_mouse_forward">Muisknop Vooruit</string>
+    <string name="action_scroll_up">Omhoog scrollen</string>
+    <string name="action_scroll_down">Omlaag scrollen</string>
     <string name="gesture_action_missing_key">Verwijderde aangepaste toets (doet niets)</string>
     <string name="game_menu_style_list">Lijst</string>
     <string name="game_menu_style_grid">Raster met pictogrammen</string>

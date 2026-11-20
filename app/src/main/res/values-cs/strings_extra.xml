@@ -940,6 +940,13 @@ Pro automatická upozornění na aktualizace bez toho místo toho sledujte aplik
     <string name="gesture_action_none">Nic (odeslat na PC)</string>
     <string name="gesture_action_quick_menu">Otevřít Rychlou nabídku</string>
     <string name="gesture_action_middle_click">Prostřední tlačítko myši</string>
+    <string name="action_mouse_left_click">Levé kliknutí myší</string>
+    <string name="action_mouse_right_click">Pravé kliknutí myší</string>
+    <string name="action_mouse_middle_click">Prostřední tlačítko myši</string>
+    <string name="action_mouse_back">Tlačítko Zpět na myši</string>
+    <string name="action_mouse_forward">Tlačítko Vpřed na myši</string>
+    <string name="action_scroll_up">Posunout nahoru</string>
+    <string name="action_scroll_down">Posunout dolů</string>
     <string name="gesture_action_missing_key">Smazaná vlastní klávesa (nic nedělá)</string>
     <string name="game_menu_style_list">Seznam</string>
     <string name="game_menu_style_grid">Mřížka s ikonami</string>

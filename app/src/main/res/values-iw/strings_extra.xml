@@ -378,6 +378,13 @@
     <string name="gesture_action_none">כלום (שליחה למחשב)</string>
     <string name="gesture_action_quick_menu">פתיחת התפריט המהיר</string>
     <string name="gesture_action_middle_click">לחיצה אמצעית בעכבר</string>
+    <string name="action_mouse_left_click">לחיצה שמאלית בעכבר</string>
+    <string name="action_mouse_right_click">לחיצה ימנית בעכבר</string>
+    <string name="action_mouse_middle_click">לחיצה אמצעית בעכבר</string>
+    <string name="action_mouse_back">כפתור אחורה בעכבר</string>
+    <string name="action_mouse_forward">כפתור קדימה בעכבר</string>
+    <string name="action_scroll_up">גלילה למעלה</string>
+    <string name="action_scroll_down">גלילה למטה</string>
     <string name="gesture_action_missing_key">מקש מותאם שנמחק (לא עושה כלום)</string>
     <string name="game_menu_style_list">רשימה</string>
     <string name="game_menu_style_grid">רשת עם סמלים</string>

@@ -6,7 +6,7 @@ All notable changes to Super Artemis are listed here. The format follows [Keep a
 
 ### Added
 
-- Mouse actions for the quick action bars, the Advanced Menu, gestures and special keys: left, right and middle click, the back and forward mouse buttons, and scroll up and down. A special key can run them as an App action step, so Ctrl+Click is a hold, a click action and a release. The Middle mouse click gesture option keeps working as before.
+- Mouse actions for the quick action bars, the Advanced Menu, gestures and special keys: left, right and middle click, the back and forward mouse buttons, and scroll up and down. A special key can run them as an App action step, so Ctrl+Click is a hold, a click action and a release. The Middle mouse click gesture option keeps working as before. The new action names are translated into the 21 app languages.
 
 ### Changed
 

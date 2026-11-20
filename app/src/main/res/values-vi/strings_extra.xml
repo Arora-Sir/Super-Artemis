@@ -357,6 +357,13 @@
     <string name="gesture_action_none">Không có gì (gửi tới PC)</string>
     <string name="gesture_action_quick_menu">Mở Menu nhanh</string>
     <string name="gesture_action_middle_click">Nhấp chuột giữa</string>
+    <string name="action_mouse_left_click">Nhấp chuột trái</string>
+    <string name="action_mouse_right_click">Nhấp chuột phải</string>
+    <string name="action_mouse_middle_click">Nhấp chuột giữa</string>
+    <string name="action_mouse_back">Nút Quay lại của chuột</string>
+    <string name="action_mouse_forward">Nút Tiến của chuột</string>
+    <string name="action_scroll_up">Cuộn lên</string>
+    <string name="action_scroll_down">Cuộn xuống</string>
     <string name="gesture_action_missing_key">Phím tùy chỉnh đã xóa (không làm gì)</string>
     <string name="game_menu_style_list">Danh sách</string>
     <string name="game_menu_style_grid">Lưới có biểu tượng</string>
