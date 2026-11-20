@@ -213,10 +213,22 @@ public class EditorsSmokeTest {
             decor.measure(android.view.View.MeasureSpec.makeMeasureSpec(metrics.widthPixels, android.view.View.MeasureSpec.AT_MOST),
                     android.view.View.MeasureSpec.makeMeasureSpec(metrics.heightPixels, android.view.View.MeasureSpec.AT_MOST));
             decor.layout(0, 0, decor.getMeasuredWidth(), decor.getMeasuredHeight());
-            android.view.ViewGroup chips = dialog.findViewById(R.id.custom_key_add_step);
-            assertTrue(chips.getChildCount() >= 7);
-            for (int i = 0; i < chips.getChildCount(); i++) {
-                int dp = Math.round(chips.getChildAt(i).getHeight() / metrics.density);
+            // Compact windows keep the flowing row, wide windows put the same chips in two even rows
+            java.util.List<android.view.View> chips = new java.util.ArrayList<>();
+            android.view.ViewGroup flow = dialog.findViewById(R.id.custom_key_add_step);
+            for (int i = 0; i < flow.getChildCount(); i++) {
+                chips.add(flow.getChildAt(i));
+            }
+            android.view.ViewGroup rows = dialog.findViewById(R.id.custom_key_add_step_rows);
+            for (int r = 0; r < rows.getChildCount(); r++) {
+                android.view.ViewGroup row = (android.view.ViewGroup) rows.getChildAt(r);
+                for (int i = 0; i < row.getChildCount(); i++) {
+                    chips.add(row.getChildAt(i));
+                }
+            }
+            assertTrue(chips.size() >= 7);
+            for (int i = 0; i < chips.size(); i++) {
+                int dp = Math.round(chips.get(i).getHeight() / metrics.density);
                 assertTrue("Chip " + i + " is " + dp + "dp high on " + screen, dp >= 48);
             }
             dialog.dismiss();

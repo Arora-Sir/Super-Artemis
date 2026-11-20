@@ -4,7 +4,13 @@ All notable changes to Super Artemis are listed here. The format follows [Keep a
 
 ## [Unreleased]
 
+### Added
+
+- Mouse actions for the quick action bars, the Advanced Menu, gestures and special keys: left, right and middle click, the back and forward mouse buttons, and scroll up and down. A special key can run them as an App action step, so Ctrl+Click is a hold, a click action and a release. The Middle mouse click gesture option keeps working as before.
+
 ### Changed
+
+- The Add step chips in the special key editor sit in two even rows on tablets and wide windows (4 and 3, stretched to the row width), so App action no longer wraps alone onto a second line. Compact phone windows keep the flowing row.
 
 - The Video resolution picker names the ratio once in the Native Display heading, such as "Native Display (16:10)" on a tablet, when every native mode shares it. Phones whose native modes differ keep the plain heading and show each ratio in the row.
 

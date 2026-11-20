@@ -78,6 +78,43 @@ public final class CustomKeyEditor {
         }
     }
 
+    // NOTE: Splits the step chips into two even rows, the first row taking the extra chip, so no chip wraps alone (seven chips make 4 and 3).
+    static int[] stepRowSizes(int count) {
+        int first = (count + 1) / 2;
+        return new int[] {first, count - first};
+    }
+
+    // NOTE: A compact window keeps the wrapping row. A wide window shows two rows whose chips stretch to fill the row width.
+    private static void layOutStepChips(Context context, FlowRow flow, LinearLayout rows, List<TextView> chips) {
+        if (Dialogs.isCompact(context)) {
+            for (TextView chip : chips) {
+                flow.addView(chip);
+            }
+            return;
+        }
+        flow.setVisibility(View.GONE);
+        rows.setVisibility(View.VISIBLE);
+        int gap = (int) Dialogs.dp(context, 8);
+        int next = 0;
+        for (int size : stepRowSizes(chips.size())) {
+            LinearLayout row = new LinearLayout(context);
+            row.setOrientation(LinearLayout.HORIZONTAL);
+            for (int i = 0; i < size; i++) {
+                TextView chip = chips.get(next++);
+                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+                if (i > 0) {
+                    params.setMarginStart(gap);
+                }
+                row.addView(chip, params);
+            }
+            LinearLayout.LayoutParams rowParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            if (rows.getChildCount() > 0) {
+                rowParams.topMargin = gap;
+            }
+            rows.addView(row, rowParams);
+        }
+    }
+
     static int iconFor(KeyStep.Type type) {
         switch (type) {
             case TEXT:
@@ -153,6 +190,8 @@ public final class CustomKeyEditor {
         LinearLayout stepList = body.findViewById(R.id.custom_key_steps);
         TextView stepsEmpty = body.findViewById(R.id.custom_key_steps_empty);
         FlowRow addStep = body.findViewById(R.id.custom_key_add_step);
+        LinearLayout addStepRows = body.findViewById(R.id.custom_key_add_step_rows);
+        final List<TextView> stepChips = new ArrayList<>();
         CompoundButton sticky = body.findViewById(R.id.custom_key_sticky);
         RecyclerView iconGrid = body.findViewById(R.id.custom_key_icons);
         FrameLayout keyboardContainer = body.findViewById(R.id.custom_key_keyboard);
@@ -215,9 +254,9 @@ public final class CustomKeyEditor {
             stepList.setVisibility(steps.isEmpty() ? View.GONE : View.VISIBLE);
             stepsEmpty.setVisibility(steps.isEmpty() ? View.VISIBLE : View.GONE);
             // At the step limit the chips fade instead of silently ignoring a tap
-            for (int c = 0; c < addStep.getChildCount(); c++) {
-                addStep.getChildAt(c).setEnabled(steps.size() < MAX_STEPS);
-                addStep.getChildAt(c).setAlpha(steps.size() < MAX_STEPS ? 1f : 0.38f);
+            for (TextView chip : stepChips) {
+                chip.setEnabled(steps.size() < MAX_STEPS);
+                chip.setAlpha(steps.size() < MAX_STEPS ? 1f : 0.38f);
             }
             boolean single = steps.size() == 1 && steps.get(0).type == KeyStep.Type.COMBO;
             sticky.setEnabled(single);
@@ -347,8 +386,9 @@ public final class CustomKeyEditor {
                     });
                 }
             });
-            addStep.addView(chip);
+            stepChips.add(chip);
         }
+        layOutStepChips(context, addStep, addStepRows, stepChips);
 
         IconPicker.attach(iconGrid, body.findViewById(R.id.custom_key_icon_search), icon);
 

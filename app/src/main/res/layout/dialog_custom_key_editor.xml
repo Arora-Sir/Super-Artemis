@@ -57,12 +57,21 @@
             android:text="@string/custom_key_add_step"
             android:textAppearance="@style/TextAppearance.SuperArtemis.SectionLabel" />
 
+        <!-- Compact windows wrap the step chips in one flowing row, wide windows use the two even rows below -->
         <com.limelight.ui.FlowRow
             android:id="@+id/custom_key_add_step"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
             app:rowGap="0dp" />
+
+        <LinearLayout
+            android:id="@+id/custom_key_add_step_rows"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:orientation="vertical"
+            android:visibility="gone" />
 
         <!-- The recorder opens for a Keys, Hold or Release step and closes with Done, so the editor stays short otherwise -->
         <LinearLayout
