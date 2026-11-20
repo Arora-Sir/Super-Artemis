@@ -81,6 +81,30 @@ public class StreamActionRegistryTest {
     }
 
     @Test
+    public void mouseActionsSendTheRightButtonAndScrollDirection() {
+        FakeHost host = new FakeHost();
+        StreamActionRegistry.find(StreamActionRegistry.ID_MOUSE_LEFT).run(host);
+        StreamActionRegistry.find(StreamActionRegistry.ID_MOUSE_RIGHT).run(host);
+        StreamActionRegistry.find(StreamActionRegistry.ID_MOUSE_MIDDLE).run(host);
+        StreamActionRegistry.find(StreamActionRegistry.ID_MOUSE_BACK).run(host);
+        StreamActionRegistry.find(StreamActionRegistry.ID_MOUSE_FORWARD).run(host);
+        StreamActionRegistry.find(StreamActionRegistry.ID_SCROLL_UP).run(host);
+        StreamActionRegistry.find(StreamActionRegistry.ID_SCROLL_DOWN).run(host);
+        assertEquals(Arrays.asList("click:1", "click:3", "click:2", "click:4", "click:5", "scroll:up", "scroll:down"), host.calls);
+    }
+
+    @Test
+    public void mouseActionsAreConfigurableAndWaitForGameFocus() {
+        for (String id : Arrays.asList("mouse_left", "mouse_right", "mouse_middle", "mouse_back", "mouse_forward", "scroll_up", "scroll_down")) {
+            StreamAction action = StreamActionRegistry.find(id);
+            assertNotNull(id, action);
+            assertFalse(id, action.destructive);
+            assertTrue(id + " sends input so it waits for game focus", action.needsGameFocus);
+            assertTrue(id, com.limelight.menu.GameMenuLayout.isConfigurable(id));
+        }
+    }
+
+    @Test
     public void settingsRunsThroughTheHostAndIsNotASessionEnder() {
         FakeHost host = new FakeHost();
         StreamAction settings = StreamActionRegistry.find(StreamActionRegistry.ID_SETTINGS);
@@ -125,5 +149,7 @@ public class StreamActionRegistryTest {
         @Override public void openSpecialKeys() { calls.add("specialkeys"); }
         @Override public void switchTouchSensitivity() { calls.add("sensitivity"); }
         @Override public void openSettings() { calls.add("settings"); }
+        @Override public void mouseClick(byte button) { calls.add("click:" + button); }
+        @Override public void mouseScroll(boolean up) { calls.add(up ? "scroll:up" : "scroll:down"); }
     }
 }

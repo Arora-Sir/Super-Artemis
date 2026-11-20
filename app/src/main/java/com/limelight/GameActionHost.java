@@ -166,4 +166,14 @@ final class GameActionHost implements StreamActionHost {
     public void switchTouchSensitivity() {
         game.switchTouchSensitivity();
     }
+
+    @Override
+    public void mouseClick(byte button) {
+        game.mouseClick(button);
+    }
+
+    @Override
+    public void mouseScroll(boolean up) {
+        game.mouseScroll(up);
+    }
 }

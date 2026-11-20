@@ -2,6 +2,7 @@ package com.limelight.actions;
 
 import com.limelight.R;
 import com.limelight.binding.input.KeyboardTranslator;
+import com.limelight.nvstream.input.MouseButtonPacket;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,6 +32,13 @@ public final class StreamActionRegistry {
     public static final String ID_SEND_KEYS = "send_keys";
     public static final String ID_TOUCH_SENSITIVITY = "touch_sensitivity";
     public static final String ID_SETTINGS = "settings";
+    public static final String ID_MOUSE_LEFT = "mouse_left";
+    public static final String ID_MOUSE_RIGHT = "mouse_right";
+    public static final String ID_MOUSE_MIDDLE = "mouse_middle";
+    public static final String ID_MOUSE_BACK = "mouse_back";
+    public static final String ID_MOUSE_FORWARD = "mouse_forward";
+    public static final String ID_SCROLL_UP = "scroll_up";
+    public static final String ID_SCROLL_DOWN = "scroll_down";
     // NOTE: Settings that change how the menus and bars look, offered as actions so they can sit in the Advanced Menu, the Quick Menu, a bar or a gesture.
     public static final String ID_MENU_STYLE = "menu_style";
     public static final String ID_QUICK_BAR_STYLE = "quick_bar_style";
@@ -82,6 +90,21 @@ public final class StreamActionRegistry {
                     StreamActionHost::openSpecialKeys).withoutGameFocus().build(),
             StreamAction.builder(ID_TOUCH_SENSITIVITY, R.string.game_menu_switch_touch_sensitivity_model, R.drawable.ic_gm_touch_sensitivity,
                     StreamActionHost::switchTouchSensitivity).build(),
+            // Mouse buttons and the wheel, so a bar, a gesture or a special key step can click without a physical mouse
+            StreamAction.builder(ID_MOUSE_LEFT, R.string.action_mouse_left_click, R.drawable.ic_ck_left_click,
+                    host -> host.mouseClick(MouseButtonPacket.BUTTON_LEFT)).build(),
+            StreamAction.builder(ID_MOUSE_RIGHT, R.string.action_mouse_right_click, R.drawable.ic_ck_right_click,
+                    host -> host.mouseClick(MouseButtonPacket.BUTTON_RIGHT)).build(),
+            StreamAction.builder(ID_MOUSE_MIDDLE, R.string.action_mouse_middle_click, R.drawable.ic_ck_mouse,
+                    host -> host.mouseClick(MouseButtonPacket.BUTTON_MIDDLE)).build(),
+            StreamAction.builder(ID_MOUSE_BACK, R.string.action_mouse_back, R.drawable.ic_ck_arrow_back,
+                    host -> host.mouseClick(MouseButtonPacket.BUTTON_X1)).build(),
+            StreamAction.builder(ID_MOUSE_FORWARD, R.string.action_mouse_forward, R.drawable.ic_ck_arrow_forward,
+                    host -> host.mouseClick(MouseButtonPacket.BUTTON_X2)).build(),
+            StreamAction.builder(ID_SCROLL_UP, R.string.action_scroll_up, R.drawable.ic_ck_arrow_upward,
+                    host -> host.mouseScroll(true)).build(),
+            StreamAction.builder(ID_SCROLL_DOWN, R.string.action_scroll_down, R.drawable.ic_ck_arrow_downward,
+                    host -> host.mouseScroll(false)).build(),
             // Pickers and dialogs that open on top of the stream, so they do not wait for game focus
             StreamAction.builder(ID_MENU_STYLE, R.string.game_menu_editor_style, R.drawable.ic_gm_customize_menu,
                     StreamActionHost::chooseMenuStyle).withoutGameFocus().build(),

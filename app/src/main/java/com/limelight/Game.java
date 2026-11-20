@@ -2717,6 +2717,20 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
         }
     }
 
+    // NOTE: One click or scroll notch for the quick bar, the Advanced Menu, gestures and special key steps.
+    public void mouseClick(byte button) {
+        if (conn != null) {
+            conn.sendMouseButtonDown(button);
+            conn.sendMouseButtonUp(button);
+        }
+    }
+
+    public void mouseScroll(boolean up) {
+        if (conn != null) {
+            conn.sendMouseHighResScroll((short) (up ? 120 : -120));
+        }
+    }
+
     public void sendKeys(short[] keys) {
         // The Lock key runs an Apollo server command named Lock when the host has one, because Windows ignores an injected Win+L
         if (com.limelight.hosthelp.LockKeyAction.handle(this, keys)) {
@@ -5302,10 +5316,7 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
 
             @Override
             public void middleClick() {
-                if (conn != null) {
-                    conn.sendMouseButtonDown(MouseButtonPacket.BUTTON_MIDDLE);
-                    conn.sendMouseButtonUp(MouseButtonPacket.BUTTON_MIDDLE);
-                }
+                mouseClick(MouseButtonPacket.BUTTON_MIDDLE);
             }
 
             @Override

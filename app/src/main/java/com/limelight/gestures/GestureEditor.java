@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 import com.limelight.R;
 import com.limelight.actions.StreamAction;
+import com.limelight.actions.StreamActionRegistry;
 import com.limelight.customkeys.CustomKey;
 import com.limelight.customkeys.IconCatalog;
 import com.limelight.customkeys.KeyNames;
@@ -64,6 +65,10 @@ public final class GestureEditor {
         options.add(new Option(GestureBindingStore.MIDDLE_CLICK, context.getString(R.string.gesture_action_middle_click),
                 R.drawable.ic_sa_mouse, R.string.gesture_group_menu));
         for (StreamAction action : GameMenuLayout.configurableActions()) {
+            // The Middle mouse click option above already covers this action, and older saved gestures keep that value
+            if (StreamActionRegistry.ID_MOUSE_MIDDLE.equals(action.id)) {
+                continue;
+            }
             options.add(new Option(action.id, context.getString(action.nameRes), action.iconRes, R.string.gesture_group_actions));
         }
         for (CustomKey key : keys) {

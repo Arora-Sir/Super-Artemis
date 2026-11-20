@@ -54,6 +54,12 @@ public interface StreamActionHost {
 
     void switchTouchSensitivity();
 
+    // Presses and releases one mouse button on the PC, a MouseButtonPacket.BUTTON_* value
+    void mouseClick(byte button);
+
+    // Scrolls the PC by one notch, up or down
+    void mouseScroll(boolean up);
+
     // A picker for the Quick Menu style (list, grid or compact), applied the next time the menu opens
     void chooseMenuStyle();
 

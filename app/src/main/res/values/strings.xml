@@ -568,6 +568,13 @@ For automatic update alerts without this, follow the app with Obtainium instead.
     <string name="gesture_action_none">Nothing (send to the PC)</string>
     <string name="gesture_action_quick_menu">Open Quick Menu</string>
     <string name="gesture_action_middle_click">Middle mouse click</string>
+    <string name="action_mouse_left_click">Left mouse click</string>
+    <string name="action_mouse_right_click">Right mouse click</string>
+    <string name="action_mouse_middle_click">Middle mouse click</string>
+    <string name="action_mouse_back">Mouse back button</string>
+    <string name="action_mouse_forward">Mouse forward button</string>
+    <string name="action_scroll_up">Scroll up</string>
+    <string name="action_scroll_down">Scroll down</string>
     <string name="gesture_action_missing_key">Deleted custom key (does nothing)</string>
     <string name="game_menu_style_list">List</string>
     <string name="game_menu_style_grid">Grid with icons</string>
