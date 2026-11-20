@@ -10,6 +10,8 @@ All notable changes to Super Artemis are listed here. The format follows [Keep a
 
 - Choice list dialogs, such as the Video resolution picker, use the one-line title on a window under 480 dp tall, so a phone in landscape shows all the resolution chips at once instead of one row.
 
+- The build uses Gradle 9.9.2 and Android Gradle Plugin 9.5.1. The release and debug builds use the optimizing default ProGuard rules, `resValues` is switched on explicitly, and `android.newDsl=false` keeps the APK file names until they move to the new variant API.
+
 ### Fixed
 
 - Stream encryption on ARM64 phones now reads the AES capability from the kernel hardware capability first, and logs which source decided it. The older CPU feature library stays as the fallback for other architectures. Ported from qiin2333/moonlight-vplus#835 by Yundi339.

@@ -23,6 +23,8 @@ android {
 
     buildFeatures {
         buildConfig = true
+        // Needed since AGP 9, which turns resValue off by default (debug build type app_label)
+        resValues = true
     }
 
     productFlavors {
@@ -117,7 +119,7 @@ android {
             resValue "string", "app_label_game", "Super Artemis Debug (Game)"
 
             minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         release {
             // To whomever is releasing/using an APK in release mode with
@@ -160,7 +162,7 @@ android {
             }
 
             minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 
