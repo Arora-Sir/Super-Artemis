@@ -587,6 +587,7 @@ public class ComputerManagerService extends Service {
         public boolean complete;
         public Thread pollingThread;
         public ComputerDetails returnedDetails;
+        public long answeredAtMs;
 
         public ParallelPollTuple(ComputerDetails.AddressTuple address, ComputerDetails existingDetails) {
             this.address = address;
@@ -612,11 +613,17 @@ public class ComputerManagerService extends Service {
         tuple.pollingThread = new Thread() {
             @Override
             public void run() {
+                long startedMs = SystemClock.elapsedRealtime();
                 ComputerDetails details = tryPollIp(tuple.existingDetails, tuple.address);
+                long tookMs = SystemClock.elapsedRealtime() - startedMs;
+                if (tookMs >= 1000) {
+                    LimeLog.info("Poll of " + tuple.address + " " + (details != null ? "answered" : "failed") + " after " + tookMs + " ms");
+                }
 
                 synchronized (tuple) {
                     tuple.complete = true; // Done
                     tuple.returnedDetails = details; // Polling result
+                    tuple.answeredAtMs = SystemClock.elapsedRealtime();
 
                     tuple.notify();
                 }
@@ -640,53 +647,31 @@ public class ComputerManagerService extends Service {
         startParallelPollThread(remoteInfo, uniqueAddresses);
         startParallelPollThread(ipv6Info, uniqueAddresses);
 
+        // Precedence is local, manual, remote IPv4, global IPv6. A lower address that has answered wins once the higher ones
+        // have had PollSelection.GRACE_MS to answer, so a dead address from another network does not hold up a working one.
+        ParallelPollTuple[] byPrecedence = {localInfo, manualInfo, remoteInfo, ipv6Info};
+        boolean[] complete = new boolean[byPrecedence.length];
+        boolean[] answered = new boolean[byPrecedence.length];
+        long[] answeredAtMs = new long[byPrecedence.length];
         try {
-            // Check local first
-            synchronized (localInfo) {
-                while (!localInfo.complete) {
-                    localInfo.wait();
+            while (true) {
+                for (int i = 0; i < byPrecedence.length; i++) {
+                    synchronized (byPrecedence[i]) {
+                        complete[i] = byPrecedence[i].complete;
+                        answered[i] = byPrecedence[i].returnedDetails != null;
+                        answeredAtMs[i] = byPrecedence[i].answeredAtMs;
+                    }
                 }
 
-                if (localInfo.returnedDetails != null) {
-                    localInfo.returnedDetails.activeAddress = localInfo.address;
-                    return localInfo.returnedDetails;
+                int pick = PollSelection.choose(complete, answered, answeredAtMs, SystemClock.elapsedRealtime());
+                if (pick >= 0) {
+                    byPrecedence[pick].returnedDetails.activeAddress = byPrecedence[pick].address;
+                    return byPrecedence[pick].returnedDetails;
                 }
-            }
-
-            // Now manual
-            synchronized (manualInfo) {
-                while (!manualInfo.complete) {
-                    manualInfo.wait();
+                if (pick == PollSelection.NONE_ANSWERED) {
+                    break;
                 }
-
-                if (manualInfo.returnedDetails != null) {
-                    manualInfo.returnedDetails.activeAddress = manualInfo.address;
-                    return manualInfo.returnedDetails;
-                }
-            }
-
-            // Now remote IPv4
-            synchronized (remoteInfo) {
-                while (!remoteInfo.complete) {
-                    remoteInfo.wait();
-                }
-
-                if (remoteInfo.returnedDetails != null) {
-                    remoteInfo.returnedDetails.activeAddress = remoteInfo.address;
-                    return remoteInfo.returnedDetails;
-                }
-            }
-
-            // Now global IPv6
-            synchronized (ipv6Info) {
-                while (!ipv6Info.complete) {
-                    ipv6Info.wait();
-                }
-
-                if (ipv6Info.returnedDetails != null) {
-                    ipv6Info.returnedDetails.activeAddress = ipv6Info.address;
-                    return ipv6Info.returnedDetails;
-                }
+                Thread.sleep(25);
             }
         } finally {
             // Stop any further polling if we've found a working address or we've been

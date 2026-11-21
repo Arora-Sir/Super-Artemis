@@ -20,6 +20,7 @@ All notable changes to Super Artemis are listed here. The format follows [Keep a
 
 ### Fixed
 
+- A saved address that no longer answers, such as the home LAN address after the router changed or while away from home, no longer holds up a working Tailscale or manual address. The PC poll still prefers the local address, but once a lower address has answered, the higher ones get 600 ms to answer before the working one is used. On an emulator with a packet-dropping local address the poll fell from 3.0 s to about 1.2 s, and a fast local address still wins in under 0.8 s.
 - Stream encryption on ARM64 phones now reads the AES capability from the kernel hardware capability first, and logs which source decided it. The older CPU feature library stays as the fallback for other architectures. Ported from qiin2333/moonlight-vplus#835 by Yundi339.
 - Five small hardening fixes from moonlight-common-c by Cameron Gutman: the IPv6 subnet mask check, the check for invalid mouse motion types, ENet batching for mouse and UTF-8 input, waking every waiter of a queue or event instead of one, and a data race in the estimated round trip time. The decoder side stays on the fork's own bounded reassembly, because the upstream depacketizer lock needs newer interfaces.
 - The native depacketizer test script pushed an old binary because the compiler and adb resolved its output path differently. It now builds under `app/build`.
