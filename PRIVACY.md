@@ -28,7 +28,7 @@ Performance logging, when you turn it on, writes its log files into the app's st
 
 ## Changes
 
-Changes to this policy are published in this file in the [Super Artemis repository](https://github.com/Arora-Sir/Super-Artemis). For questions, open an issue there.
+Changes to this policy are published in this file in the [Super Artemis repository](https://github.com/Arora-Sir/Super-Artemis). For questions, open an issue there or email contact@mohitarora.me.
 
 ## Phone state
 

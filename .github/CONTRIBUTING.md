@@ -88,7 +88,7 @@ Please refer to docs/SETUP.md for the development environment and README.md for 
 
 If you have questions about contributing, feel free to:
 - Open an issue for discussion
-- Contact the maintainers
+- Email contact@mohitarora.me
 - Check existing documentation
 
 Thank you for contributing!
