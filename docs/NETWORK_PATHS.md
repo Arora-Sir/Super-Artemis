@@ -115,3 +115,11 @@ The first Tailscale UDP failure of 2026-11-21 is not addressed by this. It only 
 ## Retry change
 
 `session/PathRetry.java` (uncommitted when this was written) relaunches once through `ShortcutTrampoline` when the control stream fails over a non-LAN address. It helps only when a better address can be found by a fresh poll, such as the LAN address after a network change at home. It is not expected to help away from home, where the same Tailscale address would be chosen again.
+
+## Away-from-home start on the S24 (2026-11-22 13:55, debug build with the poll and surface fixes plus the uncommitted PathRetry hook)
+
+The S24 Ultra was on LTE with Wi-Fi off, and the PC was on home Wi-Fi. Tailscale reached the phone directly over IPv6 at 147 ms. A cold start of the app, a tap on the PC and a tap on the Desktop tile gave:
+
+- The poll chose the Tailscale address in 0.25 s. The IPv6 address kept failing after 3 s in the background and no longer held the result up.
+- The Desktop tap to the first decoded frame took about 1.5 s: resume request at +0.5 s, first video packet at +1.4 s, frame at +1.5 s.
+- This is one run. The 2026-11-21 failure was after a Wi-Fi network change and this run had none, so that case is still not reproduced.
