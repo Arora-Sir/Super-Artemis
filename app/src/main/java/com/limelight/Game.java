@@ -4767,6 +4767,11 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
 
         LimeLog.info("surfaceChanged-->"+width+" x "+height + "----"+displayWidth+" x "+displayHeight);
 
+        // The decoder reads its render target when the RTSP handshake finishes, so a surface replaced before that must reach it
+        if (attemptedConnection && !connected && streamContainer.getSurface() != null) {
+            decoderRenderer.setRenderTarget(streamContainer.getSurface());
+        }
+
         panZoomHandler.handleSurfaceChange();
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -4832,7 +4837,8 @@ public class Game extends AppCompatActivity implements SurfaceHolder.Callback,
             pipDebug("surface lost to another app, marked for resume");
         }
 
-        if (attemptedConnection) {
+        // NOTE: A surface lost while the connection is still starting is the window pausing for a moment, for example while it rotates. Stopping the decoder then left it black for the whole stream, so only a connected or finishing stream is stopped here and surfaceChanged hands the decoder the new surface.
+        if (attemptedConnection && (connected || isFinishing())) {
             // Let the decoder know immediately that the surface is gone
             decoderRenderer.prepareForStop();
 
