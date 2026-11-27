@@ -4,10 +4,15 @@ import androidx.annotation.NonNull;
 
 import java.security.cert.X509Certificate;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class ComputerDetails {
+    private static final Pattern TAILSCALE_IPV4 = Pattern.compile("100\\.(\\d{1,3})\\.\\d{1,3}\\.\\d{1,3}");
+
     public enum State {
         ONLINE, OFFLINE, UNKNOWN
     }
@@ -120,6 +125,24 @@ public class ComputerDetails {
         }
     }
 
+    // NOTE: The host reports the address a request arrived on as its local address, so a poll over Tailscale must not replace a saved home address.
+    private boolean wouldReplaceHomeAddress(AddressTuple reported) {
+        return localAddress != null && !isTailscale(localAddress.address) && isTailscale(reported.address);
+    }
+
+    // Tailscale uses 100.64.0.0/10 and fd7a:115c:a1e0::/48
+    private static boolean isTailscale(String address) {
+        if (address.toLowerCase(Locale.ROOT).startsWith("fd7a:115c:a1e0:")) {
+            return true;
+        }
+        Matcher matcher = TAILSCALE_IPV4.matcher(address);
+        if (!matcher.matches()) {
+            return false;
+        }
+        int second = Integer.parseInt(matcher.group(1));
+        return second >= 64 && second <= 127;
+    }
+
     public void update(ComputerDetails details) {
         this.state = details.state;
         this.name = details.name;
@@ -129,7 +152,8 @@ public class ComputerDetails {
             this.activeAddress = details.activeAddress;
         }
         // We can get IPv4 loopback addresses with GS IPv6 Forwarder
-        if (details.localAddress != null && !details.localAddress.address.startsWith("127.")) {
+        if (details.localAddress != null && !details.localAddress.address.startsWith("127.")
+                && !wouldReplaceHomeAddress(details.localAddress)) {
             this.localAddress = details.localAddress;
         }
         if (details.remoteAddress != null) {

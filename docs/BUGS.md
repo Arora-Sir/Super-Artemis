@@ -785,3 +785,11 @@ The test JVM ran with Gradle's default 512 MB heap. Robolectric with this many l
 - **Workaround:** Run `DisplaySwitch.exe /internal` on the laptop, or press `Win+P` and choose PC screen only.
 - **Re-check 2026-11-20:** The Apollo log shows only client display mode requests (2560x1600 from the tablet, 1560x720 from the phone) and no topology change from the test tooling. Both monitors were active, and the panel stayed on through a 242 second tablet session at 06:29.
 - **Status:** Not reproduced since 2026-11-19. This is a host side Apollo behavior with no app change, and the cause inside Apollo's display handling is not known. Reopen it if the panel goes black again.
+
+## BUG-082: A poll over Tailscale replaced the saved home address
+
+- **Symptom:** A phone at home kept starting streams over Tailscale. On 2026-11-26 the saved record on a Galaxy S24 Ultra held the Tailscale address as both the local and the manual address.
+- **Cause:** The host reports as `LocalIP` the address a request arrived on (measured: the LAN address when asked over the LAN, the Tailscale address when asked over Tailscale). `NvHTTP` reads it as the local address and `ComputerDetails.update` saved it over the home address.
+- **Fix Applied:** `ComputerDetails.update` keeps a saved address outside the Tailscale range when the reported one is inside it (`100.64.0.0/10` or `fd7a:115c:a1e0::/48`). A reported Tailscale address is still saved when no home address is known.
+- **Verification:** `ComputerDetailsLocalAddressTest` failed before the change on the case that keeps the home address.
+- **Status:** Fixed. Verified on a Galaxy S24 Ultra on 2026-11-26: the LAN address was learned at home and was still saved after repeated polls over Tailscale with Wi-Fi off. A record that already lost its home address gets it back only when discovery or a poll over the LAN reports it.

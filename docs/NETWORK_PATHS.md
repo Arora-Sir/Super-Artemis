@@ -123,3 +123,40 @@ The S24 Ultra was on LTE with Wi-Fi off, and the PC was on home Wi-Fi. Tailscale
 - The poll chose the Tailscale address in 0.25 s. The IPv6 address kept failing after 3 s in the background and no longer held the result up.
 - The Desktop tap to the first decoded frame took about 1.5 s: resume request at +0.5 s, first video packet at +1.4 s, frame at +1.5 s.
 - This is one run. The 2026-11-21 failure was after a Wi-Fi network change and this run had none, so that case is still not reproduced.
+
+## Network switch tests on the S24 (2026-11-26, same debug build)
+
+The user switched the S24 by hand. Runs 1 and 2 were on mobile data with Wi-Fi off. Run 3 was started by a script on the phone 5 s after it joined home Wi-Fi. All three used the Tailscale address. The host reported a second active session during each run. Times exclude app startup, because the debug build starts slowly.
+
+| Step | Run 1 | Run 2 | Run 3 (just joined Wi-Fi) |
+| :--- | :--- | :--- | :--- |
+| Poll answer over Tailscale | about 0.8 s | about 0.8 s | 12.4 s |
+| Surface ready to resume answer | 0.9 s | 0.9 s | 3.2 s |
+| RTSP handshake | 1.2 s | 1.7 s | 6.9 s |
+| Resume answer to first frame | 1.6 s | 2.3 s | 7.9 s |
+| Poll start to first frame | 3.6 s | 4.3 s | 23.9 s |
+| First audio packet | logged at once | logged at once | none logged in the first 15 s |
+
+What this shows:
+
+- A slow start after a network change reproduces. Run 3 reached a picture, about 31 s after Wi-Fi joined. The 2026-11-21 failure to connect did not reproduce.
+- The time went into TCP requests over Tailscale. The host received the bitrate request 6.9 s after the display mode request, against 1.0 s and 1.3 s in runs 1 and 2, which matches the client's handshake time. This fits a Tailscale path that was still settling (H1). The path itself was not measured during the run.
+- Run 3 had video without a logged audio packet, the same symptom as the failed start of 2026-11-22. The cause is unknown.
+- The home network was reachable minutes later: the phone pinged the PC's LAN address at 12 ms average and got HTTP 200 from `/serverinfo` there. LAN reach during the first seconds after joining was not measured.
+- Local discovery ran for 12.5 s in run 3 and reported no PC. The cause is unknown.
+- `session/PathRetry` never ran, because no run failed. A fresh poll would have chosen the same address.
+
+On the 3.8 s host setup of 2026-11-22: the host finished audio setup 1.1 s after the session started and then waited 2.7 s for the client's control connection. It also logged six `Ping Timeout` lines for the same phone in the first second, probably leftover sessions. Neither is proven to be the cause.
+
+## The saved home address was overwritten
+
+The host reports as `LocalIP` the address each request arrived on. Measured on 2026-11-26: `/serverinfo` asked over the LAN returns the LAN address, and asked over Tailscale returns the Tailscale address. `NvHTTP` stores that value as the local address and `ComputerDetails.update` saved it, so one poll over Tailscale replaced the home address. The S24's record held the Tailscale address as both local and manual, which left local discovery as the only way back to the LAN.
+
+`ComputerDetails.update` now keeps a saved home address when the reported one is in the Tailscale range (`100.64.0.0/10` or `fd7a:115c:a1e0::/48`). A record that already lost its home address gets it back when discovery or a poll over the LAN reports it again. Whether the kept address makes a start right after joining Wi-Fi faster is not yet measured.
+
+Checked on the S24 on 2026-11-26 with the fixed debug build:
+
+1. At home, discovery stored the LAN address as the local address and left the Tailscale address as the manual one. Polls then picked the LAN address in about 0.2 s.
+2. With Wi-Fi off, the polls picked the Tailscale address (at least six in a row) and the saved record still held the LAN address as local.
+
+How long discovery gets matters. A start that resumes straight into the stream stops it after about 0.6 s, and a PC list visit of 1.8 s found nothing. Two further windows of 2.5 s and 1.2 s found nothing either, and a later one resolved the PC in 30 ms. Why discovery succeeds only sometimes is unknown.
