@@ -112,11 +112,11 @@ With the roles swapped (fast local, dead manual) the poll took 0.05 to 0.8 s and
 
 The first Tailscale UDP failure of 2026-11-21 is not addressed by this. It only removes the 3 s the tablet spent waiting on the stale local address at the start of that launch.
 
-## Retry change
+## Retry change, tried and removed
 
-`session/PathRetry.java` (uncommitted when this was written) relaunches once through `ShortcutTrampoline` when the control stream fails over a non-LAN address. It helps only when a better address can be found by a fresh poll, such as the LAN address after a network change at home. It is not expected to help away from home, where the same Tailscale address would be chosen again.
+An uncommitted retry (`session/PathRetry`) relaunched once through `ShortcutTrampoline` when the control stream failed over a non-LAN address. It was removed on 2026-11-27 without being committed: it never ran in any test, and a fresh poll away from home would have chosen the same Tailscale address again. Reconsider a retry only after a connect failure is reproduced and a fresh poll is shown to find a better address.
 
-## Away-from-home start on the S24 (2026-11-22 13:55, debug build with the poll and surface fixes plus the uncommitted PathRetry hook)
+## Away-from-home start on the S24 (2026-11-22 13:55, debug build with the poll and surface fixes plus the retry that was later removed)
 
 The S24 Ultra was on LTE with Wi-Fi off, and the PC was on home Wi-Fi. Tailscale reached the phone directly over IPv6 at 147 ms. A cold start of the app, a tap on the PC and a tap on the Desktop tile gave:
 
@@ -144,7 +144,7 @@ What this shows:
 - Run 3 had video without a logged audio packet, the same symptom as the failed start of 2026-11-22. The cause is unknown.
 - The home network was reachable minutes later: the phone pinged the PC's LAN address at 12 ms average and got HTTP 200 from `/serverinfo` there. LAN reach during the first seconds after joining was not measured.
 - Local discovery ran for 12.5 s in run 3 and reported no PC. The cause is unknown.
-- `session/PathRetry` never ran, because no run failed. A fresh poll would have chosen the same address.
+- The retry described above never ran, because no run failed. A fresh poll would have chosen the same address.
 
 On the 3.8 s host setup of 2026-11-22: the host finished audio setup 1.1 s after the session started and then waited 2.7 s for the client's control connection. It also logged six `Ping Timeout` lines for the same phone in the first second, probably leftover sessions. Neither is proven to be the cause.
 
